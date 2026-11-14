@@ -1,0 +1,875 @@
+/* Estilos de las pantallas de Software 2 - Aventura y Preparación Terrestre */
+
+.earth-screen {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: radial-gradient(circle at 50% 20%, #1e3654 0%, #0f1c2d 85%);
+  color: #f5f5ef;
+  font-family: 'Nunito', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.earth-screen__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.earth-screen__back-btn {
+  background: #253e5e;
+  color: #e2ecf5;
+  border: 1px solid #3c5e88;
+  border-radius: 0.8rem;
+  padding: 0.6rem 1rem;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.earth-screen__back-btn:hover {
+  background: #32537c;
+  transform: translateY(-2px);
+}
+
+.earth-screen__progress-pill {
+  background: #172a3f;
+  border: 1px solid #3d6494;
+  border-radius: 2rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #f6c15b;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.earth-card {
+  background: #182a3e;
+  border: 2px solid #2e4d73;
+  border-radius: 1.2rem;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  max-width: 54rem;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.earth-card__title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.earth-card__subtitle {
+  color: #a4c2e0;
+  margin: 0 0 1.5rem 0;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+/* Grid de ciudades */
+.city-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+  margin: 1.2rem 0;
+}
+
+.city-card {
+  background: #1f3650;
+  border: 2px solid #35567d;
+  border-radius: 1rem;
+  padding: 1.2rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.city-card:hover {
+  background: #274567;
+  border-color: #f6c15b;
+  transform: translateY(-3px);
+}
+
+.city-card--selected {
+  border-color: #f6c15b;
+  background: #254263;
+  box-shadow: 0 0 0 3px rgba(246, 193, 91, 0.4);
+}
+
+.city-card__badge {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  background: #f6c15b;
+  color: #132235;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.city-card__name {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.3rem;
+  margin: 0 0 0.3rem 0;
+  color: #ffffff;
+}
+
+.city-card__country {
+  color: #7cb5c8;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin: 0 0 0.8rem 0;
+}
+
+.city-card__context {
+  font-size: 0.85rem;
+  color: #c5d7e8;
+  line-height: 1.35;
+}
+
+/* Panel científico de ciudad */
+.city-detail-panel {
+  background: #132233;
+  border: 1px solid #355376;
+  border-radius: 0.9rem;
+  padding: 1.2rem;
+  margin-top: 1.2rem;
+}
+
+.city-detail-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #f6c15b;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.city-detail-panel__coords {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #7cb5c8;
+  margin-bottom: 0.5rem;
+}
+
+/* Grid de avatares */
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.avatar-card {
+  background: #1e334a;
+  border: 2px solid #33557a;
+  border-radius: 1rem;
+  padding: 1.2rem 1rem;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-card:hover {
+  background: #264364;
+  border-color: #f6c15b;
+  transform: translateY(-3px);
+}
+
+.avatar-card--selected {
+  border-color: #f6c15b;
+  background: #233e5c;
+  box-shadow: 0 0 0 3px rgba(246, 193, 91, 0.4);
+}
+
+.avatar-card__icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 0.8rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.avatar-card__name {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.15rem;
+  color: #ffffff;
+  margin: 0 0 0.3rem 0;
+}
+
+.avatar-card__role {
+  font-size: 0.8rem;
+  color: #7cb5c8;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.avatar-card__desc {
+  font-size: 0.8rem;
+  color: #b7cee3;
+  line-height: 1.3;
+}
+
+/* Call sign input */
+.callsign-box {
+  margin: 1.5rem 0;
+  background: #142436;
+  border: 1px solid #2e4d71;
+  border-radius: 0.9rem;
+  padding: 1.2rem;
+}
+
+.callsign-box__label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #f6c15b;
+  font-size: 0.95rem;
+}
+
+.callsign-box__input {
+  width: 100%;
+  background: #1f3752;
+  border: 2px solid #3c6594;
+  border-radius: 0.6rem;
+  padding: 0.8rem 1rem;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  box-sizing: border-box;
+}
+
+.callsign-box__input:focus {
+  outline: none;
+  border-color: #f6c15b;
+  box-shadow: 0 0 0 3px rgba(246, 193, 91, 0.3);
+}
+
+.callsign-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.callsign-chip {
+  background: #254060;
+  border: 1px solid #3c618d;
+  color: #d1e2f2;
+  border-radius: 1rem;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.callsign-chip:hover {
+  background: #31547f;
+  color: #ffffff;
+}
+
+/* Botón de acción principal */
+.earth-action-btn {
+  background: #f6c15b;
+  color: #132235;
+  border: 0;
+  border-radius: 0.8rem;
+  padding: 0.9rem 1.8rem;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(246, 193, 91, 0.4);
+}
+
+.earth-action-btn:hover:not(:disabled) {
+  background: #ffd37a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(246, 193, 91, 0.5);
+}
+
+.earth-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Mapa de preparación 2D */
+.prep-map {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.prep-map__overview {
+  background: #142539;
+  border: 1px solid #33547a;
+  border-radius: 1rem;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.prep-map__stats {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.prep-map__stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.prep-map__stat-label {
+  font-size: 0.8rem;
+  color: #8daecf;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.prep-map__stat-value {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.4rem;
+  color: #f6c15b;
+}
+
+.facility-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.2rem;
+}
+
+.facility-card {
+  background: #1c324b;
+  border: 2px solid #32557c;
+  border-radius: 1.2rem;
+  padding: 1.3rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.25s ease;
+}
+
+.facility-card:hover:not(.facility-card--locked) {
+  background: #254162;
+  border-color: #f6c15b;
+  transform: translateY(-3px);
+}
+
+.facility-card--completed {
+  border-color: #5bbd78;
+  background: #193638;
+}
+
+.facility-card--locked {
+  opacity: 0.65;
+  filter: grayscale(40%);
+}
+
+.facility-card__status-tag {
+  align-self: flex-start;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.facility-card__status-tag--completed {
+  background: #245e38;
+  color: #92e6a7;
+}
+
+.facility-card__status-tag--available {
+  background: #4a3e14;
+  color: #fed976;
+}
+
+.facility-card__status-tag--locked {
+  background: #313f4f;
+  color: #95a5b5;
+}
+
+.facility-card__icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.facility-card__title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.25rem;
+  color: #ffffff;
+  margin: 0 0 0.4rem 0;
+}
+
+.facility-card__source {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #7cb5c8;
+  margin: 0 0 0.6rem 0;
+}
+
+.facility-card__desc {
+  font-size: 0.88rem;
+  color: #c4d8ec;
+  line-height: 1.35;
+  margin-bottom: 1.2rem;
+}
+
+.facility-card__btn {
+  background: #2a486c;
+  color: #ffffff;
+  border: 1px solid #436d9f;
+  border-radius: 0.6rem;
+  padding: 0.6rem 1rem;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.facility-card__btn:hover {
+  background: #396191;
+}
+
+.facility-card__btn--gold {
+  background: #f6c15b;
+  color: #132235;
+  border: none;
+}
+
+.facility-card__btn--gold:hover {
+  background: #ffd37a;
+}
+
+/* Minijuego Detective del Sol */
+.solar-game {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.solar-day-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+}
+
+.solar-day-card {
+  background: #1e354f;
+  border: 2px solid #35587f;
+  border-radius: 1rem;
+  padding: 1.2rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.solar-day-card:hover {
+  border-color: #f6c15b;
+  background: #254263;
+}
+
+.solar-day-card--selected {
+  border-color: #f6c15b;
+  background: #27476c;
+  box-shadow: 0 0 0 3px rgba(246, 193, 91, 0.4);
+}
+
+.solar-day-card__date {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #7cb5c8;
+}
+
+.solar-day-card__season {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.15rem;
+  color: #ffffff;
+  margin: 0.3rem 0;
+}
+
+.solar-day-card__value {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.6rem;
+  color: #f6c15b;
+  margin: 0.5rem 0;
+}
+
+.solar-day-card__condition {
+  font-size: 0.85rem;
+  color: #b9cee3;
+}
+
+.solar-panel-simulator {
+  background: #142539;
+  border: 1px solid #33557d;
+  border-radius: 1.2rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.solar-angle-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.solar-angle-slider {
+  flex: 1;
+  min-width: 14rem;
+  accent-color: #f6c15b;
+}
+
+.solar-output-box {
+  background: #0d1a29;
+  border: 1px solid #2b4566;
+  border-radius: 0.8rem;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.solar-output-item {
+  text-align: center;
+}
+
+.solar-output-item__val {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.7rem;
+  color: #f6c15b;
+}
+
+.solar-output-item__lbl {
+  font-size: 0.85rem;
+  color: #8daecf;
+}
+
+/* Mochila de herramientas */
+.backpack-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.backpack-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.backpack-slot {
+  background: #142436;
+  border: 2px dashed #3c618c;
+  border-radius: 1rem;
+  padding: 1rem;
+  min-height: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.backpack-slot--filled {
+  border-style: solid;
+  border-color: #f6c15b;
+  background: #203752;
+}
+
+.backpack-slot__title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1rem;
+  color: #ffffff;
+  margin-top: 0.3rem;
+}
+
+.tool-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+}
+
+.tool-item-card {
+  background: #1c324c;
+  border: 2px solid #33557b;
+  border-radius: 1rem;
+  padding: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tool-item-card:hover {
+  background: #254264;
+  border-color: #f6c15b;
+  transform: translateY(-2px);
+}
+
+.tool-item-card--selected {
+  border-color: #f6c15b;
+  background: #223f60;
+  box-shadow: 0 0 0 3px rgba(246, 193, 91, 0.35);
+}
+
+.tool-item-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.tool-item-card__icon {
+  font-size: 2rem;
+}
+
+.tool-item-card__title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.15rem;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+}
+
+.tool-item-card__benefit {
+  font-size: 0.85rem;
+  color: #b5cde3;
+  line-height: 1.35;
+  margin-bottom: 0.8rem;
+}
+
+/* Destinos */
+.destination-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.2rem;
+  margin: 1.5rem 0;
+}
+
+.destination-card {
+  background: #1b3049;
+  border: 2px solid #32537a;
+  border-radius: 1.2rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.destination-card:hover:not(.destination-card--disabled) {
+  border-color: #f6c15b;
+  background: #233e5e;
+  transform: translateY(-3px);
+}
+
+.destination-card--selected {
+  border-color: #f6c15b;
+  box-shadow: 0 0 0 3px rgba(246, 193, 91, 0.4);
+}
+
+.destination-card--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.destination-card__tag {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #4caf50;
+  color: #ffffff;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.5rem;
+}
+
+.destination-card__tag--soon {
+  background: #e65100;
+}
+
+/* Transición animada de despegue y viaje */
+.flight-scene {
+  background: radial-gradient(circle at 50% 50%, #152438 0%, #080d15 100%);
+  border: 2px solid #2e4d73;
+  border-radius: 1.2rem;
+  min-height: 24rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+}
+
+.flight-scene__stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 160px 120px, #ffffff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.8;
+  animation: starsScroll 20s linear infinite;
+}
+
+@keyframes starsScroll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-200px); }
+}
+
+.flight-rocket {
+  font-size: 4.5rem;
+  margin-bottom: 1rem;
+  z-index: 1;
+  animation: rocketFloat 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes rocketFloat {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-12px) scale(1.04); }
+}
+
+/* Modal de modo estación */
+.station-modal-veil {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 14, 22, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.station-modal {
+  background: #172a3f;
+  border: 2px solid #395c86;
+  border-radius: 1.2rem;
+  max-width: 48rem;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+.station-modal__close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: #253e5e;
+  border: none;
+  color: #ffffff;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.station-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid #2e4d73;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+
+.station-tab-btn {
+  background: transparent;
+  color: #9ab9d8;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0.7rem 1.2rem;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.station-tab-btn--active {
+  color: #f6c15b;
+  border-bottom-color: #f6c15b;
+}
+
+@media (max-width: 600px) {
+  .earth-screen { padding: 1rem; }
+  .earth-card { padding: 1rem; }
+  .backpack-slots { grid-template-columns: 1fr; }
+  .solar-angle-controls { flex-direction: column; align-items: stretch; }
+}

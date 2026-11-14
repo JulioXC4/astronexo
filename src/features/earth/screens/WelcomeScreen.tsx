@@ -7,6 +7,8 @@ type WelcomePanel = 'STATION' | 'SOURCES' | null;
 
 interface WelcomeScreenProps {
   readonly onPlay: () => void;
+  readonly onOpenStation?: () => void;
+  readonly onOpenLearn?: () => void;
 }
 
 const sources = [
@@ -15,7 +17,7 @@ const sources = [
   { name: 'NASA ECLSS', description: 'Cómo funciona el soporte vital espacial.', url: 'https://www.nasa.gov/reference/environmental-control-and-life-support-systems-eclss/' },
 ] as const;
 
-export function WelcomeScreen({ onPlay }: WelcomeScreenProps) {
+export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScreenProps) {
   const [panel, setPanel] = useState<WelcomePanel>(null);
   const [sceneFailed, setSceneFailed] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
@@ -93,17 +95,45 @@ export function WelcomeScreen({ onPlay }: WelcomeScreenProps) {
           <p className="welcome__dialog-kicker">Próximamente</p>
           <h2 id="welcome-dialog-title">Modo Estación</h2>
           <p>Una maqueta para jugar en equipo desde la misma pantalla. Todavía no hay salas ni multijugador.</p>
-          <button className="welcome__dialog-action" type="button" onClick={onPlay}>Empezar en modo Despegue</button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '1rem' }}>
+            {onOpenStation && (
+              <button
+                className="welcome__dialog-action"
+                type="button"
+                style={{ background: '#f6c15b', color: '#132235' }}
+                onClick={() => {
+                  closePanel();
+                  onOpenStation();
+                }}
+              >
+                Explorar Maqueta Completa de Aula (E1-E5)
+              </button>
+            )}
+            <button className="welcome__dialog-action" type="button" onClick={onPlay}>Empezar en modo Despegue</button>
+          </div>
         </> : <>
           <p className="welcome__dialog-kicker">Nuestra base científica</p>
           <h2 id="welcome-dialog-title">Fuentes científicas</h2>
-          <p>Usaremos registros históricos verificables. La prueba actual aún no incluye observaciones NASA validadas.</p>
+          <p>Usaremos registros históricos verificables de la NASA para modelar la radiación y el clima espacial.</p>
           <ul className="welcome__sources">
             {sources.map((source) => <li key={source.name}>
               <a href={source.url} target="_blank" rel="noreferrer">{source.name}</a>
               <span>{source.description}</span>
             </li>)}
           </ul>
+          {onOpenLearn && (
+            <button
+              className="welcome__dialog-action"
+              type="button"
+              style={{ marginTop: '1rem', background: '#25446c', color: '#ffffff' }}
+              onClick={() => {
+                closePanel();
+                onOpenLearn();
+              }}
+            >
+              Abrir Enciclopedia Científica «Aprende»
+            </button>
+          )}
         </>}
       </section>
     </div>}
