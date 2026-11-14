@@ -1,0 +1,10 @@
+:root { font-family: system-ui, sans-serif; color: #f5f5ef; background: #132235; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button { border: 0; border-radius: 0.6rem; padding: 0.8rem 1rem; background: #f6c15b; color: #172338; font: inherit; font-weight: 700; cursor: pointer; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.panel { max-width: 42rem; margin: min(12vh, 5rem) auto; padding: 2rem; background: #213951; border-radius: 1rem; }
+.eyebrow { color: #f6c15b; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: .8rem; }
+.tool-list { display: grid; gap: .7rem; margin: 1.5rem 0; }
+.tool-list label { display: flex; gap: .6rem; align-items: center; }
+@media (max-width: 46rem) { .panel { margin: 1rem; padding: 1.3rem; } }

@@ -1,0 +1,1 @@
+export { SpaceGame } from './SpaceGame';
