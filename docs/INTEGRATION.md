@@ -1,5 +1,7 @@
 # Integración y primer corte vertical
 
+> **Actualización v3.0:** las asignaciones personales y el estado de H1 descritos más abajo quedaron desactualizados. Gaby es Software 1 (motor y experiencia espacial); Julio es Software 2 (flujo terrestre, NASA y aplicación). La interfaz pública canónica del simulador se exporta desde `src/game/index.ts`; `src/game/contracts/` es un adaptador temporal para las pantallas existentes.
+
 ## Contratos congelados para el primer PR
 
 `EarthFlow.onReady({ setup, nasaData })` entrega un `GameSetup` y un `NasaDataset` a `App`, dueño único de la fase. `App` pasa ambos a `SpaceGame`. `SpaceGame.onFinish(result)` devuelve un `MissionResult` a `App`. Los tipos y callbacks están en `src/game/contracts/`; no importar componentes de un módulo de otro módulo directamente.
@@ -10,22 +12,22 @@ El flujo actual sirve para comprobar la conexión: escoger tres herramientas →
 
 ## Orden técnico
 
-1. Julio implementa `createMission`, `generateTurnEvents`, `applyAction`, `resolveIgnoredEvents`, `advanceTurn` y `checkMissionResult` sin dependencia de React, con reglas y escalas educativas en configuración. Primer objetivo: cinco turnos lunares, dos alertas concurrentes, una acción que afecta recursos, degradación de alerta ignorada y ambos desenlaces.
-2. Julio conecta la guardia lunar a `SpaceGame` conservando `SpaceGameProps` y el retorno tipado. La consola debe mostrar energía, aire y Escudo como preparación del refugio; alimento, exposición y comunicaciones quedan secundarios.
-3. Gaby implementa adaptadores de POWER y DONKI con fecha, parámetro, valor, unidad, ID/URL y validación de datos históricos. Mantiene respaldo local solo cuando haya registros comprobados. Entrenamientos T1/T2 y mochila pasan a `EarthFlow` sin cambiar `EarthFlowProps`.
+1. Gaby mantiene `createMission`, `applyAction`, `advanceTurn` y `getMissionResult` sin dependencia de React, con reglas y escalas educativas en configuración.
+2. Gaby conecta la guardia a `SpaceGame` mediante el adaptador temporal, usando Energía, Oxígeno y Escudo como indicadores principales.
+3. Julio implementa los adaptadores POWER/DONKI, las cinco misiones terrestres, la selección de tres herramientas y el flujo global de la aplicación.
 4. Integración comprueba que una selección diferente de tres herramientas modifica opciones o resultados de la misión y que el informe cita datos realmente verificados. Marte permanece «próximamente» hasta completar y probar su campaña.
 
 ## Pruebas de módulo y punto de unión
 
-- Julio: probar las funciones puras del motor con un estado fijo para victoria, fracaso y alerta ignorada. Durante el desarrollo usar el `GameSetup` que envía el placeholder terrestre; el primer punto de unión es `SpaceGameProps`.
-- Gaby: probar normalización POWER/DONKI con muestras históricas cuya fuente se pueda comprobar y comprobar mochila de tres IDs únicos. Durante el desarrollo, el placeholder espacial permite verificar la entrega con `NasaDataset.validation`.
-- En cada PR ejecutar `pnpm typecheck` y `pnpm build`; ejecutar pruebas de módulo cuando existan. No hay suite automática aún.
+- Gaby: probar las funciones puras del motor para victoria, interrupción, reproducibilidad, costos y consecuencias.
+- Julio: probar normalización POWER/DONKI, las cinco misiones y la selección de tres herramientas distintas.
+- En cada PR ejecutar `pnpm test`, `pnpm typecheck` y `pnpm build`.
 
 ## Git
 
-El remoto estaba vacío antes del commit inicial del andamiaje. El flujo acordado usa `main` como base estable, `develop` para integración y tres ramas que parten de `develop`: `feat/core-space` (Julio), `feat/earth-nasa` (Gaby) y `feat/assets` (diseño). Cada responsable envía su PR a `develop`; los cambios integrados y verificados pasan después de `develop` a `main`. Proteger `main` y `develop` en GitHub si la configuración del repositorio lo permite. Si ya existen ramas al iniciar una tarea posterior, inspeccionarlas antes de crear otras.
+El flujo acordado usa `main` como base estable y `develop` para integración. Las ramas espaciales pertenecen a Gaby y las ramas terrestres/NASA a Julio. Cada responsable envía su PR a `develop`; los cambios integrados y verificados pasan después de `develop` a `main`.
 
-En una misma máquina, con estas ramas ya creadas, usar, por ejemplo, `git worktree add ../astronexo-julio feat/core-space` y `git worktree add ../astronexo-gaby feat/earth-nasa`. Cada persona trabaja en su ruta y evita cambios simultáneos en archivos protegidos. En conflictos, conservar el contrato vigente, adaptar el módulo propio y pedir revisión de integración antes de modificar tipos compartidos. Este documento no autoriza por sí solo nuevos commits, pushes ni merges posteriores.
+Cada persona trabaja en su rama y evita cambios simultáneos en archivos compartidos. En conflictos, conservar el contrato público de `src/game/index.ts`, adaptar los bordes legacy y coordinar antes de modificar `package.json`, configuración o contratos compartidos.
 
 ## Incertidumbres
 
@@ -38,4 +40,4 @@ En una misma máquina, con estas ramas ya creadas, usar, por ejemplo, `git workt
 - `pnpm install` obtuvo las dependencias. En este entorno, el primer intento sin acceso a red falló con `EAI_AGAIN`; un segundo intento con acceso a red descargó paquetes, y la instalación final offline terminó con código 0. `pnpm-workspace.yaml` desactiva el postinstall de `esbuild` porque el sandbox no permite ejecutar ese binario en esa etapa; Vite sí completó el build.
 - `pnpm typecheck`: código 0, sin errores de TypeScript.
 - `pnpm build`: código 0; Vite 7.3.8 transformó 38 módulos y generó `dist/index.html`, CSS y JS.
-- No hay pruebas de juego todavía: el motor y la campaña lunar siguen pendientes.
+- Esta verificación corresponde al andamiaje histórico; H0 y H1 ya fueron implementados posteriormente.

@@ -1,107 +1,110 @@
 import { describe, expect, it } from 'vitest';
-import {
-  advanceTurn,
-  applyAction,
-  createMission,
-  getMissionResult,
-} from '../../src/game';
+import { advanceTurn, applyAction, createMission, getMissionResult } from '../../src/game';
 import type { GameSetup, MissionState } from '../../src/game';
 
-const setup: GameSetup = {
+export const baseSetup: GameSetup = {
   mode: 'SOLO',
   city: 'AREQUIPA',
   destination: 'MOON',
-  selectedTools: ['FOLDING_PANELS', 'LIFE_SUPPORT', 'SHELTER_KIT'],
+  completedEarthMissions: ['M1', 'M2', 'M3'],
+  selectedTools: ['SPARE_PARTS_KIT', 'EARLY_WARNING', 'GROW_TRAY'],
   selectedModules: [],
-  scenarioId: 'H1_LUNAR_TRAINING',
+  scenarioId: 'H2_REPRODUCIBLE',
   difficulty: 'CALM',
 };
 
-function resolveForWinningPath(state: MissionState) {
-  const preferredKind = state.turn % 2 === 1 ? 'OXYGEN_LEAK' : 'PANEL_DAMAGE';
-  const alert = state.activeAlerts.find((candidate) => candidate.kind === preferredKind);
-  if (!alert) return applyAction(state, { type: 'SKIP_INTERVENTION' });
-  return applyAction(state, {
-    type: preferredKind === 'OXYGEN_LEAK' ? 'PATCH_OXYGEN_LEAK' : 'REPAIR_PANELS',
-    targetId: alert.id,
-  });
+export function resolvePriorityAlert(state: MissionState) {
+  const leak = state.activeAlerts.find((alert) => alert.kind === 'OXYGEN_LEAK');
+  if (leak) return applyAction(state, { type: 'PATCH_OXYGEN_LEAK', targetId: leak.id });
+  const panel = state.activeAlerts.find((alert) => alert.kind === 'PANEL_DAMAGE');
+  if (panel) return applyAction(state, { type: 'REPAIR_PANELS', targetId: panel.id });
+  const dust = state.activeAlerts.find((alert) =>
+    alert.kind === 'DUSTY_PANELS'
+    || alert.kind === 'MARS_DUST_STORM'
+    || alert.kind === 'ENERGY_SHORTAGE');
+  if (dust) return applyAction(state, { type: 'CLEAN_PANELS', targetId: dust.id });
+  const radiation = state.activeAlerts.find((alert) => alert.kind === 'RADIATION_RISK');
+  if (radiation) return applyAction(state, { type: 'REINFORCE_SHELTER', targetId: radiation.id });
+  return applyAction(state, { type: 'RECYCLE_OXYGEN' });
 }
 
-describe('motor H0 + H1', () => {
-  it('crea una misión lunar válida con dos alertas y sin mutar el setup', () => {
-    const state = createMission(setup);
+describe('motor H0–H2', () => {
+  it('crea una misión reproducible, inmutable y con máximo dos alertas', () => {
+    const first = createMission(baseSetup);
+    const second = createMission(baseSetup);
 
-    expect(state.turn).toBe(1);
-    expect(state.maxTurns).toBe(5);
-    expect(state.clockLabel).toBe('Día lunar 2');
-    expect(state.activeAlerts).toHaveLength(2);
-    expect(state.oxygen).toBe(78);
-    expect(state).not.toBe(setup);
-    expect(state.selectedTools).not.toBe(setup.selectedTools);
+    expect(first).toEqual(second);
+    expect(first).not.toBe(second);
+    expect(first.activeAlerts).toHaveLength(2);
+    expect(first.activeAlerts.length).toBeLessThanOrEqual(2);
+    expect(first.selectedTools).not.toBe(baseSetup.selectedTools);
   });
 
-  it('produce el mismo estado para la misma configuración', () => {
-    expect(createMission(setup)).toEqual(createMission(setup));
+  it('no avanza ni aplica consecuencias sin una decisión registrada', () => {
+    const initial = createMission(baseSetup);
+    expect(advanceTurn(initial)).toBe(initial);
+    expect(initial.completedTurns).toBe(0);
   });
 
-  it('cobra G1 una sola vez aunque se intente aplicar dos veces', () => {
-    const initial = createMission(setup);
-    const panelAlert = initial.activeAlerts.find((alert) => alert.kind === 'PANEL_DAMAGE');
-    expect(panelAlert).toBeDefined();
-
-    const once = applyAction(initial, { type: 'REPAIR_PANELS', targetId: panelAlert?.id });
-    const twice = applyAction(once, { type: 'REPAIR_PANELS', targetId: panelAlert?.id });
-
-    expect(once.energy).toBe(initial.energy - 5);
-    expect(twice.energy).toBe(once.energy);
-    expect(twice.decisions).toHaveLength(1);
-    expect(initial.energy).toBe(64);
-  });
-
-  it('mantiene y agrava una alerta ignorada al avanzar el turno', () => {
-    const initial = createMission(setup);
+  it('bloquea una segunda intervención y evita el doble cobro', () => {
+    const initial = createMission(baseSetup);
     const leak = initial.activeAlerts.find((alert) => alert.kind === 'OXYGEN_LEAK');
-    const acted = applyAction(initial, { type: 'REPAIR_PANELS' });
+    const once = applyAction(initial, { type: 'PATCH_OXYGEN_LEAK', targetId: leak?.id });
+    const twice = applyAction(once, { type: 'RUN_RESEARCH' });
+
+    expect(once.energy).toBe(initial.energy - 4);
+    expect(twice).toBe(once);
+    expect(twice.decisions).toHaveLength(1);
+  });
+
+  it('mantiene y agrava las alertas ignoradas', () => {
+    const initial = createMission(baseSetup);
+    const panel = initial.activeAlerts.find((alert) => alert.kind === 'PANEL_DAMAGE');
+    const acted = applyAction(initial, { type: 'PATCH_OXYGEN_LEAK' });
     const next = advanceTurn(acted);
-    const carriedLeak = next.activeAlerts.find((alert) => alert.id === leak?.id);
+    const carried = next.activeAlerts.find((alert) => alert.id === panel?.id);
 
-    expect(next.turn).toBe(2);
-    expect(next.oxygen).toBeLessThan(initial.oxygen);
-    expect(carriedLeak?.severity).toBe(2);
-    expect(next.unresolvedEvents.at(-1)?.sourceAlertId).toBe(leak?.id);
+    expect(next.unresolvedEvents.some((event) => event.sourceAlertId === panel?.id)).toBe(true);
+    expect(carried?.severity).toBe(2);
+    expect(carried?.age).toBe(1);
   });
 
-  it('completa de forma reproducible la guardia lunar con decisiones alternadas', () => {
-    let state = createMission(setup);
-    while (state.outcome === 'IN_PROGRESS') {
-      state = advanceTurn(resolveForWinningPath(state));
-    }
-
-    const result = getMissionResult(state);
-    expect(state.outcome).toBe('COMPLETED');
-    expect(state.turn).toBe(5);
-    expect(result?.outcome).toBe('COMPLETED');
-    expect(result?.score.total).toBeGreaterThan(0);
-    expect(result?.helpfulDecisions).toHaveLength(5);
-  });
-
-  it('interrumpe la misión y conserva puntuación parcial cuando se ignoran las alertas', () => {
-    let state = createMission(setup);
+  it('interrumpe y puntúa parcialmente cuando se ignoran todas las alertas', () => {
+    let state = createMission({ ...baseSetup, selectedTools: ['SPARE_PARTS_KIT', 'GROW_TRAY', 'CROP_KIT'] });
     while (state.outcome === 'IN_PROGRESS') {
       state = advanceTurn(applyAction(state, { type: 'SKIP_INTERVENTION' }));
     }
 
     const result = getMissionResult(state);
     expect(state.outcome).toBe('INTERRUPTED');
-    expect(result?.outcome).toBe('INTERRUPTED');
     expect(result?.score.total).toBeGreaterThan(0);
+    expect(result?.score.operationalCompletion).toBeGreaterThan(0);
     expect(result?.interruptionCause).toBeTruthy();
   });
 
-  it('inicializa Marte con el mismo motor y su reloj propio', () => {
-    const state = createMission({ ...setup, destination: 'MARS' });
-    expect(state.clockLabel).toBe('14:00 LMST');
-    expect(state.destination).toBe('MARS');
-    expect(state.activeAlerts).toHaveLength(2);
+  it('no completa el objetivo científico por sobrevivir cinco turnos', () => {
+    let state = createMission(baseSetup);
+    while (state.outcome === 'IN_PROGRESS') state = advanceTurn(resolvePriorityAlert(state));
+    const result = getMissionResult(state);
+
+    expect(result?.score.scientificObjective).toBe(0);
+    expect(result?.scientificObjectiveAchieved).toBe(false);
+  });
+
+  it('interrumpe por alimento y por exposición sin consumir Escudo automáticamente', () => {
+    const initial = createMission(baseSetup);
+    const foodCritical = advanceTurn(applyAction({ ...initial, foodSupply: 2 }, { type: 'SKIP_INTERVENTION' }));
+    const radiationCritical = advanceTurn(applyAction({
+      ...initial,
+      radiationExposure: 99,
+      shield: 0,
+      activeAlerts: [],
+    }, { type: 'SKIP_INTERVENTION' }));
+
+    expect(foodCritical.outcome).toBe('INTERRUPTED');
+    expect(foodCritical.interruptionCause).toContain('alimentarios');
+    expect(radiationCritical.outcome).toBe('INTERRUPTED');
+    expect(radiationCritical.shield).toBe(0);
+    expect(radiationCritical.interruptionCause).toContain('radiológica');
   });
 });

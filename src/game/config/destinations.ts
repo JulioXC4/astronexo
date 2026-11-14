@@ -8,10 +8,12 @@ export interface DestinationConfig {
   readonly baseFoodUse: number;
   readonly radiationPerTurn: number;
   readonly communicationDelayTurns: number;
+  readonly label: string;
 }
 
 export const DESTINATION_CONFIG: Readonly<Record<Destination, DestinationConfig>> = {
   MOON: {
+    label: 'Luna',
     clockLabels: ['Día lunar 2', 'Día lunar 6', 'Día lunar 10', 'Día lunar 14', 'Día lunar 15'],
     solarProduction: [10, 8, 6, 3, 1],
     baseEnergyUse: 8,
@@ -21,6 +23,7 @@ export const DESTINATION_CONFIG: Readonly<Record<Destination, DestinationConfig>
     communicationDelayTurns: 0,
   },
   MARS: {
+    label: 'Marte',
     clockLabels: ['14:00 LMST', '15:00 LMST', '16:00 LMST', '17:00 LMST', '18:00 LMST'],
     solarProduction: [8, 7, 6, 4, 3],
     baseEnergyUse: 8,
@@ -44,4 +47,7 @@ export const INITIAL_RESOURCES = {
   foodSupply: 72,
   radiationExposure: 0,
   scienceProgress: 0,
+  solarEfficiency: 100,
 } as const;
+
+export const SCIENCE_TARGET = 50;

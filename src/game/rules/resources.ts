@@ -13,6 +13,7 @@ export function applyResourceDelta(state: MissionState, delta: ResourceDelta): M
     foodSupply: clampResource(state.foodSupply + (delta.foodSupply ?? 0)),
     radiationExposure: clampResource(state.radiationExposure + (delta.radiationExposure ?? 0)),
     scienceProgress: clampResource(state.scienceProgress + (delta.scienceProgress ?? 0)),
+    solarEfficiency: clampResource(state.solarEfficiency + (delta.solarEfficiency ?? 0)),
   };
 }
 

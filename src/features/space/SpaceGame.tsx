@@ -21,6 +21,7 @@ function adaptSetup(setup: SpaceGameProps['setup']): MissionSetup {
     mode: 'SOLO',
     city: setup.cityId.toUpperCase() === 'TROMSO' ? 'TROMSO' : 'AREQUIPA',
     destination: setup.destination,
+    completedEarthMissions: [],
     selectedTools: [...setup.backpack],
     selectedModules: [],
     scenarioId: 'H1_LUNAR_TRAINING',

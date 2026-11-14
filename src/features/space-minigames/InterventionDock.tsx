@@ -1,48 +1,82 @@
 import { useRef, useState } from 'react';
-import { INTERVENTIONS } from '../../game';
-import type { GameAction, MissionState } from '../../game';
+import { INTERVENTIONS, getActionCost } from '../../game';
+import type {
+  ActionChoice,
+  GameAction,
+  InterventionAction,
+  MissionState,
+  ResourceDelta,
+} from '../../game';
+import { InterventionGesture } from './InterventionGesture';
 import { OxygenPatchGame } from './OxygenPatchGame';
 import { PanelRepairGame } from './PanelRepairGame';
+import { getInterventionPanelMode } from './interventionState';
 
 interface InterventionDockProps {
   readonly state: MissionState;
   readonly onAction: (action: GameAction) => void;
 }
 
-type PlayableAction = 'REPAIR_PANELS' | 'PATCH_OXYGEN_LEAK';
-
-function formatCost(energy: number | undefined, oxygen: number | undefined) {
+function formatCost(cost: ResourceDelta) {
   const parts = [];
-  if (energy) parts.push(`${Math.abs(energy)} Energía`);
-  if (oxygen) parts.push(`${Math.abs(oxygen)} Oxígeno`);
-  return parts.join(' + ') || 'Sin costo';
+  if (cost.energy) parts.push(`${Math.abs(cost.energy)} Energía`);
+  if (cost.oxygen) parts.push(`${Math.abs(cost.oxygen)} Oxígeno`);
+  if (cost.foodSupply) parts.push(`${Math.abs(cost.foodSupply)} Alimento`);
+  return parts.join(' + ') || 'Sin costo de recursos';
 }
 
 export function InterventionDock({ state, onAction }: InterventionDockProps) {
-  const [selected, setSelected] = useState<PlayableAction | null>(null);
+  const [selected, setSelected] = useState<InterventionAction | null>(null);
+  const [choiceId, setChoiceId] = useState<ActionChoice | undefined>();
   const [interactionReady, setInteractionReady] = useState(false);
   const actionLock = useRef(false);
+  const panelMode = getInterventionPanelMode(state, selected);
   const intervention = INTERVENTIONS.find((item) => item.action === selected);
   const matchingAlert = intervention
-    ? state.activeAlerts.find((alert) => alert.kind === intervention.resolves)
+    ? state.activeAlerts.find((alert) => intervention.resolves.includes(alert.kind))
     : undefined;
-  const energyCost = Math.abs(intervention?.cost.energy ?? 0);
-  const canPay = state.energy >= energyCost;
+  const pendingAction: GameAction | null = selected ? {
+    type: selected,
+    targetId: matchingAlert?.id,
+    choiceId,
+  } : null;
+  const cost = pendingAction ? getActionCost(state, pendingAction) : {};
+  const canPay = state.energy + (cost.energy ?? 0) >= 0
+    && state.oxygen + (cost.oxygen ?? 0) >= 0;
 
-  function choose(action: PlayableAction) {
+  function isAvailable(action: InterventionAction) {
+    const item = INTERVENTIONS.find((candidate) => candidate.action === action);
+    if (!item) return false;
+    if (item.requiresAlert && !state.activeAlerts.some((alert) => item.resolves.includes(alert.kind))) return false;
+    if (action === 'CONSULT_EARTH') {
+      return !state.consultationUsed
+        && state.communicationAvailable
+        && !(state.destination === 'MARS' && state.turn === state.maxTurns);
+    }
+    if (action === 'RECYCLE_OXYGEN') return state.oxygen < 100;
+    if (action === 'REINFORCE_SHELTER') return state.shield < 100;
+    if (action === 'RUN_RESEARCH') return state.scienceProgress < 100;
+    return true;
+  }
+
+  function choose(action: InterventionAction) {
     setSelected(action);
+    setChoiceId(undefined);
     setInteractionReady(false);
   }
 
   function confirm() {
-    if (!selected || !matchingAlert || !interactionReady || !canPay || actionLock.current) return;
+    if (!pendingAction || !interactionReady || !canPay || actionLock.current) return;
     actionLock.current = true;
-    onAction({ type: selected, targetId: matchingAlert.id });
+    onAction(pendingAction);
   }
 
   function skip() {
     if (actionLock.current) return;
     actionLock.current = true;
+    setSelected(null);
+    setChoiceId(undefined);
+    setInteractionReady(false);
     onAction({ type: 'SKIP_INTERVENTION' });
   }
 
@@ -50,7 +84,7 @@ export function InterventionDock({ state, onAction }: InterventionDockProps) {
     <div className="section-heading">
       <div>
         <span className="pixel-kicker">P12 · UNA ACCIÓN PRINCIPAL</span>
-        <h2 id="intervention-title">Intervenciones</h2>
+        <h2 id="intervention-title">Intervenciones G1–G8</h2>
       </div>
       <span className={state.actionTakenThisTurn ? 'status-light' : 'status-light status-light--warning'}>
         {state.actionTakenThisTurn ? 'REGISTRADA' : 'PENDIENTE'}
@@ -59,20 +93,17 @@ export function InterventionDock({ state, onAction }: InterventionDockProps) {
 
     <div className="intervention-layout">
       <div className="intervention-list">
-        {INTERVENTIONS.map((item) => {
-          const available = state.activeAlerts.some((alert) => alert.kind === item.resolves);
-          return <button
-            type="button"
-            key={item.id}
-            className={`intervention-option ${selected === item.action ? 'intervention-option--selected' : ''}`}
-            disabled={state.actionTakenThisTurn || !available}
-            onClick={() => choose(item.action)}
-          >
-            <span>{item.id}</span>
-            <strong>{item.label}</strong>
-            <small>Costo: {formatCost(item.cost.energy, item.cost.oxygen)}</small>
-          </button>;
-        })}
+        {INTERVENTIONS.map((item) => <button
+          type="button"
+          key={item.id}
+          className={`intervention-option ${selected === item.action ? 'intervention-option--selected' : ''}`}
+          disabled={state.actionTakenThisTurn || !isAvailable(item.action)}
+          onClick={() => choose(item.action)}
+        >
+          <span>{item.id}</span>
+          <strong>{item.label}</strong>
+          <small>Costo base: {formatCost(item.cost)}</small>
+        </button>)}
         <button
           type="button"
           className="intervention-option intervention-option--skip"
@@ -84,23 +115,34 @@ export function InterventionDock({ state, onAction }: InterventionDockProps) {
       </div>
 
       <div className="intervention-console">
-        {intervention ? <>
+        {panelMode === 'SKIPPED' ? <div className="console-placeholder">
+          <div aria-hidden="true">■</div>
+          <p><strong>NO INTERVENIR REGISTRADO</strong></p>
+          <p>Las alertas activas aplicarán sus consecuencias al finalizar el turno.</p>
+        </div> : intervention && selected ? <>
           <span className="pixel-kicker">{intervention.id} · VISTA PREVIA</span>
           <h3>{intervention.label}</h3>
           <p>{intervention.objective}</p>
           <p><strong>Instrucción:</strong> {intervention.instructions}</p>
           <div className="cost-preview">
-            <span>COSTO</span><strong>{formatCost(intervention.cost.energy, intervention.cost.oxygen)}</strong>
+            <span>COSTO REAL</span><strong>{formatCost(cost)}</strong>
             <span>BENEFICIO</span><strong>{intervention.benefit}</strong>
           </div>
           {selected === 'REPAIR_PANELS'
             ? <PanelRepairGame onReadyChange={setInteractionReady} />
-            : <OxygenPatchGame onReadyChange={setInteractionReady} />}
-          {!canPay && <p className="error-copy">Energía insuficiente para esta acción.</p>}
+            : selected === 'PATCH_OXYGEN_LEAK'
+              ? <OxygenPatchGame onReadyChange={setInteractionReady} />
+              : <InterventionGesture
+                  key={selected}
+                  action={selected}
+                  onReadyChange={setInteractionReady}
+                  onChoiceChange={setChoiceId}
+                />}
+          {!canPay && <p className="error-copy">Recursos insuficientes para esta acción.</p>}
           <button
             type="button"
             className="pixel-button pixel-button--confirm"
-            disabled={!interactionReady || !matchingAlert || !canPay || state.actionTakenThisTurn}
+            disabled={!interactionReady || !canPay || state.actionTakenThisTurn}
             onClick={confirm}
           >CONFIRMAR ACCIÓN</button>
         </> : <div className="console-placeholder">

@@ -11,10 +11,17 @@ interface MissionControlViewProps {
 
 export function MissionControlView({ state, onAction, onAdvance }: MissionControlViewProps) {
   const destinationLabel = state.destination === 'MOON' ? 'LUNA' : 'MARTE';
+  const communicationLabel = state.pendingCommunication
+    ? 'RESPUESTA EN TRÁNSITO'
+    : state.communicationResponse
+      ? 'RESPUESTA RECIBIDA'
+      : state.consultationUsed
+        ? 'CONSULTA USADA'
+        : 'LISTO';
   return <main className="mission-shell">
     <header className="mission-header pixel-panel">
       <div>
-        <span className="pixel-kicker">CONTROL DE MISIÓN · FIXTURE EDUCATIVO H1</span>
+        <span className="pixel-kicker">CONTROL DE MISIÓN · ESCENARIO EDUCATIVO SIMULADO H2</span>
         <h1>Guardia en {destinationLabel}</h1>
       </div>
       <div className="mission-clock" aria-label={`Turno ${state.turn} de ${state.maxTurns}`}>
@@ -51,7 +58,9 @@ export function MissionControlView({ state, onAction, onAdvance }: MissionContro
           <div><dt>Exposición</dt><dd>{state.radiationExposure}/100</dd></div>
           <div><dt>Ciencia</dt><dd>{state.scienceProgress}/100</dd></div>
           <div><dt>Alimentos</dt><dd>{state.foodSupply}/100</dd></div>
-          <div><dt>Enlace Tierra</dt><dd>{state.communicationAvailable ? 'LISTO' : 'EN ESPERA'}</dd></div>
+          <div><dt>Solar</dt><dd>{state.solarEfficiency}/100</dd></div>
+          <div><dt>Invernadero</dt><dd>{state.greenhouseActive ? 'ACTIVO' : 'SUSPENDIDO'}</dd></div>
+          <div><dt>Enlace Tierra</dt><dd>{communicationLabel}</dd></div>
         </dl>
       </section>
 

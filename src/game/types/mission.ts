@@ -3,7 +3,46 @@ export type Destination = 'MOON' | 'MARS';
 export type GameMode = 'SOLO' | 'LOCAL_COOP';
 export type Difficulty = 'CALM' | 'ACTIVE' | 'STORMY';
 export type MissionOutcome = 'IN_PROGRESS' | 'COMPLETED' | 'INTERRUPTED';
-export type AlertKind = 'PANEL_DAMAGE' | 'OXYGEN_LEAK';
+export type AlertKind =
+  | 'PANEL_DAMAGE'
+  | 'DUSTY_PANELS'
+  | 'OXYGEN_LEAK'
+  | 'ENERGY_SHORTAGE'
+  | 'RADIATION_RISK'
+  | 'GREENHOUSE_STRAIN'
+  | 'SCIENCE_OPPORTUNITY'
+  | 'MARS_DUST_STORM'
+  | 'COMMUNICATION_WINDOW';
+export type EarthMissionId = 'M1' | 'M2' | 'M3' | 'M4' | 'M5';
+export type ToolId =
+  | 'SPARE_PARTS_KIT'
+  | 'EARLY_WARNING'
+  | 'GROW_TRAY'
+  | 'EXTRA_BATTERY'
+  | 'WATER_RECYCLER'
+  | 'THERMAL_INSULATION'
+  | 'FOLDING_PANELS'
+  | 'LIFE_SUPPORT'
+  | 'SHELTER_KIT'
+  | 'CROP_KIT';
+export type SelectedTools = readonly [ToolId, ToolId, ToolId];
+export type InterventionId = 'G1' | 'G2' | 'G3' | 'G4' | 'G5' | 'G6' | 'G7' | 'G8';
+export type InterventionAction =
+  | 'REPAIR_PANELS'
+  | 'CLEAN_PANELS'
+  | 'PATCH_OXYGEN_LEAK'
+  | 'RECYCLE_OXYGEN'
+  | 'REINFORCE_SHELTER'
+  | 'RUN_RESEARCH'
+  | 'MANAGE_GREENHOUSE'
+  | 'CONSULT_EARTH';
+export type ActionType = InterventionAction | 'SKIP_INTERVENTION';
+export type ActionChoice =
+  | 'MAINTAIN_CROPS'
+  | 'SUSPEND_CROPS'
+  | 'ENERGY_GUIDANCE'
+  | 'RADIATION_GUIDANCE'
+  | 'LIFE_SUPPORT_GUIDANCE';
 export type ModuleId =
   | 'SOLAR_STORAGE'
   | 'REINFORCED_LIFE_SUPPORT'
@@ -15,16 +54,18 @@ export interface GameSetup {
   readonly mode: GameMode;
   readonly city: City;
   readonly destination: Destination;
-  readonly selectedTools: readonly string[];
+  readonly completedEarthMissions: readonly EarthMissionId[];
+  readonly selectedTools: SelectedTools;
   readonly selectedModules: readonly ModuleId[];
   readonly scenarioId: string;
   readonly difficulty: Difficulty;
 }
 
-export type GameAction =
-  | { readonly type: 'REPAIR_PANELS'; readonly targetId?: string }
-  | { readonly type: 'PATCH_OXYGEN_LEAK'; readonly targetId?: string }
-  | { readonly type: 'SKIP_INTERVENTION' };
+export interface GameAction {
+  readonly type: ActionType;
+  readonly targetId?: string;
+  readonly choiceId?: ActionChoice;
+}
 
 export interface ResourceDelta {
   readonly energy?: number;
@@ -33,6 +74,7 @@ export interface ResourceDelta {
   readonly foodSupply?: number;
   readonly radiationExposure?: number;
   readonly scienceProgress?: number;
+  readonly solarEfficiency?: number;
 }
 
 export interface MissionAlert {
@@ -55,10 +97,16 @@ export interface UnresolvedEvent {
 
 export interface DecisionRecord {
   readonly turn: number;
-  readonly action: GameAction['type'];
+  readonly action: ActionType;
   readonly alertId?: string;
   readonly summary: string;
   readonly resourceDelta: ResourceDelta;
+}
+
+export interface PendingCommunication {
+  readonly request: Extract<ActionChoice, `${string}_GUIDANCE`>;
+  readonly requestedTurn: number;
+  readonly dueTurn: number;
 }
 
 export interface ActionFeedback {
@@ -79,10 +127,18 @@ export interface MissionState {
   readonly foodSupply: number;
   readonly radiationExposure: number;
   readonly scienceProgress: number;
+  readonly solarEfficiency: number;
+  readonly greenhouseActive: boolean;
   readonly communicationAvailable: boolean;
+  readonly consultationUsed: boolean;
+  readonly pendingCommunication: PendingCommunication | null;
+  readonly communicationResponse?: string;
+  readonly earlyWarningCharges: number;
+  readonly scenarioSeed: number;
+  readonly completedTurns: number;
   readonly activeAlerts: readonly MissionAlert[];
   readonly unresolvedEvents: readonly UnresolvedEvent[];
-  readonly selectedTools: readonly string[];
+  readonly selectedTools: SelectedTools;
   readonly selectedModules: readonly ModuleId[];
   readonly actionTakenThisTurn: boolean;
   readonly decisions: readonly DecisionRecord[];
@@ -97,7 +153,8 @@ export interface ScoreBreakdown {
   readonly crewSafety: number;
   readonly finalResources: number;
   readonly alertPrioritization: number;
-  readonly objectiveCompletion: number;
+  readonly operationalCompletion: number;
+  readonly scientificObjective: number;
   readonly difficultyFactor: number;
   readonly total: number;
 }
@@ -110,6 +167,8 @@ export interface MissionResult {
   readonly interruptionCause?: string;
   readonly helpfulDecisions: readonly string[];
   readonly harmfulDecisions: readonly string[];
-  readonly relevantTools: readonly string[];
+  readonly causeAndEffect: readonly string[];
+  readonly scientificObjectiveAchieved: boolean;
+  readonly relevantTools: SelectedTools;
   readonly relevantModules: readonly ModuleId[];
 }

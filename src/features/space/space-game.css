@@ -164,6 +164,18 @@
 .cost-preview { display: grid; grid-template-columns: auto 1fr; gap: 0.35rem 0.75rem; padding: 0.65rem; border-left: 6px solid var(--space-orange); background: #172b3f; }
 .cost-preview span { color: var(--space-orange); font-size: 0.72rem; font-weight: 900; }
 .mini-game { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0.75rem; margin: 0.8rem 0; padding: 0.8rem; border: 3px dashed #315b73; }
+.mini-game--stacked { grid-template-columns: 1fr; }
+.swipe-control { width: 100%; accent-color: var(--space-yellow); }
+.hold-control { min-height: 3.4rem; border: 3px solid var(--space-line); border-radius: 0; color: var(--space-paper); background: #173e5c; font: 900 0.8rem "Courier New", monospace; touch-action: none; }
+.hold-control--ready { color: #071426; border-color: #c4ffc5; background: var(--space-green); }
+.regolith-block { padding: 0.7rem; color: #1f1209; border: 3px solid #e4a56c; background: #a85d34; font-weight: 900; cursor: grab; }
+.regolith-block--placed { opacity: 0.35; }
+.shelter-slot { display: grid; min-height: 3.4rem; place-items: center; border: 3px dashed #a9b9c4; color: #a9b9c4; font-weight: 900; }
+.shelter-slot--ready { color: #071426; border-style: solid; background: var(--space-green); }
+.choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
+.choice-control { min-height: 3rem; padding: 0.55rem; border: 3px solid var(--space-line); border-radius: 0; color: var(--space-paper); background: #173e5c; font: 800 0.75rem "Courier New", monospace; }
+.choice-control:focus-visible,
+.hold-control:focus-visible { outline: 4px solid white; outline-offset: 3px; }
 .panel-cell { padding: 0.7rem; color: #071426; background: var(--space-yellow); border: 3px solid #fff1a6; font-weight: 900; cursor: grab; }
 .panel-cell--placed { opacity: 0.3; }
 .panel-slot { display: grid; min-height: 3.4rem; place-items: center; border: 3px dashed #69b4d0; color: #69b4d0; font-weight: 900; }
@@ -225,6 +237,7 @@
   .turn-controls,
   .results-actions { align-items: stretch; flex-direction: column; }
   .report-stats { grid-template-columns: repeat(2, 1fr); }
+  .choice-grid { grid-template-columns: 1fr; }
   .pixel-base { transform: scale(0.72); }
 }
 
