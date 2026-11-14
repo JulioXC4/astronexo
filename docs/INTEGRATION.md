@@ -6,7 +6,7 @@
 
 La mochila es una tupla de tres IDs distintos del catálogo de cuatro. `isValidBackpack` hace la comprobación en ejecución. `Destination` admite `MOON | MARS`; `AVAILABLE_MISSIONS` expone solo `MOON`. `NasaDataset.validation` distingue registros verificados de datos pendientes. El dataset inicial tiene cero observaciones y nunca se presenta como dato NASA real. `MissionResult.outcome = NOT_PLAYED` identifica exclusivamente la prueba temporal, no una victoria ni un fracaso.
 
-El flujo actual sirve para comprobar la conexión: escoger tres herramientas → enviar a Espacio → ver los datos recibidos → devolver `NOT_PLAYED` → volver a Tierra. No es una misión jugable.
+El flujo actual sirve para comprobar la conexión: bienvenida → «Jugar ahora» → escoger tres herramientas → enviar a Espacio → ver los datos recibidos → devolver `NOT_PLAYED` → volver a la bienvenida. «Modo Estación» muestra una maqueta informativa; «Fuentes científicas» enlaza fuentes reales, sin afirmar que ya existan observaciones normalizadas. No es una misión jugable.
 
 ## Orden técnico
 

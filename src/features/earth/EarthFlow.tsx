@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { pendingNasaDataset } from '../../data/nasa';
 import { isValidBackpack, TOOL_CATALOG } from '../../game/contracts';
 import type { EarthFlowProps, ToolId } from '../../game/contracts';
+import { WelcomeScreen } from './screens/WelcomeScreen';
 
 export function EarthFlow({ onReady }: EarthFlowProps) {
+  const [screen, setScreen] = useState<'WELCOME' | 'SETUP'>('WELCOME');
   const [selected, setSelected] = useState<ToolId[]>([
     'FOLDING_PANELS', 'LIFE_SUPPORT', 'SHELTER_KIT',
   ]);
@@ -29,6 +31,8 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
     });
   }
 
+  if (screen === 'WELCOME') return <WelcomeScreen onPlay={() => setScreen('SETUP')} />;
+
   return <main className="panel">
     <p className="eyebrow">Prueba de integración · Tierra</p>
     <h1>Astronauta Junior</h1>
@@ -41,5 +45,6 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
       </label>)}
     </div>
     <button disabled={!isValidBackpack(selected)} onClick={beginIntegrationCheck}>Enviar configuración a Espacio</button>
+    <button type="button" onClick={() => setScreen('WELCOME')} style={{ marginLeft: '.6rem', background: '#e8e8e2' }}>Volver al inicio</button>
   </main>;
 }

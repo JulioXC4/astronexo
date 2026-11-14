@@ -1,0 +1,137 @@
+@import '@fontsource/fredoka/latin-600.css';
+@import '@fontsource/nunito/latin-500.css';
+@import '@fontsource/nunito/latin-700.css';
+@import '@fontsource/nunito/latin-800.css';
+
+.welcome {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  font-family: 'Nunito', system-ui, sans-serif;
+}
+
+.welcome__scene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.welcome__content {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: clamp(1rem, 2.4vh, 1.7rem);
+  padding: clamp(1.2rem, 2.2vw, 2.2rem);
+  padding-bottom: clamp(3.8rem, 6.5vh, 4.5rem);
+}
+
+.welcome__identity { width: min(43vw, 39rem); min-width: 19rem; margin-left: -2rem; }
+.welcome__sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.welcome__wordmark { display: block; width: 100%; height: auto; object-fit: contain; }
+.welcome__identity h1 {
+  margin: 0;
+  color: #fff1c9;
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-size: clamp(3.5rem, 5.7vw, 6rem);
+  line-height: .84;
+  text-shadow: 0 4px 0 #17283e;
+}
+.welcome__identity p { margin: .5rem 0 0; color: #fff1c9; font-size: 1.4rem; font-weight: 800; }
+
+.welcome__actions { display: flex; align-items: end; justify-content: space-between; gap: 1.4rem; }
+.welcome__play, .welcome__secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .8rem;
+  min-height: 5.5rem;
+  border-radius: 1.3rem;
+  font-family: 'Fredoka', system-ui, sans-serif;
+  line-height: 1;
+  white-space: nowrap;
+  transition: transform 150ms ease, filter 150ms ease, box-shadow 150ms ease;
+}
+.welcome__play:hover, .welcome__secondary-button:hover { transform: translateY(-3px); filter: brightness(1.07); }
+.welcome__play:active, .welcome__secondary-button:active { transform: translateY(1px); }
+.welcome button:focus-visible, .welcome a:focus-visible { outline: 4px solid #fff9dc; outline-offset: 4px; }
+
+.welcome__play {
+  width: min(42vw, 36rem);
+  min-height: clamp(6.4rem, 14vh, 9rem);
+  flex: 0 0 auto;
+  border: 5px solid #ffe18c;
+  border-radius: 1.9rem;
+  background: #ffc04f;
+  color: #10233d;
+  box-shadow: 0 .65rem 0 #a65e21, 0 1rem 1.8rem #10233d9c;
+  font-size: clamp(2.3rem, 4.2vw, 4rem);
+  padding: 1rem 1.3rem;
+}
+.welcome__play-icon { display: grid; place-items: center; width: 3.7rem; height: 3.7rem; border-radius: 50%; background: #10233d; color: #ffc04f; flex: 0 0 auto; }
+.welcome__play-icon svg { width: 1.8rem; height: 1.8rem; margin-left: .2rem; }
+.welcome__secondary { display: flex; gap: 1.1rem; }
+.welcome__secondary-button {
+  min-width: 22rem;
+  min-height: 5.4rem;
+  padding: .9rem 1.4rem;
+  border: 3px solid #62c1cc;
+  background: #0b304b;
+  color: #fff2d3;
+  box-shadow: 0 .5rem 0 #071d35, 0 .7rem 1rem #061a30aa;
+  font-size: clamp(1.2rem, 1.95vw, 1.85rem);
+}
+.welcome__secondary-button:last-child { min-width: 24rem; }
+.welcome__secondary-button svg { width: 2.35rem; height: 2.35rem; flex: 0 0 auto; }
+
+.welcome__veil { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; background: #071c2bd9; padding: 1.2rem; }
+.welcome__dialog { position: relative; width: min(100%, 33rem); max-height: min(90dvh, 50rem); overflow: auto; padding: 2rem; border: 3px solid #70cad2; border-radius: 1.5rem; background: #173b55; color: #f6f1db; box-shadow: 0 1rem 3rem #061724; }
+.welcome__dialog-kicker { margin: 0 0 .3rem; color: #f7c55c; text-transform: uppercase; font-size: .85rem; letter-spacing: .06em; font-weight: 800; }
+.welcome__dialog h2 { margin: 0 2rem .8rem 0; font-family: 'Fredoka', sans-serif; font-size: 2.4rem; }
+.welcome__dialog p { line-height: 1.5; }
+.welcome__close { position: absolute; top: .9rem; right: .9rem; display: grid; place-items: center; width: 2.7rem; height: 2.7rem; padding: .5rem; background: #285674; color: white; }
+.welcome__close svg { width: 1.4rem; height: 1.4rem; }
+.welcome__dialog-action { margin-top: .7rem; background: #ffc04f; }
+.welcome__sources { list-style: none; padding: 0; margin: 1.3rem 0 0; display: grid; gap: .8rem; }
+.welcome__sources li { display: grid; gap: .1rem; border-top: 1px solid #6d98a4; padding-top: .7rem; }
+.welcome__sources a { color: #ffe08b; font-weight: 800; }
+.welcome__sources span { font-size: .93rem; }
+
+@media (min-width: 1001px) and (max-width: 1399px) {
+  .welcome__secondary { flex: 1; min-width: 0; }
+  .welcome__secondary-button, .welcome__secondary-button:last-child { min-width: 0; flex: 1; font-size: clamp(1.15rem, 1.7vw, 1.5rem); }
+}
+
+@media (max-width: 1000px) {
+  .welcome__content { gap: 1rem; padding-bottom: 1.5rem; }
+  .welcome__actions { align-items: stretch; flex-direction: column; }
+  .welcome__identity { width: min(75vw, 35rem); margin-left: 0; }
+  .welcome__play { width: min(100%, 36rem); }
+  .welcome__secondary { width: 100%; }
+  .welcome__secondary-button, .welcome__secondary-button:last-child { flex: 1; min-width: 0; }
+}
+
+@media (max-width: 600px) {
+  .welcome__scene { object-position: 32% center; }
+  .welcome__content { justify-content: flex-end; padding: 1.1rem; gap: 1rem; }
+  .welcome__identity { width: min(100%, 28rem); min-width: 0; }
+  .welcome__play { width: 100%; min-height: 5.8rem; border-width: 3px; font-size: clamp(2rem, 8vw, 3rem); border-radius: 1.3rem; }
+  .welcome__play-icon { width: 2.9rem; height: 2.9rem; }
+  .welcome__play-icon svg { width: 1.4rem; height: 1.4rem; }
+  .welcome__secondary { gap: .55rem; }
+  .welcome__secondary-button { min-height: 4.5rem; padding: .55rem; border-width: 2px; border-radius: .9rem; font-size: clamp(.9rem, 3.2vw, 1.15rem); white-space: normal; }
+  .welcome__secondary-button svg { width: 1.6rem; height: 1.6rem; }
+  .welcome__dialog { padding: 1.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome__play, .welcome__secondary-button { transition: none; }
+}
