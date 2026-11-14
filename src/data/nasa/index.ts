@@ -11,4 +11,4 @@ export const pendingNasaDataset: NasaDataset = {
   note: 'No hay registros NASA validados en este dataset.',
 };
 
-export const verifiedNasaDataset: NasaDataset = buildVerifiedNasaDataset();
+export const verifiedNasaDataset: NasaDataset = buildVerifiedNasaDataset('AREQUIPA');

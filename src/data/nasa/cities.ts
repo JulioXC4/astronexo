@@ -1,50 +1,43 @@
 export interface CityData {
-  readonly id: string;
+  readonly id: 'AREQUIPA' | 'TROMSO';
   readonly name: string;
   readonly country: string;
   readonly latitude: number;
   readonly longitude: number;
+  readonly altitudeMeters: number;
+  readonly climateType: string;
   readonly description: string;
   readonly solarContext: string;
 }
 
+/**
+ * Ciudades oficiales según Requisitos V3.0 (Fuente de Verdad):
+ * - Arequipa, Perú (AREQUIPA): gran altitud, alta radiación solar constante, menor presión atmosférica.
+ * - Tromsø, Noruega (TROMSO): círculo polar ártico, noche polar extrema, sol de medianoche en verano.
+ */
 export const SUPPORTED_CITIES: readonly CityData[] = [
-  {
-    id: 'LIMA',
-    name: 'Lima',
-    country: 'Perú',
-    latitude: -12.0464,
-    longitude: -77.0428,
-    description: 'Capital costera del Pacífico, con verano soleado e invierno nublado caracterizado por niebla costera.',
-    solarContext: 'Gran variación estacional: desde más de 6 kWh/m²/día en verano hasta 2.5 kWh/m²/día en invierno debido a la cobertura nubosa baja.',
-  },
   {
     id: 'AREQUIPA',
     name: 'Arequipa',
     country: 'Perú',
     latitude: -16.4090,
     longitude: -71.5375,
-    description: 'La Ciudad Blanca, ubicada a 2,325 m sobre el nivel del mar, con más de 300 días de sol al año.',
-    solarContext: 'Radiación solar muy alta y constante (>6.5 kWh/m²/día) debido a su gran altitud y cielos despejados.',
+    altitudeMeters: 2325,
+    climateType: 'Montaña andina desértica',
+    description: 'La Ciudad Blanca a 2,325 m de altitud. Cielos despejados más de 300 días al año y menor densidad atmosférica.',
+    solarContext: 'Radiación solar muy alta y constante (>6.5 kWh/m²/día) debido a su altitud y baja columna de aire. Ángulo óptimo hacia el norte: ~16°.',
   },
   {
-    id: 'BOGOTA',
-    name: 'Bogotá',
-    country: 'Colombia',
-    latitude: 4.7110,
-    longitude: -74.0721,
-    description: 'Metrópoli andina a 2,640 m de altitud con clima de montaña tropical y nubosidad variable.',
-    solarContext: 'Radiación moderada y variable (4.0 a 4.8 kWh/m²/día) afectada por el régimen de lluvias andino.',
-  },
-  {
-    id: 'HOUSTON',
-    name: 'Houston',
-    country: 'EE. UU.',
-    latitude: 29.7604,
-    longitude: -95.3698,
-    description: 'Sede del Centro Espacial Johnson de la NASA y del Control de Misión de vuelos tripulados.',
-    solarContext: 'Radiación estacional marcada en el hemisferio norte: alta en verano (>6.0 kWh/m²/día) y moderada en invierno.',
+    id: 'TROMSO',
+    name: 'Tromsø',
+    country: 'Noruega',
+    latitude: 69.6492,
+    longitude: 18.9553,
+    altitudeMeters: 20,
+    climateType: 'Subártico marítimo',
+    description: 'La puerta al Ártico sobre el paralelo 69° N. Hogar de la noche polar en invierno y del sol de medianoche en verano.',
+    solarContext: 'Variación solar extrema: desde 0.08 kWh/m²/día en la noche polar de diciembre hasta 5.18 kWh/m²/día en el solsticio de junio.',
   },
 ] as const;
 
-export const DEFAULT_CITY = SUPPORTED_CITIES[0]; // Lima
+export const DEFAULT_CITY: CityData = SUPPORTED_CITIES[0]; // Arequipa

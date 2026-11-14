@@ -26,8 +26,12 @@ export interface DonkiEventRecord {
 }
 
 /**
- * Registros históricos verificables de NASA DONKI (Space Weather Database of Notifications, Knowledge, Information).
- * Incluye la tormenta solar extrema de mayo de 2024 y la gran llamarada X del ciclo solar 25.
+ * Registros históricos verificados de NASA DONKI (Space Weather Database).
+ * - CME: Eyección de masa coronal (nubes de plasma magnetizado que viajan en 1-3 días).
+ * - FLR: Llamarada solar (fotones X/UV que llegan a la velocidad de la luz en 8 minutos).
+ * - GST: Tormenta geomagnética en la magnetosfera terrestre.
+ * - SEP: Eventos de partículas energéticas solares.
+ * Los indicadores de protección se expresan en niveles educativos de alerta simulada.
  */
 export const DONKI_HISTORICAL_EVENTS: readonly DonkiEventRecord[] = [
   {
@@ -35,30 +39,30 @@ export const DONKI_HISTORICAL_EVENTS: readonly DonkiEventRecord[] = [
     eventType: 'CME',
     typeLabel: 'Eyección de Masa Coronal (CME) y Tormenta G5',
     observedAt: '2024-05-10T06:54:00Z',
-    summary: 'La mayor tormenta geomagnética en 21 años (clase extrema G5), originada por el complejo de manchas solares NOAA AR 3664.',
-    scientificDetail: 'Nube masiva de plasma solar y campo magnético lanzada a más de 1200 km/s hacia el espacio interplanetario. En la Luna, sin atmósfera, la radiación ionizante impacta directamente en la superficie.',
+    summary: 'La mayor eyección coronal del ciclo solar 25 (región NOAA AR 3664) con velocidad superior a 1200 km/s.',
+    scientificDetail: 'Nube masiva de plasma solar y campo magnético. En cuerpos sin atmósfera ni magnetosfera global (como la Luna o durante el tránsito interplanetario), el flujo de partículas energéticas requiere refugio blindado de polietileno/agua.',
     sourceUrl: 'https://kauai.ccmc.gsfc.nasa.gov/DONKI/view/CME/27043/1',
     recommendedAction: {
       id: 'SHELTER_SHIELD',
-      label: 'Orientar blindaje del refugio y asegurar instrumental',
-      description: 'Activar protocolo de confinamiento en el módulo blindado y orientar paneles en modo de supervivencia.',
+      label: 'Activar protocolo de refugio y blindaje hermético',
+      description: 'Trasladar tripulación al búnker interior y orientar escudos de protección.',
       outcomeType: 'CORRECT',
-      explanation: '¡Protocolo excelente! Los astronautas se mantienen protegidos tras los escudos de polietileno/agua y la telemetría continúa funcionando.',
+      explanation: '¡Protocolo excelente! La tripulación se resguarda tras las capas de polietileno y agua, y la electrónica sensible se mantiene en modo seguro.',
     },
     alternativeActions: [
       {
         id: 'MAX_POWER',
         label: 'Acelerar recarga de baterías al máximo nivel',
-        description: 'Forzar captación de energía sin proteger la electrónica sensible.',
+        description: 'Mantener paneles expuestos sin aislar la electrónica.',
         outcomeType: 'RISKY',
-        explanation: '¡Riesgo de sobrecarga! La corriente inducida por las partículas puede quemar reguladores de carga no aislados.',
+        explanation: '¡Riesgo de sobretensión! Las partículas inducen corrientes en circuitos no blindados.',
       },
       {
         id: 'TOTAL_SHUTDOWN',
         label: 'Apagar toda la base y cortar el soporte vital',
-        description: 'Desconectar absolutamente todos los sistemas para evitar cualquier interferencia.',
+        description: 'Desconectar absolutamente todos los sistemas.',
         outcomeType: 'INEFFECTIVE',
-        explanation: 'Reacción desmedida: cortar el soporte vital innecesariamente pone en riesgo el aire y la temperatura de la tripulación.',
+        explanation: 'Corte innecesario: apagar el soporte vital interrumpe el reciclaje de oxígeno y la calefacción.',
       },
     ],
     observation: {
@@ -66,7 +70,7 @@ export const DONKI_HISTORICAL_EVENTS: readonly DonkiEventRecord[] = [
       recordId: '2024-05-10T06:54:00-CME-001',
       observedAt: '2024-05-10T06:54:00Z',
       parameter: 'Coronal Mass Ejection (CME) - NOAA AR 3664',
-      value: 'Speed > 1200 km/s · Geomagnetic Storm G5',
+      value: 'Velocidad > 1200 km/s · Asociada a Tormenta Geomagnética G5',
       unit: 'km/s',
       sourceUrl: 'https://kauai.ccmc.gsfc.nasa.gov/DONKI/view/CME/27043/1',
     },
@@ -76,23 +80,23 @@ export const DONKI_HISTORICAL_EVENTS: readonly DonkiEventRecord[] = [
     eventType: 'FLR',
     typeLabel: 'Llamarada Solar Clase X6.3',
     observedAt: '2024-02-22T22:08:00Z',
-    summary: 'La llamarada solar más potente del ciclo solar 25 hasta esa fecha, detectada por los satélites SDO y GOES.',
-    scientificDetail: 'Emisión súbita de rayos X y radiación ultravioleta extrema que viaja a la velocidad de la luz, alcanzando la órbita lunar en solo 8 minutos.',
+    summary: 'La llamarada solar más potente de la primera mitad del ciclo solar 25, detectada por SDO y GOES.',
+    scientificDetail: 'Emisión repentina de radiación electromagnética (rayos X y UV extremos) que viaja a la velocidad de la luz y alcanza la órbita lunar en solo 8 minutos.',
     sourceUrl: 'https://kauai.ccmc.gsfc.nasa.gov/DONKI/view/FLR/26780/1',
     recommendedAction: {
       id: 'RADIO_COMM_ALERT',
-      label: 'Activar protocolo de comunicaciones seguras y filtro UV',
-      description: 'Suspender transmisiones no críticas y proteger antenas de radio de alta frecuencia.',
+      label: 'Activar filtro de radiofrecuencia y suspender paseos exteriores',
+      description: 'Proteger antenas de comunicaciones y mantener a los astronautas en cabina.',
       outcomeType: 'CORRECT',
-      explanation: '¡Gran decisión! Evitaste el apagón de comunicaciones por interferencia electromagnética durante el pulso inicial.',
+      explanation: '¡Gran decisión! Evitaste el apagón de telemetría y la exposición directa a rayos X en el exterior.',
     },
     alternativeActions: [
       {
         id: 'IGNORE_WARNING',
         label: 'Ignorar aviso porque el cielo lunar se ve oscuro',
-        description: 'Continuar trabajos exteriores sin tomar medidas.',
+        description: 'Continuar tareas exteriores sin protección.',
         outcomeType: 'RISKY',
-        explanation: 'Peligro: la radiación X no se ve con los ojos humanos, pero eleva bruscamente la dosis absorbida en el exterior.',
+        explanation: 'Peligro: la radiación X no es visible al ojo humano pero penetra trajes espaciales ligeros.',
       },
     ],
     observation: {

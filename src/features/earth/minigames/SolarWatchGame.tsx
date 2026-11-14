@@ -221,16 +221,16 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
             </g>
 
             {/* ============================================================== */}
-            {/* SENSORES DE RADIACIÓN: EXTERIOR VS INTERIOR                    */}
+            {/* SENSORES DE RADIACIÓN: EXTERIOR VS INTERIOR (SIMULACIÓN EDUCATIVA) */}
             {/* ============================================================== */}
             {/* Sensor exterior */}
             <g transform="translate(180, 110)">
               <rect x="-65" y="-35" width="130" height="70" rx="8" fill="#1b2a3d" stroke="#f6c15b" strokeWidth="2" />
               <text x="0" y="-15" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#9bc0e4">
-                SENSOR EXTERIOR
+                FLUJO EXTERIOR (SIMULADO)
               </text>
-              <text x="0" y="15" textAnchor="middle" fontSize="18" fontWeight="bold" fill={isStormImpacted ? "#ff5252" : "#69f0ae"}>
-                {isStormImpacted ? "EXTREMO (G5)" : "0.12 mSv/h"}
+              <text x="0" y="15" textAnchor="middle" fontSize="15" fontWeight="bold" fill={isStormImpacted ? "#ff5252" : "#69f0ae"}>
+                {isStormImpacted ? "ALERTA CME CRÍTICA" : "NIVEL BASE SEGURO"}
               </text>
             </g>
 
@@ -238,10 +238,10 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
             <g transform="translate(180, 350)">
               <rect x="-65" y="-35" width="130" height="70" rx="8" fill="#1b2a3d" stroke="#69f0ae" strokeWidth="2" />
               <text x="0" y="-15" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#9bc0e4">
-                DOSIS EN REFUGIO
+                PROTECCIÓN EN BÚNKER
               </text>
-              <text x="0" y="15" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#69f0ae">
-                {isHatchSealed ? "0.02 mSv/h (SEGURO)" : (isStormImpacted ? "RIESGO ALTO" : "0.05 mSv/h")}
+              <text x="0" y="15" textAnchor="middle" fontSize="15" fontWeight="bold" fill="#69f0ae">
+                {isHatchSealed ? "100% BLINDADO" : (isStormImpacted ? "VULNERABLE (ABIERTO)" : "SISTEMA LISTO")}
               </text>
             </g>
 

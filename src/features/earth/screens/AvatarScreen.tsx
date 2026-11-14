@@ -4,13 +4,15 @@ import { AVATAR_OPTIONS, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../..
 import './earth.css';
 
 interface AvatarScreenProps {
+  readonly cityName: string;
+  readonly destination: string;
   readonly initialAvatarId: string;
   readonly initialFictionalName: string;
   readonly onConfirmProfile: (avatar: AvatarOption, fictionalName: string) => void;
   readonly onBack: () => void;
 }
 
-export function AvatarScreen({ initialAvatarId, initialFictionalName, onConfirmProfile, onBack }: AvatarScreenProps) {
+export function AvatarScreen({ cityName, destination, initialAvatarId, initialFictionalName, onConfirmProfile, onBack }: AvatarScreenProps) {
   const [selectedAvatarId, setSelectedAvatarId] = useState(initialAvatarId || AVATAR_OPTIONS[0].id);
   const [callsign, setCallsign] = useState(initialFictionalName || SUGGESTED_CALLSIGNS[0]);
 
@@ -23,24 +25,24 @@ export function AvatarScreen({ initialAvatarId, initialFictionalName, onConfirmP
   }
 
   return (
-    <div className="earth-screen">
-      <header className="earth-screen__header">
+    <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Cambiar Ciudad</span>
+          <span>Cambiar Destino</span>
         </button>
         <div className="earth-screen__progress-pill">
-          <span>Paso 2 de 5 · Perfil de Comandante</span>
+          <span>Paso 3 de 6 · Perfil del Comandante ({cityName} ➔ {destination === 'MOON' ? 'Luna' : 'Marte'})</span>
         </div>
       </header>
 
-      <main className="earth-card">
-        <h1 className="earth-card__title">
+      <main className="earth-card" style={{ maxWidth: '60rem', padding: '1.2rem' }}>
+        <h1 className="earth-card__title" style={{ fontSize: '1.5rem' }}>
           <UserCircle color="#f6c15b" weight="fill" />
-          <span>Elige tu avatar y distintivo espacial</span>
+          <span>Elige tu Avatar de Expedición</span>
         </h1>
         <p className="earth-card__subtitle">
-          Todo comandante del programa Junior Astronaut porta un avatar y un indicativo de misión. Tu identidad se mantiene durante toda la expedición.
+          Selecciona tu comandante para liderar la expedición desde <strong>{cityName}</strong> hacia <strong>{destination === 'MOON' ? 'la Luna' : 'Marte'}</strong>.
         </p>
 
         <div className="avatar-grid" role="radiogroup" aria-label="Selecciona tu avatar de astronauta">
@@ -77,11 +79,11 @@ export function AvatarScreen({ initialAvatarId, initialFictionalName, onConfirmP
         </div>
 
         <form onSubmit={handleSubmit} className="callsign-box">
-          <label htmlFor="callsign-input" className="callsign-box__label">
-            Nombre ficticio o indicativo de misión:
+          <label htmlFor="callsign-input-v3" className="callsign-box__label">
+            Indicativo o nombre de misión:
           </label>
           <input
-            id="callsign-input"
+            id="callsign-input-v3"
             type="text"
             className="callsign-box__input"
             maxLength={26}
@@ -89,8 +91,8 @@ export function AvatarScreen({ initialAvatarId, initialFictionalName, onConfirmP
             onChange={(e) => setCallsign(e.target.value)}
             placeholder="Ejemplo: Comandante Cóndor"
           />
-          <div style={{ marginTop: '0.8rem' }}>
-            <span style={{ fontSize: '0.85rem', color: '#97b7d8', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <div style={{ marginTop: '0.6rem' }}>
+            <span style={{ fontSize: '0.82rem', color: '#97b7d8', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <Sparkle weight="fill" color="#f6c15b" /> Sugerencias de indicativo:
             </span>
             <div className="callsign-suggestions">
@@ -108,13 +110,13 @@ export function AvatarScreen({ initialAvatarId, initialFictionalName, onConfirmP
           </div>
         </form>
 
-        <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ marginTop: '1.2rem', display: 'flex', justifyContent: 'flex-end' }}>
           <button
             type="button"
             className="earth-action-btn"
             onClick={() => handleSubmit()}
           >
-            <span>Ingresar al Centro de Entrenamiento</span>
+            <span>Continuar al Briefing de Misión</span>
             <ArrowRight weight="bold" />
           </button>
         </div>

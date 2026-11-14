@@ -3,34 +3,35 @@ import './earth.css';
 
 interface NarrativeBriefingScreenProps {
   readonly cityName: string;
+  readonly destination: string;
   readonly astronautName: string;
   readonly onProceedToMap: () => void;
   readonly onBack: () => void;
 }
 
-export function NarrativeBriefingScreen({ cityName, astronautName, onProceedToMap, onBack }: NarrativeBriefingScreenProps) {
+export function NarrativeBriefingScreen({ cityName, destination, astronautName, onProceedToMap, onBack }: NarrativeBriefingScreenProps) {
+  const destLabel = destination === 'MOON' ? 'la Luna' : 'Marte';
+
   return (
-    <div className="earth-screen">
-      <header className="earth-screen__header">
+    <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
           <span>Cambiar Avatar</span>
         </button>
         <div className="earth-screen__progress-pill">
           <RocketLaunch weight="fill" color="#f6c15b" />
-          <span>Comunicaciones de Misión</span>
+          <span>Paso 4 de 6 · Enlace de Misión ({cityName} ➔ {destLabel})</span>
         </div>
       </header>
 
-      <main className="earth-card" style={{ maxWidth: '44rem', textAlign: 'center' }}>
-        <h1 className="earth-card__title" style={{ justifyContent: 'center', marginBottom: '1.2rem' }}>
+      <main className="earth-card" style={{ maxWidth: '48rem', textAlign: 'center', padding: '1.4rem' }}>
+        <h1 className="earth-card__title" style={{ justifyContent: 'center', marginBottom: '1rem', fontSize: '1.6rem' }}>
           <span>Centro de Enlace: {cityName}</span>
         </h1>
 
-        {/* Diálogos estilo bocadillo de videojuego / cómic */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left', margin: '1rem 0' }}>
-          
-          {/* Bocadillo 1: Comandante Alba */}
+          {/* Bocadillo 1: Comandante Alba explica la regla 3 de 5 */}
           <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'flex-start' }}>
             <div style={{
               width: '3.8rem',
@@ -57,8 +58,8 @@ export function NarrativeBriefingScreen({ cityName, astronautName, onProceedToMa
               <strong style={{ color: '#f6c15b', fontFamily: 'Fredoka', fontSize: '1.1rem', display: 'block', marginBottom: '0.2rem' }}>
                 Comandante Alba:
               </strong>
-              <p style={{ margin: 0, color: '#e3effb', fontSize: '1rem', lineHeight: '1.4' }}>
-                «¡Bienvenido al Centro Espacial, <strong>{astronautName}</strong>! La Tierra te prepara para el cosmos: debes certificar tu base en <strong>Energía Solar</strong> y <strong>Clima Espacial</strong> antes del despegue.»
+              <p style={{ margin: 0, color: '#e3effb', fontSize: '1rem', lineHeight: '1.45' }}>
+                «¡Atención, <strong>{astronautName}</strong>! Nuestro cohete despegará hacia <strong>{destLabel}</strong>. En el mapa encontrarás <strong>5 instalaciones de entrenamiento</strong>. Sin embargo, por capacidad de bodega y tiempo de ventana orbital, <strong>solo podrás elegir y completar exactamente 3 misiones</strong>. Cada misión completada te otorgará una herramienta específica para tu nave.»
               </p>
             </div>
           </div>
@@ -90,22 +91,21 @@ export function NarrativeBriefingScreen({ cityName, astronautName, onProceedToMa
               <strong style={{ color: '#ffd54f', fontFamily: 'Fredoka', fontSize: '1.1rem', display: 'block', marginBottom: '0.2rem' }}>
                 Chispa (IA de Soporte):
               </strong>
-              <p style={{ margin: 0, color: '#e3effb', fontSize: '1rem', lineHeight: '1.4' }}>
-                «¡Sistemas listos! Toca las instalaciones del mapa para calibrar los paneles y blindar el refugio. ¡A trabajar!»
+              <p style={{ margin: 0, color: '#e3effb', fontSize: '1rem', lineHeight: '1.45' }}>
+                «¡Elige con sabiduría, Comandante! Cada instalación tiene un costo de decisión y un efecto directo sobre nuestra supervivencia en el espacio. ¡Vamos al mapa!»
               </p>
             </div>
           </div>
-
         </div>
 
-        <div style={{ marginTop: '1.8rem', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
           <button
             type="button"
             className="earth-action-btn"
-            style={{ fontSize: '1.2rem', padding: '1rem 2.2rem' }}
+            style={{ fontSize: '1.15rem', padding: '0.9rem 2.2rem' }}
             onClick={onProceedToMap}
           >
-            <span>¡Entrar al Mapa del Centro Espacial!</span>
+            <span>¡Entrar al Mapa y Elegir las 3 Misiones!</span>
             <ArrowRight weight="bold" />
           </button>
         </div>
