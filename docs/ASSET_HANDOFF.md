@@ -1,5 +1,13 @@
 # Entrega de assets
 
+## Integración visual independiente
+
+La rama `codex/software2-asset-integration` contiene `src/visual-kit/`, una galería en `/visual-gallery.html` y el inventario detallado en [`ASSET_CATALOG.md`](ASSET_CATALOG.md). No cambia reglas, rutas del juego ni pantallas que Antigravity está editando. El PDF de diseño solo aporta referencias hasta que el equipo confirme autoría y licencia; por eso el catálogo usa `path: null` y fallbacks.
+
+Cuando Software 2 publique una versión estable: actualizar esta rama desde `feat/software2-earth-flow`, revisar conflictos, recibir los PNG/WebP originales, colocarlos en `public/assets/{characters,robots,maps,earth,destinations,ui,inventory,minigames,animations}/`, registrar sus rutas en `src/visual-kit/catalog.ts` o enlazarlas desde `src/assets/manifest.ts`, comprobar `/visual-gallery.html` y luego integrar componentes pantalla por pantalla. La portada ilustrada se conserva. Para pixel art, `GameSprite` aplica `image-rendering: pixelated`; para otros estilos no lo aplica. Antes del PR ejecutar build, revisar escritorio/móvil y confirmar que la selección de cinco misiones y el motor no han cambiado.
+
+Los requisitos v3.0 vigentes usan Arequipa/Tromsø, tres misiones elegidas entre cinco y las barras Energía/Oxígeno/Escudo. El manifiesto antiguo y algunas pantallas aún contienen nombres de la versión anterior; su actualización corresponde al trabajo funcional coordinado, no a esta rama visual.
+
 Todos los archivos definitivos viven bajo `public/assets/**`. `src/assets/manifest.ts` es el único mapa de IDs a rutas. La mayoría de los `path` siguen en `null` y tienen etiqueta/color de respaldo. Dos rutas de la bienvenida apuntan a **arte conceptual temporal generado con IA**, no a assets finales: `background.earthWelcome` y `ui.welcomeWordmark`. Integración modifica el manifiesto al aceptar una entrega de diseño. No renombrar IDs sin coordinar con Julio y Gaby.
 
 | ID(s) | Nombre sugerido | Tamaño o proporción sugerida | Respaldo |
