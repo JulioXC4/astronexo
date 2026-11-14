@@ -9,206 +9,291 @@ interface BackpackScreenProps {
   readonly onBack: () => void;
 }
 
-const TOOL_METADATA: Record<ToolId, { icon: string; benefit: string; riskIfLeftOut: string }> = {
+const TOOL_ITEM_DATA: Record<ToolId, { symbol: string; color: string; badge: string; desc: string; risk: string }> = {
   FOLDING_PANELS: {
-    icon: '☀️',
-    benefit: 'Aumenta la generación de energía eléctrica solar en la base durante el día lunar.',
-    riskIfLeftOut: 'Sin paneles extra, la base dependerá solo de baterías limitadas.',
+    symbol: '☀️',
+    color: '#ffb300',
+    badge: 'ENERGÍA FOTOVOLTAICA',
+    desc: 'Celdas solares ultraligeras para recargar baterías durante el día lunar.',
+    risk: 'La base dependerá únicamente de la energía de reserva en turnos sin luz.',
   },
   LIFE_SUPPORT: {
-    icon: '💨',
-    benefit: 'Kits de sellado de aire y filtros ECLSS para emergencias y fugas de oxígeno.',
-    riskIfLeftOut: 'Las fugas de aire consumirán mucha más energía para presurizar.',
+    symbol: '💨',
+    color: '#4cc3d9',
+    badge: 'OXÍGENO & ECLSS',
+    desc: 'Tanques presurizados y cartuchos regenerativos para sellar fugas de aire.',
+    risk: 'Cualquier fuga de aire requerirá un sobreesfuerzo masivo del soporte vital.',
   },
   SHELTER_KIT: {
-    icon: '🛡️',
-    benefit: 'Blindaje extra de polietileno/agua contra radiación de tormentas solares (CME).',
-    riskIfLeftOut: 'La tripulación sufrirá mayor exposición ante eventos de clima espacial.',
+    symbol: '🛡️',
+    color: '#81c784',
+    badge: 'BLINDAJE DE REFUGIO',
+    desc: 'Placas de polietileno denso para mitigar radiación de tormentas solares (CME).',
+    risk: 'La tripulación absorberá mayor radiación en eventos de clima solar severo.',
   },
   CROP_KIT: {
-    icon: '🌱',
-    benefit: 'Módulo de bio-cultivo hidropónico para producir alimentos y soporte psicológico.',
-    riskIfLeftOut: 'La reserva de raciones de emergencia no se renovará durante la misión.',
+    symbol: '🌱',
+    color: '#66bb6a',
+    badge: 'BIO-CULTIVOS VEGGIE',
+    desc: 'Almohadillas hidropónicas de crecimiento acelerado para alimento fresco.',
+    risk: 'No habrá renovación de raciones frescas durante la permanencia en la base.',
   },
 };
 
 export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack, onBack }: BackpackScreenProps) {
-  function handleToggle(id: ToolId) {
+  function handleSelectTool(id: ToolId) {
     if (selectedTools.includes(id)) {
+      // Si ya está, lo quitamos de la bodega
       onUpdateTools(selectedTools.filter((t) => t !== id));
     } else {
+      // Si hay espacio (< 3), lo cargamos
       if (selectedTools.length < 3) {
         onUpdateTools([...selectedTools, id]);
       }
     }
   }
 
-  const isComplete = isValidBackpack(selectedTools);
+  const isFull = isValidBackpack(selectedTools);
   const leftOutTool = TOOL_CATALOG.find((tool) => !selectedTools.includes(tool.id));
 
   return (
-    <div className="earth-screen">
-      <header className="earth-screen__header">
+    <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Volver al Mapa</span>
+          <span>Mapa del Centro Espacial</span>
         </button>
         <div className="earth-screen__progress-pill">
           <BackpackIcon weight="fill" color="#f6c15b" />
-          <span>Paso 4 de 5 · Equipamiento de Carga</span>
+          <span>Hangar de Equipamiento · Capacidad: 3 Kits Máximo</span>
         </div>
       </header>
 
-      <main className="earth-card" style={{ maxWidth: '54rem' }}>
-        <h1 className="earth-card__title">
-          <BackpackIcon color="#f6c15b" weight="fill" />
-          <span>Prepara tu bodega de herramientas (3 de 4)</span>
-        </h1>
-        <p className="earth-card__subtitle">
-          El cohete tiene espacio y peso limitado para <strong>exactamente 3 kits</strong>. La herramienta que dejes en la Tierra condicionará las opciones de tu misión lunar.
-        </p>
-
-        {/* Ranuras de inventario */}
-        <section aria-label="Ranuras de carga de la nave" style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-            <span style={{ fontFamily: 'Fredoka', color: '#f6c15b', fontSize: '1.1rem' }}>
-              Bodega de Carga: {selectedTools.length} / 3 ranuras ocupadas
-            </span>
-            {isComplete ? (
-              <span style={{ color: '#66bb6a', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                <CheckCircle weight="fill" /> ¡Bodega lista para despegue!
-              </span>
-            ) : (
-              <span style={{ color: '#ffb74d', fontWeight: 700, fontSize: '0.9rem' }}>
-                Faltan {3 - selectedTools.length} kit(s) por elegir
-              </span>
-            )}
+      <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '0.8rem' }}>
+          <div>
+            <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
+              <BackpackIcon color="#f6c15b" weight="fill" />
+              <span>Bodega de Carga de la Nave (3 de 4)</span>
+            </h1>
+            <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
+              Toca un contenedor para cargarlo en la nave o devolverlo a la mesa de preparación.
+            </p>
           </div>
 
-          <div className="backpack-slots">
-            {[0, 1, 2].map((slotIndex) => {
-              const toolId = selectedTools[slotIndex];
-              const toolDef = toolId ? TOOL_CATALOG.find((t) => t.id === toolId) : null;
-              const meta = toolId ? TOOL_METADATA[toolId] : null;
-
-              return (
-                <div
-                  key={slotIndex}
-                  className={`backpack-slot ${toolDef ? 'backpack-slot--filled' : ''}`}
-                >
-                  {toolDef && meta ? (
-                    <>
-                      <span style={{ fontSize: '1.8rem' }}>{meta.icon}</span>
-                      <strong className="backpack-slot__title">{toolDef.label}</strong>
-                      <button
-                        type="button"
-                        onClick={() => handleToggle(toolDef.id)}
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          color: '#e57373',
-                          fontSize: '0.8rem',
-                          cursor: 'pointer',
-                          marginTop: '0.3rem',
-                          textDecoration: 'underline'
-                        }}
-                      >
-                        Quitar de bodega
-                      </button>
-                    </>
-                  ) : (
-                    <span style={{ color: '#7cb5c8', fontSize: '0.9rem' }}>
-                      Ranura {slotIndex + 1} vacía
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+          <div style={{
+            background: isFull ? '#1b5e20' : '#142539',
+            border: `2px solid ${isFull ? '#69f0ae' : '#395c86'}`,
+            borderRadius: '1rem',
+            padding: '0.4rem 1rem',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+            color: isFull ? '#69f0ae' : '#ffd54f',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            {isFull ? <CheckCircle weight="fill" size={18} /> : null}
+            <span>Bodega: {selectedTools.length} / 3 Ocupadas</span>
           </div>
-        </section>
+        </div>
 
-        {/* Catálogo de 4 herramientas */}
-        <section aria-label="Catálogo de herramientas disponibles">
-          <h2 style={{ fontSize: '1.1rem', color: '#f6c15b', marginBottom: '0.8rem', fontFamily: 'Fredoka' }}>
-            Kits disponibles para seleccionar:
-          </h2>
-          <div className="tool-catalog-grid">
+        {/* INVENTARIO DIVIDIDO: ESTANTES EN TIERRA (IZQ) VS BAHÍA DE CARGA DEL COHETE (DER) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))', gap: '1.2rem', alignItems: 'stretch' }}>
+          
+          {/* LADO IZQUIERDO: KITS DISPONIBLES EN TIERRA */}
+          <section style={{
+            background: '#132338',
+            border: '2px solid #2e527d',
+            borderRadius: '1rem',
+            padding: '1.2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.7rem'
+          }}>
+            <h2 style={{ fontSize: '1rem', color: '#f6c15b', margin: '0 0 0.3rem 0', fontFamily: 'Fredoka', letterSpacing: '0.04em' }}>
+              📦 ESTANTERÍA DE EQUIPOS EN TIERRA (4 DISPONIBLES)
+            </h2>
+
             {TOOL_CATALOG.map((tool) => {
-              const isSelected = selectedTools.includes(tool.id);
-              const meta = TOOL_METADATA[tool.id];
+              const isLoaded = selectedTools.includes(tool.id);
+              const meta = TOOL_ITEM_DATA[tool.id];
 
               return (
                 <div
                   key={tool.id}
-                  className={`tool-item-card ${isSelected ? 'tool-item-card--selected' : ''}`}
-                  onClick={() => handleToggle(tool.id)}
-                  tabIndex={0}
-                  role="checkbox"
-                  aria-checked={isSelected}
-                  onKeyDown={(e) => {
-                    if (e.key === ' ' || e.key === 'Enter') {
-                      e.preventDefault();
-                      handleToggle(tool.id);
-                    }
+                  style={{
+                    background: isLoaded ? '#1e334d' : '#182e49',
+                    border: `2px solid ${isLoaded ? '#f6c15b' : '#355982'}`,
+                    borderRadius: '0.8rem',
+                    padding: '0.8rem 1rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '0.8rem',
+                    opacity: isLoaded ? 0.75 : 1,
+                    transition: 'all 0.15s ease',
+                    boxShadow: isLoaded ? 'none' : '0 4px 12px rgba(0,0,0,0.2)'
                   }}
+                  onClick={() => handleSelectTool(tool.id)}
                 >
-                  <div>
-                    <div className="tool-item-card__header">
-                      <span className="tool-item-card__icon">{meta.icon}</span>
-                      <span style={{
-                        fontSize: '0.8rem',
-                        fontWeight: 700,
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '0.4rem',
-                        background: isSelected ? '#f6c15b' : '#29496e',
-                        color: isSelected ? '#132235' : '#c3daf0'
-                      }}>
-                        {isSelected ? 'Cargado' : 'Disponible'}
-                      </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div style={{
+                      width: '2.8rem',
+                      height: '2.8rem',
+                      borderRadius: '0.6rem',
+                      background: '#122336',
+                      border: `1.5px solid ${meta.color}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.5rem',
+                      flexShrink: 0
+                    }}>
+                      {meta.symbol}
                     </div>
-                    <h3 className="tool-item-card__title">{tool.label}</h3>
-                    <p className="tool-item-card__benefit">{meta.benefit}</p>
+                    <div>
+                      <span style={{ fontSize: '0.72rem', color: meta.color, fontWeight: 700, letterSpacing: '0.05em' }}>
+                        {meta.badge}
+                      </span>
+                      <h3 style={{ margin: 0, fontFamily: 'Fredoka', fontSize: '1.05rem', color: '#ffffff' }}>
+                        {tool.label}
+                      </h3>
+                      <p style={{ margin: '0.1rem 0 0 0', color: '#bed4ea', fontSize: '0.8rem' }}>
+                        {meta.desc}
+                      </p>
+                    </div>
                   </div>
-                  <div style={{
-                    borderTop: '1px solid #2e4d70',
-                    paddingTop: '0.5rem',
+
+                  <span style={{
                     fontSize: '0.78rem',
-                    color: '#93b5d8'
+                    fontWeight: 700,
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '0.4rem',
+                    background: isLoaded ? '#f6c15b' : '#23446b',
+                    color: isLoaded ? '#101d2d' : '#c3dcfa',
+                    flexShrink: 0
                   }}>
-                    {isSelected ? '✓ Ocupa 1 espacio de bodega' : '+ Clic para cargar'}
-                  </div>
+                    {isLoaded ? 'CARGADO ✓' : '+ CARGAR'}
+                  </span>
                 </div>
               );
             })}
-          </div>
-        </section>
+          </section>
 
-        {/* Consecuencia de la herramienta excluida */}
-        {isComplete && leftOutTool && (
-          <div style={{
-            background: '#231e33',
-            border: '1px solid #7e57c2',
-            borderRadius: '0.9rem',
-            padding: '1rem',
-            marginTop: '1.2rem',
+          {/* LADO DERECHO: BAHÍA DE CARGA DE LA NAVE CON 3 RANURAS */}
+          <section style={{
+            background: 'radial-gradient(circle at 50% 40%, #173356 0%, #0d1a29 100%)',
+            border: '2px solid #3d6899',
+            borderRadius: '1rem',
+            padding: '1.2rem',
             display: 'flex',
-            alignItems: 'center',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
             gap: '0.8rem'
           }}>
-            <Warning color="#ffb74d" size={26} weight="fill" style={{ flexShrink: 0 }} />
-            <div style={{ fontSize: '0.9rem', color: '#e1d5f2', lineHeight: '1.4' }}>
-              <strong>Estrategia de carga:</strong> Has dejado en la Tierra el <strong>{leftOutTool.label}</strong>.
-              <br />
-              <em>Consecuencia: {TOOL_METADATA[leftOutTool.id].riskIfLeftOut}</em>
-            </div>
-          </div>
-        )}
+            <div>
+              <h2 style={{ fontSize: '1rem', color: '#69f0ae', margin: '0 0 0.8rem 0', fontFamily: 'Fredoka', letterSpacing: '0.04em' }}>
+                🚀 BAHÍA DE CARGA DEL COHETE (3 RANURAS)
+              </h2>
 
-        <div style={{ marginTop: '1.8rem', display: 'flex', justifyContent: 'flex-end' }}>
+              <div style={{ display: 'grid', gap: '0.8rem' }}>
+                {[0, 1, 2].map((slotIndex) => {
+                  const toolId = selectedTools[slotIndex];
+                  const toolDef = toolId ? TOOL_CATALOG.find((t) => t.id === toolId) : null;
+                  const meta = toolId ? TOOL_ITEM_DATA[toolId] : null;
+
+                  return (
+                    <div
+                      key={slotIndex}
+                      style={{
+                        background: toolDef ? '#193a52' : '#0d1825',
+                        border: `2px ${toolDef ? 'solid #69f0ae' : 'dashed #34567c'}`,
+                        borderRadius: '0.8rem',
+                        padding: '0.8rem 1rem',
+                        minHeight: '4.2rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '0.8rem',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      {toolDef && meta ? (
+                        <>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                            <span style={{ fontSize: '1.8rem' }}>{meta.symbol}</span>
+                            <div>
+                              <span style={{ fontSize: '0.72rem', color: '#69f0ae', fontWeight: 700 }}>
+                                RANURA {slotIndex + 1} ENSAMBLADA
+                              </span>
+                              <h4 style={{ margin: 0, fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#ffffff' }}>
+                                {toolDef.label}
+                              </h4>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            style={{
+                              background: 'transparent',
+                              border: '1px solid #e57373',
+                              color: '#ff8a80',
+                              borderRadius: '0.4rem',
+                              padding: '0.3rem 0.6rem',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => handleSelectTool(toolDef.id)}
+                          >
+                            Expulsar
+                          </button>
+                        </>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#7cb5c8', fontSize: '0.9rem' }}>
+                          <span style={{ width: '1.8rem', height: '1.8rem', borderRadius: '50%', border: '1px dashed #7cb5c8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700 }}>
+                            {slotIndex + 1}
+                          </span>
+                          <span>Ranura de Bodega Vacía</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ADVERTENCIA DEL KIT EXCLUIDO EN TIERRA */}
+            {isFull && leftOutTool && (
+              <div style={{
+                background: '#2d1d28',
+                border: '1.5px solid #d32f2f',
+                borderRadius: '0.8rem',
+                padding: '0.8rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem'
+              }}>
+                <Warning color="#ff8a80" size={24} weight="fill" style={{ flexShrink: 0 }} />
+                <div style={{ fontSize: '0.85rem', color: '#ffcdd2', lineHeight: '1.3' }}>
+                  <strong>Se queda en la Tierra: {leftOutTool.label}.</strong>
+                  <br />
+                  <em>Consecuencia: {TOOL_ITEM_DATA[leftOutTool.id].risk}</em>
+                </div>
+              </div>
+            )}
+          </section>
+
+        </div>
+
+        {/* BOTÓN DE CONFIRMACIÓN DE LA BODEGA */}
+        <div style={{ marginTop: '1.2rem', display: 'flex', justifyContent: 'flex-end' }}>
           <button
             type="button"
             className="earth-action-btn"
-            disabled={!isComplete}
+            disabled={!isFull}
+            style={{ padding: '0.9rem 2rem', fontSize: '1.15rem' }}
             onClick={() => {
               if (isValidBackpack(selectedTools)) {
                 onConfirmBackpack(selectedTools);
@@ -216,7 +301,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
             }}
           >
             <Sparkle weight="fill" />
-            <span>Confirmar Carga e Ir a Selección de Destino</span>
+            <span>Sellar Bodega y Continuar a Destino</span>
             <ArrowRight weight="bold" />
           </button>
         </div>
