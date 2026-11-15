@@ -1,0 +1,47 @@
+.pixel-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #14243a;
+  contain: layout paint;
+}
+
+.pixel-scene__poster,
+.pixel-scene__base,
+.pixel-scene__overlay {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  pointer-events: none;
+}
+
+.pixel-scene__base {
+  animation: pixel-scene-base-in var(--pixel-scene-transition, 120ms) linear both;
+}
+
+.pixel-scene__overlay--blend {
+  animation-name: pixel-scene-overlay-breathe;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+}
+
+@keyframes pixel-scene-base-in {
+  from { opacity: 0.96; }
+  to { opacity: 1; }
+}
+
+@keyframes pixel-scene-overlay-breathe {
+  0%, 100% { opacity: 0; }
+  18%, 82% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pixel-scene__base,
+  .pixel-scene__overlay {
+    animation: none;
+  }
+}
