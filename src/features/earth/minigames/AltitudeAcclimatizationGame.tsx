@@ -305,6 +305,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
               <div style={{ marginTop: '0.2rem' }}>
                 {!allSealsSecured && ' Faltan sellos herméticos por asegurar.'}
                 {isHypoxiaRisk && ' La presión es demasiado baja (< 70 kPa): riesgo de hipoxia para la tripulación.'}
+                {pressureKpa > 82 && pressureKpa <= 85 && ' La presión supera el rango de entrenamiento (70-82 kPa); reduce el suministro de gas.'}
                 {isOverpressureRisk && ' La presión es excesiva (> 85 kPa): riesgo de rotura de juntas mecánicas.'}
                 {!isGasSafe && ' Se consumió demasiado gas de calibración.'}
                 {' Ajusta los controles y vuelve a probar.'}

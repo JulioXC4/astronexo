@@ -93,9 +93,9 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
             </defs>
 
             {/* TUBERÍAS DE CONEXIÓN */}
-            <path d="M 180 180 L 330 180" stroke="#0288d1" strokeWidth="8" fill="none" strokeDasharray="6 4" />
-            <path d="M 450 180 L 600 180" stroke="#388e3c" strokeWidth="8" fill="none" strokeDasharray="6 4" />
-            <path d="M 600 240 L 450 330" stroke="#fbc02d" strokeWidth="6" fill="none" strokeDasharray="6 4" />
+            <path d="M 180 180 L 330 180" stroke={isWaterOptimal ? '#29b6f6' : '#45617a'} strokeWidth="8" fill="none" strokeDasharray="6 4" className={isWaterOptimal ? 'training-flow--active' : undefined} />
+            <path d="M 450 180 L 600 180" stroke={isOxygenOptimal ? '#69f0ae' : '#45617a'} strokeWidth="8" fill="none" strokeDasharray="6 4" className={isOxygenOptimal ? 'training-flow--active' : undefined} />
+            <path d="M 600 240 L 450 330" stroke={isCo2ScrubberOn ? '#fbc02d' : '#45617a'} strokeWidth="6" fill="none" strokeDasharray="6 4" className={isCo2ScrubberOn ? 'training-flow--active' : undefined} />
 
             {/* MÓDULO 1: Recuperador de Agua (Izquierda) */}
             <g transform="translate(130, 180)">
@@ -210,10 +210,10 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
             </div>
 
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#ffffff', marginBottom: '0.2rem' }}>
+              <label htmlFor="water-recycle-slider" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#ffffff', marginBottom: '0.2rem' }}>
                 <span>Tasa Reciclaje de Agua:</span>
                 <span style={{ color: isWaterOptimal ? '#69f0ae' : '#ffb74d', fontWeight: 700 }}>{waterRecycleRate}%</span>
-              </div>
+              </label>
               <input
                 id="water-recycle-slider"
                 type="range"
@@ -330,7 +330,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
 
         <div style={{ marginTop: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9bc0e4', fontSize: '0.82rem' }}>
           <Info size={16} color="#f6c15b" />
-          <span>NASA ECLSS (Environmental Control and Life Support System): En la ISS se recicla más del 98% de la orina y la condensación del aire en agua potable, y el generador OGA produce el oxígeno que respira la tripulación.</span>
+          <span>NASA ECLSS inspira este circuito de reciclaje de agua, producción de oxígeno y filtrado de CO₂. Los porcentajes, vatios y límites que ajustas aquí son parámetros del simulador educativo.</span>
         </div>
       </main>
     </div>

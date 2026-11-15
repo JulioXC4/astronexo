@@ -200,6 +200,12 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
           </button>
         </div>
 
+        {!isProtocolReady && (
+          <p role="status" style={{ color: '#ffd78a', margin: '0.5rem 0 0', fontSize: '0.88rem' }}>
+            Antes de simular la llegada: {!isCrewEvacuated ? 'activa la alarma y espera a que la tripulación entre al refugio.' : !isHatchSealed ? 'cierra la compuerta blindada.' : 'protege los sensores y la telemetría.'}
+          </p>
+        )}
+
         {/* FEEDBACK CIENTÍFICO TRAS EL IMPACTO */}
         {isMissionSuccess && (
           <div style={{
