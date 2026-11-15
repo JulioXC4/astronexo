@@ -43,7 +43,7 @@ export type EarthScreenState =
   | 'ARRIVAL'
   | 'LEARN';
 
-export function EarthFlow({ onReady }: EarthFlowProps) {
+export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
   const [screen, setScreen] = useState<EarthScreenState>('WELCOME');
   const [previousScreen, setPreviousScreen] = useState<EarthScreenState>('WELCOME');
   const [isStationModalOpen, setIsStationModalOpen] = useState<boolean>(false);
@@ -123,6 +123,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
               setIsStationModalOpen(false);
               navigateTo('CITY');
             }}
+            onStartCoop={onStartCoop}
           />
         </>
       );
@@ -217,6 +218,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
             isOpen={isStationModalOpen}
             onClose={() => setIsStationModalOpen(false)}
             onLaunchDemoSolo={() => setIsStationModalOpen(false)}
+            onStartCoop={onStartCoop}
           />
         </>
       );

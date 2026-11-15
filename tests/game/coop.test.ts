@@ -135,8 +135,8 @@ describe('H4 · cooperación local', () => {
       onCancelDecision: () => undefined,
       onAdvance: () => undefined,
     }));
-    expect(render(COOP_DEMO_GROUPS.FIVE)).toContain('aria-label="COMIDA"');
-    expect(render(COOP_DEMO_GROUPS.FOUR)).not.toContain('aria-label="COMIDA"');
+    expect(render(COOP_DEMO_GROUPS.FIVE)).toContain('aria-label="FOOD"');
+    expect(render(COOP_DEMO_GROUPS.FOUR)).not.toContain('aria-label="FOOD"');
   });
 
   it('SOLO y LOCAL_COOP mantienen reglas y recursos idénticos', () => {

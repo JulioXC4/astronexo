@@ -1,3 +1,5 @@
+import { hudAssets } from '../../assets/manifest';
+
 interface ResourceBarProps {
   readonly label: string;
   readonly value: number;
@@ -5,9 +7,10 @@ interface ResourceBarProps {
 }
 
 export function ResourceBar({ label, value, tone }: ResourceBarProps) {
+  const icon = hudAssets[tone].path;
   return <div className="resource-bar">
     <div className="resource-bar__label">
-      <span>{label}</span>
+      <span>{icon && <img className="resource-bar__icon" src={icon} alt="" aria-hidden="true" />}{label}</span>
       <strong>{value}/100</strong>
     </div>
     <div

@@ -18,7 +18,10 @@ import { BaseBuilderView } from '../base-builder';
 import { MissionControlView } from '../mission-control';
 import { MissionResultsView } from '../mission-results';
 import { TurnTransition } from './TurnTransition';
+import { useI18n } from '../../i18n';
 import './space-game.css';
+
+type Translate = (key: string, params?: Record<string, string | number>) => string;
 
 function adaptSetup(setup: SpaceGameProps['setup']): MissionSetup {
   return {
@@ -37,6 +40,7 @@ function adaptLegacyResult(
   result: MissionResult,
   setup: SpaceGameProps['setup'],
   evidence: SpaceGameProps['nasaData']['observations'],
+  t: Translate,
 ): LegacyMissionResult {
   const state = result.finalState;
   return {
@@ -71,20 +75,21 @@ function adaptLegacyResult(
       status: result.outcome === 'COMPLETED' ? 'SUCCESS' : 'FAILED',
     },
     explanation: result.outcome === 'COMPLETED'
-      ? `Guardia completada con ${result.score.total} puntos.`
-      : `Guardia interrumpida: ${result.interruptionCause ?? 'causa no registrada'}`,
+      ? t('results.legacyCompleted', { score: result.score.total })
+      : t('results.legacyInterrupted', { cause: result.interruptionCause ?? t('results.unknownCause') }),
     evidence,
   };
 }
 
 export function SpaceGame({ setup, nasaData, onFinish }: SpaceGameProps) {
+  const { t } = useI18n();
   const missionSetup = adaptSetup(setup);
   const [mission, setMission] = useState<MissionState | null>(null);
   const [transition, setTransition] = useState<string | null>(null);
 
   function startGuard(selectedModules: readonly ModuleId[]) {
     setMission(createLegacyDemoMission({ ...missionSetup, selectedModules }));
-    setTransition('Base construida · Guardia lista');
+    setTransition(t('spaceGame.baseBuilt'));
   }
 
   function handleAction(action: GameAction) {
@@ -95,7 +100,10 @@ export function SpaceGame({ setup, nasaData, onFinish }: SpaceGameProps) {
     if (!mission) return;
     const next = advanceTurn(mission);
     setMission(next);
-    setTransition(next.outcome === 'IN_PROGRESS' ? next.clockLabel : 'Informe final de guardia');
+    const clockLabel = next.destination === 'MOON'
+      ? t('missionControl.lunarDay', { day: next.clockLabel.match(/\d+/)?.[0] ?? next.turn })
+      : next.clockLabel;
+    setTransition(next.outcome === 'IN_PROGRESS' ? clockLabel : t('spaceGame.finalReport'));
   }
 
   function retry() {
@@ -117,7 +125,7 @@ export function SpaceGame({ setup, nasaData, onFinish }: SpaceGameProps) {
     return <MissionResultsView
       result={result}
       onRetry={retry}
-      onFinish={() => onFinish(adaptLegacyResult(result, setup, nasaData.observations))}
+      onFinish={() => onFinish(adaptLegacyResult(result, setup, nasaData.observations, t))}
     />;
   }
 

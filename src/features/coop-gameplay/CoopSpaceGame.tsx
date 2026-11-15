@@ -7,6 +7,7 @@ import {
   isValidPreBuildGameSetup,
 } from '../../game';
 import type { GameAction, GameSetup, MissionResult, MissionState, ModuleId } from '../../game';
+import { useI18n } from '../../i18n';
 import { BaseBuilderView } from '../base-builder';
 import { CoopMissionResults } from './CoopMissionResults';
 import { CoopMissionView } from './CoopMissionView';
@@ -35,6 +36,7 @@ function cloneGroup(group: LocalCoopConfig): LocalCoopConfig {
 }
 
 export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
+  const { t } = useI18n();
   const groupErrors = validateLocalCoopConfig(group);
   const setupCanBeCompleted = isValidPreBuildGameSetup(setup);
   const initialSetupValid = setup.mode === 'LOCAL_COOP' && isValidGameSetup(setup);
@@ -49,18 +51,24 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
     ...(setupCanBeCompleted ? [] : ['La configuración canónica de misión es inválida.']),
   ];
   if (groupErrors.length > 0 || setupErrors.length > 0) {
-    return <main className="coop-error-shell pixel-panel">
-      <span className="pixel-kicker">CONFIGURACIÓN COOPERATIVA INVÁLIDA</span>
-      <h1>No se puede iniciar la Estación</h1>
-      <ul>{[...groupErrors, ...setupErrors].map((error) => <li key={error}>{error}</li>)}</ul>
-    </main>;
+    return (
+      <main className="coop-error-shell pixel-panel">
+        <span className="pixel-kicker">CONFIGURACIÓN COOPERATIVA INVÁLIDA</span>
+        <h1>No se puede iniciar la Estación</h1>
+        <ul>
+          {[...groupErrors, ...setupErrors].map((error) => (
+            <li key={error}>{error}</li>
+          ))}
+        </ul>
+      </main>
+    );
   }
 
   function startGuard(selectedModules: readonly ModuleId[]) {
     const completedSetup = { ...setup, selectedModules };
     setMission(createMission(completedSetup));
     setPendingDecision(null);
-    setTransition('Base construida · Guardia lista');
+    setTransition(t('coop.transitionBuilt'));
   }
 
   function requestDecision(action: GameAction) {
@@ -70,7 +78,7 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
 
   function confirmDecision() {
     if (!pendingDecision) return;
-    setMission((current) => current ? confirmGroupDecision(current, pendingDecision) : current);
+    setMission((current) => (current ? confirmGroupDecision(current, pendingDecision) : current));
     setPendingDecision(null);
   }
 
@@ -81,7 +89,14 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
       setActiveGroup((current) => rotateActivePlayer(current));
     }
     setMission(next);
-    setTransition(next.outcome === 'IN_PROGRESS' ? next.clockLabel : 'Informe colectivo de guardia');
+    const clockLabel = next.destination === 'MOON'
+      ? t('missionControl.lunarDay', { day: next.clockLabel.match(/\d+/)?.[0] ?? next.turn })
+      : next.clockLabel;
+    setTransition(
+      next.outcome === 'IN_PROGRESS'
+        ? clockLabel
+        : t('coop.transitionReport'),
+    );
   }
 
   function retryAsTeam() {
@@ -102,21 +117,25 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
 
   const result = getMissionResult(mission);
   if (result) {
-    return <CoopMissionResults
-      result={result}
-      group={activeGroup}
-      onRetry={retryAsTeam}
-      onFinish={() => onFinish(result)}
-    />;
+    return (
+      <CoopMissionResults
+        result={result}
+        group={activeGroup}
+        onRetry={retryAsTeam}
+        onFinish={() => onFinish(result)}
+      />
+    );
   }
 
-  return <CoopMissionView
-    state={mission}
-    group={activeGroup}
-    pendingDecision={pendingDecision}
-    onRequestDecision={requestDecision}
-    onConfirmDecision={confirmDecision}
-    onCancelDecision={() => setPendingDecision(null)}
-    onAdvance={advanceCoopTurn}
-  />;
+  return (
+    <CoopMissionView
+      state={mission}
+      group={activeGroup}
+      pendingDecision={pendingDecision}
+      onRequestDecision={requestDecision}
+      onConfirmDecision={confirmDecision}
+      onCancelDecision={() => setPendingDecision(null)}
+      onAdvance={advanceCoopTurn}
+    />
+  );
 }

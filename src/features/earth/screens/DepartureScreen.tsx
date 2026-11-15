@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, RocketLaunch, Sparkle } from '@phosphor-icons/react';
-import { TOOL_CATALOG, type Backpack, type Destination } from '../../../game/contracts';
+import type { Backpack, Destination } from '../../../game/contracts';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
@@ -26,7 +26,7 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
     }
   }, [countdown]);
 
-  const packedTools = backpack.map((id) => TOOL_CATALOG.find((t) => t.id === id)?.label ?? id);
+  const packedTools = backpack.map((id) => t(`tools.${id}.label`));
   const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
 
   return (
@@ -37,10 +37,10 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
       <main className="earth-card" style={{ maxWidth: '48rem', textAlign: 'center' }}>
         <h1 className="earth-card__title" style={{ justifyContent: 'center' }}>
           <RocketLaunch color="#f6c15b" weight="fill" />
-          <span>{t('flight.departureTitle')}</span>
+          <span>{t('flight.departureTitle', { destination: destName })}</span>
         </h1>
         <p className="earth-card__subtitle">
-          {t('flight.departureSubtitle')} ({cityName} ➔ {destName})
+          {t('flight.departureSubtitle', { city: cityName, destination: destName })}
         </p>
 
         <div className="flight-scene">
@@ -55,11 +55,11 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
               </div>
             ) : (
               <div style={{ fontFamily: 'Fredoka', fontSize: '2rem', color: '#69f0ae' }}>
-                ¡Ignición y Escape de la Gravedad Terrestre!
+                {t('flight.ignition')}
               </div>
             )}
             <p style={{ margin: '0.5rem 0 0 0', color: '#b2cce6', fontSize: '1rem' }}>
-              Comandante al mando: <strong>{astronautName}</strong>
+              {t('flight.commanderInCommand', { name: astronautName })}
             </p>
           </div>
         </div>
@@ -73,13 +73,13 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
           textAlign: 'left'
         }}>
           <span style={{ fontSize: '0.85rem', color: '#f6c15b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Manifiesto de Carga en Órbita
+            {t('flight.cargoManifestTitle')}
           </span>
           <p style={{ margin: '0.4rem 0 0 0', color: '#d9e7f5', fontSize: '0.95rem' }}>
-            Kits verificados en la bodega: <strong>{packedTools.join(' · ')}</strong>
+            {t('flight.cargoKitsVerified', { tools: packedTools.join(' · ') })}
           </p>
           <p style={{ margin: '0.4rem 0 0 0', color: '#97b8d8', fontSize: '0.85rem' }}>
-            Trayectoria hacia {destName}. Telemetría y soporte vital estables.
+            {t(destination === 'MOON' ? 'flight.trajectoryNoteMoon' : 'flight.trajectoryNoteMars')}
           </p>
         </div>
 
@@ -90,7 +90,7 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
             onClick={onProceedToArrival}
           >
             <Sparkle weight="fill" />
-            <span>Aproximarse a {destName}</span>
+            <span>{t(destination === 'MOON' ? 'flight.approachMoon' : 'flight.approachMars')}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>
