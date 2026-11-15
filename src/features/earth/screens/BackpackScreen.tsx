@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, Backpack as BackpackIcon, CheckCircle, Warning, Sparkle } from '@phosphor-icons/react';
 import { TOOL_CATALOG, isValidBackpack, type Backpack, type ToolId } from '../../../game/contracts';
+import { ToolSprite } from '../../../visual-kit/ToolSprite';
 import './earth.css';
 
 interface BackpackScreenProps {
@@ -9,30 +10,26 @@ interface BackpackScreenProps {
   readonly onBack: () => void;
 }
 
-const TOOL_ITEM_DATA: Record<ToolId, { symbol: string; color: string; badge: string; desc: string; risk: string }> = {
+const TOOL_ITEM_DATA: Record<ToolId, { color: string; badge: string; desc: string; risk: string }> = {
   FOLDING_PANELS: {
-    symbol: '☀️',
     color: '#ffb300',
     badge: 'ENERGÍA FOTOVOLTAICA',
     desc: 'Celdas solares ultraligeras para recargar baterías durante el día lunar.',
     risk: 'La base dependerá únicamente de la energía de reserva en turnos sin luz.',
   },
   LIFE_SUPPORT: {
-    symbol: '💨',
     color: '#4cc3d9',
     badge: 'OXÍGENO & ECLSS',
     desc: 'Tanques presurizados y cartuchos regenerativos para sellar fugas de aire.',
     risk: 'Cualquier fuga de aire requerirá un sobreesfuerzo masivo del soporte vital.',
   },
   SHELTER_KIT: {
-    symbol: '🛡️',
     color: '#81c784',
     badge: 'BLINDAJE DE REFUGIO',
     desc: 'Placas de polietileno denso para mitigar radiación de tormentas solares (CME).',
     risk: 'La tripulación absorberá mayor radiación en eventos de clima solar severo.',
   },
   CROP_KIT: {
-    symbol: '🌱',
     color: '#66bb6a',
     badge: 'BIO-CULTIVOS VEGGIE',
     desc: 'Almohadillas hidropónicas de crecimiento acelerado para alimento fresco.',
@@ -151,7 +148,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
                       fontSize: '1.5rem',
                       flexShrink: 0
                     }}>
-                      {meta.symbol}
+                      <ToolSprite id={tool.id} />
                     </div>
                     <div>
                       <span style={{ fontSize: '0.72rem', color: meta.color, fontWeight: 700, letterSpacing: '0.05em' }}>
@@ -223,7 +220,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
                       {toolDef && meta ? (
                         <>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                            <span style={{ fontSize: '1.8rem' }}>{meta.symbol}</span>
+                            <ToolSprite id={toolId!} />
                             <div>
                               <span style={{ fontSize: '0.72rem', color: '#69f0ae', fontWeight: 700 }}>
                                 RANURA {slotIndex + 1} ENSAMBLADA

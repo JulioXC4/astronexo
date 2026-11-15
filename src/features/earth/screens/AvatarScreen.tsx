@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, UserCircle, Sparkle } from '@phosphor-icons/react';
 import { AVATAR_OPTIONS, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../../data/avatars';
+import { CharacterPortrait, type PortraitIdentity } from '../../../visual-kit/CharacterPortrait';
 import './earth.css';
 
 interface AvatarScreenProps {
@@ -63,12 +64,8 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
                   }
                 }}
               >
-                <div
-                  className="avatar-card__icon"
-                  style={{ backgroundColor: avatar.badgeColor }}
-                  aria-hidden="true"
-                >
-                  {avatar.iconSymbol}
+                <div className="avatar-card__art" aria-hidden="true">
+                  <CharacterPortrait identity={avatar.id as PortraitIdentity} selected={isSelected} label={avatar.name} />
                 </div>
                 <h2 className="avatar-card__name">{avatar.name}</h2>
                 <span className="avatar-card__role">{avatar.roleTitle}</span>

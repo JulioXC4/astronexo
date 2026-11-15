@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Sun, Lightning, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Warning } from '@phosphor-icons/react';
 import { AREQUIPA_SOLAR_RECORDS, type SolarDayRecord } from '../../../data/nasa/powerData';
+import { SolarCircuitVisual } from '../../../visual-kit/TrainingVisuals';
 import '../screens/earth.css';
 
 interface SolarDetectiveGameProps {
@@ -117,172 +118,20 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
           </div>
         </div>
 
-        {/* ESCENARIO DEL LABORATORIO SVG INTERACTIVO */}
-        <div style={{
-          background: 'radial-gradient(ellipse at 50% 30%, #173252 0%, #0c1827 100%)',
-          border: '2px solid #365e8c',
-          borderRadius: '1rem',
-          position: 'relative',
-          overflow: 'hidden',
-          boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)',
-          minHeight: '21rem'
-        }}>
-          <svg
-            viewBox="0 0 900 440"
-            style={{ width: '100%', height: '100%', display: 'block', userSelect: 'none' }}
-            role="img"
-            aria-label="Circuito interactivo de energía solar y almacenamiento en Arequipa"
-          >
-            <defs>
-              <linearGradient id="skySunArequipa" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#ffb300" />
-                <stop offset="100%" stopColor="#ff6f00" />
-              </linearGradient>
-
-              <linearGradient id="batteryGradArequipa" x1="0%" y1="100%" x2="0%" y2="0%">
-                <stop offset="0%" stopColor="#43a047" />
-                <stop offset="100%" stopColor="#76ff03" />
-              </linearGradient>
-
-              <style>{`
-                .current-flow-arequipa {
-                  stroke-dasharray: 8 6;
-                  animation: dashArequipa 1s linear infinite;
-                }
-                @keyframes dashArequipa {
-                  to { stroke-dashoffset: -28; }
-                }
-              `}</style>
-            </defs>
-
-            {/* Cielo andino y Sol brillante */}
-            <g transform="translate(130, 80)">
-              <circle r="40" fill="url(#skySunArequipa)">
-                <animate attributeName="r" values="38;42;38" dur="2.5s" repeatCount="indefinite" />
-              </circle>
-              <g stroke="#ffca28" strokeWidth="2.5" strokeDasharray="6 4" opacity="0.85">
-                <line x1="0" y1="-50" x2="0" y2="-65" />
-                <line x1="38" y1="-38" x2="50" y2="-50" />
-                <line x1="52" y1="0" x2="65" y2="0" />
-                <line x1="38" y1="38" x2="50" y2="50" />
-                <line x1="0" y1="52" x2="0" y2="65" />
-                <line x1="-38" y1="38" x2="-50" y2="50" />
-                <line x1="-52" y1="0" x2="-65" y2="0" />
-                <line x1="-38" y1="-38" x2="-50" y2="-50" />
-              </g>
-              <text x="0" y="5" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#ffffff">
-                {currentDay.irradianceKwhPerM2}
-              </text>
-              <text x="0" y="70" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffca28">
-                NASA POWER
-              </text>
-            </g>
-
-            {/* PANEL SOLAR FOTOVOLTAICO CON ROTACIÓN TÁCTIL */}
-            <g transform="translate(300, 240)">
-              {/* Soporte mecánico */}
-              <polygon points="-8,70 8,70 4,20 -4,20" fill="#37474f" stroke="#263238" strokeWidth="2" />
-              <circle cx="0" cy="20" r="10" fill="#78909c" />
-
-              {/* Placa de celda solar pivotante */}
-              <g transform={`rotate(${-tiltAngle}, 0, 20)`}>
-                <rect x="-80" y="-15" width="160" height="30" rx="4" fill="#0d233a" stroke="#4fc3f7" strokeWidth="2.5" />
-                {/* Cuadrícula de celdas */}
-                <line x1="-40" y1="-15" x2="-40" y2="15" stroke="#4fc3f7" strokeWidth="1" />
-                <line x1="0" y1="-15" x2="0" y2="15" stroke="#4fc3f7" strokeWidth="1" />
-                <line x1="40" y1="-15" x2="40" y2="15" stroke="#4fc3f7" strokeWidth="1" />
-                <line x1="-80" y1="0" x2="80" y2="0" stroke="#4fc3f7" strokeWidth="1" />
-              </g>
-
-              <text x="0" y="105" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#ffffff">
-                Inclinación: {tiltAngle}°
-              </text>
-              <text x="0" y="122" textAnchor="middle" fontSize="10" fill="#90caf9">
-                {isOrientationGood ? "✓ Hacia el Norte Óptimo" : "Ajusta hacia 16°"}
-              </text>
-            </g>
-
-            {/* CABLEADO: Del Panel al Interruptor */}
-            <path
-              d="M 300 260 L 300 360 L 440 360"
-              fill="none"
-              stroke={isSwitchClosed ? "#69f0ae" : "#37474f"}
-              strokeWidth="5"
-              className={isSwitchClosed ? "current-flow-arequipa" : undefined}
-            />
-
-            {/* INTERRUPTOR CENTRAL INTERACTIVO */}
-            <g transform="translate(470, 360)">
-              <rect x="-30" y="-20" width="60" height="40" rx="8" fill="#1e2c3a" stroke="#455a64" strokeWidth="2" />
-              <circle cx="-15" cy="0" r="4" fill="#cfd8dc" />
-              <circle cx="15" cy="0" r="4" fill="#cfd8dc" />
-
-              {isSwitchClosed ? (
-                <line x1="-15" y1="0" x2="15" y2="0" stroke="#00e676" strokeWidth="6" strokeLinecap="round" />
-              ) : (
-                <g>
-                  <line x1="-15" y1="0" x2="10" y2="-22" stroke="#e53935" strokeWidth="5" strokeLinecap="round" />
-                  <circle cx="10" cy="-22" r="4" fill="#d32f2f" />
-                </g>
-              )}
-
-              <text x="0" y="32" textAnchor="middle" fontSize="10" fontWeight="bold" fill={isSwitchClosed ? "#69f0ae" : "#ffb74d"}>
-                {isSwitchClosed ? "CIRCUITO CERRADO" : "INTERRUPTOR ABIERTO"}
-              </text>
-            </g>
-
-            {/* CABLEADO: A la batería */}
-            <path
-              d="M 500 360 L 640 360 L 640 300"
-              fill="none"
-              stroke={isSwitchClosed ? "#69f0ae" : "#37474f"}
-              strokeWidth="5"
-              className={isSwitchClosed ? "current-flow-arequipa" : undefined}
-            />
-
-            {/* BATERÍA Y ALMACENAMIENTO */}
-            <g transform="translate(640, 200)">
-              <rect x="-45" y="-70" width="90" height="140" rx="10" fill="#142333" stroke="#4a73a3" strokeWidth="3" />
-              <rect x="-18" y="-80" width="36" height="10" rx="3" fill="#cfd8dc" />
-
-              <rect
-                x="-37"
-                y={60 - (1.2 * batteryLevel)}
-                width="74"
-                height={1.2 * batteryLevel}
-                rx="4"
-                fill="url(#batteryGradArequipa)"
-              />
-
-              <text x="0" y="-10" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#ffffff">
-                {batteryLevel}%
-              </text>
-              <text x="0" y="90" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#ffffff">
-                Batería ({storedEnergyKwh} kWh)
-              </text>
-              <text x="0" y="106" textAnchor="middle" fontSize="10" fill="#80d8ff">
-                Reserva: {reserveRatioPercent}%
-              </text>
-            </g>
-
-            {/* MONITOR DE TELEMETRÍA Y POTENCIA */}
-            <g transform="translate(790, 200)">
-              <rect x="-40" y="-55" width="80" height="110" rx="8" fill="#1b2a3d" stroke="#395c86" strokeWidth="2" />
-              <circle cx="0" cy="-20" r="16" fill={isTestPassed ? "#69f0ae" : "#37474f"} stroke="#ffffff" strokeWidth="2" />
-              <text x="0" y="-15" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#102033">
-                {isTestPassed ? "ON" : "OFF"}
-              </text>
-              <text x="0" y="15" textAnchor="middle" fontSize="10" fill="#a4c9ef" fontWeight="bold">
-                GENERACIÓN
-              </text>
-              <text x="0" y="32" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffffff">
-                {totalDailyEnergyKwh} kWh
-              </text>
-              <text x="0" y="75" textAnchor="middle" fontSize="11" fontWeight="bold" fill={isTestPassed ? "#69f0ae" : "#b0bec5"}>
-                {isTestPassed ? "✓ CERTIFICADA" : "EN ESPERA"}
-              </text>
-            </g>
-          </svg>
+        <div className="training-scene">
+          <SolarCircuitVisual
+            panelActive={isOrientationGood}
+            switchOn={isSwitchClosed}
+            charge={batteryLevel}
+            circuitComplete={isTestPassed}
+            tiltAngle={tiltAngle}
+          />
+          <dl className="training-readouts">
+            <div><dt>NASA POWER · Día elegido</dt><dd>{currentDay.irradianceKwhPerM2} kWh/m²/día</dd></div>
+            <div><dt>Orientación del panel</dt><dd>{tiltAngle}° · {isOrientationGood ? 'Captación óptima' : 'Ajustar a 16°'}</dd></div>
+            <div><dt>Reserva nocturna</dt><dd>{reserveRatioPercent}% · {storedEnergyKwh} kWh</dd></div>
+            <div><dt>Batería</dt><dd>{batteryLevel}% · {isSwitchClosed ? 'Circuito cerrado' : 'Interruptor abierto'}</dd></div>
+          </dl>
         </div>
 
         {/* CONTROLES DEL JUGADOR: ORIENTACIÓN Y RESERVA */}

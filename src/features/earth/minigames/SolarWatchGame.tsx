@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, ShieldCheck, Siren, LockKey, Broadcast, Sparkle, CheckCircle, ArrowCounterClockwise } from '@phosphor-icons/react';
 import { DONKI_HISTORICAL_EVENTS, type DonkiEventRecord } from '../../../data/nasa/donkiData';
+import { StormShelterVisual } from '../../../visual-kit/TrainingVisuals';
 import '../screens/earth.css';
 
 interface SolarWatchGameProps {
@@ -91,172 +92,14 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
           </div>
         </div>
 
-        {/* ESCENARIO ESQUEMÁTICO 2D EN SVG DE LA ESTACIÓN Y EL REFUGIO */}
-        <div style={{
-          background: 'radial-gradient(ellipse at 50% 30%, #1c2b42 0%, #0a1420 100%)',
-          border: '2px solid #3d5a80',
-          borderRadius: '1rem',
-          position: 'relative',
-          overflow: 'hidden',
-          minHeight: '22rem',
-          boxShadow: 'inset 0 0 30px rgba(0,0,0,0.6)'
-        }}>
-          <svg
-            viewBox="0 0 900 480"
-            style={{ width: '100%', height: '100%', display: 'block', userSelect: 'none' }}
-            role="img"
-            aria-label="Corte esquemático de la estación espacial y el refugio"
-          >
-            <defs>
-              {/* Ráfaga de radiación de la tormenta CME */}
-              <linearGradient id="cmeBlast" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="rgba(255, 87, 34, 0.85)" />
-                <stop offset="50%" stopColor="rgba(255, 193, 7, 0.6)" />
-                <stop offset="100%" stopColor="rgba(255, 87, 34, 0)" />
-              </linearGradient>
-
-              {/* Capa de blindaje de polietileno/agua */}
-              <linearGradient id="shieldWall" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#2e7d32" />
-                <stop offset="100%" stopColor="#1b5e20" />
-              </linearGradient>
-            </defs>
-
-            {/* Suelo lunar/terrestre (línea divisoria entre superficie y búnker subterráneo) */}
-            <rect x="0" y="190" width="900" height="290" fill="#142131" stroke="#253b54" strokeWidth="2" />
-            <line x1="0" y1="190" x2="900" y2="190" stroke="#375577" strokeWidth="4" />
-            <text x="30" y="215" fontSize="11" fontWeight="bold" fill="#7194ba" letterSpacing="0.08em">
-              ▼ SUBSUELO PROTEGIDO (CAPAS DE REGOLITO Y BLINDAJE)
-            </text>
-
-            {/* RÁFAGA DE RADIACIÓN SOLAR CME (animada si la tormenta impacta) */}
-            {isStormImpacted && (
-              <g>
-                <rect x="0" y="0" width="900" height="190" fill="url(#cmeBlast)">
-                  <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1s" repeatCount="indefinite" />
-                </rect>
-                <text x="450" y="45" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#ffffff" letterSpacing="0.1em">
-                  ⚡ FRENTE DE ONDA CME (VELOCIDAD &gt; 1200 KM/S) EN SUPERFICIE ⚡
-                </text>
-              </g>
-            )}
-
-            {/* ============================================================== */}
-            {/* SUPERFICIE: CÚPULA EXTERIOR Y SENSOR RADIOLÓGICO               */}
-            {/* ============================================================== */}
-            <g transform="translate(450, 190)">
-              {/* Cúpula transparente superior */}
-              <ellipse cx="0" cy="0" rx="90" ry="70" fill="rgba(76, 195, 217, 0.15)" stroke="#4cc3d9" strokeWidth="2.5" />
-              {/* Esclusa de paso vertical hacia el búnker */}
-              <rect x="-24" y="0" width="48" height="60" fill="#203348" stroke="#3f668f" strokeWidth="2" />
-
-              {/* SIRENA DE ALARMA EN LA CÚPULA */}
-              <g transform="translate(0, -78)">
-                <circle cx="0" cy="0" r="12" fill={isAlarmActive ? "#d32f2f" : "#455a64"} stroke="#ffffff" strokeWidth="2">
-                  {isAlarmActive && (
-                    <animate attributeName="fill" values="#d32f2f;#ffeb3b;#d32f2f" dur="0.5s" repeatCount="indefinite" />
-                  )}
-                </circle>
-                <text x="0" y="4" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#ffffff">
-                  {isAlarmActive ? "!" : ""}
-                </text>
-              </g>
-
-              {/* COMPUERTA BLINDADA MECÁNICA */}
-              <g transform="translate(0, 45)">
-                {isHatchSealed ? (
-                  // Compuerta cerrada hermética
-                  <g>
-                    <rect x="-26" y="-6" width="52" height="12" rx="3" fill="#ffb300" stroke="#ffffff" strokeWidth="1.5" />
-                    <text x="0" y="3" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#102033">SELLADA</text>
-                  </g>
-                ) : (
-                  // Compuerta abierta retráctil
-                  <g>
-                    <rect x="-26" y="-18" width="10" height="24" fill="#78909c" />
-                    <rect x="16" y="-18" width="10" height="24" fill="#78909c" />
-                    <text x="0" y="-2" textAnchor="middle" fontSize="8" fill="#e53935" fontWeight="bold">ABIERTA</text>
-                  </g>
-                )}
-              </g>
-
-              {/* POSICIÓN DE LOS ASTRONAUTAS: Fuera o dentro del búnker */}
-              {!isCrewEvacuated ? (
-                // En la cúpula exterior (vulnerables)
-                <g transform="translate(-15, -15)">
-                  <circle cx="0" cy="-12" r="10" fill="#ffffff" stroke="#102033" strokeWidth="1.5" />
-                  <rect x="-8" y="-2" width="16" height="20" rx="3" fill="#ffffff" />
-                  <circle cx="30" cy="-12" r="10" fill="#ffffff" stroke="#102033" strokeWidth="1.5" />
-                  <rect x="22" y="-2" width="16" height="20" rx="3" fill="#ffffff" />
-                  <text x="15" y="-30" textAnchor="middle" fontSize="11" fill="#ffca28" fontWeight="bold">
-                    👨‍🚀 Tripulación en Cúpula
-                  </text>
-                </g>
-              ) : (
-                // Ya evacuados al búnker subterráneo
-                <g transform="translate(0, 150)">
-                  <circle cx="-20" cy="-12" r="10" fill="#69f0ae" stroke="#ffffff" strokeWidth="1.5" />
-                  <rect x="-28" y="-2" width="16" height="20" rx="3" fill="#69f0ae" />
-                  <circle cx="20" cy="-12" r="10" fill="#69f0ae" stroke="#ffffff" strokeWidth="1.5" />
-                  <rect x="12" y="-2" width="16" height="20" rx="3" fill="#69f0ae" />
-                  <text x="0" y="-28" textAnchor="middle" fontSize="12" fill="#69f0ae" fontWeight="bold">
-                    🛡️ Tripulación Protegida en Búnker
-                  </text>
-                </g>
-              )}
-            </g>
-
-            {/* ============================================================== */}
-            {/* SUBSUELO: REFUGIO SUBTERRÁNEO BLINDADO                         */}
-            {/* ============================================================== */}
-            <g transform="translate(450, 350)">
-              {/* Capa de blindaje de polietileno y agua */}
-              <rect x="-160" y="-50" width="320" height="110" rx="14" fill="url(#shieldWall)" stroke="#81c784" strokeWidth="3" />
-              {/* Interior habitable del refugio */}
-              <rect x="-140" y="-35" width="280" height="80" rx="8" fill="#0d1b2a" stroke="#4cc3d9" strokeWidth="1.5" />
-
-              <text x="0" y="35" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#a4c9ef">
-                REFUGIO BLINDADO (POLIETILENO + AGUA ECLSS)
-              </text>
-            </g>
-
-            {/* ============================================================== */}
-            {/* SENSORES DE RADIACIÓN: EXTERIOR VS INTERIOR (SIMULACIÓN EDUCATIVA) */}
-            {/* ============================================================== */}
-            {/* Sensor exterior */}
-            <g transform="translate(180, 110)">
-              <rect x="-65" y="-35" width="130" height="70" rx="8" fill="#1b2a3d" stroke="#f6c15b" strokeWidth="2" />
-              <text x="0" y="-15" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#9bc0e4">
-                FLUJO EXTERIOR (SIMULADO)
-              </text>
-              <text x="0" y="15" textAnchor="middle" fontSize="15" fontWeight="bold" fill={isStormImpacted ? "#ff5252" : "#69f0ae"}>
-                {isStormImpacted ? "ALERTA CME CRÍTICA" : "NIVEL BASE SEGURO"}
-              </text>
-            </g>
-
-            {/* Sensor del refugio subterráneo */}
-            <g transform="translate(180, 350)">
-              <rect x="-65" y="-35" width="130" height="70" rx="8" fill="#1b2a3d" stroke="#69f0ae" strokeWidth="2" />
-              <text x="0" y="-15" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#9bc0e4">
-                PROTECCIÓN EN BÚNKER
-              </text>
-              <text x="0" y="15" textAnchor="middle" fontSize="15" fontWeight="bold" fill="#69f0ae">
-                {isHatchSealed ? "100% BLINDADO" : (isStormImpacted ? "VULNERABLE (ABIERTO)" : "SISTEMA LISTO")}
-              </text>
-            </g>
-
-            {/* Radar DONKI de alerta */}
-            <g transform="translate(740, 110)">
-              <rect x="-70" y="-35" width="140" height="70" rx="8" fill="#1b2a3d" stroke="#ba68c8" strokeWidth="2" />
-              <text x="0" y="-15" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#e1bee7">
-                RADAR NASA DONKI
-              </text>
-              <text x="0" y="10" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#ffd54f">
-                {event.eventType}: {event.observedAt.slice(0, 10)}
-              </text>
-            </g>
-
-          </svg>
+        <div className="training-scene">
+          <StormShelterVisual alert={isAlarmActive || isStormImpacted} doorClosed={isHatchSealed} crewEvacuated={isCrewEvacuated} crewSafe={isCrewEvacuated && isHatchSealed} />
+          <dl className="training-readouts">
+            <div><dt>NASA DONKI</dt><dd>{event.eventType} · {event.observedAt.slice(0, 10)}</dd></div>
+            <div><dt>Alarma</dt><dd>{isAlarmActive ? 'Activada' : 'En espera'}</dd></div>
+            <div><dt>Tripulación</dt><dd>{isCrewEvacuated ? 'En refugio' : 'Preparando evacuación'}</dd></div>
+            <div><dt>Compuerta y sensores</dt><dd>{isHatchSealed ? 'Sellada' : 'Abierta'} · {isSensorsProtected ? 'Protegidos' : 'Expuestos'}</dd></div>
+          </dl>
         </div>
 
         {/* CONSOLA DE ACCIONES INTERACTIVAS DEL JUGADOR (PASOS 1, 2, 3) */}

@@ -119,7 +119,8 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
             <g transform="translate(180, 260)">
               <rect x="-65" y="-80" width="130" height="150" rx="10" fill="#14263b" stroke="#80d8ff" strokeWidth="3" />
               <rect x="-24" y="-92" width="48" height="12" rx="3" fill="#cfd8dc" />
-              <text x="0" y="-35" textAnchor="middle" fontSize="26">🔋</text>
+              <rect x="-24" y="-62" width="48" height="37" rx="5" fill="#83cbd3" stroke="#e4f1e9" strokeWidth="3" />
+              <path d="m4-56-14 16h11l-5 11 15-17H0Z" fill="#f6c15b" />
               <text x="0" y="5" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#ffffff">
                 BANCO TÉRMICO
               </text>

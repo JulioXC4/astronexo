@@ -223,6 +223,24 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+.avatar-card__art { width: min(100%, 9.5rem); margin: -0.45rem auto 0.7rem; }
+.avatar-card__art .character-portrait { display: block; width: 100%; height: auto; }
+
+.briefing-portrait { width: clamp(4rem, 8vw, 6rem); flex: none; }
+.briefing-portrait .character-portrait { display: block; width: 100%; height: auto; }
+.tool-sprite { display: block; width: 2.8rem; height: 2.8rem; flex: none; }
+
+.training-scene { overflow: hidden; border-radius: 1rem; background: #244a5f; }
+.training-readouts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0; background: #49677a; }
+.training-readouts > div { padding: 0.65rem 0.8rem; background: #152d42; min-width: 0; }
+.training-readouts dt { color: #a8d3dd; font-size: 0.78rem; font-weight: 700; }
+.training-readouts dd { color: #fff4d9; font-family: 'Fredoka', sans-serif; font-size: 0.96rem; margin: 0.2rem 0 0; overflow-wrap: anywhere; }
+.city-landscape { display: block; width: 100%; height: 9rem; margin: 0 0 0.9rem; border-radius: 0.75rem; }
+@media (max-width: 750px) { .training-readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) {
+  .earth-screen *, .earth-screen *::before, .earth-screen *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
 .avatar-card__name {
   font-family: 'Fredoka', sans-serif;
   font-size: 1.15rem;

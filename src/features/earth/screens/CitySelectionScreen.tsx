@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Crosshair, Sun, Snowflake, GlobeHemisphereWest } from '@phosphor-icons/react';
 import { SUPPORTED_CITIES, type CityData } from '../../../data/nasa/cities';
+import { CityLandscape } from '../../../visual-kit/CityLandscape';
 import './earth.css';
 
 interface CitySelectionScreenProps {
@@ -79,6 +80,8 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
             })}
           </div>
         </div>
+
+        <CityLandscape cityId={selectedCityId} />
 
         {/* CONTENEDOR DIVIDIDO: MAPA GLOBAL SVG (IZQ) Y HUD CIENTÍFICO (DER) */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))', gap: '1.2rem', alignItems: 'center' }}>
@@ -174,7 +177,8 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
               {/* Satélite NASA POWER */}
               <g transform="translate(480, 40)">
                 <circle r="14" fill="#14263b" stroke="#f6c15b" strokeWidth="2" />
-                <text x="0" y="5" textAnchor="middle" fontSize="13">🛰️</text>
+                <rect x="-5" y="-5" width="10" height="10" rx="2" fill="#d5e5dc" />
+                <path d="M-7-5-17-8v16L-7 5M7-5l10-3V8L7 5" fill="#6eb5c2" stroke="#d5e5dc" strokeWidth="1" />
                 <text x="0" y="24" textAnchor="middle" fontSize="9" fill="#a4c9ef" fontWeight="bold">NASA POWER</text>
               </g>
 
@@ -188,8 +192,6 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
               >
                 {selectedCityId === 'AREQUIPA' && (
                   <circle r="22" fill="url(#pulseArequipa)">
-                    <animate attributeName="r" values="8;24;8" dur="2s" repeatCount="indefinite" />
-                    <animate attributeName="opacity" values="0.9;0.1;0.9" dur="2s" repeatCount="indefinite" />
                   </circle>
                 )}
                 <circle r={selectedCityId === 'AREQUIPA' ? 10 : 7} fill="#f6c15b" stroke="#ffffff" strokeWidth="2" />
@@ -208,8 +210,6 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
               >
                 {selectedCityId === 'TROMSO' && (
                   <circle r="22" fill="url(#pulseTromso)">
-                    <animate attributeName="r" values="8;24;8" dur="2s" repeatCount="indefinite" />
-                    <animate attributeName="opacity" values="0.9;0.1;0.9" dur="2s" repeatCount="indefinite" />
                   </circle>
                 )}
                 <circle r={selectedCityId === 'TROMSO' ? 10 : 7} fill="#80d8ff" stroke="#ffffff" strokeWidth="2" />
@@ -238,7 +238,7 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            height: '22rem',
+            minHeight: '22rem',
             boxSizing: 'border-box'
           }}>
             <div>

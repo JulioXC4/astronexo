@@ -20,5 +20,8 @@ body { margin: 0; background: #102338; color: #eff6ee; font-family: 'Nunito', sa
 .base-gallery__characters { margin-top: 32px; }
 .base-gallery__characters > div { display: flex; flex-wrap: wrap; gap: 16px; }
 .base-gallery__characters svg { width: min(28vw, 200px); height: auto; }
+.base-gallery__tools { margin-top: 30px; }
+.base-gallery__tools > div { display: flex; flex-wrap: wrap; gap: 18px; }
+.base-gallery__tools .tool-sprite { width: 88px; height: 88px; }
 @media (max-width: 720px) { .base-gallery .earth-base-scene { min-width: 0; } }
 @media (max-width: 720px) { .base-gallery__training-grid { grid-template-columns: 1fr; } }

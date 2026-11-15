@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight, RocketLaunch } from '@phosphor-icons/react';
+import { CharacterPortrait } from '../../../visual-kit/CharacterPortrait';
 import './earth.css';
 
 interface NarrativeBriefingScreenProps {
@@ -33,20 +34,7 @@ export function NarrativeBriefingScreen({ cityName, destination, astronautName, 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left', margin: '1rem 0' }}>
           {/* Bocadillo 1: Comandante Alba explica la regla 3 de 5 */}
           <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'flex-start' }}>
-            <div style={{
-              width: '3.8rem',
-              height: '3.8rem',
-              borderRadius: '50%',
-              background: '#4d72b0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '2rem',
-              border: '2px solid #8ab4f8',
-              flexShrink: 0
-            }}>
-              👩‍🚀
-            </div>
+            <div className="briefing-portrait" aria-hidden="true"><CharacterPortrait identity="ALBA" label="Alba" /></div>
             <div style={{
               background: '#1c3452',
               border: '2px solid #3c6594',
@@ -66,20 +54,7 @@ export function NarrativeBriefingScreen({ cityName, destination, astronautName, 
 
           {/* Bocadillo 2: Robot Chispa */}
           <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'flex-start' }}>
-            <div style={{
-              width: '3.8rem',
-              height: '3.8rem',
-              borderRadius: '50%',
-              background: '#e0a548',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '2rem',
-              border: '2px solid #ffd54f',
-              flexShrink: 0
-            }}>
-              🤖
-            </div>
+            <div className="briefing-portrait" aria-hidden="true"><CharacterPortrait identity="CHISPA" kind="robot" label="Chispa" /></div>
             <div style={{
               background: '#1e334a',
               border: '2px solid #5a4b2c',
