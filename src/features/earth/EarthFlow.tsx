@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import type { EarthFlowProps, ToolId, Destination, Backpack } from '../../game/contracts';
-import { isValidBackpack } from '../../game/contracts';
 import { DEFAULT_CITY, type CityData } from '../../data/nasa/cities';
 import { DEFAULT_AVATAR, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../data/avatars';
 import { buildVerifiedNasaDataset } from '../nasa/adapters';
@@ -15,6 +14,10 @@ import { PreparationMapScreen } from './screens/PreparationMapScreen';
 import { SolarDetectiveGame } from './minigames/SolarDetectiveGame';
 import { SolarWatchGame } from './minigames/SolarWatchGame';
 import { DarkMonthsGame } from './minigames/DarkMonthsGame';
+import { AltitudeAcclimatizationGame } from './minigames/AltitudeAcclimatizationGame';
+import { EclssTrainingGame } from './minigames/EclssTrainingGame';
+import { VeggieLabGame } from './minigames/VeggieLabGame';
+import { ArcticGreenhouseGame } from './minigames/ArcticGreenhouseGame';
 import { DepartureScreen } from './screens/DepartureScreen';
 import { ArrivalScreen } from './screens/ArrivalScreen';
 import { LearnScreen } from './screens/LearnScreen';
@@ -30,6 +33,10 @@ export type EarthScreenState =
   | 'TRAINING_SOLAR'
   | 'TRAINING_DONKI'
   | 'TRAINING_DARK_MONTHS'
+  | 'TRAINING_ALTITUDE'
+  | 'TRAINING_ECLSS'
+  | 'TRAINING_VEGGIE'
+  | 'TRAINING_ARCTIC'
   | 'LIFTOFF'
   | 'ARRIVAL'
   | 'LEARN';
@@ -52,41 +59,42 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
     setScreen(nextScreen);
   }
 
+  // Completa una misión tras satisfacer sus condiciones interactivas (RF-69)
+  // Regla estricta: máximo 3 misiones elegidas
   function handleCompleteMission(missionId: MissionType) {
+    if (completedMissions.length >= 3) {
+      navigateTo('MAP');
+      return;
+    }
     if (!completedMissions.includes(missionId)) {
       setCompletedMissions((prev) => {
-        const next = [...prev, missionId];
-        return next.slice(0, 3); // Máximo 3 de 5
+        if (prev.length >= 3) return prev;
+        return [...prev, missionId];
       });
     }
     navigateTo('MAP');
   }
 
-  // Al completar exactamente 3 misiones, se derivan las herramientas y se avanza al despegue
+  // Al completar exactamente 3 misiones, se asignan EXACTAMENTE las 3 herramientas ganadas
+  // NO se regalan ni rellenan herramientas arbitrarias del catálogo (RF-09, RF-10)
   function handleProceedToLaunch(derivedTools: readonly ToolId[]) {
-    // Normalizar a 3 herramientas únicas del catálogo para cumplir isValidBackpack
-    const catalog: ToolId[] = ['FOLDING_PANELS', 'LIFE_SUPPORT', 'SHELTER_KIT', 'CROP_KIT'];
-    const unique = Array.from(new Set(derivedTools));
-    for (const tool of catalog) {
-      if (unique.length >= 3) break;
-      if (!unique.includes(tool)) unique.push(tool);
-    }
+    if (derivedTools.length !== 3) return;
 
-    const finalBackpack: Backpack = [unique[0], unique[1], unique[2]];
-    setBackpack(finalBackpack);
+    const earnedBackpack: Backpack = [derivedTools[0], derivedTools[1], derivedTools[2]];
+    setBackpack(earnedBackpack);
     navigateTo('LIFTOFF');
   }
 
   function handleLaunchMission() {
-    if (!isValidBackpack(backpack)) return;
+    if (completedMissions.length !== 3) return;
+    if (backpack.length !== 3) return;
 
     const verifiedNasaDataset = buildVerifiedNasaDataset(city.id);
 
-    // Mapear los IDs de entrenamiento a completedTraining para el contrato
-    const trainingContracts = completedMissions.map((m) => {
-      if (m === 'SOLAR_WATCH') return 'SOLAR_WATCH';
-      return 'SOLAR_DETECTIVE';
-    });
+    // Mapear compatibilidad de contratos con Software 1 sin inventar entrenamientos
+    const trainingContracts = completedMissions.filter(
+      (m): m is 'SOLAR_DETECTIVE' | 'SOLAR_WATCH' => m === 'SOLAR_DETECTIVE' || m === 'SOLAR_WATCH'
+    );
 
     onReady({
       setup: {
@@ -95,7 +103,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
         fictionalName,
         destination,
         backpack,
-        completedTraining: Array.from(new Set(trainingContracts)),
+        completedTraining: trainingContracts,
       },
       nasaData: verifiedNasaDataset,
     });
@@ -129,8 +137,10 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
         <CitySelectionScreen
           initialCityId={city.id}
           onSelectCity={(selectedCity) => {
-            setCity(selectedCity);
-            setCompletedMissions([]); // Reiniciar misiones si cambia de ciudad
+            if (selectedCity.id !== city.id) {
+              setCity(selectedCity);
+              setCompletedMissions([]); // Reiniciar misiones si cambia de ciudad
+            }
             navigateTo('DESTINATION');
           }}
           onBack={() => navigateTo('WELCOME')}
@@ -191,13 +201,15 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
             astronautName={fictionalName}
             completedMissions={completedMissions}
             onOpenMission={(mission: EarthMissionDefinition) => {
+              // Cada misión abre una actividad interactiva real con decisión y costo (RF-69)
+              // Ninguna misión se acredita directamente por presionar Ejecutar
               if (mission.id === 'SOLAR_DETECTIVE') navigateTo('TRAINING_SOLAR');
               else if (mission.id === 'SOLAR_WATCH') navigateTo('TRAINING_DONKI');
               else if (mission.id === 'DARK_MONTHS_RESERVE') navigateTo('TRAINING_DARK_MONTHS');
-              else {
-                // Misiones de acreditación directa (ECLSS, Altitud, Cultivos)
-                handleCompleteMission(mission.id);
-              }
+              else if (mission.id === 'ALTITUDE_ACCLIMATIZATION') navigateTo('TRAINING_ALTITUDE');
+              else if (mission.id === 'ECLSS_TRAINING') navigateTo('TRAINING_ECLSS');
+              else if (mission.id === 'VEGGIE_LAB') navigateTo('TRAINING_VEGGIE');
+              else if (mission.id === 'ARCTIC_GREENHOUSE') navigateTo('TRAINING_ARCTIC');
             }}
             onProceedToLaunch={handleProceedToLaunch}
             onBack={() => navigateTo('BRIEFING')}
@@ -210,7 +222,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
         </>
       );
 
-    // 7. Detective del Sol (Arequipa)
+    // 7. Detective del Sol (Arequipa - NASA POWER)
     case 'TRAINING_SOLAR':
       return (
         <SolarDetectiveGame
@@ -219,7 +231,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
         />
       );
 
-    // 8. Vigilante del Sol / Mirador de Tormentas (DONKI)
+    // 8. Vigilante del Sol / Mirador de Tormentas (Común - NASA DONKI)
     case 'TRAINING_DONKI':
       return (
         <SolarWatchGame
@@ -228,7 +240,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
         />
       );
 
-    // 9. Reserva para los Meses Oscuros (Tromsø)
+    // 9. Reserva para los Meses Oscuros (Tromsø - NASA POWER)
     case 'TRAINING_DARK_MONTHS':
       return (
         <DarkMonthsGame
@@ -237,7 +249,43 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
         />
       );
 
-    // 10. Despegue Animado 2D
+    // 10. Aclimatación de Altura Andina (Arequipa - NASA ECLSS & Medicina de Altura)
+    case 'TRAINING_ALTITUDE':
+      return (
+        <AltitudeAcclimatizationGame
+          onComplete={() => handleCompleteMission('ALTITUDE_ACCLIMATIZATION')}
+          onBack={() => navigateTo('MAP')}
+        />
+      );
+
+    // 11. Módulo de Soporte Vital Regenerativo (Común - NASA ECLSS)
+    case 'TRAINING_ECLSS':
+      return (
+        <EclssTrainingGame
+          onComplete={() => handleCompleteMission('ECLSS_TRAINING')}
+          onBack={() => navigateTo('MAP')}
+        />
+      );
+
+    // 12. Laboratorio de Cultivos Veggie (Común - NASA Veggie & APH)
+    case 'TRAINING_VEGGIE':
+      return (
+        <VeggieLabGame
+          onComplete={() => handleCompleteMission('VEGGIE_LAB')}
+          onBack={() => navigateTo('MAP')}
+        />
+      );
+
+    // 13. Invernadero Ártico Geotérmico (Tromsø - Bio-refugio polar)
+    case 'TRAINING_ARCTIC':
+      return (
+        <ArcticGreenhouseGame
+          onComplete={() => handleCompleteMission('ARCTIC_GREENHOUSE')}
+          onBack={() => navigateTo('MAP')}
+        />
+      );
+
+    // 14. Despegue Animado 2D
     case 'LIFTOFF':
       return (
         <DepartureScreen
@@ -248,7 +296,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
         />
       );
 
-    // 11. Llegada y Alunizaje / Llegada a Destino
+    // 15. Llegada y Alunizaje / Llegada a Destino
     case 'ARRIVAL':
       return (
         <ArrivalScreen

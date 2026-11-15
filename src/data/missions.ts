@@ -129,7 +129,7 @@ export function getMissionsForCity(cityId: string): readonly EarthMissionDefinit
       ALL_EARTH_MISSIONS.ARCTIC_GREENHOUSE,   // Específica Tromsø 2
       ALL_EARTH_MISSIONS.SOLAR_WATCH,         // Común 1
       ALL_EARTH_MISSIONS.ECLSS_TRAINING,      // Común 2
-      ALL_EARTH_MISSIONS.SOLAR_DETECTIVE,     // Común alternativa adaptada
+      ALL_EARTH_MISSIONS.VEGGIE_LAB,              // Común 3 (Alimento / Cultivos hidropónicos)
     ];
   }
   // Arequipa (default)

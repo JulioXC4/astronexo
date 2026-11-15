@@ -385,6 +385,16 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
             </button>
           </div>
         )}
+
+        <div style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', color: '#9bc0e4', fontSize: '0.80rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <ShieldCheck size={16} color="#f6c15b" />
+            <span><strong>Dato NASA DONKI verificado:</strong> {event.summary} (Registro: {event.eventId}, CCMC GSFC NASA).</span>
+          </div>
+          <div style={{ color: '#ce93d8', paddingLeft: '1.4rem' }}>
+            <span><strong>Reglas de simulación educativa:</strong> Las acciones de evacuación, blindaje con polietileno/agua y aislamiento de sensores son protocolos de ingeniería simulados; los niveles de severidad son cualitativos sin inventar dosis radiológicas.</span>
+          </div>
+        </div>
       </main>
     </div>
   );
