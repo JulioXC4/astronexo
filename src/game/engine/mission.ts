@@ -17,7 +17,7 @@ import {
   isValidGameSetup,
   scenarioSeedFromId,
 } from '../config';
-import { applyResourceDelta, canAfford, clampResource } from '../rules';
+import { applyResourceDelta, canAfford, clampResource, scaleEffectByQuality } from '../rules';
 import type {
   ActionChoice,
   AlertKind,
@@ -339,7 +339,9 @@ export function applyAction(state: MissionState, action: GameAction): MissionSta
   if (!intervention) return state;
   const alert = findMatchingAlert(state, action);
   const cost = getActionCost(state, action);
-  const effect = getActionEffect(state, action);
+  // El desempeño en el minijuego escala el beneficio, nunca el costo:
+  // hacerlo bien rinde más, hacerlo a medias rinde menos.
+  const effect = scaleEffectByQuality(getActionEffect(state, action), action.quality);
   const changed = applyResourceDelta(applyResourceDelta(state, cost), effect);
   const guidance = isGuidanceChoice(action.choiceId) ? action.choiceId : undefined;
   const immediateResponse = action.type === 'CONSULT_EARTH' && state.destination === 'MOON' && guidance
@@ -398,11 +400,35 @@ function alertConsequence(alert: MissionAlert): ResourceDelta {
   return sumDeltas([config.baseConsequence, scaleDelta(config.escalation, escalations)]);
 }
 
+/**
+ * Lo que costará esta alerta si el turno termina sin atenderla.
+ * La interfaz lo muestra antes de confirmar («Si no: −8 Oxígeno»), para que la
+ * comparación entre actuar y no actuar tenga números en los dos lados.
+ */
+export function projectAlertConsequence(alert: MissionAlert): ResourceDelta {
+  return alertConsequence(alert);
+}
+
+/** Diferencia entre dos estados, para mostrar «Último cambio» al cerrar el turno. */
+function diffResources(before: MissionState, after: MissionState): ResourceDelta {
+  const delta: Record<string, number> = {};
+  const keys = ['energy', 'oxygen', 'shield', 'foodSupply', 'scienceProgress', 'radiationExposure'] as const;
+  for (const key of keys) {
+    const change = after[key] - before[key];
+    if (change !== 0) delta[key] = change;
+  }
+  return delta as ResourceDelta;
+}
+
+/**
+ * Por qué terminó antes la guardia. Se redacta como récord, no como castigo:
+ * la tripulación vuelve a la Tierra, nadie «muere» (decisión del equipo, JD §14).
+ */
 function interruptionCause(state: MissionState): string | undefined {
-  if (state.oxygen <= 0) return 'El oxígeno llegó a cero por fugas o consumo acumulado.';
-  if (state.energy <= 0) return 'La energía llegó a cero y la base no pudo continuar la guardia.';
-  if (state.foodSupply <= 0) return 'Los suministros alimentarios se agotaron.';
-  if (state.radiationExposure >= 100) return 'La exposición radiológica simulada alcanzó el límite de seguridad.';
+  if (state.oxygen <= 0) return 'Se acabó el oxígeno. La tripulación volvió a la Tierra antes de tiempo, sana y salva.';
+  if (state.energy <= 0) return 'Se acabó la energía. La tripulación volvió a la Tierra antes de tiempo, sana y salva.';
+  if (state.foodSupply <= 0) return 'Se acabó la comida. La tripulación volvió a la Tierra antes de tiempo, sana y salva.';
+  if (state.radiationExposure >= 100) return 'La radiación llegó al límite seguro. La tripulación volvió a la Tierra antes de tiempo, sana y salva.';
   return undefined;
 }
 
@@ -476,6 +502,7 @@ export function advanceTurn(state: MissionState): MissionState {
     moduleOperations: [...state.moduleOperations, ...moduleOperations],
     pendingCommunication: communicationArrived ? null : state.pendingCommunication,
     communicationResponse,
+    lastTurnDelta: diffResources(state, afterOperations),
     lastFeedback: communicationArrived && communicationResponse
       ? { ok: true, message: communicationResponse, resourceDelta: {} }
       : undefined,
@@ -489,7 +516,7 @@ export function advanceTurn(state: MissionState): MissionState {
     return {
       ...withHistory,
       outcome: 'INTERRUPTED',
-      interruptionCause: `La guardia llegó a cinco turnos, pero el objetivo científico quedó en ${withHistory.scienceProgress}/${SCIENCE_TARGET}.`,
+      interruptionCause: `Completaste los cinco turnos. Te faltó ciencia para la meta: llegaste a ${withHistory.scienceProgress} de ${SCIENCE_TARGET}.`,
     };
   }
 

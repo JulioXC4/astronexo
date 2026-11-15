@@ -108,7 +108,7 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
               filter="blur(8px)"
             />
             <text x="450" y="35" textAnchor="middle" fontSize="12" fill="#b9f6ca" fontWeight="bold" letterSpacing="0.1em">
-              🌌 NOCHE POLAR ÁRTICA (TROMSØ) · 0 HORAS DE LUZ DIRECTA
+               NOCHE POLAR ÁRTICA (TROMSØ) · 0 HORAS DE LUZ DIRECTA
             </text>
 
             {/* Suelo cubierto de nieve/regolito frío */}

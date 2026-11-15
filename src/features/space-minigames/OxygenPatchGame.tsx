@@ -1,28 +1,35 @@
 import { useState } from 'react';
 import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
-import { isOxygenLeakResolved } from './puzzleRules';
+import { isOxygenLeakResolved, leakingCompartmentForSeed } from './puzzleRules';
+import { qualityFromMistakes } from '../../game';
 
-interface OxygenPatchGameProps { readonly onReadyChange: (ready: boolean) => void; }
-const LEAKING_COMPARTMENT = 1;
+interface OxygenPatchGameProps {
+  readonly onReadyChange: (ready: boolean, quality?: number) => void;
+  /** Semilla del turno: la fuga no siempre está en el mismo sitio. */
+  readonly seed: number;
+}
 
-export function OxygenPatchGame({ onReadyChange }: OxygenPatchGameProps) {
+export function OxygenPatchGame({ onReadyChange, seed }: OxygenPatchGameProps) {
+  const LEAKING_COMPARTMENT = leakingCompartmentForSeed(seed);
   const { t } = useI18n();
   const [isolated, setIsolated] = useState<number | null>(null);
   const [patches, setPatches] = useState<readonly boolean[]>([false, false]);
   const [hint, setHint] = useState('');
+  const [mistakes, setMistakes] = useState(0);
   const ready = isOxygenLeakResolved(isolated, LEAKING_COMPARTMENT, patches);
   const asset = (role: string) => interventionAssets.G3.find((item) => item.role === role)!.path;
 
   function isolate(index: number) {
     setIsolated(index); setPatches([false, false]); onReadyChange(false);
+    if (index !== LEAKING_COMPARTMENT) setMistakes((value) => value + 1);
     setHint(t(index === LEAKING_COMPARTMENT ? 'interventions.puzzles.g3.correctHatch' : 'interventions.puzzles.g3.wrongHatch'));
   }
   function patch(index: number) {
     if (isolated !== LEAKING_COMPARTMENT || patches[index]) return;
     const next = patches.map((value, position) => position === index ? true : value);
     setPatches(next);
-    if (isOxygenLeakResolved(isolated, LEAKING_COMPARTMENT, next)) onReadyChange(true);
+    if (isOxygenLeakResolved(isolated, LEAKING_COMPARTMENT, next)) onReadyChange(true, qualityFromMistakes(mistakes));
   }
 
   return <div className={`puzzle puzzle--oxygen ${ready ? 'puzzle--success' : ''}`} aria-label={t('interventions.puzzles.g3.aria')}>

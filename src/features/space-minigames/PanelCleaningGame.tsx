@@ -1,13 +1,19 @@
 import { useState } from 'react';
 import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
-import { PANEL_DUST_START, applyCleaner, solarCapturePercent } from './puzzleRules';
+import { applyCleaner, panelDustForSeed, solarCapturePercent } from './puzzleRules';
+import { qualityFromRange } from '../../game';
 
-interface PanelCleaningGameProps { readonly onReadyChange: (ready: boolean) => void; }
+interface PanelCleaningGameProps {
+  readonly onReadyChange: (ready: boolean, quality?: number) => void;
+  /** Semilla del turno: hace que el polvo no caiga siempre igual. */
+  readonly seed: number;
+}
 
-export function PanelCleaningGame({ onReadyChange }: PanelCleaningGameProps) {
+export function PanelCleaningGame({ onReadyChange, seed }: PanelCleaningGameProps) {
   const { t } = useI18n();
-  const [dust, setDust] = useState<readonly number[]>(PANEL_DUST_START);
+  const start = panelDustForSeed(seed);
+  const [dust, setDust] = useState<readonly number[]>(start);
   const [applications, setApplications] = useState(2);
   const capture = solarCapturePercent(dust);
   const ready = capture >= 85;
@@ -15,9 +21,10 @@ export function PanelCleaningGame({ onReadyChange }: PanelCleaningGameProps) {
   function clean(index: number) {
     if (ready || applications === 0) return;
     const next = applyCleaner(dust, index); setDust(next); setApplications((value) => value - 1);
-    if (solarCapturePercent(next) >= 85) onReadyChange(true);
+    const capturedNow = solarCapturePercent(next);
+    if (capturedNow >= 85) onReadyChange(true, qualityFromRange(capturedNow, 85, 100));
   }
-  function reset() { setDust(PANEL_DUST_START); setApplications(2); onReadyChange(false); }
+  function reset() { setDust(start); setApplications(2); onReadyChange(false); }
   return <div className={`puzzle puzzle--cleaning ${ready ? 'puzzle--success' : ''}`}>
     <div className="puzzle__status"><strong>{t('interventions.puzzles.g2.title')}</strong><span>{t('interventions.puzzles.g2.cleaner', { count: applications })}</span></div>
     <div className="cleaning-layout">

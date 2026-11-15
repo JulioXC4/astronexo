@@ -34,12 +34,6 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
 
   const isSuccess = isSimulated && photosynRate >= 90 && isNutrientOptimal;
 
-  function handleAutoTune() {
-    setRedSpectrum(70);
-    setBlueSpectrum(30);
-    setIsSimulated(false);
-  }
-
   function handleReset() {
     setRedSpectrum(50);
     setBlueSpectrum(50);
@@ -186,15 +180,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
               />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9' }}>
-              <span>Objetivo del simulador: 70% Rojo / 30% Azul</span>
-              <button
-                type="button"
-                className="callsign-chip"
-                style={{ background: '#25446c', color: '#8ec5fc', padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}
-                onClick={handleAutoTune}
-              >
-                Auto-Calibrar
-              </button>
+              <span>Busca el punto donde las plantas crecen mejor.</span>
             </div>
           </div>
 
@@ -232,7 +218,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
                   setIsSimulated(false);
                 }}
               >
-                ✓ Óptima (35 L/sem · Sustentable)
+                Media (35 L por semana)
               </button>
               <button
                 type="button"

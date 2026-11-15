@@ -31,11 +31,6 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
 
   const isSuccess = isSimulated && isTempOptimal && isDomeInsulated && isGeothermalSafe;
 
-  function handleAutoTune() {
-    setGeothermalFlow(52);
-    setIsSimulated(false);
-  }
-
   function handleReset() {
     setGeothermalFlow(30);
     setIsDomeInsulated(false);
@@ -185,14 +180,6 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
             />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9', marginTop: '0.2rem' }}>
               <span>10% (Insuficiente)</span>
-              <button
-                type="button"
-                className="callsign-chip"
-                style={{ background: '#25446c', color: '#8ec5fc', padding: '0.15rem 0.5rem', fontSize: '0.75rem' }}
-                onClick={handleAutoTune}
-              >
-                Auto-Calibrar (52%)
-              </button>
               <span>90% (Gasto térmico crítico)</span>
             </div>
           </div>

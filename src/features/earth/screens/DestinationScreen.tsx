@@ -92,10 +92,10 @@ export function DestinationScreen({ initialDestination, onSelectDestination, onB
 
               <div className="destination-pixel-card__features">
                 <div className="destination-feature-item">
-                  <span>🌑 <strong>{t('destinations.gravityLabel')}:</strong> {t('destinations.moon.gravity')}</span>
+                  <span> <strong>{t('destinations.gravityLabel')}:</strong> {t('destinations.moon.gravity')}</span>
                 </div>
                 <div className="destination-feature-item">
-                  <span>🌌 <strong>{t('destinations.atmosphereLabel')}:</strong> {t('destinations.moon.atmosphere')}</span>
+                  <span> <strong>{t('destinations.atmosphereLabel')}:</strong> {t('destinations.moon.atmosphere')}</span>
                 </div>
                 <div className="destination-feature-item">
                   <span>⏳ <strong>{t('destinations.challengeLabel')}:</strong> {t('destinations.moon.challenge')}</span>
@@ -153,13 +153,13 @@ export function DestinationScreen({ initialDestination, onSelectDestination, onB
 
               <div className="destination-pixel-card__features">
                 <div className="destination-feature-item">
-                  <span>🔴 <strong>{t('destinations.gravityLabel')}:</strong> {t('destinations.mars.gravity')}</span>
+                  <span> <strong>{t('destinations.gravityLabel')}:</strong> {t('destinations.mars.gravity')}</span>
                 </div>
                 <div className="destination-feature-item">
-                  <span>💨 <strong>{t('destinations.atmosphereLabel')}:</strong> {t('destinations.mars.atmosphere')}</span>
+                  <span> <strong>{t('destinations.atmosphereLabel')}:</strong> {t('destinations.mars.atmosphere')}</span>
                 </div>
                 <div className="destination-feature-item">
-                  <span>🌪️ <strong>{t('destinations.challengeLabel')}:</strong> {t('destinations.mars.challenge')}</span>
+                  <span> <strong>{t('destinations.challengeLabel')}:</strong> {t('destinations.mars.challenge')}</span>
                 </div>
               </div>
 

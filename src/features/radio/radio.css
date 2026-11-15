@@ -1,0 +1,116 @@
+/* Globo de radio: esquina superior derecha, pequeño, sin tapar el escenario. */
+.radio-bubble {
+  position: fixed;
+  top: 4.6rem;
+  right: .8rem;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: 3.1rem 1fr;
+  gap: .55rem;
+  align-items: center;
+  width: min(22rem, calc(100vw - 1.6rem));
+  padding: .55rem .7rem;
+  border: 3px solid var(--radio-accent, #f6c15b);
+  background: rgb(7 20 38 / 95%);
+  box-shadow: 0 .5rem 0 rgb(0 0 0 / 35%);
+  animation: radio-in 260ms cubic-bezier(.2, 1.4, .5, 1) both;
+  pointer-events: none;
+}
+
+.radio-bubble--normal { --radio-accent: #f6c15b; }
+.radio-bubble--good { --radio-accent: #69f0ae; }
+.radio-bubble--danger { --radio-accent: #ff6b6b; }
+
+.radio-bubble__portrait {
+  width: 3.1rem;
+  height: 3.1rem;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 0 rgb(0 0 0 / 45%));
+  animation: radio-breathe 3.2s ease-in-out infinite;
+}
+
+.radio-bubble__copy > strong {
+  display: block;
+  color: var(--radio-accent, #f6c15b);
+  font-size: .62rem;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.radio-bubble__copy p {
+  margin: .1rem 0 0;
+  color: #f2f7ff;
+  font-size: .78rem;
+  line-height: 1.32;
+  /* Reserva el alto del texto completo para que el tecleo no mueva la caja. */
+  min-height: 2.1em;
+}
+
+/* Copia accesible: el lector la anuncia entera, la vista no la ve. */
+.radio-bubble__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Onda de señal: marca que el mensaje llega por radio desde la base. */
+.radio-bubble__signal {
+  position: absolute;
+  top: -.55rem;
+  left: -.55rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 3px solid var(--radio-accent, #f6c15b);
+  border-radius: 50%;
+  background: rgb(7 20 38 / 95%);
+  animation: radio-signal 1.6s ease-out infinite;
+}
+
+@keyframes radio-in {
+  from { opacity: 0; transform: translateX(1.2rem) scale(.94); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes radio-breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes radio-signal {
+  0% { box-shadow: 0 0 0 0 var(--radio-accent, #f6c15b); opacity: 1; }
+  100% { box-shadow: 0 0 0 .7rem transparent; opacity: .55; }
+}
+
+@media (max-width: 560px) {
+  .radio-bubble { top: auto; right: .4rem; bottom: 5.4rem; left: .4rem; width: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .radio-bubble,
+  .radio-bubble__portrait,
+  .radio-bubble__signal { animation: none; }
+}
+
+/* Botón de silencio: mismo lenguaje visual que el selector de idioma. */
+.sound-toggle {
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  place-items: center;
+  padding: 0;
+  border: 2px solid #35526f;
+  border-radius: 0;
+  color: #cfe4ff;
+  background: #0f2135;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: border-color 140ms, color 140ms;
+}
+.sound-toggle:hover { border-color: #65d9ef; color: #fff; }
+.sound-toggle[aria-pressed="true"] { color: #7d94ad; }
+.sound-toggle--welcome { position: fixed; top: .8rem; left: 7.5rem; z-index: 40; }

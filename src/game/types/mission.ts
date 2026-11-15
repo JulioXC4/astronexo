@@ -116,6 +116,11 @@ export interface GameAction {
   readonly type: ActionType;
   readonly targetId?: string;
   readonly choiceId?: ActionChoice;
+  /**
+   * Qué tan bien quedó el minijuego, de 0 a 1. Escala el efecto de la
+   * intervención. Si falta, se asume un trabajo correcto.
+   */
+  readonly quality?: number;
 }
 
 export interface ResourceDelta {
@@ -223,6 +228,8 @@ export interface MissionState {
   readonly outcome: MissionOutcome;
   readonly interruptionCause?: string;
   readonly lastFeedback?: ActionFeedback;
+  /** Cambio neto de cada barra en el turno que acaba de cerrarse («Último cambio»). */
+  readonly lastTurnDelta?: ResourceDelta;
 }
 
 export interface ScoreBreakdown {

@@ -109,7 +109,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
             gap: '0.7rem'
           }}>
             <h2 style={{ fontSize: '1rem', color: '#f6c15b', margin: '0 0 0.3rem 0', fontFamily: 'Fredoka', letterSpacing: '0.04em' }}>
-              📦 ESTANTERÍA DE EQUIPOS EN TIERRA (4 DISPONIBLES)
+               ESTANTERÍA DE EQUIPOS EN TIERRA (4 DISPONIBLES)
             </h2>
 
             {TOOL_CATALOG.map((tool) => {
@@ -192,7 +192,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
           }}>
             <div>
               <h2 style={{ fontSize: '1rem', color: '#69f0ae', margin: '0 0 0.8rem 0', fontFamily: 'Fredoka', letterSpacing: '0.04em' }}>
-                🚀 BAHÍA DE CARGA DEL COHETE (3 RANURAS)
+                 BAHÍA DE CARGA DEL COHETE (3 RANURAS)
               </h2>
 
               <div style={{ display: 'grid', gap: '0.8rem' }}>

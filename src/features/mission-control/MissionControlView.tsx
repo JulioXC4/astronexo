@@ -1,14 +1,36 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { GameAction, MissionState } from '../../game';
+import type { GameAction, MissionState, ResourceDelta } from '../../game';
+import { projectAlertConsequence, resourceLevel, SCIENCE_TARGET } from '../../game';
 import { spaceBackgrounds } from '../../assets/manifest';
 import { InterventionDock } from '../space-minigames';
 import { AlertCard } from './AlertCard';
 import { ResourceBar } from './ResourceBar';
 import { ModuleCameras } from './ModuleCameras';
+import { formatChange, readableChanges } from './resourceLabels';
+import { useRadio } from '../radio';
+import { SoundToggle } from '../audio';
 import { useI18n, LanguageSelector } from '../../i18n';
 import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../tutorial';
 
 const GUARD_TUTORIAL_STEPS = ['guard.resources', 'guard.alerts', 'guard.actions'] as const;
+
+/** Las cuatro barras que el niño vigila, en el orden en que se muestran. */
+const TRACKED_RESOURCES = [
+  { key: 'energy', tone: 'energy', labelKey: 'missionControl.energy' },
+  { key: 'oxygen', tone: 'oxygen', labelKey: 'missionControl.oxygen' },
+  { key: 'shield', tone: 'shield', labelKey: 'missionControl.shield' },
+  { key: 'foodSupply', tone: 'food', labelKey: 'missionControl.food' },
+] as const;
+
+function sumDelta(deltas: readonly ResourceDelta[]): ResourceDelta {
+  const total: Record<string, number> = {};
+  for (const delta of deltas) {
+    for (const [key, value] of Object.entries(delta)) {
+      total[key] = (total[key] ?? 0) + (value ?? 0);
+    }
+  }
+  return total as ResourceDelta;
+}
 
 interface MissionControlViewProps {
   readonly state: MissionState;
@@ -16,6 +38,7 @@ interface MissionControlViewProps {
   readonly onAdvance: () => void;
   readonly onRequestConfirmation?: (action: GameAction) => void;
   readonly groupDecisionPending?: boolean;
+  /** @deprecated Comida es ahora siempre una de las cuatro barras principales. */
   readonly showFoodAsPrimary?: boolean;
 }
 
@@ -25,9 +48,9 @@ export function MissionControlView({
   onAdvance,
   onRequestConfirmation,
   groupDecisionPending = false,
-  showFoodAsPrimary = false,
 }: MissionControlViewProps) {
   const { t } = useI18n();
+  const radio = useRadio();
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(state.activeAlerts[0]?.id ?? null);
   const [tutorialOpen, setTutorialOpen] = useState(() => !isTutorialComplete(GUARD_TUTORIAL_STEPS));
   useEffect(() => {
@@ -45,6 +68,48 @@ export function MissionControlView({
   const hasEarlyWarning = Boolean(
     state.earlyWarningForecast && state.turn < state.earlyWarningForecast.turn,
   );
+
+  /**
+   * Riesgo que se ve venir (maqueta JD v11.0): cómo quedarían las barras si el
+   * turno se cierra sin atender las alertas activas. Sin esto, el niño solo ve
+   * el costo de actuar y nunca el de no actuar.
+   */
+  const risk = useMemo(() => {
+    const projected = sumDelta(state.activeAlerts.map(projectAlertConsequence));
+    return TRACKED_RESOURCES
+      .map(({ key, labelKey }) => {
+        const change = projected[key as keyof ResourceDelta] ?? 0;
+        const after = Math.max(0, Math.min(100, state[key] + change));
+        return { key, labelKey, change, after, level: resourceLevel(after) };
+      })
+      .filter((item) => item.change < 0)
+      .sort((a, b) => a.after - b.after);
+  }, [state]);
+  const worstRisk = risk[0];
+
+  const lastChange = useMemo(() => readableChanges(state.lastTurnDelta), [state.lastTurnDelta]);
+
+  // Alba abre la guardia diciendo cuál es la meta, y avisa por radio en cuanto
+  // una barra entra en rojo. El peligro deja de ser invisible.
+  useEffect(() => {
+    radio.say({
+      speaker: 'ALBA',
+      text: t('radio.guardGoal', { target: SCIENCE_TARGET }),
+      once: 'guard.goal',
+    });
+  }, [radio, t]);
+
+  useEffect(() => {
+    for (const { key, labelKey } of TRACKED_RESOURCES) {
+      if (resourceLevel(state[key]) === 'ok') continue;
+      radio.say({
+        speaker: 'NICO',
+        tone: 'danger',
+        text: t('radio.resourceLow', { resource: t(labelKey), value: state[key] }),
+        once: `low.${key}.${state.turn}`,
+      });
+    }
+  }, [radio, t, state]);
   const tutorialSteps = useMemo(() => [
     {
       id: GUARD_TUTORIAL_STEPS[0],
@@ -79,16 +144,24 @@ export function MissionControlView({
         <span>{destinationLabel}</span>
         <h1>{t('missionControl.guardTitle', { destination: destinationLabel })}</h1>
       </div>
-      <section data-tutorial="space-resources" className={`resource-rack ${showFoodAsPrimary ? 'resource-rack--four' : ''}`} aria-label={t('missionControl.resourceRackAria')}>
-        <ResourceBar label={t('missionControl.energy')} value={state.energy} tone="energy" />
-        <ResourceBar label={t('missionControl.oxygen')} value={state.oxygen} tone="oxygen" />
-        <ResourceBar label={t('missionControl.shield')} value={state.shield} tone="shield" />
-        {showFoodAsPrimary && <ResourceBar label={t('missionControl.food')} value={state.foodSupply} tone="food" />}
+      {/* Las cuatro barras van siempre al mismo rango (dotación base JD: 64/78/60/72)
+          y, junto a ellas, el objetivo que decide si la misión se gana. */}
+      <section data-tutorial="space-resources" className="resource-rack resource-rack--five" aria-label={t('missionControl.resourceRackAria')}>
+        {TRACKED_RESOURCES.map(({ key, tone, labelKey }) => (
+          <ResourceBar key={key} label={t(labelKey)} value={state[key]} tone={tone} />
+        ))}
+        <ResourceBar
+          label={t('missionControl.scienceGoal')}
+          value={state.scienceProgress}
+          tone="science"
+          target={SCIENCE_TARGET}
+        />
       </section>
       <div className="mission-clock" aria-label={t('missionControl.turnIndicator', { current: state.turn, total: state.maxTurns })}>
         <span>{t('missionControl.turnIndicator', { current: state.turn, total: state.maxTurns })}</span>
         <strong>{clockLabel}</strong>
       </div>
+      <SoundToggle />
       <LanguageSelector variant="hud" />
     </header>
     <TutorialHelpButton className="tutorial-help-button--floating" onClick={() => setTutorialOpen(true)} />
@@ -131,6 +204,18 @@ export function MissionControlView({
       <span>{state.lastFeedback.message}</span>
     </aside>}
 
+    {/* Último cambio: qué subió y qué bajó en el turno que acaba de pasar. */}
+    {lastChange.length > 0 && <aside className="last-change" role="status">
+      <strong>{t('missionControl.lastChangeTitle')}</strong>
+      <ul>{lastChange.map(({ key, labelKey, value }) => <li
+        key={key}
+        className={value > 0 ? 'last-change__up' : 'last-change__down'}
+      >
+        <span>{t(labelKey)}</span>
+        <strong>{formatChange(value)}</strong>
+      </li>)}</ul>
+    </aside>}
+
     <section className="mission-bottom-bar">
       <InterventionDock
         key={state.turn}
@@ -144,6 +229,12 @@ export function MissionControlView({
         <p>{state.actionTakenThisTurn
           ? t('missionControl.turnControlsReady')
           : t('missionControl.turnControlsPrompt')}</p>
+        {/* El costo de NO actuar, con número, antes de cerrar el turno. */}
+        {worstRisk && <p className={`turn-risk turn-risk--${worstRisk.level}`} role="status">
+          {worstRisk.after <= 0
+            ? t('missionControl.riskRunsOut', { resource: t(worstRisk.labelKey) })
+            : t('missionControl.riskLow', { resource: t(worstRisk.labelKey), value: worstRisk.after })}
+        </p>}
         <button
           className="pixel-button pixel-button--primary"
           disabled={!state.actionTakenThisTurn}

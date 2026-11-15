@@ -3,8 +3,9 @@ import type { ActionChoice, MissionState } from '../../game';
 import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
 import { COMMUNICATION_PROBLEMS, isCommunicationMessageRelevant, type GuidanceChoice } from './puzzleRules';
+import { qualityFromMistakes } from '../../game';
 
-interface EarthCommunicationGameProps { readonly state: MissionState; readonly onReadyChange: (ready: boolean) => void; readonly onChoiceChange: (choice: ActionChoice | undefined) => void; }
+interface EarthCommunicationGameProps { readonly state: MissionState; readonly onReadyChange: (ready: boolean, quality?: number) => void; readonly onChoiceChange: (choice: ActionChoice | undefined) => void; }
 
 export function EarthCommunicationGame({ state, onReadyChange, onChoiceChange }: EarthCommunicationGameProps) {
   const { t } = useI18n();
@@ -12,6 +13,7 @@ export function EarthCommunicationGame({ state, onReadyChange, onChoiceChange }:
   const [facts, setFacts] = useState<readonly string[]>([]);
   const [hint, setHint] = useState('');
   const [sent, setSent] = useState(false);
+  const [mistakes, setMistakes] = useState(0);
   const choices = useMemo<readonly GuidanceChoice[]>(() => state.energy <= state.oxygen ? ['ENERGY_GUIDANCE', 'RADIATION_GUIDANCE'] : ['LIFE_SUPPORT_GUIDANCE', 'RADIATION_GUIDANCE'], [state.energy, state.oxygen]);
   const availableFacts = problem ? [...COMMUNICATION_PROBLEMS[problem].relevantFacts, ...COMMUNICATION_PROBLEMS[problem].distractors] : [];
   const asset = (role: string) => interventionAssets.G8.find((item) => item.role === role)!.path;
@@ -19,8 +21,8 @@ export function EarthCommunicationGame({ state, onReadyChange, onChoiceChange }:
   function toggleFact(fact: string) { if (sent) return; setFacts((current) => current.includes(fact) ? current.filter((item) => item !== fact) : current.length < 2 ? [...current, fact] : current); }
   function transmit() {
     if (!problem || facts.length !== 2) return;
-    if (!isCommunicationMessageRelevant(problem, facts)) { setHint(t('interventions.puzzles.g8.wrongFacts')); return; }
-    setSent(true); setHint(t(state.destination === 'MOON' ? 'interventions.puzzles.g8.moonSuccess' : 'interventions.puzzles.g8.marsSuccess')); onChoiceChange(problem); onReadyChange(true);
+    if (!isCommunicationMessageRelevant(problem, facts)) { setHint(t('interventions.puzzles.g8.wrongFacts')); setMistakes((value) => value + 1); return; }
+    setSent(true); setHint(t(state.destination === 'MOON' ? 'interventions.puzzles.g8.moonSuccess' : 'interventions.puzzles.g8.marsSuccess')); onChoiceChange(problem); onReadyChange(true, qualityFromMistakes(mistakes));
   }
   return <div className={`puzzle puzzle--communication ${sent ? 'puzzle--success is-transmitting' : ''}`}>
     <div className="puzzle__status"><strong>{t('interventions.puzzles.g8.title')}</strong><span>{t('interventions.puzzles.g8.oneConsult')}</span></div>

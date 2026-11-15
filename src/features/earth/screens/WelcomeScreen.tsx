@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, Broadcast, Play, X } from '@phosphor-icons/react';
 import { assetManifest } from '../../../assets/manifest';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { SoundToggle } from '../../audio';
 import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
 import { PixelSceneAnimator } from '../components/PixelSceneAnimator';
 import { arequipaScene, landingScene, tromsoScene } from '../scenes/pixelScenes';
@@ -121,6 +122,7 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
 
     {/* Barra superior de idioma estilo HUD */}
     <div className="welcome__top-bar">
+      <SoundToggle className="sound-toggle--welcome" />
       <LanguageSelector variant="welcome" />
     </div>
 

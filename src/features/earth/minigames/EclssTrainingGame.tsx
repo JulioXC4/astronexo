@@ -101,7 +101,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
             <g transform="translate(130, 180)">
               <rect x="-65" y="-60" width="130" height="120" rx="12" fill="#162e4a" stroke="#29b6f6" strokeWidth="3" />
               <text x="0" y="-30" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffffff">Reciclador H₂O</text>
-              <text x="0" y="0" textAnchor="middle" fontSize="30">💧</text>
+              <text x="0" y="0" textAnchor="middle" fontSize="30"></text>
               <text x="0" y="30" textAnchor="middle" fontSize="12" fontWeight="bold" fill={isWaterOptimal ? "#69f0ae" : "#ffb74d"}>
                 {waterRecycleRate}% Efic.
               </text>
@@ -112,7 +112,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
             <g transform="translate(390, 180)">
               <rect x="-70" y="-70" width="140" height="140" rx="14" fill="#1b395a" stroke={isOxygenOptimal ? "#69f0ae" : "#f6c15b"} strokeWidth={isOxygenOptimal ? 4 : 2.5} />
               <text x="0" y="-40" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#ffffff">Electrólisis OGA</text>
-              <text x="0" y="-10" textAnchor="middle" fontSize="32">⚡</text>
+              <text x="0" y="-10" textAnchor="middle" fontSize="32"></text>
               <text x="0" y="20" textAnchor="middle" fontSize="14" fontWeight="bold" fill={isOxygenOptimal ? "#69f0ae" : "#ffb74d"}>
                 {oxygenPercent}% O₂
               </text>
@@ -125,7 +125,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
             <g transform="translate(650, 180)">
               <rect x="-65" y="-60" width="130" height="120" rx="12" fill={isCo2ScrubberOn ? "#1a4030" : "#372424"} stroke={isCo2ScrubberOn ? "#69f0ae" : "#ef5350"} strokeWidth={3} />
               <text x="0" y="-30" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffffff">Filtro CO₂ CDRA</text>
-              <text x="0" y="0" textAnchor="middle" fontSize="28">{isCo2ScrubberOn ? "🌬️" : "⛔"}</text>
+              <text x="0" y="0" textAnchor="middle" fontSize="28">{isCo2ScrubberOn ? "" : "✗"}</text>
               <text x="0" y="28" textAnchor="middle" fontSize="12" fontWeight="bold" fill={isCo2Safe ? "#69f0ae" : "#ef5350"}>
                 {co2Percent}% CO₂
               </text>
@@ -183,7 +183,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
             />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9', marginTop: '0.2rem' }}>
               <span>150 W (Bajo O₂)</span>
-              <span style={{ color: '#ffd54f' }}>340 W (21.0% O₂ óptimo)</span>
+              <span style={{ color: '#90caf9' }}>Zona respirable</span>
               <span>550 W (Sobrecarga)</span>
             </div>
           </div>
@@ -205,7 +205,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
                   setIsSimulated(false);
                 }}
               >
-                {isCo2ScrubberOn ? '✓ Scrubber ACTIVO (+45 W)' : '⛔ Scrubber APAGADO'}
+                {isCo2ScrubberOn ? '✓ Scrubber ACTIVO (+45 W)' : '✗ Scrubber APAGADO'}
               </button>
             </div>
 

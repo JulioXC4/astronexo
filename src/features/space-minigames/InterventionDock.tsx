@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { X } from '@phosphor-icons/react';
-import { INTERVENTIONS, getActionCost } from '../../game';
+import { INTERVENTIONS, QUALITY_TIERS, getActionCost, qualityTier } from '../../game';
 import type {
   ActionChoice,
   GameAction,
@@ -9,6 +9,8 @@ import type {
   ResourceDelta,
 } from '../../game';
 import { interventionAssets } from '../../assets/interventionAssets';
+import { useRadio } from '../radio';
+import { playSound } from '../audio';
 import { EarthCommunicationGame } from './EarthCommunicationGame';
 import { GreenhouseGame } from './GreenhouseGame';
 import { OxygenPatchGame } from './OxygenPatchGame';
@@ -49,11 +51,19 @@ export function InterventionDock({
   focusedAlertId,
 }: InterventionDockProps) {
   const { t } = useI18n();
+  const radio = useRadio();
   const [menuOpen, setMenuOpen] = useState(false);
   const [selected, setSelected] = useState<InterventionAction | null>(null);
   const [skipSelected, setSkipSelected] = useState(false);
   const [choiceId, setChoiceId] = useState<ActionChoice | undefined>();
   const [interactionReady, setInteractionReady] = useState(false);
+  // Qué tan bien quedó el minijuego; viaja con la acción hasta el motor.
+  const [quality, setQuality] = useState<number | undefined>(undefined);
+  function reportResult(ready: boolean, value?: number) {
+    if (ready && !interactionReady) playSound('success');
+    setInteractionReady(ready);
+    setQuality(ready ? value : undefined);
+  }
   const [interventionTutorialOpen, setInterventionTutorialOpen] = useState(false);
   const actionLock = useRef(false);
   const requestLock = useRef(false);
@@ -73,6 +83,7 @@ export function InterventionDock({
     type: selected,
     targetId: matchingAlert?.id,
     choiceId,
+    quality,
   } : null;
   const cost = pendingAction ? getActionCost(state, pendingAction) : {};
   const canPay = state.energy + (cost.energy ?? 0) >= 0
@@ -96,7 +107,7 @@ export function InterventionDock({
     setSelected(null);
     setSkipSelected(false);
     setChoiceId(undefined);
-    setInteractionReady(false);
+    reportResult(false);
   }, [state.actionTakenThisTurn]);
 
   useEffect(() => {
@@ -127,9 +138,11 @@ export function InterventionDock({
   function choose(action: InterventionAction) {
     setMenuOpen(false);
     setSelected(action);
+    // La tarea llega por radio en vez de en una caja de texto sobre el juego.
+    radio.say({ speaker: 'CHISPA', text: t(`interventions.items.${action}.instructions`) });
     setSkipSelected(false);
     setChoiceId(undefined);
-    setInteractionReady(false);
+    reportResult(false);
   }
 
   function closeOverlay() {
@@ -138,7 +151,7 @@ export function InterventionDock({
     setSelected(null);
     setSkipSelected(false);
     setChoiceId(undefined);
-    setInteractionReady(false);
+    reportResult(false);
   }
 
   function confirm() {
@@ -149,6 +162,7 @@ export function InterventionDock({
       return;
     }
     actionLock.current = true;
+    playSound('reward');
     onAction(pendingAction);
     setSelected(null);
     setMenuOpen(false);
@@ -159,7 +173,7 @@ export function InterventionDock({
     setSelected(null);
     setSkipSelected(true);
     setChoiceId(undefined);
-    setInteractionReady(false);
+    reportResult(false);
   }
 
   function confirmSkip() {
@@ -319,22 +333,33 @@ export function InterventionDock({
         {panelMode === 'SKIPPED' ? <div className="console-placeholder"><p>{t('interventions.skippedDesc')}</p></div> : <>
           <div data-tutorial="intervention-game">
             {selected === 'REPAIR_PANELS'
-              ? <PanelRepairGame onReadyChange={setInteractionReady} />
+              ? <PanelRepairGame onReadyChange={reportResult} />
               : selected === 'CLEAN_PANELS'
-                ? <PanelCleaningGame onReadyChange={setInteractionReady} />
+                ? <PanelCleaningGame onReadyChange={reportResult} seed={state.scenarioSeed + state.turn} />
               : selected === 'PATCH_OXYGEN_LEAK'
-                ? <OxygenPatchGame onReadyChange={setInteractionReady} />
+                ? <OxygenPatchGame onReadyChange={reportResult} seed={state.scenarioSeed + state.turn} />
                 : selected === 'RECYCLE_OXYGEN'
-                  ? <OxygenRecycleGame onReadyChange={setInteractionReady} />
+                  ? <OxygenRecycleGame onReadyChange={reportResult} />
                   : selected === 'REINFORCE_SHELTER'
-                    ? <ShelterProtectionGame onReadyChange={setInteractionReady} onChoiceChange={setChoiceId} />
+                    ? <ShelterProtectionGame onReadyChange={reportResult} onChoiceChange={setChoiceId} />
                     : selected === 'RUN_RESEARCH'
-                      ? <ScienceResearchGame destination={state.destination} onReadyChange={setInteractionReady} />
+                      ? <ScienceResearchGame destination={state.destination} onReadyChange={reportResult} />
                       : selected === 'MANAGE_GREENHOUSE'
-                        ? <GreenhouseGame onReadyChange={setInteractionReady} onChoiceChange={setChoiceId} />
-                        : <EarthCommunicationGame state={state} onReadyChange={setInteractionReady} onChoiceChange={setChoiceId} />}
+                        ? <GreenhouseGame onReadyChange={reportResult} onChoiceChange={setChoiceId} />
+                        : <EarthCommunicationGame state={state} onReadyChange={reportResult} onChoiceChange={setChoiceId} />}
           </div>
           {!canPay && <p className="error-copy">{t('interventions.insufficientResources')}</p>}
+          {/* Qué tan bien quedó el trabajo. Palabra + tres marcas: nunca solo color. */}
+          {interactionReady && <div className={`work-quality work-quality--${qualityTier(quality)}`} role="status">
+            <strong>{t('interventions.workQuality')}</strong>
+            <span className="work-quality__marks" aria-hidden="true">
+              {QUALITY_TIERS.map((tier, index) => <i
+                key={tier}
+                className={index <= QUALITY_TIERS.indexOf(qualityTier(quality)) ? 'is-on' : ''}
+              />)}
+            </span>
+            <em>{t(`interventions.quality.${qualityTier(quality)}`)}</em>
+          </div>}
           <footer className="intervention-console__actions">
             <button type="button" className="pixel-button" onClick={closeOverlay}>{t('common.back')}</button>
             <button

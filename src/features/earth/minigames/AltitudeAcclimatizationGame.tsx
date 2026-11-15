@@ -104,7 +104,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
             {/* Escotilla central circular */}
             <circle cx="450" cy="200" r="95" fill="#142639" stroke={allSealsSecured ? "#69f0ae" : "#f6c15b"} strokeWidth="5" />
             <circle cx="450" cy="200" r="75" fill="none" stroke="#2a4a6e" strokeWidth="2" strokeDasharray="6 4" />
-            <text x="450" y="195" textAnchor="middle" fontSize="38">👨‍🚀</text>
+            <text x="450" y="195" textAnchor="middle" fontSize="38"></text>
             <text x="450" y="235" textAnchor="middle" fontSize="12" fontWeight="bold" fill={isPressureOptimal ? "#69f0ae" : "#ffb74d"}>
               {pressureKpa} kPa
             </text>
@@ -113,7 +113,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
             <g transform="translate(130, 140)">
               <rect x="-60" y="-35" width="120" height="70" rx="10" fill={sealMain ? "#183b2e" : "#243447"} stroke={sealMain ? "#69f0ae" : "#ffb74d"} strokeWidth="2" />
               <text x="0" y="-12" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffffff">Sello Principal</text>
-              <text x="0" y="8" textAnchor="middle" fontSize="18">{sealMain ? "🔒" : "🔓"}</text>
+              <text x="0" y="8" textAnchor="middle" fontSize="18">{sealMain ? "" : ""}</text>
               <text x="0" y="24" textAnchor="middle" fontSize="9" fontWeight="bold" fill={sealMain ? "#69f0ae" : "#ffa726"}>
                 {sealMain ? "HERMÉTICO" : "ABIERTO"}
               </text>
@@ -131,7 +131,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
             <g transform="translate(770, 140)">
               <rect x="-60" y="-35" width="120" height="70" rx="10" fill={sealNitrogen ? "#183b2e" : "#243447"} stroke={sealNitrogen ? "#69f0ae" : "#ffb74d"} strokeWidth="2" />
               <text x="0" y="-12" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffffff">Retorno N₂</text>
-              <text x="0" y="8" textAnchor="middle" fontSize="18">{sealNitrogen ? "🔒" : "🔓"}</text>
+              <text x="0" y="8" textAnchor="middle" fontSize="18">{sealNitrogen ? "" : ""}</text>
               <text x="0" y="24" textAnchor="middle" fontSize="9" fontWeight="bold" fill={sealNitrogen ? "#69f0ae" : "#ffa726"}>
                 {sealNitrogen ? "HERMÉTICO" : "ABIERTO"}
               </text>
@@ -186,7 +186,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
             />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9', marginTop: '0.2rem' }}>
               <span>50 kPa (Monte Everest)</span>
-              <span style={{ color: '#ffd54f' }}>76 kPa (Cabina recomendada)</span>
+              <span style={{ color: '#90caf9' }}>Zona de cabina</span>
               <span>101 kPa (Nivel del mar)</span>
             </div>
           </div>

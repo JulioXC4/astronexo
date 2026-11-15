@@ -4,6 +4,7 @@ import type { SessionPhase } from './GameRouter';
 import type { EarthReadyPayload } from '../game/contracts';
 import type { LocalCoopConfig } from '../features/coop-gameplay/coop.types';
 import { I18nProvider } from '../i18n';
+import { RadioProvider } from '../features/radio';
 
 export function App() {
   const [phase, setPhase] = useState<SessionPhase>({ kind: 'EARTH' });
@@ -12,6 +13,7 @@ export function App() {
 
   return (
     <I18nProvider>
+      <RadioProvider>
       <GameRouter
         phase={phase}
         onReady={(payload) => {
@@ -34,6 +36,7 @@ export function App() {
         }
         onRestart={() => setPhase({ kind: 'EARTH' })}
       />
+      </RadioProvider>
     </I18nProvider>
   );
 }

@@ -20,7 +20,7 @@ export const no = {
     selected: 'Valgt',
     energy: 'Energi',
     oxygen: 'Oksygen',
-    shield: 'Skjold',
+    shield: 'Beskyttelse',
     food: 'Mat',
     foodSupply: 'Matforsyning',
     science: 'Vitenskap',
@@ -177,7 +177,7 @@ export const no = {
     startMissionBtn: 'Start oppdrag: {name}',
     alreadyCompleted: 'Denne treningsøkten er allerede fullført.',
     maxReachedNotice: 'Du har fullført 3 oppdrag! Du er klar for oppskytning.',
-    proceedToFlightBtn: 'Klar til oppskytning 🚀',
+    proceedToFlightBtn: 'Klar til oppskytning ',
     facilities: {
       solarLab: 'Solenergilaboratoriet (Solar Detective / Solar Watch)',
       shieldLab: 'Strålingsskjoldlaboratoriet',
@@ -297,7 +297,7 @@ export const no = {
     departureSubtitle: 'Forlater jordens atmosfære og setter kursen mot romdestinasjonen.',
     arrivalTitle: 'Vel fremme på {destination}!',
     arrivalSubtitle: 'Landingen var vellykket. Gjør deg klar til å bygge basen.',
-    continueBtn: 'Gå til basebygging 🚀',
+    continueBtn: 'Gå til basebygging ',
   },
 
   baseBuilder: {
@@ -340,11 +340,11 @@ export const no = {
   },
 
   results: {
-    victoryTitle: 'Oppdrag vellykket fullført! 🏆',
+    victoryTitle: 'Oppdrag vellykket fullført! ',
     partialTitle: 'Oppdrag avbrutt',
     scoreLabel: 'Poengsum:',
     finalReportTitle: 'Sluttrapport',
-    returnHomeBtn: 'Vend tilbake til jorden 🌍',
+    returnHomeBtn: 'Vend tilbake til jorden ',
     playAgainBtn: 'Spill på nytt',
   },
 

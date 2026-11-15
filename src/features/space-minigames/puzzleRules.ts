@@ -50,6 +50,31 @@ export function isPanelCircuitComplete(tiles: readonly CircuitTileState[]) {
 }
 
 export const PANEL_DUST_START = [3, 2, 3, 3, 2, 3] as const;
+
+/**
+ * Variación del puzle entre turnos y partidas.
+ *
+ * Antes no había ni un `Math.random` en los minijuegos: la misma avería del
+ * turno 1 reaparecía idéntica en el turno 4 y en todas las partidas. Aquí la
+ * variación es *determinista* a partir de la semilla del escenario, así que el
+ * juego cambia para el niño pero sigue siendo reproducible en las pruebas.
+ */
+const PANEL_DUST_VARIANTS: readonly (readonly number[])[] = [
+  PANEL_DUST_START,
+  [2, 3, 3, 2, 3, 3],
+  [3, 3, 2, 3, 3, 2],
+  [2, 2, 3, 3, 3, 3],
+];
+
+/** Cualquier reparto es resoluble: limpiar las celdas 2 y 5 cubre las seis. */
+export function panelDustForSeed(seed: number): readonly number[] {
+  return PANEL_DUST_VARIANTS[Math.abs(Math.trunc(seed)) % PANEL_DUST_VARIANTS.length];
+}
+
+/** Qué compartimento pierde aire esta vez (antes siempre era el mismo). */
+export function leakingCompartmentForSeed(seed: number): number {
+  return Math.abs(Math.trunc(seed)) % 3;
+}
 const CLEANER_COVERAGE: Readonly<Record<number, readonly number[]>> = {
   0: [0, 1, 3], 1: [0, 1, 2, 4], 2: [1, 2, 5], 3: [0, 3, 4], 4: [1, 3, 4, 5], 5: [2, 4, 5],
 };
