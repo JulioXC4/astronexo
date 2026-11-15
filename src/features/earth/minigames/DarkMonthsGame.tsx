@@ -14,20 +14,13 @@ interface DarkMonthsGameProps {
 export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
   const { t } = useI18n();
   // Distribución de energía en porcentaje (total debe ser 100%)
-  const [thermalHeat, setThermalHeat] = useState<number>(55);
-  const [bioLighting, setBioLighting] = useState<number>(30);
-  const [telemetry, setTelemetry] = useState<number>(15);
+  const [thermalHeat, setThermalHeat] = useState<number>(40);
+  const [bioLighting, setBioLighting] = useState<number>(35);
+  const [telemetry, setTelemetry] = useState<number>(25);
   const [isTested, setIsTested] = useState<boolean>(false);
 
   // Datos reales de Tromsø en diciembre (Noche polar)
   const polarNightRecord = TROMSO_SOLAR_RECORDS.days[2];
-
-  function handleAutoBalance() {
-    setThermalHeat(55);
-    setBioLighting(30);
-    setTelemetry(15);
-    setIsTested(false);
-  }
 
   function handleSimulatePolarNight() {
     setIsTested(true);
@@ -40,7 +33,8 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
   const isHeatingSafe = thermalHeat >= 50;
   const isBioSafe = bioLighting >= 20;
   const isTelemetrySafe = telemetry >= 10;
-  const isSuccess = isHeatingSafe && isBioSafe && isTelemetrySafe;
+  const allocatedPower = thermalHeat + bioLighting + telemetry;
+  const isSuccess = allocatedPower === 100 && isHeatingSafe && isBioSafe && isTelemetrySafe;
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
@@ -217,10 +211,11 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
           gap: '1rem'
         }}>
           <div>
-            <label style={{ display: 'block', color: '#ffab91', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.2rem' }}>
+            <label htmlFor="polar-heat" style={{ display: 'block', color: '#ffab91', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.2rem' }}>
               Calefacción Térmica: {thermalHeat}% (Mínimo 50%)
             </label>
             <input
+              id="polar-heat"
               type="range"
               min="30"
               max="70"
@@ -235,10 +230,11 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
           </div>
 
           <div>
-            <label style={{ display: 'block', color: '#b9f6ca', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.2rem' }}>
+            <label htmlFor="polar-crops" style={{ display: 'block', color: '#b9f6ca', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.2rem' }}>
               Iluminación de Cultivos: {bioLighting}% (Mínimo 20%)
             </label>
             <input
+              id="polar-crops"
               type="range"
               min="10"
               max="40"
@@ -253,10 +249,11 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
           </div>
 
           <div>
-            <label style={{ display: 'block', color: '#b3e5fc', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.2rem' }}>
+            <label htmlFor="polar-radio" style={{ display: 'block', color: '#b3e5fc', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.2rem' }}>
               Radio & Telemetría: {telemetry}% (Mínimo 10%)
             </label>
             <input
+              id="polar-radio"
               type="range"
               min="5"
               max="30"
@@ -272,6 +269,9 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
         </div>
 
         {/* ACCIONES Y SIMULACIÓN */}
+        <p role="status" style={{ color: allocatedPower === 100 ? '#69f0ae' : '#ffb74d', fontWeight: 700 }}>
+          {t('minigames.darkMonths.allocation', { used: allocatedPower })}
+        </p>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem', marginTop: '0.8rem' }}>
           <button
             type="button"
@@ -282,13 +282,8 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
             <span>Simular Noche Continua (14 Días)</span>
           </button>
 
-          <button
-            type="button"
-            className="earth-screen__back-btn"
-            onClick={handleAutoBalance}
-          >
-            <ArrowCounterClockwise weight="bold" />
-            <span>Ajuste Equilibrado</span>
+          <button type="button" className="earth-screen__back-btn" onClick={() => { setThermalHeat(40); setBioLighting(35); setTelemetry(25); setIsTested(false); }}>
+            <ArrowCounterClockwise weight="bold" /> {t('minigames.darkMonths.reset')}
           </button>
         </div>
 
@@ -314,7 +309,7 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
               <p style={{ margin: '0.2rem 0 0 0', color: isSuccess ? '#c8e6c9' : '#ffcdd2', fontSize: '0.88rem' }}>
                 {isSuccess
                   ? 'La energía se mantuvo equilibrada: la tripulación no sufrió congelamiento, los cultivos conservaron la fotosíntesis y el enlace radial permaneció activo.'
-                  : 'Uno de los subsistemas cayó por debajo del umbral mínimo vital. Ajusta los deslizadores y vuelve a simular.'}
+                  : allocatedPower !== 100 ? t('minigames.darkMonths.allocationFailure', { used: allocatedPower }) : 'Uno de los subsistemas cayó por debajo del umbral mínimo vital. Ajusta los deslizadores y vuelve a simular.'}
               </p>
             </div>
 

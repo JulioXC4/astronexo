@@ -37,7 +37,6 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
   function handleAutoTune() {
     setRedSpectrum(70);
     setBlueSpectrum(30);
-    setNutrientDose('OPTIMAL');
     setIsSimulated(false);
   }
 

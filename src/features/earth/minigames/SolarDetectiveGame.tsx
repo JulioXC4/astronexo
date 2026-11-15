@@ -12,7 +12,7 @@ interface SolarDetectiveGameProps {
 }
 
 const ASSET_ROOT = '/assets/minigames/solar/';
-const PANEL_ANGLES = [0, 16, 35, 50] as const;
+const PANEL_ANGLES = [5, 16, 35, 50] as const;
 
 function panelSprite(angle: number): string {
   if (angle < 8) return 'panel-flat.png';
@@ -25,7 +25,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
   const { t } = useI18n();
   const tr = (key: string, params?: Record<string, string | number>) => t(`minigames.solarDetective.${key}`, params);
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
-  const [tiltAngle, setTiltAngle] = useState(0);
+  const [tiltAngle, setTiltAngle] = useState(5);
   const [reserveRatioPercent, setReserveRatioPercent] = useState(45);
   const [isSwitchClosed, setIsSwitchClosed] = useState(false);
   const [batteryLevel, setBatteryLevel] = useState(0);

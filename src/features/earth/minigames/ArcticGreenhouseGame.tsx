@@ -33,8 +33,6 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
 
   function handleAutoTune() {
     setGeothermalFlow(52);
-    setIsDomeInsulated(true);
-    setLedLightingMode('NORMAL');
     setIsSimulated(false);
   }
 
@@ -127,7 +125,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
             <g transform="translate(450, 315)">
               <ellipse cx="0" cy="0" rx="140" ry="8" fill="#2e7d32" opacity="0.3" />
               {[-80, -40, 0, 40, 80].map((posX, i) => (
-                <g key={i} transform={`translate(${posX} -8)`}>
+                <g key={i} transform={`translate(${posX} -8)`} opacity={ledLightingMode === 'LOW' ? 0.5 : 1}>
                   <path d={isFreezingRisk ? 'M0 0v-14l-9-8m9 8 9-8' : isOverheatingRisk ? 'M0 0v-20l-12-8m12 8 12-8' : 'M0 0v-26l-12-10m12 10 12-10'} fill="none" stroke="#609b65" strokeWidth="3" strokeLinecap="round" />
                   <path d="M-12-36q-11 1-10 11 9 4 16-2m18-9q11 1 10 11-9 4-16-2" fill={isFreezingRisk ? '#8caeaf' : isOverheatingRisk ? '#c5a36a' : '#76c887'} />
                 </g>

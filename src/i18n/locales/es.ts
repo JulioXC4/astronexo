@@ -30,6 +30,40 @@ export const es = {
     suspended: 'SUSPENDIDO',
   },
 
+  tutorial: {
+    guideLabel: 'Guía de Astronauta Junior',
+    next: 'Siguiente',
+    understood: 'Entendido',
+    skip: 'Saltar',
+    help: 'Ayuda',
+    letsGo: '¡Vamos!',
+    characters: {
+      alba: 'Alba',
+      chispa: 'Chispa',
+    },
+    welcome: '¡Hola, astronauta! Vamos a preparar nuestra misión espacial.',
+    map: {
+      pin: 'Hay cinco misiones. ¡Elige tres para tu mochila!',
+      tool: 'Cada misión te entrega una herramienta distinta para el viaje.',
+      counter: 'Aquí verás cuántas misiones completaste. Necesitas llegar a 3/3.',
+    },
+    guard: {
+      resources: 'Cuida la Energía, el Oxígeno y el Escudo.',
+      alerts: '¡Tenemos alertas! Solo puedes atender una por turno.',
+      actions: 'Toca Acciones, mira cuánto cuesta cada arreglo y elige.',
+    },
+    intervention: {
+      REPAIR_PANELS: 'Arrastra la pieza hasta el panel.',
+      CLEAN_PANELS: 'Desliza para quitar el polvo.',
+      PATCH_OXYGEN_LEAK: 'Toca los puntos de fuga.',
+      RECYCLE_OXYGEN: 'Mantén presionado el control.',
+      REINFORCE_SHELTER: 'Coloca los bloques de protección.',
+      RUN_RESEARCH: 'Mantén presionado el terminal para completar el estudio.',
+      MANAGE_GREENHOUSE: 'Elige si mantienes o suspendes los cultivos.',
+      CONSULT_EARTH: 'Elige la ayuda que quieres pedir a la Tierra.',
+    },
+  },
+
   welcome: {
     title: 'Astronauta Junior',
     subtitle: 'De tu cielo a otros mundos',
@@ -357,6 +391,9 @@ export const es = {
       educationalNote: 'Reglas de simulación educativa: Las acciones de evacuación y blindaje con polietileno/agua son protocolos simulados; los niveles de severidad son cualitativos sin inventar dosis radiológicas.',
     },
     darkMonths: {
+      allocation: 'Presupuesto de batería: {used}% / 100%. Reparte toda la energía entre calor, cultivos y radio.',
+      allocationFailure: 'Asignaste {used}% de una batería de 100%. Ajusta los tres controles y vuelve a probar.',
+      reset: 'Reiniciar distribución',
       back: 'Mapa de Tromsø',
       pill: 'Reserva para los Meses Oscuros · NASA POWER (Tromsø, 69.6° N)',
       title: 'Reserva Polar: Distribución en Noche Continua',

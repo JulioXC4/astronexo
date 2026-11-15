@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, Broadcast, Play, X } from '@phosphor-icons/react';
 import { assetManifest } from '../../../assets/manifest';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
 import './welcome.css';
 
 type WelcomePanel = 'STATION' | 'SOURCES' | null;
@@ -17,6 +18,7 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
   const [panel, setPanel] = useState<WelcomePanel>(null);
   const [sceneFailed, setSceneFailed] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
+  const [welcomeTutorialOpen, setWelcomeTutorialOpen] = useState(false);
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
   const lastTrigger = useRef<HTMLButtonElement | null>(null);
@@ -62,6 +64,27 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
 
   const scene = assetManifest['background.earthWelcome'];
   const wordmark = assetManifest['ui.welcomeWordmark'];
+  const welcomeSteps = useMemo(() => [{
+    id: 'welcome.solo',
+    character: 'ALBA' as const,
+    text: t('tutorial.welcome'),
+    placement: 'center' as const,
+    actionLabel: t('tutorial.letsGo'),
+  }], [t]);
+
+  function beginSolo() {
+    setPanel(null);
+    if (isTutorialComplete(welcomeSteps.map(({ id }) => id))) {
+      onPlay();
+      return;
+    }
+    setWelcomeTutorialOpen(true);
+  }
+
+  function finishWelcomeTutorial() {
+    setWelcomeTutorialOpen(false);
+    onPlay();
+  }
 
   return <main className="welcome" style={{ backgroundColor: scene.fallbackColor }}>
     {!sceneFailed && scene.path && <img className="welcome__scene" src={scene.path} alt="" onError={() => setSceneFailed(true)} />}
@@ -76,7 +99,7 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
       <LanguageSelector variant="welcome" />
 
       <div className="welcome__actions">
-        <button className="welcome__play" type="button" onClick={onPlay}>
+        <button className="welcome__play" type="button" onClick={beginSolo}>
           <span className="welcome__play-icon" aria-hidden="true"><Play weight="fill" /></span>
           <span>{t('welcome.playNow')}</span>
         </button>
@@ -92,6 +115,8 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
         </div>
       </div>
     </div>
+
+    <TutorialHelpButton className="tutorial-help-button--welcome" onClick={() => setWelcomeTutorialOpen(true)} />
 
     {panel && <div className="welcome__veil" onMouseDown={(event) => { if (event.target === event.currentTarget) closePanel(); }}>
       <section className="welcome__dialog" role="dialog" aria-modal="true" aria-labelledby="welcome-dialog-title" ref={dialogRef}>
@@ -114,7 +139,7 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
                 {t('welcome.stationDialog.classroomBtn')}
               </button>
             )}
-            <button className="welcome__dialog-action" type="button" onClick={onPlay}>{t('welcome.stationDialog.playSoloBtn')}</button>
+            <button className="welcome__dialog-action" type="button" onClick={beginSolo}>{t('welcome.stationDialog.playSoloBtn')}</button>
           </div>
         </> : <>
           <p className="welcome__dialog-kicker">{t('welcome.sourcesDialog.kicker')}</p>
@@ -142,5 +167,11 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
         </>}
       </section>
     </div>}
+    <TutorialCoachMark
+      open={welcomeTutorialOpen}
+      steps={welcomeSteps}
+      onComplete={finishWelcomeTutorial}
+      onSkip={finishWelcomeTutorial}
+    />
   </main>;
 }

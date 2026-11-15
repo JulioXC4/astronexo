@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { GameAction, MissionState } from '../../game';
 import { spaceBackgrounds } from '../../assets/manifest';
 import { InterventionDock } from '../space-minigames';
@@ -6,6 +6,9 @@ import { AlertCard } from './AlertCard';
 import { ResourceBar } from './ResourceBar';
 import { ModuleCameras } from './ModuleCameras';
 import { useI18n, LanguageSelector } from '../../i18n';
+import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../tutorial';
+
+const GUARD_TUTORIAL_STEPS = ['guard.resources', 'guard.alerts', 'guard.actions'] as const;
 
 interface MissionControlViewProps {
   readonly state: MissionState;
@@ -26,6 +29,7 @@ export function MissionControlView({
 }: MissionControlViewProps) {
   const { t } = useI18n();
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(state.activeAlerts[0]?.id ?? null);
+  const [tutorialOpen, setTutorialOpen] = useState(() => !isTutorialComplete(GUARD_TUTORIAL_STEPS));
   useEffect(() => {
     if (selectedAlertId && state.activeAlerts.some((alert) => alert.id === selectedAlertId)) return;
     setSelectedAlertId(state.activeAlerts[0]?.id ?? null);
@@ -41,6 +45,30 @@ export function MissionControlView({
   const hasEarlyWarning = Boolean(
     state.earlyWarningForecast && state.turn < state.earlyWarningForecast.turn,
   );
+  const tutorialSteps = useMemo(() => [
+    {
+      id: GUARD_TUTORIAL_STEPS[0],
+      character: 'ALBA' as const,
+      text: t('tutorial.guard.resources'),
+      targetSelector: '[data-tutorial="space-resources"]',
+      placement: 'bottom' as const,
+    },
+    {
+      id: GUARD_TUTORIAL_STEPS[1],
+      character: 'CHISPA' as const,
+      text: t('tutorial.guard.alerts'),
+      targetSelector: '[data-tutorial="space-alerts"]',
+      placement: 'left' as const,
+      frame: 'alert' as const,
+    },
+    {
+      id: GUARD_TUTORIAL_STEPS[2],
+      character: 'ALBA' as const,
+      text: t('tutorial.guard.actions'),
+      targetSelector: '[data-tutorial="space-actions"]',
+      placement: 'top' as const,
+    },
+  ], [t]);
 
   return <main
     className={`mission-shell mission-shell--${state.destination.toLowerCase()} ${hasEarlyWarning ? 'mission-shell--with-warning' : ''}`}
@@ -51,7 +79,7 @@ export function MissionControlView({
         <span>{destinationLabel}</span>
         <h1>{t('missionControl.guardTitle', { destination: destinationLabel })}</h1>
       </div>
-      <section className={`resource-rack ${showFoodAsPrimary ? 'resource-rack--four' : ''}`} aria-label={t('missionControl.resourceRackAria')}>
+      <section data-tutorial="space-resources" className={`resource-rack ${showFoodAsPrimary ? 'resource-rack--four' : ''}`} aria-label={t('missionControl.resourceRackAria')}>
         <ResourceBar label={t('missionControl.energy')} value={state.energy} tone="energy" />
         <ResourceBar label={t('missionControl.oxygen')} value={state.oxygen} tone="oxygen" />
         <ResourceBar label={t('missionControl.shield')} value={state.shield} tone="shield" />
@@ -63,6 +91,7 @@ export function MissionControlView({
       </div>
       <LanguageSelector variant="hud" />
     </header>
+    <TutorialHelpButton className="tutorial-help-button--floating" onClick={() => setTutorialOpen(true)} />
 
     {hasEarlyWarning && state.earlyWarningForecast && <aside className="early-warning" role="status">
       <strong>{t('missionControl.earlyWarningTitle')}</strong>
@@ -72,7 +101,7 @@ export function MissionControlView({
 
     <section className="mission-stage">
       <ModuleCameras state={state} />
-      <aside className="alerts-monitor" aria-labelledby="alerts-title">
+      <aside data-tutorial="space-alerts" className="alerts-monitor" aria-labelledby="alerts-title">
         <div className="alerts-monitor__heading">
           <h2 id="alerts-title">{t('missionControl.alertsTitle')}</h2>
           <strong>{state.activeAlerts.length}/2</strong>
@@ -124,5 +153,11 @@ export function MissionControlView({
         </button>
       </footer>
     </section>
+    <TutorialCoachMark
+      open={tutorialOpen}
+      steps={tutorialSteps}
+      onComplete={() => setTutorialOpen(false)}
+      onSkip={() => setTutorialOpen(false)}
+    />
   </main>;
 }
