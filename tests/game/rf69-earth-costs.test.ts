@@ -27,6 +27,22 @@ function configured(city: City, destination: Destination, costs: readonly number
 }
 
 describe('RF-69: decisiones terrestres con costo', () => {
+  it('ofrece cinco instalaciones correctas en cada ciudad y conserva la recompensa de cada una', () => {
+    expect(getMissionsForCity('AREQUIPA').map(({ id }) => id)).toEqual([
+      'SOLAR_DETECTIVE', 'ALTITUDE_ACCLIMATIZATION', 'SOLAR_WATCH', 'ECLSS_TRAINING', 'VEGGIE_LAB',
+    ]);
+    expect(getMissionsForCity('TROMSO').map(({ id }) => id)).toEqual([
+      'DARK_MONTHS_RESERVE', 'ARCTIC_GREENHOUSE', 'SOLAR_WATCH', 'ECLSS_TRAINING', 'VEGGIE_LAB',
+    ]);
+    for (const city of ['AREQUIPA', 'TROMSO'] as const) {
+      expect(getMissionsForCity(city).map(({ targetTool }) => targetTool)).toEqual(
+        city === 'AREQUIPA'
+          ? ['FOLDING_PANELS', 'LIFE_SUPPORT', 'SHELTER_KIT', 'LIFE_SUPPORT', 'CROP_KIT']
+          : ['FOLDING_PANELS', 'CROP_KIT', 'SHELTER_KIT', 'LIFE_SUPPORT', 'CROP_KIT'],
+      );
+    }
+  });
+
   it.each(cases)('%s calcula dos costos a partir de decisiones distintas', (id, low, high) => {
     const inverted = id === 'SOLAR_DETECTIVE' || id === 'SOLAR_WATCH';
     expect(calculateTrainingCost(id, low)).toBe(inverted ? 2 : 1);
