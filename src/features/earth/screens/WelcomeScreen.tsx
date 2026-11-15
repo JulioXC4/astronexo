@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { BookOpen, Broadcast, Play, X } from '@phosphor-icons/react';
 import { assetManifest } from '../../../assets/manifest';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import './welcome.css';
 
 type WelcomePanel = 'STATION' | 'SOURCES' | null;
@@ -11,19 +12,20 @@ interface WelcomeScreenProps {
   readonly onOpenLearn?: () => void;
 }
 
-const sources = [
-  { name: 'NASA POWER', description: 'Datos históricos del Sol en la Tierra.', url: 'https://power.larc.nasa.gov/' },
-  { name: 'NASA DONKI', description: 'Registro histórico de eventos solares.', url: 'https://ccmc.gsfc.nasa.gov/tools/DONKI/' },
-  { name: 'NASA ECLSS', description: 'Cómo funciona el soporte vital espacial.', url: 'https://www.nasa.gov/reference/environmental-control-and-life-support-systems-eclss/' },
-] as const;
-
 export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScreenProps) {
+  const { t } = useI18n();
   const [panel, setPanel] = useState<WelcomePanel>(null);
   const [sceneFailed, setSceneFailed] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
   const lastTrigger = useRef<HTMLButtonElement | null>(null);
+
+  const sources = [
+    { name: 'NASA POWER', description: t('welcome.sources.power'), url: 'https://power.larc.nasa.gov/' },
+    { name: 'NASA DONKI', description: t('welcome.sources.donki'), url: 'https://ccmc.gsfc.nasa.gov/tools/DONKI/' },
+    { name: 'NASA ECLSS', description: t('welcome.sources.eclss'), url: 'https://www.nasa.gov/reference/environmental-control-and-life-support-systems-eclss/' },
+  ] as const;
 
   useEffect(() => {
     if (!panel) return;
@@ -65,24 +67,27 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
     {!sceneFailed && scene.path && <img className="welcome__scene" src={scene.path} alt="" onError={() => setSceneFailed(true)} />}
     <div className="welcome__content">
       <div className="welcome__identity">
-        <h1 className={!logoFailed && wordmark.path ? 'welcome__sr-only' : undefined}>Astronauta Junior</h1>
+        <h1 className={!logoFailed && wordmark.path ? 'welcome__sr-only' : undefined}>{t('welcome.title')}</h1>
         {!logoFailed && wordmark.path
-          ? <img className="welcome__wordmark" src={wordmark.path} alt="" onError={() => setLogoFailed(true)} />
-          : <p>De tu cielo a otros mundos</p>}
+          ? <img className="welcome__wordmark" src={wordmark.path} alt={t('welcome.title')} onError={() => setLogoFailed(true)} />
+          : <p>{t('welcome.subtitle')}</p>}
       </div>
+
+      <LanguageSelector variant="welcome" />
+
       <div className="welcome__actions">
         <button className="welcome__play" type="button" onClick={onPlay}>
           <span className="welcome__play-icon" aria-hidden="true"><Play weight="fill" /></span>
-          <span>Jugar ahora</span>
+          <span>{t('welcome.playNow')}</span>
         </button>
         <div className="welcome__secondary">
           <button className="welcome__secondary-button" type="button" aria-haspopup="dialog" onClick={(event) => openPanel('STATION', event.currentTarget)}>
             <Broadcast aria-hidden="true" weight="duotone" />
-            <span>Modo Estación</span>
+            <span>{t('welcome.stationMode')}</span>
           </button>
           <button className="welcome__secondary-button" type="button" aria-haspopup="dialog" onClick={(event) => openPanel('SOURCES', event.currentTarget)}>
             <BookOpen aria-hidden="true" weight="duotone" />
-            <span>Fuentes científicas</span>
+            <span>{t('welcome.scientificSources')}</span>
           </button>
         </div>
       </div>
@@ -90,11 +95,11 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
 
     {panel && <div className="welcome__veil" onMouseDown={(event) => { if (event.target === event.currentTarget) closePanel(); }}>
       <section className="welcome__dialog" role="dialog" aria-modal="true" aria-labelledby="welcome-dialog-title" ref={dialogRef}>
-        <button className="welcome__close" type="button" aria-label="Cerrar" onClick={closePanel} ref={closeButton}><X aria-hidden="true" /></button>
+        <button className="welcome__close" type="button" aria-label={t('common.close')} onClick={closePanel} ref={closeButton}><X aria-hidden="true" /></button>
         {panel === 'STATION' ? <>
-          <p className="welcome__dialog-kicker">Próximamente</p>
-          <h2 id="welcome-dialog-title">Modo Estación</h2>
-          <p>Una maqueta para jugar en equipo desde la misma pantalla. Todavía no hay salas ni multijugador.</p>
+          <p className="welcome__dialog-kicker">{t('welcome.stationDialog.kicker')}</p>
+          <h2 id="welcome-dialog-title">{t('welcome.stationDialog.title')}</h2>
+          <p>{t('welcome.stationDialog.desc')}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '1rem' }}>
             {onOpenStation && (
               <button
@@ -106,15 +111,15 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
                   onOpenStation();
                 }}
               >
-                Explorar Maqueta Completa de Aula (E1-E5)
+                {t('welcome.stationDialog.classroomBtn')}
               </button>
             )}
-            <button className="welcome__dialog-action" type="button" onClick={onPlay}>Empezar en modo Despegue</button>
+            <button className="welcome__dialog-action" type="button" onClick={onPlay}>{t('welcome.stationDialog.playSoloBtn')}</button>
           </div>
         </> : <>
-          <p className="welcome__dialog-kicker">Nuestra base científica</p>
-          <h2 id="welcome-dialog-title">Fuentes científicas</h2>
-          <p>Usaremos registros históricos de NASA POWER sobre radiación solar terrestre y de DONKI sobre eventos solares. Las barras y consecuencias espaciales son una simulación educativa.</p>
+          <p className="welcome__dialog-kicker">{t('welcome.sourcesDialog.kicker')}</p>
+          <h2 id="welcome-dialog-title">{t('welcome.sourcesDialog.title')}</h2>
+          <p>{t('welcome.sourcesDialog.desc')}</p>
           <ul className="welcome__sources">
             {sources.map((source) => <li key={source.name}>
               <a href={source.url} target="_blank" rel="noreferrer">{source.name}</a>
@@ -131,7 +136,7 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
                 onOpenLearn();
               }}
             >
-              Abrir Enciclopedia Científica «Aprende»
+              {t('welcome.sourcesDialog.learnBtn')}
             </button>
           )}
         </>}

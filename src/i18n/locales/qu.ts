@@ -1,0 +1,328 @@
+/**
+ * Borrador pedagógico en Quechua Sureño (Runasimi / Qhichwa - variedad Chanka / Collao).
+ * 
+ * NOTA DE CALIDAD LINGÜÍSTICA:
+ * Este archivo representa una propuesta de traducción pedagógica para quechua sureño.
+ * Se encuentra en estado BORRADOR (isDraft: true), pendiente de validación formal
+ * por lingüistas nativos y educadores interculturales bilingües.
+ * Los términos técnicos aeroespaciales e identificadores se preservan con apoyo bilingüe.
+ */
+export const qu = {
+  common: {
+    back: 'Kutiy',
+    continue: 'Ñawpariy',
+    close: 'Wichqay',
+    cancel: 'Tatikuy',
+    confirm: 'Taqyaychay',
+    reset: 'Musuqmanta qallariy',
+    available: 'Kachkan',
+    completed: 'Tukusqa',
+    locked: 'Wichqasqa',
+    selected: 'Akllasqa',
+    energy: 'Kallpa (Energía)',
+    oxygen: 'Samana (Oxígeno)',
+    shield: 'Amachana (Escudo)',
+    food: 'Mikhuna (Alimentos)',
+    foodSupply: 'Mikhuy qullqa',
+    science: 'Hamut\'ay (Ciencia)',
+    radiation: 'Illanchay (Radiación)',
+    radiationExposure: 'Illanchay tupuy',
+    solarEfficiency: 'Inti kallpa allin kaynin',
+    days: 'punchawkuna',
+    hours: 'urakuna',
+    minutes: 'chinikuna',
+    stepOf: 'Rikch\'an {current} manta {total}',
+    loading: 'Kargachkan...',
+    online: 'KALLPACHASQA',
+    pending: 'SUYACHKAN',
+    active: 'LLAMK\'ACHKAN',
+    suspended: 'SAYACHISQA',
+  },
+
+  welcome: {
+    title: 'Sullk\'a Wiraqucha (Astronauta Junior)',
+    subtitle: 'Hanaq pachaykimanta wakin teqsimuyukunaman',
+    playNow: 'Pukllay kunan',
+    stationMode: 'Yachay Wasi Pukllay (Modo Estación)',
+    scientificSources: 'Hamut\'ay pukyunkuna (Fuentes científicas)',
+    stationDialog: {
+      kicker: 'Hamuq kawsaypi',
+      title: 'Yachay Wasi Pukllay',
+      desc: 'Yachaqkunapaq kuska pukllana hatun qhawapayanapi. Manaraqmi achka pukllaq llikachu.',
+      classroomBtn: 'Yachay wasi qhawariyta kichay (E1–E5)',
+      playSoloBtn: 'Sapallayki puririyta qallariy',
+    },
+    sourcesDialog: {
+      kicker: 'Hamut\'ayninchikpa Tiksin',
+      title: 'Hamut\'ay Pukyunkuna',
+      desc: 'NASA POWER chiqap willayninkunatam llamk\'achinchik Inti k\'anchaymanta, hinallataq NASA DONKI hanaq pacha wayramanta.',
+      learnBtn: '«Yachay» Hamut\'ay Qillqasqata kichay',
+    },
+    sources: {
+      power: 'NASA POWER: Kay pachapi Inti kallpamanta unay willaykuna.',
+      donki: 'NASA DONKI: Hanaq pacha wayra willaykuna.',
+      eclss: 'NASA ECLSS: Kawsay amachana llika hanaq pachapi.',
+    },
+  },
+
+  cities: {
+    stepIndicator: 'Rikch\'an 1 manta 6 · Kay Pacha Qullqa Akllay',
+    title: 'NASA POWER Teqsimuyu Llikachasqa Saywiti',
+    subtitle: 'Iskay chiqan qullqamanta akllay: Ariqipa (Perú) icha Tromsø (Noruega).',
+    confirmBase: '{city} qullqata taqyaychay',
+    historicalDates: 'NASA POWER chiqap punchawkuna',
+    threeDaysNote: '2024 watapi kimsa punchawkuna, manam wata chawpichu',
+    arequipa: {
+      name: 'Ariqipa',
+      country: 'Perú',
+      description: 'Urqukunapa pata pachan 2,325 m hanaqpi. Intipa k\'anchayninqa ancha kallpasapam (5.60 - 6.17 kWh/m²/punchaw). Allinmi inti llika yachapaypaq.',
+      irradianceRange: '5.6028 - 6.174 kWh/m²/punchaw',
+      specialty: 'Inti k\'anchay & Hanaq urqu wayra mana kaq',
+      badge: 'Antikunapa Inti Qullqan',
+    },
+    tromso: {
+      name: 'Tromsø',
+      country: 'Noruega',
+      description: 'Chiri pacha 69.65°N suyupi. Tutayay punchawkunapi intipa k\'anchayninqa pisillam (0.003 - 0.04 kWh/m²/punchaw). Allinmi tutayaq kawsay yachapaypaq.',
+      irradianceRange: '0.0032 - 0.0401 kWh/m²/punchaw',
+      specialty: 'Pacha chiri tutayay & Inti wayra qhawariy',
+      badge: 'Chiri Pacha Qullqa',
+    },
+    metrics: {
+      allSky: 'Lliw hanaq pacha k\'anchay (ALLSKY_SFC_SW_DWN)',
+      clearness: 'Ch\'uya hanaq kaynin (KT)',
+      solarHour: 'Inti chawpi ura (T2M)',
+      groundElevation: 'Pata hanaq kay: {elevation} m',
+    },
+  },
+
+  destinations: {
+    stepIndicator: 'Rikch\'an 2 manta 6 · Hanaq Pacha Purina Akllay',
+    title: 'Maymanmi Rinki?',
+    subtitle: 'Killa icha Atipaq (Marte) purinata akllay.',
+    travelTime: 'Purina pacha',
+    environmentalChallenges: 'Hanaq pacha sasachakuykuna',
+    confirmDestination: '{dest} purinata taqyaychay',
+    moon: {
+      name: 'Killa (Luna)',
+      distance: '384,400 km',
+      travelDuration: '3 punchaw',
+      gravity: '1/6 Kay Pachamanta',
+      atmosphere: 'Manam wayran kanchu (Ch\'usaq)',
+      challenge: '14 punchaw ch\'isi chiri tuta (-130°C), inti illanchay sinchi.',
+      missionObjective: 'Killa qullqata sayarichiy allin kawsay llikawan.',
+    },
+    mars: {
+      name: 'Atipaq (Marte)',
+      distance: '225,000,000 km chawpi',
+      travelDuration: '7 killa',
+      gravity: '3/8 Kay Pachamanta',
+      atmosphere: 'Llamp\'u CO2 wayra (1%)',
+      challenge: 'Allpa q\'usñi wayrakuna, karu purina, ancha chiri (-60°C).',
+      missionObjective: 'Kawsay qhawaq qullqata sayarichiy unay kawsaypaq.',
+    },
+  },
+
+  avatars: {
+    stepIndicator: 'Rikch\'an 3 manta 6 · Qhawaq Akllay',
+    title: 'Pitaq Kanki?',
+    subtitle: 'Hanaq pacha llamk\'aqniykita akllay.',
+    confirmAvatar: '{name} akllayta taqyaychay',
+    specialtyLabel: 'Yachaynin',
+    bioLabel: 'Kawsay willakuy',
+    alba: {
+      name: 'Alba',
+      role: 'Umalliq & Inti Hamut\'aq',
+      bio: 'Inti k\'anchay yachaq. Allintam unancham inti llikakunata kay pachapi hanaq pachapipas.',
+      specialty: 'Inti kallpa yachay & Umalliy',
+    },
+    chispa: {
+      name: 'Chispa',
+      role: 'Kamayuq & Allichaq',
+      bio: 'Llika allichaq kamayuq. Tukuy ima p\'akisqata usqhaylla allichan.',
+      specialty: 'Antakuna allichay & Allpa llamk\'ay',
+    },
+    sol: {
+      name: 'Sol',
+      role: 'ECLSS Kawsay Yachaq',
+      bio: 'Samana, yaku, mikhuna llikakunata unanchaq, kawsayta hanaq pachapi waqaychan.',
+      specialty: 'Samana & Yaku kutichiy',
+    },
+    vega: {
+      name: 'Vega',
+      role: 'Pacha Illanchay Qhawaq',
+      bio: 'NASA DONKI willaykunata qhawaq, inti wayrakunamanta amachan.',
+      specialty: 'Illanchay amachay & Hanaq pacha willay',
+    },
+  },
+
+  briefing: {
+    stepIndicator: 'Rikch\'an 4 manta 6 · Purina Willakuy',
+    title: 'Purina Willakuy',
+    subtitle: 'Hanaq pachaman riypaq kimsa llamk\'aykunatam kay pachapi tukunayki.',
+    rulesTitle: 'Purina Kamachikuykuna (RF-69)',
+    rules: {
+      limit: '5 wasikunamanta 3 llamk\'ayllatam akllawaq.',
+      cost: 'Sapa llamk\'ayqa kallpatam, pachatam utaq mikhuytam munan.',
+      rewards: 'Llamk\'asqaykimanta allin llamk\'anakunatam chaskinki hanaq pachapaq.',
+      flight: 'Kimsa llamk\'ayta tukuspaykiqa despegue nisqamanmi rinkichik.',
+    },
+    startMapBtn: 'Kay Pacha Qullqa Saywitiman Riy',
+  },
+
+  map: {
+    stepIndicator: 'Rikch\'an 5 manta 6 · Kay Pacha Qullqapi Yachapay',
+    title: 'Kay Pacha Qullqa Saywiti',
+    subtitle: 'Kimsa llamk\'ayta akllay hanaq pachapaq wakichikunaykipaq.',
+    facilitiesCompleted: '{completed} / {total} Wasikuna tukusqa',
+    energyReserve: 'Kay Pacha Kallpa',
+    crewFatigue: 'Sayk\'uy tupuy',
+    selectFacilityPrompt: 'Saywitipi huk wasita ñit\'iy yachapayta qallarinaykipaq.',
+    costWarning: 'Kay llamk\'ayqa kaykunatam munan: {cost}',
+    rewardNotice: 'Llamk\'aspaqa chaskinki: {reward}',
+    startMissionBtn: 'Llamk\'ayta Qallariy: {name}',
+    alreadyCompleted: 'Kay llamk\'ayqa tukusqañam.',
+    maxReachedNotice: '3 llamk\'aykunatam tukurqankiña! Despegueman riyta atiwaqñam.',
+    proceedToFlightBtn: 'Despegueman Puririy 🚀',
+    facilities: {
+      solarLab: 'Inti Kallpa Wasi (Solar Detective / Solar Watch)',
+      shieldLab: 'Illanchay Amachana Wasi',
+      eclssLab: 'Kawsay Amachana Wasi (ECLSS)',
+      botanicalLab: 'Kawsay Mikhuna Tarpuy Wasi',
+      roverHangar: 'Hanaq Pacha Anta Wasi',
+    },
+  },
+
+  minigames: {
+    solarDetective: {
+      title: 'Inti Qhawaq (Solar Detective)',
+      cityContext: 'Ariqipa Inti k\'anchay NASA POWER willaywan',
+      instruction: 'Inti llikata allin k\'uchupi churay aswan kallpata huñunaykipaq.',
+      panelAngle: 'Llika k\'uchu (Ángulo)',
+      optimalNotice: 'Allin k\'uchupi kachkan! 100% kallpatam huñuchkan.',
+      irradianceCaptured: 'Huñusqa k\'anchay: {val} kWh/m²',
+      efficiencyAchieved: 'Allin kaynin: {val}%',
+      targetMet: 'Llamk\'ay tukusqa! Inti Tool chaskisqa.',
+      completeBtn: 'Llamk\'ayta Taqyaychay',
+    },
+    solarWatch: {
+      title: 'Tromsø Inti Qhawaq (Solar Watch)',
+      cityContext: 'Tromsø chiri pacha tutayay',
+      instruction: 'Tutayay punchawkunapi kallpa waqaychanata allinta tupachiy.',
+      reserveBalance: 'Kallpa waqaychana: {val}%',
+      completeBtn: 'Llamk\'ayta Taqyaychay',
+    },
+    darkMonths: {
+      title: 'Tutayaq Killakuna (Dark Months Simulator)',
+      instruction: 'Kallpata amachay tutayay pacha chayamuptin.',
+      completeBtn: 'Llamk\'ayta Taqyaychay',
+    },
+    altitudeAcclimatization: {
+      title: 'Hanaq Urqu Yachapakuy (Altitude Acclimatization)',
+      instruction: 'Wayra pisiyayninta allichay samana llikawan.',
+      completeBtn: 'Llamk\'ayta Taqyaychay',
+    },
+    eclssTraining: {
+      title: 'ECLSS Kawsay Amachana Yachapay',
+      instruction: 'Yaku samana llikakunata allichay.',
+      completeBtn: 'Llamk\'ayta Taqyaychay',
+    },
+    veggieLab: {
+      title: 'Ariqipa Mikhuy Tarpuy (Veggie Lab)',
+      instruction: 'Hanaq urqupi allinta yurakunata tarpuy.',
+      completeBtn: 'Llamk\'ayta Taqyaychay',
+    },
+    arcticGreenhouse: {
+      title: 'Chiri Pacha Mikhuy Wasi (Arctic Greenhouse)',
+      instruction: 'Chiri pachapi yurakunata quñichiy.',
+      completeBtn: 'Llamk\'ayta Taqyaychay',
+    },
+  },
+
+  flight: {
+    departureTitle: 'Despegue: Hanaq Pachaman Puririy!',
+    departureSubtitle: 'Kay Pachata saqispa hanaq pachaman phawachkanchik.',
+    arrivalTitle: '{destination}man Chayamurqanchik!',
+    arrivalSubtitle: 'Allinllachu chayamunki hanaq pacha qullqaykiman.',
+    continueBtn: 'Qullqata Sayarichiyman Riy 🚀',
+  },
+
+  baseBuilder: {
+    title: 'Hanaq Pacha Qullqa Sayarichiy (P10)',
+    subtitle: '5 wasikunamanta 3 wasillatam akllay sayarichinaykipaq.',
+    slotsAvailable: 'Sayarichina wasikuna: {used} / 3',
+    confirmBaseBtn: 'Qullqata Taqyaychay & Guardiaman Riy',
+    modules: {
+      solarExpansion: 'Inti Kallpa Mirachiy',
+      radiationShield: 'Illanchay Amachana Pirqa',
+      closedLoopWater: 'Kutichisqa Yaku Llika',
+      greenhouseModule: 'Kawsay Mikhuna Wasi',
+      emergencyBattery: 'Llika Waqaychana Kallpa',
+    },
+  },
+
+  missionControl: {
+    title: 'Hanaq Pacha Qhaway (Misión Control - P11 & P12)',
+    turnIndicator: 'Kutichiy {current} manta {total}',
+    eventsTitle: 'NASA DONKI Hanaq Pacha Wayra Willakuykuna',
+    resourcesTitle: 'Qullqapa Kawsay Llikan',
+    interventionsTitle: 'Amachana Llamk\'aykuna (G1–G8)',
+    nextTurnBtn: 'Qatiq Kutichiyman Riy ⏭️',
+    gameStatus: {
+      nominal: 'ALLINLLAM (Nominal)',
+      warning: 'QHAWAPAYAY (Peligro)',
+      critical: 'MANCHARINA (Crítico)',
+    },
+  },
+
+  interventions: {
+    solarAlign: 'Inti Llikakunata Allichay',
+    shieldBoost: 'Amachanata Kallpachay',
+    waterRecycle: 'Yaku Kutichiyta Allichay',
+    cropNourish: 'Yurakunata Mikhuchiy',
+    oxygenPurge: 'Samanata Ch\'uyanchay',
+    powerSave: 'Kallpa Waqaychayta Kichay',
+    crewRest: 'Samariyta Kamachiy',
+    repairHull: 'Pirqa P\'akisqata Allichay',
+  },
+
+  results: {
+    victoryTitle: 'Purina Allin Tukusqa! 🏆',
+    partialTitle: 'Purina Sayachisqa (Interrupción)',
+    scoreLabel: 'Puntuación:',
+    finalReportTitle: 'Tukuynin Willakuy',
+    returnHomeBtn: 'Kay Pachaman Kutiy 🌍',
+    playAgainBtn: 'Musuqmanta Pukllay',
+  },
+
+  return: {
+    title: 'Kay Pachaman Allin Kutimuy!',
+    subtitle: 'Tukuy yachasqaykiqa teqsimuyuntinpaqmi allin.',
+    learnMoreBtn: 'Hamut\'ayta Aswan Yachay',
+  },
+
+  nextAdventure: {
+    title: 'Qatiq Purinakuna',
+    subtitle: 'Hanaq pachaqa qamllatam suyasunki.',
+  },
+
+  learn: {
+    title: 'Yachay: NASA Hamut\'ay Pukyu Qillqasqa',
+    subtitle: 'NASA POWER, DONKI, ECLSS chiqap willayninkuna.',
+    closeBtn: 'Wichqay',
+  },
+
+  station: {
+    modalTitle: 'Yachay Wasi Pukllay (Modo Estación)',
+    roleCaptain: 'Umalliq (Capitán)',
+    roleEngineer: 'Kamayuq (Ingeniero)',
+    roleScientist: 'Hamut\'aq (Científico)',
+    roleDoctor: 'Hampi Kamayuq (Médico)',
+  },
+
+  languageSelector: {
+    label: 'Simi akllay (Idioma):',
+    selectAriaLabel: 'Pukllana simita akllay',
+    draftNotice: 'Borrador pedagógico · Pendiente de validación lingüística',
+  },
+};

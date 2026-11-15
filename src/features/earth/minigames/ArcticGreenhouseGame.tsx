@@ -2,6 +2,7 @@ import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome
 import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
 import { ArrowLeft, Plant, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Warning, Thermometer } from '@phosphor-icons/react';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import '../screens/earth.css';
 
 interface ArcticGreenhouseGameProps {
@@ -10,6 +11,7 @@ interface ArcticGreenhouseGameProps {
 }
 
 export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGameProps) {
+  const { t } = useI18n();
   // Parámetros del bio-refugio ártico
   const [geothermalFlow, setGeothermalFlow] = useState<number>(30); // Óptimo: 45% a 60%
   const [isDomeInsulated, setIsDomeInsulated] = useState<boolean>(false);
@@ -45,15 +47,16 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Volver al Mapa de Tromsø</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <Plant weight="fill" color="#a5d6a7" />
-          <span>Bio-Refugio Ártico Geotérmico · Tromsø (69.6° N · Noche Polar -15°C)</span>
+          <span>{t('minigames.arcticGreenhouse.title')} · Tromsø</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>

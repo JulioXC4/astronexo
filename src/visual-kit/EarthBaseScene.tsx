@@ -1,4 +1,5 @@
 import type { EarthMissionDefinition, MissionType } from '../data/missions';
+import { useI18n } from '../i18n';
 import './earth-base-scene.css';
 
 export type FacilityState = 'available' | 'selected' | 'completed' | 'locked';
@@ -48,6 +49,7 @@ function FacilityArtwork({ id }: { id: MissionType }) {
 }
 
 export function EarthBaseScene({ cityId, missions, selectedMissionId, completedMissions, missionLimitReached, onSelectMission, onOpenMission }: EarthBaseSceneProps) {
+  const { t } = useI18n();
   const arctic = cityId === 'TROMSO';
   return <div className={`earth-base-scene ${arctic ? 'earth-base-scene--arctic' : 'earth-base-scene--andes'}`}>
     <svg viewBox="0 0 1000 563" preserveAspectRatio="xMidYMid meet" role="group" aria-label={`Mapa de la base de ${arctic ? 'Tromsø' : 'Arequipa'} con cinco instalaciones`}>
@@ -61,7 +63,7 @@ export function EarthBaseScene({ cityId, missions, selectedMissionId, completedM
         const label = shortNames[mission.id];
         return <g key={mission.id} transform={`translate(${x} ${y})`} className={`earth-base-facility earth-base-facility--${state}`}
           role="button" tabIndex={0} aria-pressed={selected}
-          aria-label={`${mission.facilityName}. ${mission.name}. Herramienta: ${mission.toolLabel}. Efecto: ${mission.effectOnSpaceMission} ${completed ? 'Completada' : locked ? 'Bloqueada' : selected ? 'Seleccionada' : 'Disponible'}`}
+          aria-label={`${mission.facilityName}. ${mission.name}. Herramienta: ${mission.toolLabel}. Efecto: ${mission.effectOnSpaceMission} ${completed ? t('common.completed') : locked ? t('common.locked') : selected ? t('common.selected') : t('common.available')}`}
           onClick={() => onSelectMission(mission.id)} onFocus={() => onSelectMission(mission.id)}
           onDoubleClick={() => { if (!completed && !locked) onOpenMission(mission); }}
           onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (selected && !completed && !locked) onOpenMission(mission); else onSelectMission(mission.id); } }}>

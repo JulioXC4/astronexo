@@ -2,6 +2,7 @@ import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome
 import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
 import { ArrowLeft, Wind, CheckCircle, Sparkle, ArrowCounterClockwise, Info, ShieldCheck, Warning } from '@phosphor-icons/react';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import '../screens/earth.css';
 
 interface AltitudeAcclimatizationGameProps {
@@ -10,6 +11,7 @@ interface AltitudeAcclimatizationGameProps {
 }
 
 export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAcclimatizationGameProps) {
+  const { t } = useI18n();
   // Parámetros de la cámara hipobárica
   const [pressureKpa, setPressureKpa] = useState<number>(62); // Rango seguro: 70 a 82 kPa (atmósfera de cabina espacial / ISS adaptada)
   const [sealMain, setSealMain] = useState<boolean>(false);
@@ -42,15 +44,16 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Volver al Mapa</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <Wind weight="fill" color="#80d8ff" />
-          <span>Cámara Hipobárica Andina · Arequipa (2,325 m s. n. m. · ~77 kPa)</span>
+          <span>{t('minigames.altitudeAcclimatization.title')}</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>

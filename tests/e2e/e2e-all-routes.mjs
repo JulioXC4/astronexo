@@ -43,6 +43,7 @@ async function runTest() {
     console.log('\n>>> TESTING ROUTE 1: Arequipa -> Luna (1366x768)');
     {
       const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
+      await context.addInitScript(() => { localStorage.setItem('astronexo_lang_v3', 'es'); });
       const page = await context.newPage();
       await page.goto(BASE_URL);
 
@@ -222,6 +223,7 @@ async function runTest() {
     console.log('\n>>> TESTING ROUTE 2: Arequipa -> Marte (1600x900)');
     {
       const context = await browser.newContext({ viewport: { width: 1600, height: 900 } });
+      await context.addInitScript(() => { localStorage.setItem('astronexo_lang_v3', 'es'); });
       const page = await context.newPage();
       await page.goto(BASE_URL);
 
@@ -375,6 +377,7 @@ async function runTest() {
     console.log('\n>>> TESTING ROUTE 3: Tromsø -> Luna (1024x768 Tablet)');
     {
       const context = await browser.newContext({ viewport: { width: 1024, height: 768 } });
+      await context.addInitScript(() => { localStorage.setItem('astronexo_lang_v3', 'es'); });
       const page = await context.newPage();
       await page.goto(BASE_URL);
 
@@ -514,6 +517,7 @@ async function runTest() {
     console.log('\n>>> TESTING ROUTE 4: Tromsø -> Marte (1280x800)');
     {
       const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      await context.addInitScript(() => { localStorage.setItem('astronexo_lang_v3', 'es'); });
       const page = await context.newPage();
       await page.goto(BASE_URL);
 
@@ -628,7 +632,83 @@ async function runTest() {
       await context.close();
     }
 
-    console.log('\n=== ALL 4 ROUTES COMPLETED AND VERIFIED SUCCESSFULLY! ===');
+    // -------------------------------------------------------------
+    // ROUTE 5: Internationalization (EN default, QU, NO, ES) & HUD switching
+    // -------------------------------------------------------------
+    console.log('\n>>> TESTING ROUTE 5: Internationalization (EN / ES / QU / NO) & Persistence');
+    {
+      const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
+      const page = await context.newPage();
+      await page.goto(BASE_URL);
+
+      // 1. Default language must be English
+      await page.waitForSelector('.welcome__play');
+      const defaultPlayText = await page.locator('.welcome__play').innerText();
+      console.log(`Route 5: Default Welcome Play button text: "${defaultPlayText}"`);
+      if (!defaultPlayText.includes('Play now')) {
+        throw new Error(`Expected default language to be English ('Play now'), got: "${defaultPlayText}"`);
+      }
+      await takeScreenshot(page, 'r5_01_welcome_en.png');
+
+      // 2. Switch to Quechua (qu)
+      console.log('Route 5: Switching to Quechua (qu)...');
+      await page.locator('.lang-option-card').nth(2).click();
+      await page.waitForSelector('.lang-draft-banner');
+      const quPlayText = await page.locator('.welcome__play').innerText();
+      console.log(`Route 5: Quechua Play button text: "${quPlayText}"`);
+      if (!quPlayText.includes('Pukllay kunan')) {
+        throw new Error(`Expected Quechua text 'Pukllay kunan', got: "${quPlayText}"`);
+      }
+      await takeScreenshot(page, 'r5_02_welcome_qu.png');
+
+      // 3. Switch to Norwegian (no)
+      console.log('Route 5: Switching to Norwegian (no)...');
+      await page.locator('.lang-option-card').nth(3).click();
+      await page.waitForSelector('.lang-draft-banner');
+      const noPlayText = await page.locator('.welcome__play').innerText();
+      console.log(`Route 5: Norwegian Play button text: "${noPlayText}"`);
+      if (!noPlayText.includes('Spill nå')) {
+        throw new Error(`Expected Norwegian text 'Spill nå', got: "${noPlayText}"`);
+      }
+      await takeScreenshot(page, 'r5_03_welcome_no.png');
+
+      // 4. Switch to Spanish (es)
+      console.log('Route 5: Switching to Spanish (es)...');
+      await page.locator('.lang-option-card').nth(1).click();
+      const esPlayText = await page.locator('.welcome__play').innerText();
+      console.log(`Route 5: Spanish Play button text: "${esPlayText}"`);
+      if (!esPlayText.includes('Jugar ahora')) {
+        throw new Error(`Expected Spanish text 'Jugar ahora', got: "${esPlayText}"`);
+      }
+      await takeScreenshot(page, 'r5_04_welcome_es.png');
+
+      // 5. Enter game and test HUD Language Selector during gameplay
+      await page.click('.welcome__play');
+      await page.waitForSelector('.lang-selector-hud');
+      console.log('Route 5: HUD language selector visible during gameplay');
+
+      // Switch language to EN inside CitySelectionScreen
+      await page.locator('.lang-hud-pill').nth(0).click();
+      await page.waitForTimeout(300);
+      const enBackText = await page.locator('.earth-screen__back-btn').innerText();
+      console.log(`Route 5: Mid-game back button text in English: "${enBackText}"`);
+      if (!enBackText.includes('Back')) {
+        throw new Error(`Expected English back button 'Back', got: "${enBackText}"`);
+      }
+      await takeScreenshot(page, 'r5_05_hud_switch_en.png');
+
+      // Verify localStorage persistence
+      const persistedLang = await page.evaluate(() => localStorage.getItem('astronexo_lang_v3'));
+      console.log(`Route 5: Persisted language in localStorage: "${persistedLang}"`);
+      if (persistedLang !== 'en') {
+        throw new Error(`Expected persisted lang 'en', got: "${persistedLang}"`);
+      }
+
+      await context.close();
+      console.log('Route 5: Completed successfully!');
+    }
+
+    console.log('\n=== ALL 5 ROUTES (4 FULL PATHWAYS + I18N SUITE) COMPLETED AND VERIFIED SUCCESSFULLY! ===');
   } finally {
     await browser.close();
   }

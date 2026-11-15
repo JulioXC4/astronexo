@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, RocketLaunch, Sparkle } from '@phosphor-icons/react';
 import { TOOL_CATALOG, type Backpack, type Destination } from '../../../game/contracts';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface DepartureScreenProps {
@@ -12,6 +13,7 @@ interface DepartureScreenProps {
 }
 
 export function DepartureScreen({ destination, astronautName, cityName, backpack, onProceedToArrival }: DepartureScreenProps) {
+  const { t } = useI18n();
   const [countdown, setCountdown] = useState<number>(3);
   const [hasLaunched, setHasLaunched] = useState<boolean>(false);
 
@@ -25,16 +27,20 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
   }, [countdown]);
 
   const packedTools = backpack.map((id) => TOOL_CATALOG.find((t) => t.id === id)?.label ?? id);
+  const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
 
   return (
     <div className="earth-screen">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', maxWidth: '48rem', marginBottom: '0.6rem' }}>
+        <LanguageSelector variant="hud" />
+      </div>
       <main className="earth-card" style={{ maxWidth: '48rem', textAlign: 'center' }}>
         <h1 className="earth-card__title" style={{ justifyContent: 'center' }}>
           <RocketLaunch color="#f6c15b" weight="fill" />
-          <span>¡Despegue de la Misión {destination === 'MOON' ? 'Lunar' : 'Marciana'}!</span>
+          <span>{t('flight.departureTitle')}</span>
         </h1>
         <p className="earth-card__subtitle">
-          Nave <em>Astronexo I</em> elevándose desde las instalaciones terrestres en {cityName}.
+          {t('flight.departureSubtitle')} ({cityName} ➔ {destName})
         </p>
 
         <div className="flight-scene">
@@ -73,9 +79,7 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
             Kits verificados en la bodega: <strong>{packedTools.join(' · ')}</strong>
           </p>
           <p style={{ margin: '0.4rem 0 0 0', color: '#97b8d8', fontSize: '0.85rem' }}>
-            {destination === 'MOON'
-              ? 'Trayectoria hacia la Luna. Telemetría y soporte vital estables.'
-              : 'Trayectoria hacia Marte. Telemetría y soporte vital estables.'}
+            Trayectoria hacia {destName}. Telemetría y soporte vital estables.
           </p>
         </div>
 
@@ -86,7 +90,7 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
             onClick={onProceedToArrival}
           >
             <Sparkle weight="fill" />
-            <span>Aproximarse a {destination === 'MOON' ? 'la Órbita Lunar' : 'Marte'}</span>
+            <span>Aproximarse a {destName}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>

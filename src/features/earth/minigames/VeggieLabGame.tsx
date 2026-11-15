@@ -2,6 +2,7 @@ import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome
 import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
 import { ArrowLeft, PottedPlant, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Warning } from '@phosphor-icons/react';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import '../screens/earth.css';
 
 interface VeggieLabGameProps {
@@ -10,6 +11,7 @@ interface VeggieLabGameProps {
 }
 
 export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
+  const { t } = useI18n();
   // Parámetros de cultivo espacial
   const [redSpectrum, setRedSpectrum] = useState<number>(50); // Óptimo: 65% a 75%
   const [blueSpectrum, setBlueSpectrum] = useState<number>(50); // Óptimo: 25% a 35%
@@ -48,15 +50,16 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Volver al Mapa</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <PottedPlant weight="fill" color="#81c784" />
-          <span>Bio-Domo Hidropónico · NASA Veggie (Advanced Plant Habitat)</span>
+          <span>{t('minigames.veggieLab.title')}</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>

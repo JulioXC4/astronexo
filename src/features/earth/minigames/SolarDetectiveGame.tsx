@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Sun, Lightning, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Warning } from '@phosphor-icons/react';
 import { AREQUIPA_SOLAR_RECORDS, type SolarDayRecord } from '../../../data/nasa/powerData';
 import { SolarCircuitVisual } from '../../../visual-kit/TrainingVisuals';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import '../screens/earth.css';
 
 interface SolarDetectiveGameProps {
@@ -12,6 +13,7 @@ interface SolarDetectiveGameProps {
 }
 
 export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGameProps) {
+  const { t } = useI18n();
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
   const [tiltAngle, setTiltAngle] = useState<number>(16); // Inclinación en grados (supuesto simulación: óptimo Arequipa ~16° hacia el norte por latitud)
   const [reserveRatioPercent, setReserveRatioPercent] = useState<number>(45); // Decisión de reserva energética nocturna: 30% a 60%
@@ -71,15 +73,16 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Volver al Mapa de Arequipa</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <Sun weight="fill" color="#f6c15b" />
-          <span>Observatorio Solar Andino · NASA POWER (Arequipa, -16.4° S, 2,325 m s. n. m.)</span>
+          <span>{t('minigames.solarDetective.title')} · NASA POWER (Arequipa)</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Planet, RocketLaunch, CheckCircle } from '@phosphor-icons/react';
 import type { Destination } from '../../../game/contracts';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface DestinationScreenProps {
@@ -11,28 +12,30 @@ interface DestinationScreenProps {
 }
 
 export function DestinationScreen({ cityName, initialDestination, onSelectDestination, onBack }: DestinationScreenProps) {
+  const { t } = useI18n();
   const [selectedDest, setSelectedDest] = useState<Destination>(initialDestination || 'MOON');
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Cambiar Base ({cityName})</span>
+          <span>{t('common.back')} ({cityName})</span>
         </button>
         <div className="earth-screen__progress-pill">
           <Planet weight="fill" color="#f6c15b" />
-          <span>Paso 2 de 6 · Destino Espacial (Requisitos V3.0)</span>
+          <span>{t('destinations.stepIndicator')}</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '58rem', padding: '1.2rem' }}>
         <h1 className="earth-card__title" style={{ fontSize: '1.6rem' }}>
           <RocketLaunch color="#f6c15b" weight="fill" />
-          <span>Elige tu Destino Espacial antes de Entrenar</span>
+          <span>{t('destinations.title')}</span>
         </h1>
         <p className="earth-card__subtitle">
-          Tu preparación en la base de <strong>{cityName}</strong> se calibrará según los desafíos ambientales de tu destino.
+          {t('destinations.subtitle')} ({cityName})
         </p>
 
         <div className="destination-grid" role="radiogroup">
@@ -50,25 +53,25 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
               }
             }}
           >
-            <span className="destination-card__tag">Campaña Activa</span>
+            <span className="destination-card__tag">{t('common.active')}</span>
             <div>
               <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🌕</div>
               <h2 style={{ fontFamily: 'Fredoka', fontSize: '1.4rem', color: '#ffffff', margin: '0 0 0.3rem 0' }}>
-                Luna · Primera Luz
+                {t('destinations.moon.name')}
               </h2>
               <span style={{ fontSize: '0.85rem', color: '#7cb5c8', fontWeight: 700 }}>
-                Objetivo principal de la expedición
+                {t('destinations.moon.missionObjective')}
               </span>
               <ul style={{ margin: '0.8rem 0', paddingLeft: '1.2rem', color: '#c3d8ee', fontSize: '0.85rem', lineHeight: '1.5' }}>
-                <li><strong>Gravedad:</strong> 0.16 g (1/6 de la Tierra).</li>
-                <li><strong>Atmósfera:</strong> Vacío total exterior (0 atm).</li>
-                <li><strong>Ciclo Día/Noche:</strong> 14 días de luz seguidos de 14 días de oscuridad continua.</li>
-                <li><strong>Viaje:</strong> 3 días terrestres.</li>
+                <li><strong>Gravedad:</strong> {t('destinations.moon.gravity')}</li>
+                <li><strong>Atmósfera:</strong> {t('destinations.moon.atmosphere')}</li>
+                <li><strong>Desafío:</strong> {t('destinations.moon.challenge')}</li>
+                <li><strong>{t('destinations.travelTime')}:</strong> {t('destinations.moon.travelDuration')} ({t('destinations.moon.distance')})</li>
               </ul>
             </div>
             {selectedDest === 'MOON' && (
               <div style={{ color: '#66bb6a', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <CheckCircle weight="fill" /> Seleccionado para la misión
+                <CheckCircle weight="fill" /> {t('common.selected')}
               </div>
             )}
           </div>
@@ -87,25 +90,25 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
               }
             }}
           >
-            <span className="destination-card__tag destination-card__tag--soon">Campaña Marte</span>
+            <span className="destination-card__tag destination-card__tag--soon">{t('destinations.mars.name')}</span>
             <div>
               <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🪐</div>
               <h2 style={{ fontFamily: 'Fredoka', fontSize: '1.4rem', color: '#ffffff', margin: '0 0 0.3rem 0' }}>
-                Marte · Horizonte Rojo
+                {t('destinations.mars.name')}
               </h2>
               <span style={{ fontSize: '0.85rem', color: '#ffb74d', fontWeight: 700 }}>
-                Desafío interplanetario de largo alcance
+                {t('destinations.mars.missionObjective')}
               </span>
               <ul style={{ margin: '0.8rem 0', paddingLeft: '1.2rem', color: '#c3d8ee', fontSize: '0.85rem', lineHeight: '1.5' }}>
-                <li><strong>Gravedad:</strong> 0.38 g (más del doble que la Luna).</li>
-                <li><strong>Atmósfera:</strong> Muy tenue, 95% CO₂.</li>
-                <li><strong>Día / Noche:</strong> Sol marciano (24 horas 39 minutos).</li>
-                <li><strong>Viaje:</strong> 7 a 9 meses interplanetarios.</li>
+                <li><strong>Gravedad:</strong> {t('destinations.mars.gravity')}</li>
+                <li><strong>Atmósfera:</strong> {t('destinations.mars.atmosphere')}</li>
+                <li><strong>Desafío:</strong> {t('destinations.mars.challenge')}</li>
+                <li><strong>{t('destinations.travelTime')}:</strong> {t('destinations.mars.travelDuration')} ({t('destinations.mars.distance')})</li>
               </ul>
             </div>
             {selectedDest === 'MARS' && (
               <div style={{ color: '#ffb74d', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <CheckCircle weight="fill" /> Seleccionado para la misión
+                <CheckCircle weight="fill" /> {t('common.selected')}
               </div>
             )}
           </div>
@@ -117,7 +120,7 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
             className="earth-action-btn"
             onClick={() => onSelectDestination(selectedDest)}
           >
-            <span>Confirmar Destino y Crear Comandante</span>
+            <span>{t('destinations.confirmDestination', { dest: selectedDest === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name') })}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>

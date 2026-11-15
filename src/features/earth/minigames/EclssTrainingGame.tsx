@@ -2,6 +2,7 @@ import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome
 import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
 import { ArrowLeft, Drop, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Lightning, Warning } from '@phosphor-icons/react';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import '../screens/earth.css';
 
 interface EclssTrainingGameProps {
@@ -10,6 +11,7 @@ interface EclssTrainingGameProps {
 }
 
 export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps) {
+  const { t } = useI18n();
   // Parámetros del circuito regenerativo ECLSS
   const [electrolysisWatts, setElectrolysisWatts] = useState<number>(200); // Rango óptimo: 300W a 420W
   const [isCo2ScrubberOn, setIsCo2ScrubberOn] = useState<boolean>(false);
@@ -37,15 +39,16 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Volver al Mapa</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <Drop weight="fill" color="#4cc3d9" />
-          <span>Hangar ECLSS · Soporte Vital Regenerativo en Circuito Cerrado</span>
+          <span>{t('minigames.eclssTraining.title')}</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>
