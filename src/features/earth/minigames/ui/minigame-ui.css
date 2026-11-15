@@ -1,0 +1,130 @@
+/* Kit común de los minijuegos terrestres: escenario escalable, tarjetas flotantes y barra de acciones. */
+.mg { --mg-gap: clamp(.5rem, 1.4vw, 1rem); user-select: none; font-family: 'Nunito', system-ui, sans-serif; overflow: hidden; overflow: clip; }
+.mg a { color: #8fe9f0; }
+
+.mg__backdrop { position: absolute; inset: 0; background: center / cover no-repeat; filter: saturate(.9) brightness(.55); }
+.mg__ambient { position: absolute; inset: -24px; background: center / cover no-repeat; filter: blur(14px) saturate(.85) brightness(.6); }
+.mg-stage { position: absolute; }
+.mg[data-letterbox-y] .mg-stage {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent 100%);
+}
+.mg[data-letterbox-y][data-gap-top] .mg-stage {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+}
+.mg-stage__background { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+
+/* HUD: el título del juego ocupa la píldora central */
+.mg-hud__title { gap: .1rem .7rem; }
+.mg-hud__title strong { color: #fff; font: 700 .95rem 'Fredoka', sans-serif; }
+.mg-hud__subtitle { color: #9fd8e5; font-size: .76rem; font-weight: 800; }
+
+/* Tarjeta flotante */
+.mg-card {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  gap: .5rem;
+  padding: .75rem .9rem .85rem;
+  border: 2px solid var(--emap-edge);
+  background: var(--emap-panel);
+  box-shadow: 4px 4px 0 rgba(2, 8, 19, .6);
+  color: var(--emap-ink);
+}
+.mg-card::before,
+.mg-card::after { content: ''; position: absolute; width: 10px; height: 10px; background: var(--emap-accent); pointer-events: none; }
+.mg-card::before { top: -2px; left: -2px; }
+.mg-card::after { right: -2px; bottom: -2px; }
+.mg-card--success { border-color: #69f0ae; }
+.mg-card--danger { border-color: #ff8b79; }
+.mg-card h2, .mg-card h1 { margin: 0; color: #fff; font: 700 1.2rem/1.1 'Fredoka', sans-serif; }
+.mg-card p { margin: 0; font-size: .86rem; line-height: 1.4; color: #dcecf8; }
+.mg-card strong { color: #fff; }
+.mg-kicker { color: #9fd8e5; font: 800 .66rem 'Nunito', sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+
+/* Botones de opción (modo, evento, día...) */
+.mg-choice { display: flex; flex-wrap: wrap; gap: .35rem; }
+.mg-choice button {
+  padding: .3rem .6rem;
+  border: 2px solid #4f7f9a;
+  border-radius: 0;
+  background: rgba(2, 8, 19, .45);
+  color: #cfe6f7;
+  font: 700 .78rem 'Nunito', sans-serif;
+  cursor: pointer;
+}
+.mg-choice button:hover { background: rgba(36, 90, 130, .6); color: #fff; }
+.mg-choice button[aria-pressed='true'], .mg-choice button.is-selected { border-color: var(--emap-accent); background: var(--emap-accent); color: #14202e; }
+.mg button:focus-visible, .mg input:focus-visible, .mg summary:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+/* Barra inferior flotante */
+.mg-dock {
+  position: absolute;
+  z-index: 4;
+  left: var(--mg-gap);
+  right: var(--mg-gap);
+  bottom: var(--mg-gap);
+  display: flex;
+  align-items: stretch;
+  gap: .6rem;
+  max-width: 62rem;
+  margin-inline: auto;
+}
+.mg-status {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  padding: .5rem .8rem;
+  border: 2px solid var(--emap-edge);
+  background: var(--emap-panel);
+  box-shadow: 4px 4px 0 rgba(2, 8, 19, .6);
+  color: #ffeec2;
+  font: 700 .95rem/1.25 'Fredoka', sans-serif;
+}
+.mg-actions { display: flex; align-items: stretch; gap: .45rem; flex: none; }
+.mg-btn {
+  padding: .5rem .8rem;
+  border: 2px solid #6f92a3;
+  border-radius: 0;
+  background: #173e5c;
+  color: #fff;
+  font: 800 .82rem 'Nunito', sans-serif;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(2, 8, 19, .55);
+}
+.mg-btn:hover:not(:disabled) { background: #245a82; }
+.mg-btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+.mg-btn svg { vertical-align: -2px; margin-right: .25rem; }
+.mg .pixel-btn { border-radius: .3rem; padding: .6rem 1.1rem; font-size: 1rem; }
+
+/* Marcas de estado en el escenario */
+.mg-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u, 1px) * 5);
+  padding: .1rem .45rem .14rem;
+  border: 2px solid #6f92a3;
+  background: rgba(8, 24, 42, .93);
+  box-shadow: 2px 2px 0 rgba(2, 8, 19, .55);
+  color: #f5f0da;
+  font: 700 max(.66rem, calc(var(--u, 1px) * 11)) 'Fredoka', sans-serif;
+  white-space: nowrap;
+}
+.mg-tag--on { border-color: #8ff0c0; color: #d8fbe8; }
+.mg-tag--warn { border-color: #ffb24a; color: #ffe2b0; }
+.mg-tag--bad { border-color: #ff8b79; color: #ffd5cf; }
+.mg-tag small { color: #9fd8e5; font-size: .85em; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+
+/* Pips de acciones restantes */
+.mg-pips { display: inline-flex; gap: 4px; align-items: center; }
+.mg-pips span { width: 12px; height: 12px; border: 2px solid #6f92a3; background: transparent; }
+.mg-pips span.is-full { border-color: #ffe6a1; background: #ffc556; box-shadow: 0 0 6px #ffcb66; }
+
+/* Compacto: la barra inferior pasa a columna y las tarjetas flotantes se anclan abajo */
+@media (max-width: 760px) {
+  .mg-dock { flex-direction: column; }
+  .mg-actions { flex-wrap: wrap; }
+  .mg-actions > * { flex: 1 1 auto; }
+}
