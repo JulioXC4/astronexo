@@ -6,7 +6,6 @@ const viteServer = await createServer({
   server: { middlewareMode: true },
   appType: 'custom',
 });
-
 // Cargar módulos TS directamente a través de Vite
 const { isValidBackpack, TOOL_CATALOG } = await viteServer.ssrLoadModule('./src/game/contracts/types.ts');
 const { AREQUIPA_SOLAR_RECORDS, TROMSO_SOLAR_RECORDS } = await viteServer.ssrLoadModule('./src/data/nasa/powerData.ts');
@@ -18,6 +17,7 @@ const { getMissionsForCity, ALL_EARTH_MISSIONS } = await viteServer.ssrLoadModul
 
 // Cargar componentes de minijuegos para comprobar su existencia funcional
 const { SolarDetectiveGame } = await viteServer.ssrLoadModule('./src/features/earth/minigames/SolarDetectiveGame.tsx');
+const solarEnergy = await viteServer.ssrLoadModule('./src/features/earth/minigames/solarEnergy.ts');
 const { SolarWatchGame } = await viteServer.ssrLoadModule('./src/features/earth/minigames/SolarWatchGame.tsx');
 const { DarkMonthsGame } = await viteServer.ssrLoadModule('./src/features/earth/minigames/DarkMonthsGame.tsx');
 const { AltitudeAcclimatizationGame } = await viteServer.ssrLoadModule('./src/features/earth/minigames/AltitudeAcclimatizationGame.tsx');
@@ -25,7 +25,13 @@ const { EclssTrainingGame } = await viteServer.ssrLoadModule('./src/features/ear
 const { VeggieLabGame } = await viteServer.ssrLoadModule('./src/features/earth/minigames/VeggieLabGame.tsx');
 const { ArcticGreenhouseGame } = await viteServer.ssrLoadModule('./src/features/earth/minigames/ArcticGreenhouseGame.tsx');
 const { PreparationMapScreen } = await viteServer.ssrLoadModule('./src/features/earth/screens/PreparationMapScreen.tsx');
+const { WelcomeScreen } = await viteServer.ssrLoadModule('./src/features/earth/screens/WelcomeScreen.tsx');
+const { CitySelectionScreen } = await viteServer.ssrLoadModule('./src/features/earth/screens/CitySelectionScreen.tsx');
+const { DestinationScreen } = await viteServer.ssrLoadModule('./src/features/earth/screens/DestinationScreen.tsx');
+const { AvatarScreen } = await viteServer.ssrLoadModule('./src/features/earth/screens/AvatarScreen.tsx');
+const { NarrativeBriefingScreen } = await viteServer.ssrLoadModule('./src/features/earth/screens/NarrativeBriefingScreen.tsx');
 const { EarthFlow } = await viteServer.ssrLoadModule('./src/features/earth/EarthFlow.tsx');
+const { translate } = await viteServer.ssrLoadModule('./src/i18n/I18nContext.tsx');
 
 // =============================================================================
 // TEST BASE: CONTRATOS Y DATOS NASA
@@ -79,7 +85,6 @@ test('NASA POWER - Verificación de datos históricos solares en Arequipa y Trom
     assert.deepEqual(day.observation.coordinates, { latitude: 69.6492, longitude: 18.9553 });
   }
 });
-
 test('NASA DONKI - Verificación de eventos históricos de clima espacial', () => {
   assert.ok(DONKI_HISTORICAL_EVENTS.length >= 2, 'Deben haber al menos 2 eventos históricos DONKI');
 
@@ -291,6 +296,105 @@ test('12. Responsive en escritorio y tablet (Aspect ratio y dimensiones)', () =>
     assert.ok(c.x >= 150 && c.x <= 850, `Coordenada X ${c.x} debe estar dentro de márgenes horizontales`);
     assert.ok(c.y >= 100 && c.y <= 450, `Coordenada Y ${c.y} debe estar holgadamente dentro de viewBox 580`);
   }
+});
+
+test.after(async () => {
+  await viteServer.close();
+});
+
+
+test('Detective del Sol - captación NASA y orientación cambian el presupuesto', () => {
+  const low = solarEnergy.captureEnergy(AREQUIPA_SOLAR_RECORDS.days[0].irradianceKwhPerM2, 16);
+  const high = solarEnergy.captureEnergy(AREQUIPA_SOLAR_RECORDS.days[2].irradianceKwhPerM2, 16);
+  const tilted = solarEnergy.captureEnergy(AREQUIPA_SOLAR_RECORDS.days[0].irradianceKwhPerM2, 50);
+  assert.ok(high.units > low.units);
+  assert.ok(low.units > tilted.units);
+  assert.ok(low.kwh > tilted.kwh);
+});
+
+test('Detective del Sol - asignación, recuperación y resultados distintos', () => {
+  const { allocate, evaluate, EMPTY_ALLOCATION, assignedUnits, remainingNightEnergy } = solarEnergy;
+  let allocation = EMPTY_ALLOCATION;
+  allocation = allocate(allocation, 'communications', 4, 12);
+  allocation = allocate(allocation, 'shelter', 5, 12);
+  assert.equal(assignedUnits(allocation), 9);
+  assert.equal(evaluate(allocation, 12, true).passed, true);
+  assert.equal(evaluate(allocation, 12, false).passed, false);
+  assert.equal(remainingNightEnergy(allocation, 0), 7);
+  assert.equal(remainingNightEnergy(allocation, 7), 0);
+  allocation = allocate(allocation, 'shelter', -2, 12);
+  assert.equal(evaluate(allocation, 12, true).passed, false);
+  allocation = allocate(allocation, 'shelter', 2, 12);
+  allocation = allocate(allocation, 'laboratory', 3, 12);
+  assert.equal(evaluate(allocation, 12, true).passed, true);
+  assert.equal(evaluate(allocation, 12, true).grade, 'excellent');
+  assert.equal(allocate(allocation, 'laboratory', 1, 12).laboratory, 3);
+});
+
+test('Detective del Sol - laboratorio opcional y varias estrategias válidas', () => {
+  const { evaluate } = solarEnergy;
+  assert.equal(evaluate({ communications: 4, shelter: 5, laboratory: 0 }, 12, true).grade, 'passed');
+  assert.equal(evaluate({ communications: 4, shelter: 5, laboratory: 4 }, 13, true).grade, 'perfect');
+  assert.equal(evaluate({ communications: 4, shelter: 4, laboratory: 4 }, 12, true).passed, false);
+});
+
+test('Detective del Sol - los tres días tienen solución y excelencia posible', () => {
+  for (const day of AREQUIPA_SOLAR_RECORDS.days) {
+    const budget = solarEnergy.captureEnergy(day.irradianceKwhPerM2, 16).units;
+    assert.ok(budget >= 9);
+    assert.equal(solarEnergy.evaluate({ communications: 4, shelter: 5, laboratory: 0 }, budget, true).passed, true);
+  }
+  assert.equal(solarEnergy.evaluate({ communications: 4, shelter: 5, laboratory: 3 }, 12, true).grade, 'excellent');
+});
+
+test('Onboarding V3.0 - Componentes de las 5 pantallas cargan correctamente', () => {
+  assert.ok(WelcomeScreen, 'WelcomeScreen debe estar disponible');
+  assert.ok(CitySelectionScreen, 'CitySelectionScreen debe estar disponible');
+  assert.ok(DestinationScreen, 'DestinationScreen debe estar disponible');
+  assert.ok(AvatarScreen, 'AvatarScreen debe estar disponible');
+  assert.ok(NarrativeBriefingScreen, 'NarrativeBriefingScreen debe estar disponible');
+});
+
+test('Onboarding V3.0 - i18n sin claves faltantes ni "Text unavailable"', () => {
+  const checkKeys = [
+    'cities.arequipa.name',
+    'cities.arequipa.country',
+    'cities.arequipa.badge',
+    'cities.arequipa.specialty',
+    'cities.tromso.name',
+    'cities.tromso.country',
+    'cities.tromso.badge',
+    'cities.tromso.specialty',
+    'destinations.moon.name',
+    'destinations.moon.missionObjective',
+    'destinations.mars.name',
+    'destinations.mars.missionObjective',
+    'briefing.dialogue.step1Speaker',
+    'briefing.dialogue.step1Text',
+    'briefing.dialogue.step4Speaker',
+    'briefing.dialogue.step4Text',
+  ];
+
+  for (const lang of ['es', 'en']) {
+    for (const key of checkKeys) {
+      const result = translate(lang, key, { name: 'Comandante', city: 'Arequipa', destination: 'Luna' });
+      assert.ok(result.length > 0, `Clave ${key} en ${lang} no debe estar vacía`);
+      assert.notEqual(result, 'Texto no disponible', `Clave ${key} en ${lang} devolvió "Texto no disponible"`);
+      assert.notEqual(result, 'Text unavailable', `Clave ${key} en ${lang} devolvió "Text unavailable"`);
+    }
+  }
+});
+
+test('Detective del Sol - las celdas nocturnas se consumen sin crear energía', () => {
+  const allocation = { communications: 4, shelter: 5, laboratory: 3 };
+  const start = solarEnergy.nightSystemEnergy(allocation, 0);
+  const midnight = solarEnergy.nightSystemEnergy(allocation, 4);
+  const dawn = solarEnergy.nightSystemEnergy(allocation, 7);
+  assert.deepEqual(start, { communications: 2, shelter: 5 });
+  assert.deepEqual(midnight, { communications: 0, shelter: 3 });
+  assert.deepEqual(dawn, { communications: 0, shelter: 0 });
+  assert.ok(solarEnergy.remainingNightEnergy(allocation, 0) >= solarEnergy.remainingNightEnergy(allocation, 4));
+  assert.ok(solarEnergy.remainingNightEnergy(allocation, 4) >= solarEnergy.remainingNightEnergy(allocation, 7));
 });
 
 test.after(async () => {

@@ -88,7 +88,7 @@ export async function chooseDestination(page, destination) {
   await page.waitForSelector('.destination-card');
   if (destination === 'MARS') await page.click('.destination-card:has-text("Marte")');
   await assertScreenHealthy(page, 'destino');
-  await page.click('button.earth-action-btn');
+  await page.click('button.pixel-btn--primary');
 }
 
 /** Paso 3: construir 3 de 5 módulos ANTES de elegir la ciudad. Devuelve los nombres elegidos. */
@@ -114,21 +114,19 @@ export async function passStationPrep(page) {
 }
 
 export async function chooseCity(page, city) {
+  await page.waitForSelector('.academy-card');
   if (city === 'TROMSO') {
-    await page.waitForSelector('button.callsign-chip:has-text("Tromsø")');
-    await page.click('button.callsign-chip:has-text("Tromsø")');
-    await page.click('button.earth-action-btn:has-text("Confirmar Base en Tromsø")');
-  } else {
-    await page.waitForSelector('button.earth-action-btn:has-text("Confirmar Base en Arequipa")');
-    await page.click('button.earth-action-btn:has-text("Confirmar Base en Arequipa")');
+    await page.click('.academy-card--tromso');
   }
+  await page.click('button.pixel-btn--primary');
 }
 
 export async function passAvatarAndBriefing(page) {
-  await page.waitForSelector('.avatar-card');
-  await page.click('button.earth-action-btn');
-  await page.waitForSelector('.briefing-portrait');
-  await page.click('button.earth-action-btn');
+  await page.waitForSelector('.avatar-pixel-card');
+  await page.click('button.pixel-btn--primary');
+  await page.waitForSelector('.briefing-stage');
+  await page.locator('.briefing-dialog-box__controls .pixel-btn--secondary').last().click();
+  await page.click('.briefing-dialog-box__controls .pixel-btn--primary');
   await page.waitForSelector('.earth-base-facility');
 }
 
@@ -192,7 +190,7 @@ export const TRAININGS = {
 export async function completeTraining(page, index, id, options, isLast) {
   await page.waitForSelector('.earth-base-facility');
   await page.locator('.earth-base-facility').nth(index).click();
-  await page.click('button:has-text("Ejecutar Misión")');
+  await page.click('.emap-panel__start');
   await TRAININGS[id](page, options);
   await page.waitForSelector('.pixel-kicker:has-text("AVANCE DE OBRA")');
   await assertScreenHealthy(page, `obra tras ${id}`);

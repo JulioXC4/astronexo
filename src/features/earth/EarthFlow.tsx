@@ -91,8 +91,13 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
   const [completedMissions, setCompletedMissions] = useState<MissionType[]>([]);
   const [trainingOutcomes, setTrainingOutcomes] = useState<TrainingOutcome[]>([]);
   const [backpack, setBackpack] = useState<Backpack | null>(null);
+  // Solo para la confirmación visual del mapa al volver de un entrenamiento recién completado.
+  const [justCompletedMission, setJustCompletedMission] = useState<MissionType | null>(null);
 
   function navigateTo(nextScreen: EarthScreenState) {
+    // Mantiene la celebración al pasar por el avance de obra y la limpia
+    // cuando el jugador abandona realmente el mapa para otra actividad.
+    if (nextScreen !== 'MAP' && nextScreen !== 'CONSTRUCTION') setJustCompletedMission(null);
     setPreviousScreen(screen);
     setScreen(nextScreen);
   }
@@ -104,6 +109,7 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
       navigateTo('MAP');
       return;
     }
+    setJustCompletedMission(missionId);
     setTrainingOutcomes((prev) => (prev.some((item) => item.missionId === missionId) ? prev : [...prev, outcome]));
     setCompletedMissions((prev) => (prev.length >= 3 || prev.includes(missionId) ? prev : [...prev, missionId]));
     navigateTo('CONSTRUCTION'); // transición breve: avance de obra
@@ -254,6 +260,7 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
           cityName={city.name}
           destination={destination}
           astronautName={fictionalName}
+          avatarId={avatar.id}
           onProceedToMap={() => navigateTo('MAP')}
           onBack={() => navigateTo('AVATAR')}
         />
@@ -270,6 +277,7 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
             astronautName={fictionalName}
             completedMissions={completedMissions}
             trainingOutcomes={trainingOutcomes}
+            justCompletedId={justCompletedMission}
             onOpenMission={(mission: EarthMissionDefinition) => navigateTo(TRAINING_SCREENS[mission.id])}
             onProceedToLaunch={handleProceedToLaunch}
             onBack={() => navigateTo('BRIEFING')}
