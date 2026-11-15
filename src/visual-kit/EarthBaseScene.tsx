@@ -14,9 +14,18 @@ export interface EarthBaseSceneProps {
 }
 
 const positions = [
-  { x: 205, y: 180 }, { x: 795, y: 180 },
-  { x: 200, y: 425 }, { x: 500, y: 430 }, { x: 800, y: 425 },
+  { x: 245, y: 185 }, { x: 608, y: 185 },
+  { x: 190, y: 325 }, { x: 630, y: 325 }, { x: 402, y: 438 },
 ] as const;
+
+const facilitySprites: Partial<Record<MissionType, string>> = {
+  SOLAR_DETECTIVE: 'andean-solar-observatory.png',
+  ALTITUDE_ACCLIMATIZATION: 'hypobaric-chamber.png',
+  DARK_MONTHS_RESERVE: 'polar-energy-storage.png',
+  SOLAR_WATCH: 'space-weather-observatory.png',
+  ECLSS_TRAINING: 'life-support-lab.png',
+  VEGGIE_LAB: 'hydroponic-greenhouse.png',
+};
 
 const shortNames: Record<MissionType, readonly [string, string]> = {
   SOLAR_DETECTIVE: ['OBSERVATORIO', 'SOLAR'],
@@ -41,20 +50,8 @@ function FacilityArtwork({ id }: { id: MissionType }) {
 export function EarthBaseScene({ cityId, missions, selectedMissionId, completedMissions, missionLimitReached, onSelectMission, onOpenMission }: EarthBaseSceneProps) {
   const arctic = cityId === 'TROMSO';
   return <div className={`earth-base-scene ${arctic ? 'earth-base-scene--arctic' : 'earth-base-scene--andes'}`}>
-    <svg viewBox="0 0 1000 580" preserveAspectRatio="xMidYMid meet" role="group" aria-label={`Mapa de la base de ${arctic ? 'Tromsø' : 'Arequipa'} con cinco instalaciones`}>
-      <defs>
-        <linearGradient id="base-sky" x2="0" y2="1"><stop stopColor={arctic ? '#254960' : '#497d91'}/><stop offset="1" stopColor={arctic ? '#6a9a9c' : '#e6bd82'}/></linearGradient>
-        <linearGradient id="base-ground" x2="0" y2="1"><stop stopColor={arctic ? '#829fa0' : '#ab9d73'}/><stop offset="1" stopColor={arctic ? '#536f76' : '#6b785d'}/></linearGradient>
-      </defs>
-      <path d="M0 0h1000v580H0Z" fill="url(#base-sky)"/>
-      {arctic ? <><path d="M0 188 80 142l60 23 110-80 101 85 102-41 119 54 126-70 106 71 96-36v165H0Z" fill="#c5ddda"/><path d="M0 253 134 196l105 29 142-76 115 79 140-50 151 73 113-30v140H0Z" fill="#83a8ad"/><path d="M50 88q150-38 318-4t320-10 300 1" fill="none" stroke="#91d4bf" strokeOpacity=".5" strokeWidth="30"/></> : <><circle cx="895" cy="86" r="44" fill="#f7d494"/><path d="M0 210 110 154l75 36 140-118 119 127 118-68 129 80 103-105 109 108 97-49v140H0Z" fill="#c9aa83"/><path d="M0 280 142 203l135 45 135-101 125 100 168-56 122 93 173-54v132H0Z" fill="#8d9b87"/></>}
-      <path d="M0 280Q245 251 449 296T1000 274V580H0Z" fill="url(#base-ground)"/>
-      <path d="M0 318Q225 288 500 317T1000 306" fill="none" stroke={arctic ? '#d5e6dd' : '#c5ad85'} strokeWidth="13" opacity=".6"/>
-      <path d="M0 563Q190 470 500 459T1000 562M500 465V292M205 194 500 292 795 194M200 439 500 292 800 439" fill="none" stroke="#405b63" strokeWidth="27" strokeLinecap="round"/>
-      <path d="M0 563Q190 470 500 459T1000 562M500 465V292M205 194 500 292 795 194M200 439 500 292 800 439" fill="none" stroke="#a9b5a4" strokeWidth="3" strokeDasharray="13 16" opacity=".75"/>
-      <g aria-hidden="true"><path d="M457 279 500 263l43 16v38l-43 16-43-16Z" fill="#d5c9a9" stroke="#3f6170" strokeWidth="4"/><path d="M476 271v-29l24-12 24 12v29" fill="#567d8a" stroke="#d8e9dc" strokeWidth="4"/><path d="M500 228v-26" stroke="#e7e3c7" strokeWidth="4"/><circle cx="500" cy="198" r="6" fill="#f6c15b"/>
-        {[74, 386, 633, 924].map((x) => <g key={x} transform={`translate(${x} ${x < 500 ? 344 : 354})`}><path d="M0 8V-24" stroke="#435e58" strokeWidth="5"/><path d="M0-28q-23 0-17-17 13 0 17 12 4-12 17-12 6 17-17 17" fill={arctic ? '#d1e2d6' : '#567d61'}/></g>)}
-      </g>
+    <svg viewBox="0 0 1000 563" preserveAspectRatio="xMidYMid meet" role="group" aria-label={`Mapa de la base de ${arctic ? 'Tromsø' : 'Arequipa'} con cinco instalaciones`}>
+      <image href={`/assets/pixel-art/${arctic ? 'arctic-research-base.png' : 'andean-training-complex.png'}`} x="0" y="0" width="1000" height="563" preserveAspectRatio="none" />
       {missions.map((mission, index) => {
         const { x, y } = positions[index];
         const selected = mission.id === selectedMissionId;
@@ -70,7 +67,17 @@ export function EarthBaseScene({ cityId, missions, selectedMissionId, completedM
           onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (selected && !completed && !locked) onOpenMission(mission); else onSelectMission(mission.id); } }}>
           <ellipse cy="33" rx="93" ry="34" fill="#1d3340" opacity=".32"/>
           {selected && <ellipse cy="18" rx="94" ry="65" fill="none" stroke="#ffd36b" strokeWidth="4" strokeDasharray="9 5"/>}
-          <FacilityArtwork id={mission.id}/>
+          {(() => {
+            const sprite = arctic
+              ? mission.id === 'SOLAR_WATCH' ? 'arctic-weather-station.png'
+                : mission.id === 'ECLSS_TRAINING' ? 'polar-life-support-lab.png'
+                : mission.id === 'ARCTIC_GREENHOUSE' ? undefined
+                : facilitySprites[mission.id]
+              : facilitySprites[mission.id];
+            return sprite
+              ? <image href={`/assets/pixel-art/${sprite}`} x="-75" y="-100" width="150" height="135" preserveAspectRatio="xMidYMid meet" />
+              : <FacilityArtwork id={mission.id}/>;
+          })()}
           <rect x="-75" y="56" width="150" height="47" rx="9" fill="#102b3b" stroke={completed ? '#7adca6' : selected ? '#ffd36b' : '#c3d6cb'} strokeWidth="2"/>
           <text textAnchor="middle" y="74" className="earth-base-facility__name"><tspan x="0">{label[0]}</tspan><tspan x="0" dy="16">{label[1]}</tspan></text>
           <circle cx="63" cy="-52" r="17" fill={completed ? '#2a795b' : locked ? '#455a64' : selected ? '#f6c15b' : '#2d6f8b'} stroke="#eaf4e9" strokeWidth="3"/>

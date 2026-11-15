@@ -20,7 +20,7 @@ export const assetManifest: Record<AssetId, AssetEntry> = {
   'character.aurora': { path: null, fallbackLabel: 'Aurora', fallbackColor: '#9a7ac0' },
   'character.nico': { path: null, fallbackLabel: 'Nico', fallbackColor: '#67a995' },
   'background.earth': { path: null, fallbackLabel: 'Centro terrestre', fallbackColor: '#38547a' },
-  'background.earthWelcome': { path: '/assets/backgrounds/earth/welcome-concept.png', fallbackLabel: 'Centro espacial al amanecer', fallbackColor: '#263b53' },
+  'background.earthWelcome': { path: '/assets/pixel-art/academy-sunset.png', fallbackLabel: 'Centro espacial al amanecer', fallbackColor: '#263b53' },
   'background.moon': { path: null, fallbackLabel: 'Base lunar', fallbackColor: '#626b7d' },
   'background.mars': { path: null, fallbackLabel: 'Base marciana', fallbackColor: '#985f4b' },
   'ui.welcomeWordmark': { path: '/assets/ui/welcome-wordmark-concept.png', fallbackLabel: 'Astronauta Junior', fallbackColor: '#fff3cf' },

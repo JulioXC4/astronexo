@@ -26,7 +26,7 @@ export function NarrativeBriefingScreen({ cityName, destination, astronautName, 
         </div>
       </header>
 
-      <main className="earth-card" style={{ maxWidth: '48rem', textAlign: 'center', padding: '1.4rem' }}>
+      <main className="earth-card earth-card--briefing" style={{ maxWidth: '48rem', textAlign: 'center', padding: '1.4rem' }}>
         <h1 className="earth-card__title" style={{ justifyContent: 'center', marginBottom: '1rem', fontSize: '1.6rem' }}>
           <span>Centro de Enlace: {cityName}</span>
         </h1>
