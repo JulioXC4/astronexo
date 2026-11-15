@@ -18,6 +18,6 @@ export function buildVerifiedNasaDataset(cityId: string = 'AREQUIPA', selectedSo
   return {
     validation: 'VERIFIED',
     observations,
-    note: `Respaldo histórico NASA POWER (${solarDataset.cityId}, ${solarDay.date}, ${solarDay.irradianceKwhPerM2} kW-hr/m²/día) y NASA DONKI (CME ${donkiEvent.observedAt.slice(0, 10)}), contrastado el 2026-11-15. Las barras, costos, alertas y producción espacial son parámetros simulados; POWER solo describe la Tierra.`,
+    note: `NASA POWER (${solarDataset.cityId}, ${solarDay.date}, ${solarDay.irradianceKwhPerM2} kW-hr/m²/día, estado: ${solarDay.observation.status ?? 'HISTORICAL'}, obtenido ${solarDay.observation.fetchedAt ?? '2026-11-15'}) y NASA DONKI (CME ${donkiEvent.observedAt.slice(0, 10)}, ${donkiEvent.observation.value} km/s, estado: ${donkiEvent.observation.status ?? 'HISTORICAL'}). Las barras, costos, alertas y producción espacial son parámetros simulados; POWER solo describe la Tierra.`,
   };
 }

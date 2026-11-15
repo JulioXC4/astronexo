@@ -66,7 +66,6 @@ export const qu = {
   },
 
   cities: {
-    stepIndicator: 'Rikch\'an 1 manta 6 · Kay Pacha Qullqa Akllay',
     title: 'Kay Pacha Qullqata Akllay',
     subtitle: 'Iskay chiqan qullqamanta akllay: Ariqipa (Perú) icha Tromsø (Noruega).',
     confirmBase: '{city} qullqata taqyaychay',
@@ -97,7 +96,6 @@ export const qu = {
   },
 
   destinations: {
-    stepIndicator: 'Rikch\'an 2 manta 6 · Hanaq Pacha Purina Akllay',
     title: 'Maymanmi Rinki?',
     subtitle: 'Killa icha Atipaq (Marte) purinata akllay.',
     travelTime: 'Purina pacha',
@@ -124,7 +122,6 @@ export const qu = {
   },
 
   avatars: {
-    stepIndicator: 'Rikch\'an 3 manta 6 · Qhawaq Akllay',
     title: 'Pitaq Kanki?',
     subtitle: 'Hanaq pacha llamk\'aqniykita akllay.',
     confirmAvatar: '{name} akllayta taqyaychay',
@@ -157,7 +154,6 @@ export const qu = {
   },
 
   briefing: {
-    stepIndicator: 'Rikch\'an 4 manta 6 · Purina Willakuy',
     title: 'Purina Willakuy',
     subtitle: 'Hanaq pachaman riypaq kimsa llamk\'aykunatam kay pachapi tukunayki.',
     rulesTitle: 'Purina Kamachikuykuna (RF-69)',
@@ -171,7 +167,6 @@ export const qu = {
   },
 
   map: {
-    stepIndicator: 'Rikch\'an 5 manta 6 · Kay Pacha Qullqapi Yachapay',
     title: 'Kay Pacha Qullqa Saywiti',
     subtitle: 'Kimsa llamk\'ayta akllay hanaq pachapaq wakichikunaykipaq.',
     facilitiesCompleted: '{completed} / {total} Wasikuna tukusqa',

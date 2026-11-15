@@ -90,35 +90,46 @@ export interface DonkiSnapshotFile {
   /** URL consultada SIN api_key. */
   readonly requestUrl: string | null;
   readonly events: readonly DonkiSnapshotEvent[];
+  /** Tipos que el servicio no devolvió y el motivo (p. ej. FLR con HTTP 404). */
+  readonly skipped?: readonly { readonly type: string; readonly reason: string }[];
 }
 
 const snapshot = donkiSnapshot as DonkiSnapshotFile;
 
 /** Una CME del snapshot solo se acepta con velocidad, fecha y enlace válidos. */
-export function pickSnapshotCme(file: DonkiSnapshotFile): DonkiSnapshotEvent | null {
-  if (!file.fetchedAt) return null;
-  const cmes = file.events.filter((e) => e.type === 'CME' && typeof e.value === 'number'
+function validSnapshotCmes(file: DonkiSnapshotFile): DonkiSnapshotEvent[] {
+  if (!file.fetchedAt) return [];
+  return file.events.filter((e) => e.type === 'CME' && typeof e.value === 'number'
     && Number.isFinite(e.value) && e.value > 0 && e.value < 4000
-    && !Number.isNaN(Date.parse(e.startTime)) && /^https:\/\/(ccmc\.gsfc\.nasa\.gov|kauai\.ccmc\.gsfc\.nasa\.gov)\//.test(e.link));
+    && !Number.isNaN(Date.parse(e.startTime)) && /^https:\/\/(ccmc|kauai\.ccmc)\.gsfc\.nasa\.gov\//.test(e.link));
+}
+
+/** Con `activityId` devuelve exactamente esa CME; sin él, la más rápida del snapshot. */
+export function pickSnapshotCme(file: DonkiSnapshotFile, activityId?: string): DonkiSnapshotEvent | null {
+  const cmes = validSnapshotCmes(file);
+  if (activityId) return cmes.find((e) => e.activityID === activityId) ?? null;
   if (cmes.length === 0) return null;
   return cmes.reduce((best, e) => (Number(e.value) > Number(best.value) ? e : best));
 }
 
+/**
+ * Actualiza un evento local con su CME gemela del snapshot (mismo activityID).
+ * Nunca cambia de evento en silencio: si el identificador no está o es inválido, se conserva el respaldo.
+ */
 export function applyDonkiSnapshot(local: DonkiEventRecord, file: DonkiSnapshotFile): DonkiEventRecord {
-  const cme = pickSnapshotCme(file);
+  const cme = pickSnapshotCme(file, local.eventId);
   if (!cme || !file.fetchedAt) return local;
   const speed = Number(cme.value);
   return {
     ...local,
-    eventId: cme.activityID,
     observedAt: cme.startTime,
-    summary: `CME ${cme.startTime.slice(0, 10)} (DONKI ${cme.activityID}); velocidad del análisis más preciso: ${speed} km/s.`,
     sourceUrl: cme.link,
+    summary: speed === Number(local.observation.value)
+      ? local.summary
+      : `CME ${cme.startTime.slice(0, 10)} (DONKI ${cme.activityID}); velocidad del análisis más preciso: ${speed} km/s.`,
     observation: {
-      source: 'DONKI',
-      recordId: cme.activityID,
+      ...local.observation,
       observedAt: cme.startTime,
-      parameter: 'CME speed (DONKI, most accurate analysis)',
       value: speed,
       unit: 'km/s',
       sourceUrl: cme.link,
@@ -136,7 +147,7 @@ export const DONKI_SUPPORTING_EVENTS: readonly DonkiSnapshotEvent[] = snapshot.f
 
 export const DONKI_HISTORICAL_EVENTS: readonly DonkiEventRecord[] = [
   PRIMARY_CME,
-  {
+  applyDonkiSnapshot({
     ...LOCAL_PRIMARY_CME,
     eventId: '2024-05-10T21:28:00-CME-001',
     typeLabel: 'Eyección de Masa Coronal (CME) posterior',
@@ -154,7 +165,7 @@ export const DONKI_HISTORICAL_EVENTS: readonly DonkiEventRecord[] = [
       status: 'HISTORICAL',
       fetchedAt: '2026-11-15',
     },
-  },
+  }, snapshot),
 ];
 
 export const DEFAULT_DONKI_EVENT = DONKI_HISTORICAL_EVENTS[0];

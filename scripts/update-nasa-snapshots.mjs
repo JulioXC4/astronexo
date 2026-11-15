@@ -32,7 +32,7 @@ function redact(text) {
 
 async function getJson(url) {
   const response = await fetch(url, { headers: { Accept: 'application/json' } });
-  if (!response.ok) throw new Error(`HTTP ${response.status} en ${redact(url)}`);
+  if (!response.ok) throw new Error(`HTTP ${response.status} en ${new URL(url).host}${new URL(url).pathname}`);
   return response.json();
 }
 
@@ -92,7 +92,16 @@ async function updateDonki() {
   const endDate = '2024-05-12';
   const base = 'https://api.nasa.gov/DONKI';
   const q = (kind) => `${base}/${kind}?startDate=${startDate}&endDate=${endDate}&api_key=${encodeURIComponent(KEY)}`;
-  const [cme, flr, gst] = await Promise.all([getJson(q('CME')), getJson(q('FLR')), getJson(q('GST'))]);
+  // CME es obligatorio; FLR y GST son opcionales (si el servicio falla se registra el motivo, sin inventar datos).
+  const settled = await Promise.allSettled([getJson(q('CME')), getJson(q('FLR')), getJson(q('GST'))]);
+  const skipped = [];
+  const [cme, flr, gst] = settled.map((entry, index) => {
+    if (entry.status === 'fulfilled') return entry.value;
+    const type = ['CME', 'FLR', 'GST'][index];
+    if (type === 'CME') throw new Error(redact(entry.reason?.message ?? entry.reason));
+    skipped.push({ type, reason: redact(entry.reason?.message ?? entry.reason) });
+    return [];
+  });
   const events = [];
   for (const item of Array.isArray(cme) ? cme : []) {
     const analyses = (item.cmeAnalyses ?? []).filter((a) => typeof a.speed === 'number' && a.speed > 0);
@@ -111,11 +120,13 @@ async function updateDonki() {
     fetchedAt: new Date().toISOString().slice(0, 10),
     requestUrl: `${base}/{CME,FLR,GST}?startDate=${startDate}&endDate=${endDate}`,
     events,
+    skipped,
   };
   const text = `${JSON.stringify(snapshot, null, 2)}\n`;
   if (text.includes(KEY)) throw new Error('Abortado: el snapshot contendría la clave.');
   await writeFile(join(SNAP_DIR, 'donki.json'), text);
-  console.log(`DONKI: ${events.length} evento(s) guardados (${events.filter((e) => e.type === 'CME').length} CME).`);
+  console.log(`DONKI: ${events.length} evento(s) guardados (CME ${events.filter((e) => e.type === 'CME').length}, FLR ${events.filter((e) => e.type === 'FLR').length}, GST ${events.filter((e) => e.type === 'GST').length}).`);
+  for (const item of skipped) console.warn(`DONKI ${item.type} omitido: ${item.reason}`);
 }
 
 let failed = false;

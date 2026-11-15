@@ -12,7 +12,9 @@ import { applyDonkiSnapshot, DEFAULT_DONKI_EVENT, pickSnapshotCme } from '../../
 import { buildSpaceWeatherContext, difficultyForCmeSpeed } from '../../src/features/nasa/spaceWeather';
 import { recommendedReservePercent, reserveMismatch } from '../../src/features/earth/minigames/CloudsSunsGame';
 import { SoloSpaceGame } from '../../src/features/space/SoloSpaceGame';
-import { I18nProvider } from '../../src/i18n';
+import { I18nProvider, translate } from '../../src/i18n';
+import { MODULE_CATALOG } from '../../src/game';
+import { ALL_EARTH_MISSIONS } from '../../src/data/missions';
 import {
   advanceTurn, applyAction, createMission, getMissionResult, isValidGameSetup, isValidPreBuildGameSetup,
 } from '../../src/game';
@@ -99,6 +101,14 @@ describe('Flujo JD: preparación conservada hasta la guardia', () => {
 });
 
 describe('NASA DONKI: evento real separado de la regla simulada', () => {
+  it('el snapshot real actualiza el evento del juego con su fuente oficial (1018 km/s, 10-may-2024)', () => {
+    expect(DEFAULT_DONKI_EVENT.observation.status).toBe('UPDATED');
+    expect(DEFAULT_DONKI_EVENT.observation.value).toBe(1018);
+    expect(DEFAULT_DONKI_EVENT.eventId).toBe('2024-05-10T07:12:00-CME-001');
+    expect(DEFAULT_DONKI_EVENT.sourceUrl).toMatch(/^https:\/\/ccmc\.gsfc\.nasa\.gov\/DONKI\/view\/CME\//);
+    expect(buildSpaceWeatherContext().event.status).toBe('UPDATED');
+  });
+
   it('fija la dificultad con bandas reproducibles de velocidad CME', () => {
     expect(difficultyForCmeSpeed(1018).difficulty).toBe('STORMY');
     expect(difficultyForCmeSpeed(717).difficulty).toBe('ACTIVE');
@@ -124,11 +134,14 @@ describe('NASA DONKI: evento real separado de la regla simulada', () => {
   it('un snapshot válido actualiza la CME y uno inválido se ignora', () => {
     const valid = {
       fetchedAt: '2026-11-15', requestUrl: 'https://api.nasa.gov/DONKI/CME?startDate=2024-05-09',
-      events: [{ activityID: 'X-CME-1', type: 'CME' as const, startTime: '2024-05-10T07:12:00Z', value: 1100, unit: 'km/s', link: 'https://kauai.ccmc.gsfc.nasa.gov/DONKI/view/CME/1/-1' }],
+      events: [{ activityID: DEFAULT_DONKI_EVENT.eventId, type: 'CME' as const, startTime: '2024-05-10T07:12:00Z', value: 1100, unit: 'km/s', link: 'https://kauai.ccmc.gsfc.nasa.gov/DONKI/view/CME/1/-1' }],
     };
     const updated = applyDonkiSnapshot(DEFAULT_DONKI_EVENT, valid);
     expect(updated.observation.status).toBe('UPDATED');
     expect(updated.observation.value).toBe(1100);
+    // un evento con otro identificador no se reemplaza en silencio
+    const other = { ...DEFAULT_DONKI_EVENT, eventId: 'OTRO' };
+    expect(applyDonkiSnapshot(other, valid)).toBe(other);
     const bad = { ...valid, events: [{ ...valid.events[0], value: -5 }] };
     expect(pickSnapshotCme(bad)).toBeNull();
     expect(applyDonkiSnapshot(DEFAULT_DONKI_EVENT, bad)).toBe(DEFAULT_DONKI_EVENT);
@@ -215,6 +228,26 @@ describe('Seguridad: la clave NASA no se expone', () => {
     const dist = join(root, 'dist');
     if (existsSync(dist)) {
       for (const file of files(dist)) expect(readFileSync(file, 'utf8'), file).not.toMatch(/api_key=[A-Za-z0-9]{20,}/);
+    }
+  });
+});
+
+describe('Traducciones del flujo JD', () => {
+  const dynamicKeys = [
+    ...['HISTORICAL', 'UPDATED', 'FALLBACK'].map((k) => `nasaStatus.${k}`),
+    ...['CALM', 'ACTIVE', 'STORMY'].map((k) => `monitor.difficulty.${k}`),
+    ...MODULE_CATALOG.map((m) => `baseBuilder.modules.${m.id}.name`),
+    ...Object.keys(ALL_EARTH_MISSIONS).flatMap((id) => [`map.facilities.${id}.name`, `map.facilities.${id}.objective`]),
+    'stationPrep.title', 'construction.progress', 'monitor.weatherRule', 'nasaSources.power', 'nasaSources.donki', 'station.fullRouteBtn',
+    'baseBuilder.confirmStation', 'minigames.cloudsSuns.title',
+  ];
+  it.each(['es', 'en', 'no', 'qu'] as const)('%s resuelve todas las claves con fallback y sin placeholders visibles', (language) => {
+    const params = { destination: 'Luna', weeks: 3, done: 1, module: 'X', date: '2024-05-10', speed: 1018, status: 'ok', difficulty: 'Activa', city: 'Arequipa', parameter: 'P', recommended: 10, cost: 1, value: 5, unit: 'u' };
+    for (const key of dynamicKeys) {
+      const text = translate(language, key, params);
+      expect(text, `${language}:${key}`).not.toMatch(/\{\w+\}/);
+      expect(text, `${language}:${key}`).not.toMatch(/^(Text unavailable|Texto no disponible)$/);
+      expect(text, `${language}:${key}`).not.toBe(key);
     }
   });
 });

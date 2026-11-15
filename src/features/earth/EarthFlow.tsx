@@ -205,6 +205,8 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
         <BaseBuilderView
           destination={destination}
           confirmLabel={t('baseBuilder.confirmStation')}
+          initialModules={selectedModules}
+          onBack={() => navigateTo('DESTINATION')}
           onStart={(modules) => {
             setSelectedModules(modules);
             navigateTo('STATION_PREP');
