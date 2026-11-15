@@ -1,5 +1,5 @@
 import { ArrowRight, ArrowCounterClockwise, BookOpen, UsersThree, RocketLaunch, Sparkle } from '@phosphor-icons/react';
-import type { MissionResult } from '../../../game/contracts';
+import type { MissionResult } from '../../../game';
 import './earth.css';
 
 interface NextAdventureScreenProps {
@@ -25,7 +25,7 @@ export function NextAdventureScreen({
           <span>¿Cuál es tu siguiente paso espacial?</span>
         </h1>
         <p className="earth-card__subtitle">
-          Cada expedición espacial amplía nuestros conocimientos. Puedes probar una nueva combinación de herramientas o explorar la base científica.
+          Cada expedición espacial amplía nuestros conocimientos. Puedes completar otros entrenamientos o explorar la base científica.
         </p>
 
         <div style={{
@@ -36,13 +36,13 @@ export function NextAdventureScreen({
           marginBottom: '1.5rem'
         }}>
           <span style={{ fontSize: '0.85rem', color: '#f6c15b', fontWeight: 700, textTransform: 'uppercase' }}>
-            Balance de la Misión {result.destination === 'MOON' ? 'Lunar' : 'Marciana'}
+            Balance de la Misión {result.finalState.destination === 'MOON' ? 'Lunar' : 'Marciana'}
           </span>
           <p style={{ margin: '0.4rem 0 0 0', color: '#d9e7f5', fontSize: '0.95rem' }}>
-            {result.explanation}
+            {result.outcome === 'COMPLETED' ? 'Objetivo científico alcanzado.' : result.interruptionCause ?? 'La misión se interrumpió.'}
           </p>
           <p style={{ margin: '0.5rem 0 0 0', color: '#7cb5c8', fontSize: '0.85rem' }}>
-            Observaciones científicas NASA transferidas a la bitácora: <strong>{result.evidence.length} registros</strong>.
+            Entrenamientos aplicados a la guardia: <strong>{result.finalState.setup.earthProfile?.trainings.length ?? 0}</strong>.
           </p>
         </div>
 
@@ -53,7 +53,7 @@ export function NextAdventureScreen({
               Nueva Estrategia
             </h3>
             <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.88rem', lineHeight: '1.4' }}>
-              Reintenta la misión eligiendo una combinación distinta de 3 herramientas para observar cómo cambian tus opciones.
+              Reintenta la misión completando tres entrenamientos para observar cómo cambian tus herramientas y opciones.
             </p>
             <div style={{ marginTop: '0.8rem', color: '#f6c15b', fontWeight: 700, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
               <ArrowCounterClockwise weight="bold" /> Reintentar ahora

@@ -4,6 +4,7 @@ import { DEFAULT_CITY, type CityData } from '../../data/nasa/cities';
 import { DEFAULT_AVATAR, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../data/avatars';
 import { buildVerifiedNasaDataset } from '../nasa/adapters';
 import type { MissionType, EarthMissionDefinition } from '../../data/missions';
+import { buildEarthV3Setup } from './earthToSpace';
 
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CitySelectionScreen } from './screens/CitySelectionScreen';
@@ -91,20 +92,11 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
 
     const verifiedNasaDataset = buildVerifiedNasaDataset(city.id);
 
-    // Mapear compatibilidad de contratos con Software 1 sin inventar entrenamientos
-    const trainingContracts = completedMissions.filter(
-      (m): m is 'SOLAR_DETECTIVE' | 'SOLAR_WATCH' => m === 'SOLAR_DETECTIVE' || m === 'SOLAR_WATCH'
-    );
-
     onReady({
-      setup: {
-        cityId: city.id,
-        avatarId: avatar.id,
-        fictionalName,
-        destination,
-        backpack,
-        completedTraining: trainingContracts,
-      },
+      setup: buildEarthV3Setup({
+        city: city.id, destination, avatarId: avatar.id, fictionalName,
+        completedMissions, earnedTools: backpack,
+      }),
       nasaData: verifiedNasaDataset,
     });
   }
@@ -289,6 +281,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
     case 'LIFTOFF':
       return (
         <DepartureScreen
+          destination={destination}
           astronautName={fictionalName}
           cityName={city.name}
           backpack={backpack}
@@ -300,6 +293,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
     case 'ARRIVAL':
       return (
         <ArrivalScreen
+          destination={destination}
           astronautName={fictionalName}
           cityName={city.name}
           backpack={backpack}

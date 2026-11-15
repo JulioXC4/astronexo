@@ -1,5 +1,5 @@
 import { ArrowRight, GlobeHemisphereWest, Sparkle } from '@phosphor-icons/react';
-import type { MissionResult } from '../../../game/contracts';
+import type { MissionResult } from '../../../game';
 import './earth.css';
 
 interface EarthReturnScreenProps {
@@ -9,17 +9,19 @@ interface EarthReturnScreenProps {
 }
 
 export function EarthReturnScreen({ result, astronautName, onProceedToNextAdventure }: EarthReturnScreenProps) {
-  const isSuccess = result.outcome === 'SUCCESS';
+  const isSuccess = result.outcome === 'COMPLETED';
 
   return (
     <div className="earth-screen">
       <main className="earth-card" style={{ maxWidth: '48rem', textAlign: 'center' }}>
         <h1 className="earth-card__title" style={{ justifyContent: 'center' }}>
           <GlobeHemisphereWest color="#f6c15b" weight="fill" />
-          <span>¡Regreso a la Tierra: Misión Cumplida!</span>
+          <span>{isSuccess ? '¡Regreso a la Tierra: Misión Cumplida!' : 'Regreso a la Tierra: Misión Interrumpida'}</span>
         </h1>
         <p className="earth-card__subtitle">
-          La cápsula espacial reingresa con éxito en la atmósfera terrestre y despliega sus paracaídas sobre el océano Pacífico.
+          {isSuccess
+            ? 'La cápsula regresa a la Tierra tras completar la guardia espacial.'
+            : 'La guardia se interrumpió. La tripulación inició el retorno de emergencia a la Tierra.'}
         </p>
 
         <div style={{
@@ -51,7 +53,7 @@ export function EarthReturnScreen({ result, astronautName, onProceedToNextAdvent
               Bitácora de Vuelo Final
             </p>
             <p style={{ margin: '0.3rem 0 0 0', color: '#e6f0fa', fontSize: '0.92rem', lineHeight: '1.4' }}>
-              {result.explanation}
+              {isSuccess ? 'La guardia completó el objetivo científico.' : result.interruptionCause ?? 'La misión se interrumpió.'}
             </p>
           </div>
         </div>

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { EarthFlow } from '../features/earth';
-import { SpaceGame } from '../features/space';
+import { SoloSpaceGame } from '../features/space';
 import { EarthReturnScreen } from '../features/earth/screens/EarthReturnScreen';
 import { NextAdventureScreen } from '../features/earth/screens/NextAdventureScreen';
 import { LearnScreen } from '../features/earth/screens/LearnScreen';
 import { StationModeModal } from '../features/earth/screens/StationModeModal';
-import type { EarthReadyPayload, MissionResult } from '../game/contracts';
+import type { EarthReadyPayload } from '../game/contracts';
+import type { MissionResult } from '../game';
 
 export type SessionPhase =
   | { readonly kind: 'EARTH' }
@@ -30,10 +31,10 @@ export function GameRouter({ phase, onReady, onFinish, onRestart }: GameRouterPr
       return <EarthFlow onReady={onReady} />;
 
     case 'SPACE':
-      return <SpaceGame {...phase.payload} onFinish={onFinish} />;
+      return <SoloSpaceGame setup={phase.payload.setup} onFinish={onFinish} />;
 
     case 'RESULT': {
-      const astronautName = phase.payload?.setup.fictionalName ?? 'Comandante Junior';
+      const astronautName = phase.payload?.setup.earthProfile?.fictionalName ?? 'Comandante Junior';
 
       if (resultStep === 'LEARN') {
         return (

@@ -10,7 +10,7 @@ interface BackpackScreenProps {
   readonly onBack: () => void;
 }
 
-const TOOL_ITEM_DATA: Record<ToolId, { color: string; badge: string; desc: string; risk: string }> = {
+const TOOL_ITEM_DATA: Record<Extract<ToolId, 'FOLDING_PANELS' | 'LIFE_SUPPORT' | 'SHELTER_KIT' | 'CROP_KIT'>, { color: string; badge: string; desc: string; risk: string }> = {
   FOLDING_PANELS: {
     color: '#ffb300',
     badge: 'ENERGÍA FOTOVOLTAICA',
@@ -199,7 +199,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
                 {[0, 1, 2].map((slotIndex) => {
                   const toolId = selectedTools[slotIndex];
                   const toolDef = toolId ? TOOL_CATALOG.find((t) => t.id === toolId) : null;
-                  const meta = toolId ? TOOL_ITEM_DATA[toolId] : null;
+                  const meta = toolDef ? TOOL_ITEM_DATA[toolDef.id] : null;
 
                   return (
                     <div

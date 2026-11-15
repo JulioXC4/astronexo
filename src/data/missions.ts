@@ -60,7 +60,7 @@ export const ALL_EARTH_MISSIONS: Record<MissionType, EarthMissionDefinition> = {
     isCitySpecific: true,
     objective: 'Gestionar el almacenamiento de energía para la noche polar ártica de Tromsø (0.08 kWh/m²/día), análoga a la noche lunar.',
     costDescription: 'Racionamiento de energía para calefacción.',
-    effectOnSpaceMission: 'Baterías optimizadas para soportar la noche lunar de 14 días terrestres continuos.',
+    effectOnSpaceMission: 'Reserva de energía para periodos prolongados con poca luz en la base espacial.',
     scienceSource: 'NASA POWER (Tromsø, 69.6° N)',
   },
   ARCTIC_GREENHOUSE: {

@@ -1,8 +1,9 @@
 import { ArrowRight, Planet, ShieldWarning, Sparkle } from '@phosphor-icons/react';
-import { TOOL_CATALOG, type Backpack, type NasaDataset } from '../../../game/contracts';
+import { TOOL_CATALOG, type Backpack, type Destination, type NasaDataset } from '../../../game/contracts';
 import './earth.css';
 
 interface ArrivalScreenProps {
+  readonly destination: Destination;
   readonly astronautName: string;
   readonly cityName: string;
   readonly backpack: Backpack;
@@ -10,7 +11,7 @@ interface ArrivalScreenProps {
   readonly onEnterBase: () => void;
 }
 
-export function ArrivalScreen({ astronautName, cityName, backpack, nasaData, onEnterBase }: ArrivalScreenProps) {
+export function ArrivalScreen({ destination, astronautName, cityName, backpack, nasaData, onEnterBase }: ArrivalScreenProps) {
   const tools = backpack.map((id) => TOOL_CATALOG.find((t) => t.id === id)?.label ?? id);
 
   return (
@@ -18,10 +19,10 @@ export function ArrivalScreen({ astronautName, cityName, backpack, nasaData, onE
       <main className="earth-card" style={{ maxWidth: '52rem' }}>
         <h1 className="earth-card__title">
           <Planet color="#f6c15b" weight="fill" />
-          <span>¡Alunizaje Exitoso! Bienvenido a la Base Lunar</span>
+          <span>{destination === 'MOON' ? '¡Alunizaje Exitoso! Bienvenido a la Base Lunar' : '¡Llegada a Marte! Bienvenido a la Base Marciana'}</span>
         </h1>
         <p className="earth-card__subtitle">
-          Cápsula <em>Astronexo I</em> posada en el sector del Polo Sur lunar (Cráter Shackleton).
+          Cápsula <em>Astronexo I</em> posada {destination === 'MOON' ? 'en el sector del Polo Sur lunar (Cráter Shackleton).' : 'en la superficie de Marte.'}
         </p>
 
         <div style={{
@@ -34,9 +35,9 @@ export function ArrivalScreen({ astronautName, cityName, backpack, nasaData, onE
           overflow: 'hidden',
           marginBottom: '1.5rem'
         }}>
-          <div style={{ fontSize: '4.5rem', marginBottom: '0.5rem' }}>🌕</div>
+          <div style={{ fontSize: '4.5rem', marginBottom: '0.5rem' }}>{destination === 'MOON' ? '🌕' : '🔴'}</div>
           <h2 style={{ fontFamily: 'Fredoka', fontSize: '1.8rem', color: '#ffffff', margin: 0 }}>
-            Luna · Base Primera Luz
+            {destination === 'MOON' ? 'Luna · Base Primera Luz' : 'Marte · Base Horizonte Rojo'}
           </h2>
           <p style={{ color: '#bed4eb', fontSize: '0.95rem', margin: '0.4rem 0 1rem 0' }}>
             Comandante al frente: <strong>{astronautName}</strong> (Entrenado en {cityName})
@@ -51,15 +52,15 @@ export function ArrivalScreen({ astronautName, cityName, backpack, nasaData, onE
           }}>
             <div style={{ background: '#101a26', padding: '0.8rem 1rem', borderRadius: '0.8rem', border: '1px solid #2d4562' }}>
               <span style={{ fontSize: '0.8rem', color: '#7cb5c8', fontWeight: 700 }}>Temperatura Exterior</span>
-              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#ffb74d' }}>-130°C a +120°C</div>
+              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#ffb74d' }}>{destination === 'MOON' ? '-130°C a +120°C' : 'Variable'}</div>
             </div>
             <div style={{ background: '#101a26', padding: '0.8rem 1rem', borderRadius: '0.8rem', border: '1px solid #2d4562' }}>
               <span style={{ fontSize: '0.8rem', color: '#7cb5c8', fontWeight: 700 }}>Atmósfera</span>
-              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#64b5f6' }}>0% (Vacío total)</div>
+              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#64b5f6' }}>{destination === 'MOON' ? '0% (Vacío total)' : 'Muy tenue, 95% CO₂'}</div>
             </div>
             <div style={{ background: '#101a26', padding: '0.8rem 1rem', borderRadius: '0.8rem', border: '1px solid #2d4562' }}>
               <span style={{ fontSize: '0.8rem', color: '#7cb5c8', fontWeight: 700 }}>Gravedad</span>
-              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#81c784' }}>0.16 g (Baja)</div>
+              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#81c784' }}>{destination === 'MOON' ? '0.16 g (Baja)' : '0.38 g'}</div>
             </div>
           </div>
         </div>
@@ -92,7 +93,7 @@ export function ArrivalScreen({ astronautName, cityName, backpack, nasaData, onE
             onClick={onEnterBase}
           >
             <Sparkle weight="fill" />
-            <span>Tomar el Mando de la Base Lunar (Software 1)</span>
+            <span>Tomar el Mando de la Base {destination === 'MOON' ? 'Lunar' : 'Marciana'}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>
