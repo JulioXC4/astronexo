@@ -212,6 +212,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
                 <span style={{ color: isWaterOptimal ? '#69f0ae' : '#ffb74d', fontWeight: 700 }}>{waterRecycleRate}%</span>
               </div>
               <input
+                id="water-recycle-slider"
                 type="range"
                 min="50"
                 max="98"

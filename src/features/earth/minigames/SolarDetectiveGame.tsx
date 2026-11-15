@@ -156,10 +156,12 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               </span>
             </div>
             <input
+              id="tilt-angle-slider"
               type="range"
               min="0"
               max="50"
               value={tiltAngle}
+              aria-label="Orientación Panel"
               onChange={(e) => {
                 setTiltAngle(Number(e.target.value));
                 if (isSwitchClosed) handleReset();
@@ -192,11 +194,13 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               </span>
             </div>
             <input
+              id="solar-reserve-slider"
               type="range"
               min="15"
               max="85"
               step="5"
               value={reserveRatioPercent}
+              aria-label="Reserva Baterías Nocturnas"
               onChange={(e) => {
                 setReserveRatioPercent(Number(e.target.value));
                 if (isSwitchClosed) handleReset();

@@ -27,7 +27,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
   const allSealsSecured = sealsCount === 3;
 
   // Costo aplicado: gas de prueba consumido (30% base + sobrecosto por exceso o fuga)
-  const gasCostPercent = 25 + Math.round((pressureKpa - 50) * 0.6) + (!allSealsSecured ? 20 : 0);
+  const gasCostPercent = 30 + Math.round((pressureKpa - 50) * 0.6) + (!allSealsSecured ? 20 : 0);
   const isGasSafe = gasCostPercent <= 65;
 
   const isMissionPassed = isTested && isPressureOptimal && allSealsSecured && isGasSafe;
