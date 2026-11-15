@@ -3,6 +3,8 @@ import { BookOpen, Broadcast, Play, X } from '@phosphor-icons/react';
 import { assetManifest } from '../../../assets/manifest';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
+import { PixelSceneAnimator } from '../components/PixelSceneAnimator';
+import { arequipaScene, landingScene, tromsoScene } from '../scenes/pixelScenes';
 import './welcome.css';
 
 type WelcomePanel = 'STATION' | 'SOURCES' | null;
@@ -16,12 +18,12 @@ interface WelcomeScreenProps {
 export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScreenProps) {
   const { t } = useI18n();
   const [panel, setPanel] = useState<WelcomePanel>(null);
-  const [sceneFailed, setSceneFailed] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
   const [welcomeTutorialOpen, setWelcomeTutorialOpen] = useState(false);
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
   const lastTrigger = useRef<HTMLButtonElement | null>(null);
+  const cityScenesReady = useRef<Promise<void>>(Promise.resolve());
 
   const sources = [
     { name: 'NASA POWER', description: t('welcome.sources.power'), url: 'https://power.larc.nasa.gov/' },
@@ -52,6 +54,24 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [panel]);
 
+  useEffect(() => {
+    const sources = [
+      arequipaScene.poster,
+      arequipaScene.frames[0].src,
+      tromsoScene.poster,
+      tromsoScene.frames[0].src,
+    ];
+    cityScenesReady.current = Promise.all(sources.map((src) => new Promise<void>((resolve) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.onload = () => {
+        void image.decode().catch(() => undefined).finally(resolve);
+      };
+      image.onerror = () => resolve();
+      image.src = src;
+    }))).then(() => undefined);
+  }, []);
+
   function openPanel(value: Exclude<WelcomePanel, null>, trigger: HTMLButtonElement) {
     lastTrigger.current = trigger;
     setPanel(value);
@@ -62,7 +82,6 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
     requestAnimationFrame(() => lastTrigger.current?.focus());
   }
 
-  const scene = assetManifest['background.earthWelcome'];
   const wordmark = assetManifest['ui.welcomeWordmark'];
   const welcomeSteps = useMemo(() => [{
     id: 'welcome.solo',
@@ -72,10 +91,15 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
     actionLabel: t('tutorial.letsGo'),
   }], [t]);
 
+  async function showCitySelection() {
+    await cityScenesReady.current;
+    onPlay();
+  }
+
   function beginSolo() {
     setPanel(null);
     if (isTutorialComplete(welcomeSteps.map(({ id }) => id))) {
-      onPlay();
+      void showCitySelection();
       return;
     }
     setWelcomeTutorialOpen(true);
@@ -83,18 +107,17 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
 
   function finishWelcomeTutorial() {
     setWelcomeTutorialOpen(false);
-    onPlay();
+    void showCitySelection();
   }
 
-  return <main className="welcome" style={{ backgroundColor: scene.fallbackColor }}>
-    {!sceneFailed && scene.path && <img className="welcome__scene" src={scene.path} alt="" onError={() => setSceneFailed(true)} />}
-
-    {/* Luces y animaciones ambientales pixel art discretas */}
-    <div className="welcome__ambient-lights" aria-hidden="true">
-      <div className="welcome__light welcome__light--tower" title="Observatorio" />
-      <div className="welcome__light welcome__light--lab" title="Laboratorio" />
-      <div className="welcome__light welcome__light--rocket" title="Plataforma de despegue" />
-    </div>
+  return <main className="welcome">
+    <PixelSceneAnimator
+      className="welcome__scene"
+      frames={landingScene.frames}
+      poster={landingScene.poster}
+      objectPosition={landingScene.objectPosition}
+      priority
+    />
 
     {/* Barra superior de idioma estilo HUD */}
     <div className="welcome__top-bar">
