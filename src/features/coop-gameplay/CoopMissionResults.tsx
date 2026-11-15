@@ -16,54 +16,42 @@ export function CoopMissionResults({ result, group, onRetry, onFinish }: CoopMis
   const state = result.finalState;
   const learnings = [
     result.scientificObjectiveAchieved
-      ? 'La investigación solo cuenta cuando el equipo completa el objetivo científico.'
-      : 'Sobrevivir no basta: la ciencia también forma parte del objetivo de misión.',
+      ? t('coop.learningScienceComplete')
+      : t('coop.learningScienceIncomplete'),
     state.ignoredAlertCount > 0
-      ? `Ignorar ${state.ignoredAlertCount} alertas produjo consecuencias acumuladas.`
-      : 'El equipo atendió todas las alertas sin dejar consecuencias pendientes.',
-    'Los módulos cambian eficiencia y reservas, pero no sustituyen los sistemas esenciales.',
+      ? t('coop.learningIgnoredAlerts', { count: state.ignoredAlertCount })
+      : t('coop.learningNoIgnoredAlerts'),
+    t('coop.learningModules'),
   ];
 
   return (
     <div className="coop-results-shell">
       <section className="coop-results-summary pixel-panel">
-        <span className="pixel-kicker">{t('coop.resultsKicker')}</span>
-        <h1>{group.teamAlias}</h1>
-        <dl>
-          <div>
-            <dt>{t('coop.destination')}</dt>
-            <dd>{state.destination === 'MOON' ? 'Luna' : 'Marte'}</dd>
-          </div>
-          <div>
-            <dt>{t('coop.city')}</dt>
-            <dd>{state.setup.city === 'AREQUIPA' ? 'Arequipa' : 'Tromsø'}</dd>
-          </div>
-          <div>
-            <dt>{t('coop.team')}</dt>
-            <dd>{t('coop.participantsCount', { count: group.players.length })}</dd>
-          </div>
-          <div>
-            <dt>{t('coop.collectiveScore')}</dt>
-            <dd>{result.score.total}/100</dd>
-          </div>
-        </dl>
-        <div className="coop-results-summary__team">
-          {group.players.map((player) => (
-            <span key={player.id}>
-              <strong>{player.alias}</strong> ·{' '}
-              {player.roles.map((role) => t(`coop.roles.${role}`) || ROLE_LABELS[role]).join(', ')}
-            </span>
-          ))}
+        <div className="coop-results-summary__identity">
+          <span className="pixel-kicker">{t('coop.resultsKicker')}</span>
+          <h1>{group.teamAlias}</h1>
         </div>
-        <div className="coop-learnings">
-          <h2>{t('coop.scientificLearnings')}</h2>
-          <ul>
-            {learnings.map((learning) => (
-              <li key={learning}>{learning}</li>
+        <div className="coop-results-summary__facts">
+          <span><small>{t('coop.destination')}</small><strong>{t(`destinations.${state.destination === 'MOON' ? 'moon' : 'mars'}.name`)}</strong></span>
+          <span><small>{t('coop.city')}</small><strong>{state.setup.city === 'AREQUIPA' ? 'Arequipa' : 'Tromsø'}</strong></span>
+          <span><small>{t('coop.team')}</small><strong>{t('coop.participantsCount', { count: group.players.length })}</strong></span>
+        </div>
+        <details className="coop-results-more">
+          <summary>{t('coop.teamDetails')}</summary>
+          <div className="coop-results-summary__team">
+            {group.players.map((player) => (
+              <span key={player.id}>
+                <strong>{player.alias}</strong> ·{' '}
+                {player.roles.map((role) => t(`coop.roles.${role}`) || ROLE_LABELS[role]).join(', ')}
+              </span>
             ))}
-          </ul>
-        </div>
-        <p>{t('coop.noIndividualRankings')}</p>
+          </div>
+          <div className="coop-learnings">
+            <h2>{t('coop.scientificLearnings')}</h2>
+            <ul>{learnings.map((learning) => <li key={learning}>{learning}</li>)}</ul>
+          </div>
+          <p>{t('coop.noIndividualRankings')}</p>
+        </details>
       </section>
       <MissionResultsView result={result} onRetry={onRetry} onFinish={onFinish} />
     </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useI18n } from '../../i18n';
+import { interventionAssets } from '../../assets/interventionAssets';
 
 interface PanelRepairGameProps {
   readonly onReadyChange: (ready: boolean) => void;
@@ -15,12 +16,17 @@ export function PanelRepairGame({ onReadyChange }: PanelRepairGameProps) {
     onReadyChange(true);
   }
 
-  return <div className="mini-game" aria-label={t('interventions.gestures.panelGameAria')}>
+  const damaged = interventionAssets.G1.find((asset) => asset.role === 'damaged')!;
+  const part = interventionAssets.G1.find((asset) => asset.role === 'repairPart')!;
+  const repaired = interventionAssets.G1.find((asset) => asset.role === 'repaired')!;
+
+  return <div className="mini-game mini-game--visual" aria-label={t('interventions.gestures.panelGameAria')}>
+    <img className="mini-game__scene" src={ready ? repaired.path : damaged.path} alt="" />
     <div
       className={`panel-cell ${ready ? 'panel-cell--placed' : ''}`}
       draggable={!ready}
       onDragStart={(event) => event.dataTransfer.setData('text/plain', 'panel-cell')}
-    >{t('interventions.gestures.panelCell')}</div>
+    ><img src={part.path} alt="" /><span>{t('interventions.gestures.panelCell')}</span></div>
     <div
       className={`panel-slot ${ready ? 'panel-slot--ready' : ''}`}
       onDragOver={(event) => event.preventDefault()}

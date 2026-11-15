@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { X } from '@phosphor-icons/react';
 import { INTERVENTIONS, getActionCost } from '../../game';
 import type {
   ActionChoice,
@@ -7,6 +8,7 @@ import type {
   MissionState,
   ResourceDelta,
 } from '../../game';
+import { interventionAssets } from '../../assets/interventionAssets';
 import { InterventionGesture } from './InterventionGesture';
 import { OxygenPatchGame } from './OxygenPatchGame';
 import { PanelRepairGame } from './PanelRepairGame';
@@ -18,6 +20,7 @@ interface InterventionDockProps {
   readonly onAction: (action: GameAction) => void;
   readonly onRequestConfirmation?: (action: GameAction) => void;
   readonly groupDecisionPending?: boolean;
+  readonly focusedAlertId?: string | null;
 }
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;
@@ -35,6 +38,7 @@ export function InterventionDock({
   onAction,
   onRequestConfirmation,
   groupDecisionPending = false,
+  focusedAlertId,
 }: InterventionDockProps) {
   const { t } = useI18n();
   const [selected, setSelected] = useState<InterventionAction | null>(null);
@@ -44,6 +48,7 @@ export function InterventionDock({
   const requestLock = useRef(false);
   const panelMode = getInterventionPanelMode(state, selected);
   const intervention = INTERVENTIONS.find((item) => item.action === selected);
+  const focusedAlert = state.activeAlerts.find((alert) => alert.id === focusedAlertId);
   const matchingAlert = intervention
     ? state.activeAlerts.find((alert) => intervention.resolves.includes(alert.kind))
     : undefined;
@@ -59,6 +64,13 @@ export function InterventionDock({
   useEffect(() => {
     if (!groupDecisionPending) requestLock.current = false;
   }, [groupDecisionPending]);
+
+  useEffect(() => {
+    if (!state.actionTakenThisTurn) return;
+    setSelected(null);
+    setChoiceId(undefined);
+    setInteractionReady(false);
+  }, [state.actionTakenThisTurn]);
 
   function unavailableReason(action: InterventionAction) {
     const item = INTERVENTIONS.find((candidate) => candidate.action === action);
@@ -83,6 +95,13 @@ export function InterventionDock({
     setInteractionReady(false);
   }
 
+  function closeOverlay() {
+    if (groupDecisionPending) return;
+    setSelected(null);
+    setChoiceId(undefined);
+    setInteractionReady(false);
+  }
+
   function confirm() {
     if (!pendingAction || !interactionReady || !canPay || actionLock.current || requestLock.current) return;
     if (onRequestConfirmation) {
@@ -96,9 +115,7 @@ export function InterventionDock({
 
   function skip() {
     if (actionLock.current || requestLock.current) return;
-    setSelected(null);
-    setChoiceId(undefined);
-    setInteractionReady(false);
+    closeOverlay();
     if (onRequestConfirmation) {
       requestLock.current = true;
       onRequestConfirmation({ type: 'SKIP_INTERVENTION' });
@@ -108,58 +125,77 @@ export function InterventionDock({
     onAction({ type: 'SKIP_INTERVENTION' });
   }
 
-  return <section className="intervention-dock pixel-panel" aria-labelledby="intervention-title">
-    <div className="section-heading">
+  return <section className="intervention-dock" aria-labelledby="intervention-title">
+    <div className="intervention-dock__heading">
       <div>
-        <span className="pixel-kicker">{t('interventions.kicker')}</span>
         <h2 id="intervention-title">{t('interventions.title')}</h2>
+        <p>{focusedAlert ? t(`alerts.${focusedAlert.kind}.title`) : t('interventions.selectPrompt')}</p>
       </div>
       <span className={state.actionTakenThisTurn ? 'status-light' : 'status-light status-light--warning'}>
         {t(state.actionTakenThisTurn ? 'interventions.statusRecorded' : 'interventions.statusPending')}
       </span>
     </div>
-
-    <div className="intervention-layout">
-      <div className="intervention-list">
-        {INTERVENTIONS.map((item) => {
-          const blockedReason = unavailableReason(item.action);
-          const itemKey = `interventions.items.${item.id}`;
-          return <button
-            type="button"
-            key={item.id}
-            className={`intervention-option ${selected === item.action ? 'intervention-option--selected' : ''}`}
-            disabled={state.actionTakenThisTurn || groupDecisionPending || blockedReason !== null}
-            onClick={() => choose(item.action)}
-          >
-            <span>{item.id}</span>
-            <strong>{t(`${itemKey}.label`)}</strong>
-            <small>{blockedReason ?? t('interventions.baseCost', { cost: formatCost(item.cost, t) })}</small>
-          </button>;
-        })}
-        <button
+    <div className="intervention-list">
+      {INTERVENTIONS.map((item) => {
+        const blockedReason = unavailableReason(item.action);
+        const asset = interventionAssets[item.id][0];
+        const related = focusedAlert ? item.resolves.includes(focusedAlert.kind) : false;
+        return <button
           type="button"
-          className="intervention-option intervention-option--skip"
-          disabled={state.actionTakenThisTurn || groupDecisionPending}
-          onClick={skip}
+          key={item.id}
+          className={`intervention-option ${related ? 'intervention-option--recommended' : ''}`}
+          disabled={state.actionTakenThisTurn || groupDecisionPending || blockedReason !== null}
+          aria-label={`${t(`interventions.items.${item.id}.label`)}. ${blockedReason ?? t('interventions.baseCost', { cost: formatCost(item.cost, t) })}`}
+          title={blockedReason ?? t('interventions.baseCost', { cost: formatCost(item.cost, t) })}
+          onClick={() => choose(item.action)}
         >
-          <span>—</span><strong>{t('interventions.noIntervention')}</strong><small>{t('interventions.noInterventionDesc')}</small>
-        </button>
-      </div>
+          <img src={asset.path} alt="" />
+          <strong>{t(`interventions.items.${item.id}.label`)}</strong>
+          <small>{blockedReason ?? formatCost(item.cost, t)}</small>
+        </button>;
+      })}
+      <button
+        type="button"
+        className="intervention-option intervention-option--skip"
+        disabled={state.actionTakenThisTurn || groupDecisionPending}
+        onClick={skip}
+      >
+        <span aria-hidden="true">—</span>
+        <strong>{t('interventions.noIntervention')}</strong>
+        <small>{t('interventions.noInterventionDesc')}</small>
+      </button>
+    </div>
 
-      <div className="intervention-console">
-        {panelMode === 'SKIPPED' ? <div className="console-placeholder">
-          <div aria-hidden="true">■</div>
-          <p><strong>{t('interventions.skippedRecorded')}</strong></p>
-          <p>{t('interventions.skippedDesc')}</p>
-        </div> : intervention && selected ? <>
-          <span className="pixel-kicker">{t('interventions.previewKicker', { id: intervention.id })}</span>
-          <h3>{t(`interventions.items.${intervention.id}.label`)}</h3>
+    {selected && intervention && <div className="intervention-overlay" role="presentation" onMouseDown={(event) => {
+      if (event.target === event.currentTarget) closeOverlay();
+    }}>
+      <section
+        className="intervention-console"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="intervention-dialog-title"
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') closeOverlay();
+        }}
+      >
+        <header className="intervention-console__header">
+          <div>
+            <span>{t('interventions.previewKicker', { id: '' })}</span>
+            <h3 id="intervention-dialog-title">{t(`interventions.items.${intervention.id}.label`)}</h3>
+          </div>
+          <button type="button" className="intervention-close" onClick={closeOverlay} aria-label={t('common.close')}>
+            <X weight="bold" aria-hidden="true" />
+          </button>
+        </header>
+        <div className="intervention-brief">
           <p>{t(`interventions.items.${intervention.id}.objective`)}</p>
           <p><strong>{t('interventions.instruction')}:</strong> {t(`interventions.items.${intervention.id}.instructions`)}</p>
-          <div className="cost-preview">
-            <span>{t('interventions.realCost')}</span><strong>{formatCost(cost, t)}</strong>
-            <span>{t('interventions.benefit')}</span><strong>{t(`interventions.items.${intervention.id}.benefit`)}</strong>
-          </div>
+        </div>
+        <div className="cost-preview">
+          <div><span>{t('interventions.realCost')}</span><strong>{formatCost(cost, t)}</strong></div>
+          <div><span>{t('interventions.benefit')}</span><strong>{t(`interventions.items.${intervention.id}.benefit`)}</strong></div>
+        </div>
+        {panelMode === 'SKIPPED' ? <div className="console-placeholder"><p>{t('interventions.skippedDesc')}</p></div> : <>
           {selected === 'REPAIR_PANELS'
             ? <PanelRepairGame onReadyChange={setInteractionReady} />
             : selected === 'PATCH_OXYGEN_LEAK'
@@ -171,17 +207,17 @@ export function InterventionDock({
                   onChoiceChange={setChoiceId}
                 />}
           {!canPay && <p className="error-copy">{t('interventions.insufficientResources')}</p>}
-          <button
-            type="button"
-            className="pixel-button pixel-button--confirm"
-            disabled={!interactionReady || !canPay || state.actionTakenThisTurn || groupDecisionPending}
-            onClick={confirm}
-          >{t(onRequestConfirmation ? 'interventions.requestAgreement' : 'interventions.confirmAction')}</button>
-        </> : <div className="console-placeholder">
-          <div aria-hidden="true">◀ ▲ ▼ ▶</div>
-          <p>{t('interventions.selectPrompt')}</p>
-        </div>}
-      </div>
-    </div>
+          <footer className="intervention-console__actions">
+            <button type="button" className="pixel-button" onClick={closeOverlay}>{t('common.back')}</button>
+            <button
+              type="button"
+              className="pixel-button pixel-button--confirm"
+              disabled={!interactionReady || !canPay || state.actionTakenThisTurn || groupDecisionPending}
+              onClick={confirm}
+            >{t(onRequestConfirmation ? 'interventions.requestAgreement' : 'interventions.confirmAction')}</button>
+          </footer>
+        </>}
+      </section>
+    </div>}
   </section>;
 }

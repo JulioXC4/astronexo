@@ -493,7 +493,7 @@ export const es = {
   },
 
   baseBuilder: {
-    kicker: 'P10 · HANGAR DE CONSTRUCCIÓN',
+    kicker: 'HANGAR DE CONSTRUCCIÓN',
     title: 'ARMA TU BASE EN {destination}',
     subtitle: 'Los sistemas esenciales ya están instalados. Elige tres mejoras sin repetir.',
     confirmBaseBtn: 'Iniciar guardia',
@@ -620,6 +620,9 @@ export const es = {
       standby: 'Sin consumo ni producción',
     },
     lunarDay: 'Día lunar {day}',
+    exteriorCamera: 'Exterior',
+    exteriorFeed: 'VISTA EXTERIOR',
+    secondaryTelemetry: 'Indicadores secundarios de la misión',
   },
 
   alerts: {
@@ -695,15 +698,15 @@ export const es = {
   },
 
   interventions: {
-    kicker: 'P12 · UNA ACCIÓN PRINCIPAL',
-    title: 'Intervenciones G1–G8',
+    kicker: 'UNA ACCIÓN PRINCIPAL',
+    title: 'Elige una acción',
     statusRecorded: 'REGISTRADA',
     statusPending: 'PENDIENTE',
     noIntervention: 'No intervenir',
     noInterventionDesc: 'Las alertas empeorarán',
     skippedRecorded: 'NO INTERVENIR REGISTRADO',
     skippedDesc: 'Las alertas activas aplicarán sus consecuencias al finalizar el turno.',
-    previewKicker: '{id} · VISTA PREVIA',
+    previewKicker: 'PREPARA LA ACCIÓN',
     realCost: 'COSTO REAL',
     benefit: 'BENEFICIO',
     noCost: 'Sin costo de recursos',
@@ -802,7 +805,7 @@ export const es = {
   },
 
   results: {
-    bannerKicker: 'P13 · FIN DE GUARDIA',
+    bannerKicker: 'FIN DE GUARDIA',
     completed: 'MISIÓN COMPLETADA',
     incomplete: 'MISIÓN INCOMPLETA',
     interrupted: 'MISIÓN INTERRUMPIDA',
@@ -817,7 +820,7 @@ export const es = {
     unknownCause: 'causa no registrada',
     score: 'PUNTUACIÓN',
     scoreLabel: 'PUNTUACIÓN',
-    reportKicker: 'P14 · INFORME',
+    reportKicker: 'INFORME',
     finalReportTitle: 'INFORME FINAL',
     finalStateTitle: 'Estado final',
     turns: 'Turnos',
@@ -833,7 +836,7 @@ export const es = {
     consequencesTitle: 'Consecuencias acumuladas',
     noConsequences: 'No quedaron consecuencias pendientes.',
     modulesBuiltTitle: 'Módulos construidos',
-    moduleConfigKicker: 'CONFIGURACIÓN P10 → P14',
+    moduleConfigKicker: 'BASE Y RESULTADOS',
     actualConsumption: 'Consumo real',
     noOperationalConsumption: 'Sin consumo operativo registrado',
     evidenceBenefits: 'Beneficios con evidencia',
@@ -851,8 +854,10 @@ export const es = {
     pending: 'PENDIENTE',
     noConsultationReceived: 'No se recibió una consulta a Tierra.',
     toolsUsed: 'Herramientas: {tools}',
-    retry: 'REINTENTAR MISIÓN',
-    submitReport: 'ENTREGAR INFORME',
+    conclusionsTitle: 'Lo que cambiaron tus decisiones',
+    openFullReport: 'Ver informe completo',
+    retry: 'REINTENTAR',
+    submitReport: 'VOLVER A LA TIERRA',
   },
 
   return: {
@@ -991,7 +996,7 @@ export const es = {
   },
 
   coop: {
-    kicker: 'E6 · TURNO COOPERATIVO',
+    kicker: 'TURNO COOPERATIVO',
     dialogKicker: 'ACUERDO DEL GRUPO · SIN TEMPORIZADOR',
     talkFreely: 'Conversen sin límite de tiempo antes de confirmar.',
     leadsTurn: 'DIRIGE ESTE TURNO',
@@ -1010,13 +1015,19 @@ export const es = {
     executeInterventionTitle: '¿Ejecutar {label}?',
     noCost: 'Sin costo de recursos',
     noAlertsActive: 'No hay alertas activas.',
-    resultsKicker: 'E7 · INFORME COLECTIVO',
+    resultsKicker: 'INFORME COLECTIVO',
     destination: 'Destino',
     city: 'Ciudad',
     team: 'Equipo',
     participantsCount: '{count} participantes',
     collectiveScore: 'Puntuación colectiva',
     scientificLearnings: 'Aprendizajes científicos',
+    teamDetails: 'EQUIPO Y APRENDIZAJES',
+    learningScienceComplete: 'La investigación cuenta cuando el equipo completa el objetivo científico.',
+    learningScienceIncomplete: 'Sobrevivir no basta: la ciencia también forma parte del objetivo de misión.',
+    learningIgnoredAlerts: 'Ignorar {count} alertas produjo consecuencias acumuladas.',
+    learningNoIgnoredAlerts: 'El equipo atendió todas las alertas sin dejar consecuencias pendientes.',
+    learningModules: 'Los módulos cambian eficiencia y reservas, pero no sustituyen los sistemas esenciales.',
     noIndividualRankings: 'No se generan clasificaciones ni estadísticas individuales.',
     retryAsTeam: 'REINTENTAR COMO EQUIPO',
     submitReport: 'ENTREGAR INFORME',

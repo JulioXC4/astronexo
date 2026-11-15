@@ -10,7 +10,7 @@ export function CoopRoleBar({ group }: CoopRoleBarProps) {
   return (
     <header className="coop-role-bar pixel-panel" aria-label="Integrantes y roles del equipo">
       <div className="coop-role-bar__title">
-        <span className="pixel-kicker">E6 · TURNO COOPERATIVO</span>
+        <span className="pixel-kicker">{t('coop.kicker')}</span>
         <strong>{group.teamAlias}</strong>
         <small>{t('coop.talkFreely')}</small>
       </div>

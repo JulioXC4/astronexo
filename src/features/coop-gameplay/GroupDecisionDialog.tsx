@@ -34,10 +34,16 @@ export function GroupDecisionDialog({
   const intervention = skip ? undefined : getIntervention(pending.action.type);
   const cost = getActionCost(state, pending.action);
   const target = state.activeAlerts.find((alert) => alert.id === pending.action.targetId);
+  const interventionLabel = intervention ? t(`interventions.items.${intervention.id}.label`) : '';
+  const targetLabel = target
+    ? t(`alerts.${target.kind}.title`)
+    : intervention
+      ? t(`interventions.items.${intervention.id}.objective`)
+      : t('interventions.noIntervention');
 
   const title = skip
     ? t('coop.skipInterventionTitle')
-    : t('coop.executeInterventionTitle', { label: intervention?.label ?? '' });
+    : t('coop.executeInterventionTitle', { label: interventionLabel });
 
   return (
     <div className="coop-dialog-backdrop" role="presentation">
@@ -62,7 +68,7 @@ export function GroupDecisionDialog({
         <dl>
           <div>
             <dt>{t('coop.target')}</dt>
-            <dd>{target?.title ?? intervention?.objective ?? 'Asumir las consecuencias de las alertas activas.'}</dd>
+            <dd>{targetLabel}</dd>
           </div>
           <div>
             <dt>{t('coop.costOnConfirm')}</dt>
@@ -73,7 +79,7 @@ export function GroupDecisionDialog({
             <dd>
               {skip
                 ? state.activeAlerts.map((alert) => alert.consequencePreview).join(' · ') || t('coop.noAlertsActive')
-                : intervention?.benefit}
+                : intervention ? t(`interventions.items.${intervention.id}.benefit`) : ''}
             </dd>
           </div>
         </dl>

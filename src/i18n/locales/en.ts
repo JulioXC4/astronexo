@@ -493,7 +493,7 @@ export const en = {
   },
 
   baseBuilder: {
-    kicker: 'P10 · CONSTRUCTION HANGAR',
+    kicker: 'CONSTRUCTION HANGAR',
     title: 'BUILD YOUR BASE ON {destination}',
     subtitle: 'Essential life, power, and comms systems are already installed. Choose three distinct upgrades.',
     confirmBaseBtn: 'Start guard',
@@ -620,6 +620,9 @@ export const en = {
       standby: 'No consumption or production',
     },
     lunarDay: 'Lunar day {day}',
+    exteriorCamera: 'Exterior',
+    exteriorFeed: 'EXTERIOR VIEW',
+    secondaryTelemetry: 'Secondary mission indicators',
   },
 
   alerts: {
@@ -695,15 +698,15 @@ export const en = {
   },
 
   interventions: {
-    kicker: 'P12 · ONE PRIMARY ACTION',
-    title: 'Interventions G1–G8',
+    kicker: 'ONE PRIMARY ACTION',
+    title: 'Choose an action',
     statusRecorded: 'RECORDED',
     statusPending: 'PENDING',
     noIntervention: 'Do not intervene',
     noInterventionDesc: 'Alerts will worsen',
     skippedRecorded: 'DO NOT INTERVENE RECORDED',
     skippedDesc: 'Active alerts will apply their consequences upon ending the turn.',
-    previewKicker: '{id} · PREVIEW',
+    previewKicker: 'PREPARE ACTION',
     realCost: 'REAL COST',
     benefit: 'BENEFIT',
     noCost: 'No resource cost',
@@ -802,7 +805,7 @@ export const en = {
   },
 
   results: {
-    bannerKicker: 'P13 · END OF GUARD',
+    bannerKicker: 'END OF GUARD',
     completed: 'MISSION COMPLETED',
     incomplete: 'MISSION INCOMPLETE',
     interrupted: 'MISSION INTERRUPTED',
@@ -817,7 +820,7 @@ export const en = {
     unknownCause: 'cause not recorded',
     score: 'SCORE',
     scoreLabel: 'SCORE',
-    reportKicker: 'P14 · REPORT',
+    reportKicker: 'REPORT',
     finalReportTitle: 'FINAL REPORT',
     finalStateTitle: 'Final state',
     turns: 'Turns',
@@ -833,7 +836,7 @@ export const en = {
     consequencesTitle: 'Accumulated consequences',
     noConsequences: 'No pending consequences remained.',
     modulesBuiltTitle: 'Modules built',
-    moduleConfigKicker: 'P10 → P14 CONFIGURATION',
+    moduleConfigKicker: 'BASE AND RESULTS',
     actualConsumption: 'Actual consumption',
     noOperationalConsumption: 'No operating consumption recorded',
     evidenceBenefits: 'Benefits with evidence',
@@ -851,8 +854,10 @@ export const en = {
     pending: 'PENDING',
     noConsultationReceived: 'No inquiry sent to Earth.',
     toolsUsed: 'Tools: {tools}',
-    retry: 'RETRY MISSION',
-    submitReport: 'SUBMIT REPORT',
+    conclusionsTitle: 'What your decisions changed',
+    openFullReport: 'View full report',
+    retry: 'RETRY',
+    submitReport: 'RETURN TO EARTH',
   },
 
   return: {
@@ -991,7 +996,7 @@ export const en = {
   },
 
   coop: {
-    kicker: 'E6 · COOPERATIVE TURN',
+    kicker: 'COOPERATIVE TURN',
     dialogKicker: 'GROUP AGREEMENT · NO TIMER',
     talkFreely: 'Discuss without time pressure before confirming.',
     leadsTurn: 'DIRECTS THIS TURN',
@@ -1010,13 +1015,19 @@ export const en = {
     executeInterventionTitle: 'Execute {label}?',
     noCost: 'No resource cost',
     noAlertsActive: 'No active alerts.',
-    resultsKicker: 'E7 · COLLECTIVE REPORT',
+    resultsKicker: 'COLLECTIVE REPORT',
     destination: 'Destination',
     city: 'City',
     team: 'Team',
     participantsCount: '{count} cadets',
     collectiveScore: 'Collective score',
     scientificLearnings: 'Scientific learnings',
+    teamDetails: 'TEAM & LEARNINGS',
+    learningScienceComplete: 'Research counts when the crew completes the scientific objective.',
+    learningScienceIncomplete: 'Survival is not enough: science is also part of the mission objective.',
+    learningIgnoredAlerts: 'Ignoring {count} alerts caused cumulative consequences.',
+    learningNoIgnoredAlerts: 'The crew handled every alert without leaving pending consequences.',
+    learningModules: 'Modules change efficiency and reserves, but they do not replace essential systems.',
     noIndividualRankings: 'No individual rankings or competitive scores are generated.',
     retryAsTeam: 'RETRY AS TEAM',
     submitReport: 'SUBMIT REPORT',

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, ArrowRight, UserCircle, Sparkle } from '@phosphor-icons/react';
 import { AVATAR_OPTIONS, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../../data/avatars';
 import { CharacterPortrait, type PortraitIdentity } from '../../../visual-kit/CharacterPortrait';
+import { getPlayerSkinForAvatarId } from '../../../assets/manifest';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
@@ -58,6 +59,7 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
             const name = t(`avatars.profiles.${avatar.id}.name`);
             const role = t(`avatars.profiles.${avatar.id}.role`);
             const bio = t(`avatars.profiles.${avatar.id}.desc`);
+            const skin = getPlayerSkinForAvatarId(avatar.id);
             return (
               <div
                 key={avatar.id}
@@ -74,7 +76,7 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
                 }}
               >
                 <div className="avatar-card__art" aria-hidden="true">
-                  <CharacterPortrait identity={avatar.id as PortraitIdentity} selected={isSelected} label={name} />
+                  <CharacterPortrait identity={avatar.id as PortraitIdentity} source={skin.path} selected={isSelected} label={name} />
                 </div>
                 <h2 className="avatar-card__name">{name}</h2>
                 <span className="avatar-card__role">{role}</span>
