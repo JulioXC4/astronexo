@@ -128,13 +128,14 @@ export const es = {
 
   destinations: {
     stepIndicator: 'Paso 1 · Destino espacial',
-    title: 'Elige tu Destino Espacial antes de Entrenar',
+    title: 'Elige tu destino',
     subtitle: 'Primero eliges a dónde irás; después construimos tu estación.',
     confirm: 'Confirmar Destino y Crear Comandante',
     back: 'Cambiar Base ({city})',
     selected: 'Seleccionado para la misión',
     confirmDestination: 'Ir a {dest}',
     travelTime: 'Tiempo de viaje',
+    distanceLabel: 'Distancia',
     gravityLabel: 'Gravedad',
     atmosphereLabel: 'Atmósfera',
     challengeLabel: 'Desafío',

@@ -85,10 +85,10 @@ export async function startFromWelcome(page) {
 }
 
 export async function chooseDestination(page, destination) {
-  await page.waitForSelector('.destination-card');
-  if (destination === 'MARS') await page.click('.destination-card:has-text("Marte")');
+  await page.waitForSelector('[data-destination]');
+  if (destination === 'MARS') await page.click('[data-destination="MARS"]');
   await assertScreenHealthy(page, 'destino');
-  await page.click('button.pixel-btn--primary');
+  await page.click('.destination-selection__confirm');
 }
 
 /** Paso 3: construir 3 de 5 módulos ANTES de elegir la ciudad. Devuelve los nombres elegidos. */
