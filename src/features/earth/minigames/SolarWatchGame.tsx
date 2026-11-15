@@ -1,3 +1,5 @@
+import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
+import type { TrainingOutcome } from '../../../game';
 import { useState, useEffect } from 'react';
 import { ArrowLeft, ShieldCheck, Siren, LockKey, Broadcast, Sparkle, CheckCircle, ArrowCounterClockwise } from '@phosphor-icons/react';
 import { DONKI_HISTORICAL_EVENTS, type DonkiEventRecord } from '../../../data/nasa/donkiData';
@@ -5,7 +7,7 @@ import { StormShelterVisual } from '../../../visual-kit/TrainingVisuals';
 import '../screens/earth.css';
 
 interface SolarWatchGameProps {
-  readonly onComplete: () => void;
+  readonly onComplete: (outcome: TrainingOutcome) => void;
   readonly onBack: () => void;
 }
 
@@ -221,10 +223,10 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
               type="button"
               className="earth-action-btn"
               style={{ padding: '0.75rem 1.6rem' }}
-              onClick={onComplete}
+              onClick={() => onComplete(createTrainingOutcome('SOLAR_WATCH', `Protocolo CME ${eventIndex + 1}`, 'energy', calculateTrainingCost('SOLAR_WATCH', eventIndex), 'El refugio suspende operaciones durante la prueba.'))}
             >
               <Sparkle weight="fill" />
-              <span>Validar Certificación en el Mapa</span>
+              <span>Confirmar costo de {(calculateTrainingCost('SOLAR_WATCH', eventIndex))} punto(s) de Energía y obtener el kit</span>
             </button>
           </div>
         )}

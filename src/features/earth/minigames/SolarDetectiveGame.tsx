@@ -1,3 +1,5 @@
+import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
+import type { TrainingOutcome } from '../../../game';
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Sun, Lightning, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Warning } from '@phosphor-icons/react';
 import { AREQUIPA_SOLAR_RECORDS, type SolarDayRecord } from '../../../data/nasa/powerData';
@@ -5,7 +7,7 @@ import { SolarCircuitVisual } from '../../../visual-kit/TrainingVisuals';
 import '../screens/earth.css';
 
 interface SolarDetectiveGameProps {
-  readonly onComplete: () => void;
+  readonly onComplete: (outcome: TrainingOutcome) => void;
   readonly onBack: () => void;
 }
 
@@ -296,10 +298,10 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               type="button"
               className="earth-action-btn"
               style={{ padding: '0.75rem 1.6rem' }}
-              onClick={onComplete}
+              onClick={() => onComplete(createTrainingOutcome('SOLAR_DETECTIVE', `Reserva ${reserveRatioPercent}%`, 'energy', calculateTrainingCost('SOLAR_DETECTIVE', reserveRatioPercent), 'La prueba solar consumió parte de la reserva.'))}
             >
               <Sparkle weight="fill" />
-              <span>Validar Certificación en el Mapa</span>
+              <span>Confirmar costo de {(calculateTrainingCost('SOLAR_DETECTIVE', reserveRatioPercent))} punto(s) de Energía y obtener el kit</span>
             </button>
           </div>
         )}

@@ -1,6 +1,6 @@
 import { getMissionsForCity, type MissionType } from '../../data/missions';
 import { isValidPreBuildGameSetup } from '../../game';
-import type { City, Destination, EarthMissionId, GameSetup, ToolId } from '../../game';
+import type { City, Destination, EarthMissionId, GameSetup, ToolId, TrainingOutcome } from '../../game';
 
 /** M1–M5 son las posiciones de las instalaciones, no IDs intercambiables entre ciudades. */
 const MAP_SLOTS: readonly EarthMissionId[] = ['M1', 'M2', 'M3', 'M4', 'M5'];
@@ -12,6 +12,7 @@ export interface EarthLaunchSelection {
   readonly fictionalName: string;
   readonly completedMissions: readonly MissionType[];
   readonly earnedTools: readonly ToolId[];
+  readonly trainingOutcomes?: readonly TrainingOutcome[];
 }
 
 export function buildEarthV3Setup(selection: EarthLaunchSelection): GameSetup {
@@ -25,6 +26,13 @@ export function buildEarthV3Setup(selection: EarthLaunchSelection): GameSetup {
     return { mission: missions[slot], slot: MAP_SLOTS[slot] };
   });
   const expectedTools = trainings.map(({ mission }) => mission.targetTool);
+  if (selection.trainingOutcomes && (selection.trainingOutcomes.length !== 3
+    || selection.trainingOutcomes.some((outcome, index) => outcome.missionId !== trainings[index].mission.id
+      || outcome.tool !== expectedTools[index]
+      || !Number.isInteger(outcome.cost) || outcome.cost < 1 || outcome.cost > 3
+      || outcome.spaceDelta[outcome.resource] !== -outcome.cost))) {
+    throw new Error('Los costos terrestres no corresponden a las misiones completadas.');
+  }
   const counts = (tools: readonly ToolId[]) => tools.reduce<Record<string, number>>((result, tool) => {
     result[tool] = (result[tool] ?? 0) + 1;
     return result;
@@ -48,6 +56,7 @@ export function buildEarthV3Setup(selection: EarthLaunchSelection): GameSetup {
     earthProfile: {
       avatarId: selection.avatarId,
       fictionalName: selection.fictionalName,
+      outcomes: selection.trainingOutcomes ? [...selection.trainingOutcomes] : undefined,
       trainings: trainings.map(({ mission }) => ({
         id: mission.id,
         name: mission.name,

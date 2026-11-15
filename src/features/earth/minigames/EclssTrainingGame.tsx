@@ -1,9 +1,11 @@
+import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
+import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
 import { ArrowLeft, Drop, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Lightning, Warning } from '@phosphor-icons/react';
 import '../screens/earth.css';
 
 interface EclssTrainingGameProps {
-  readonly onComplete: () => void;
+  readonly onComplete: (outcome: TrainingOutcome) => void;
   readonly onBack: () => void;
 }
 
@@ -314,10 +316,10 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
               type="button"
               className="earth-action-btn"
               style={{ padding: '0.75rem 1.6rem' }}
-              onClick={onComplete}
+              onClick={() => onComplete(createTrainingOutcome('ECLSS_TRAINING', `Electrólisis ${totalPowerConsumption} W`, 'energy', calculateTrainingCost('ECLSS_TRAINING', totalPowerConsumption), 'La prueba de electrólisis consume batería.'))}
             >
               <Sparkle weight="fill" />
-              <span>Validar Certificación en el Mapa</span>
+              <span>Confirmar costo de {(calculateTrainingCost('ECLSS_TRAINING', totalPowerConsumption))} punto(s) de Energía y obtener el kit</span>
             </button>
           </div>
         )}

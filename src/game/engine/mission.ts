@@ -100,6 +100,11 @@ function initialToolDelta(tools: SelectedTools): ResourceDelta {
   return sumDeltas(deltas);
 }
 
+function initialTrainingDelta(setup: GameSetup): ResourceDelta {
+  const outcomes = setup.earthProfile?.outcomes ?? [];
+  return sumDeltas(outcomes.map((outcome) => outcome.spaceDelta));
+}
+
 function earlyWarningForecast(setup: GameSetup, seed: number) {
   if (!setup.selectedTools.includes('EARLY_WARNING')) return null;
   const turn = 1 + H2_TOOL_RULES.EARLY_WARNING.turnsAhead;
@@ -193,7 +198,7 @@ function createMissionState(setup: GameSetup, legacyDemo: boolean): MissionState
   };
   return applyResourceDelta(
     applyResourceDelta(baseState, initialToolDelta(selectedTools)),
-    getInitialModuleDelta(setup.selectedModules),
+    sumDeltas([getInitialModuleDelta(setup.selectedModules), initialTrainingDelta(setup)]),
   );
 }
 
@@ -546,7 +551,9 @@ function buildModuleReport(state: MissionState): readonly ModuleReportEntry[] {
 function buildConfigurationConsequences(state: MissionState) {
   const trainings = state.setup.earthProfile?.trainings.map((training) =>
     `${training.name}: ${training.effectOnSpaceMission} Costo terrestre: ${training.costDescription}`) ?? [];
-  return [...trainings, ...state.unresolvedEvents.flatMap((event) => {
+  const outcomes = state.setup.earthProfile?.outcomes?.map((outcome) =>
+    `${outcome.missionId}: ${outcome.explanation} Herramienta: ${outcome.tool}. Beneficio: ${outcome.benefit}`) ?? [];
+  return [...trainings, ...outcomes, ...state.unresolvedEvents.flatMap((event) => {
     const related = MODULE_CATALOG.filter((module) =>
       module.affectedBy.some((kind) => event.sourceAlertId.startsWith(kind)));
     return related.map((module) => `${event.summary} Configuración relacionada: ${module.name} ${

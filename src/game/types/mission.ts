@@ -69,7 +69,20 @@ export interface GameSetup {
       readonly costDescription: string;
       readonly effectOnSpaceMission: string;
     }[];
+    readonly outcomes?: readonly TrainingOutcome[];
   };
+}
+
+export interface TrainingOutcome {
+  readonly missionId: string;
+  readonly decision: string;
+  readonly resource: 'energy' | 'oxygen' | 'foodSupply';
+  readonly cost: number;
+  readonly tool: ToolId;
+  readonly benefit: string;
+  readonly limitation: string;
+  readonly explanation: string;
+  readonly spaceDelta: ResourceDelta;
 }
 
 export interface GameAction {

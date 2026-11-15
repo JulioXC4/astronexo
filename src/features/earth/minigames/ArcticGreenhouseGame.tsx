@@ -1,9 +1,11 @@
+import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
+import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
 import { ArrowLeft, Plant, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Warning, Thermometer } from '@phosphor-icons/react';
 import '../screens/earth.css';
 
 interface ArcticGreenhouseGameProps {
-  readonly onComplete: () => void;
+  readonly onComplete: (outcome: TrainingOutcome) => void;
   readonly onBack: () => void;
 }
 
@@ -334,10 +336,10 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
               type="button"
               className="earth-action-btn"
               style={{ padding: '0.75rem 1.6rem' }}
-              onClick={onComplete}
+              onClick={() => onComplete(createTrainingOutcome('ARCTIC_GREENHOUSE', `Flujo geotérmico ${geothermalFlow}%`, 'energy', calculateTrainingCost('ARCTIC_GREENHOUSE', geothermalFlow), 'Calefacción e iluminación consumen reserva.'))}
             >
               <Sparkle weight="fill" />
-              <span>Validar Certificación en el Mapa</span>
+              <span>Confirmar costo de {(calculateTrainingCost('ARCTIC_GREENHOUSE', geothermalFlow))} punto(s) de Energía y obtener el kit</span>
             </button>
           </div>
         )}

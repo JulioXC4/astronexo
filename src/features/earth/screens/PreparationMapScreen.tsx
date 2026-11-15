@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { ArrowLeft, CheckCircle, Compass, Crosshair, Play, RocketLaunch, Sparkle, LockKey } from '@phosphor-icons/react';
 import { getMissionsForCity, type EarthMissionDefinition, type MissionType } from '../../../data/missions';
 import type { ToolId } from '../../../game/contracts';
+import type { TrainingOutcome } from '../../../game';
+import { trainingResourceLabel } from '../trainingOutcome';
 import { EarthBaseScene } from '../../../visual-kit/EarthBaseScene';
 import './earth.css';
 
@@ -11,6 +13,7 @@ interface PreparationMapScreenProps {
   readonly destination: string;
   readonly astronautName: string;
   readonly completedMissions: readonly MissionType[];
+  readonly trainingOutcomes: readonly TrainingOutcome[];
   readonly onOpenMission: (mission: EarthMissionDefinition) => void;
   readonly onProceedToLaunch: (derivedTools: readonly ToolId[]) => void;
   readonly onBack: () => void;
@@ -22,6 +25,7 @@ export function PreparationMapScreen({
   destination,
   astronautName,
   completedMissions,
+  trainingOutcomes,
   onOpenMission,
   onProceedToLaunch,
   onBack,
@@ -35,10 +39,11 @@ export function PreparationMapScreen({
   const isThreeDone = countCompleted >= 3;
 
   // Derivar las herramientas correspondientes a las misiones completadas (exactamente las ganadas)
-  const derivedTools: ToolId[] = completedMissions.map((id) => {
+  const derivedTools: ToolId[] = completedMissions.flatMap((id) => {
     const found = missions.find((m) => m.id === id);
-    return found ? found.targetTool : 'FOLDING_PANELS';
+    return found ? [found.targetTool] : [];
   });
+  const activeOutcome = trainingOutcomes.find((outcome) => outcome.missionId === activeMission.id);
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
@@ -127,6 +132,9 @@ export function PreparationMapScreen({
             <p style={{ margin: '0.2rem 0', color: '#e0effe', fontSize: '0.88rem', lineHeight: '1.35' }}>
               <strong>Objetivo:</strong> {activeMission.objective}
             </p>
+            {activeOutcome && <p style={{ margin: '0.3rem 0', color: '#ffcf91', fontSize: '0.82rem' }}>
+              <strong>Tu preparación:</strong> {activeOutcome.decision} · costo de {activeOutcome.cost} punto(s) de {trainingResourceLabel(activeOutcome.resource)} al iniciar la guardia.
+            </p>}
 
             <div style={{ display: 'flex', gap: '1.2rem', marginTop: '0.4rem', flexWrap: 'wrap', fontSize: '0.82rem' }}>
               <span style={{ color: '#69f0ae' }}>

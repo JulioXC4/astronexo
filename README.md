@@ -45,6 +45,12 @@ La entrada individual oficial está en [`src/features/space/SoloSpaceGame.tsx`](
 
 Los IDs M1–M5 son **posiciones del mapa de cada ciudad**; no se equiparan por nombre a las misiones antiguas del motor:
 
+### Costos terrestres RF-69
+
+Cada minijuego conserva la herramienta obtenida y registra la decisión final en `earthProfile.outcomes`. El costo es de **1 o 2 puntos del simulador** sobre la reserva inicial espacial: Energía (Solar, Meses Oscuros, Mirador DONKI, ECLSS e Invernadero Ártico), Oxígeno (Aclimatación) o Alimentos (Veggie). La variante depende del control que el jugador utilizó: porcentaje reservado, distribución térmica, gas empleado, evento CME elegido, potencia ECLSS, mezcla de iluminación o flujo geotérmico, respectivamente. Son parámetros educativos pequeños; no son mediciones NASA ni modifican las reglas planetarias de Gaby.
+
+El adaptador valida que cada resultado corresponda a la misión y al kit ganado. El motor aplica la suma **una vez al crear la guardia**, respeta el límite de 0 a 100 y muestra decisión, costo y beneficio en el informe. El mapa conserva y muestra los resultados al volver de un entrenamiento. Los escenarios H2 anteriores sin resultados terrestres siguen siendo compatibles.
+
 | Posición | Arequipa | Tromsø |
 | --- | --- | --- |
 | M1 | Detective del Sol → paneles plegables | Meses Oscuros → paneles plegables |

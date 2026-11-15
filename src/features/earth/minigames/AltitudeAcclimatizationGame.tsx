@@ -1,9 +1,11 @@
+import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
+import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
 import { ArrowLeft, Wind, CheckCircle, Sparkle, ArrowCounterClockwise, Info, ShieldCheck, Warning } from '@phosphor-icons/react';
 import '../screens/earth.css';
 
 interface AltitudeAcclimatizationGameProps {
-  readonly onComplete: () => void;
+  readonly onComplete: (outcome: TrainingOutcome) => void;
   readonly onBack: () => void;
 }
 
@@ -333,10 +335,10 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
               type="button"
               className="earth-action-btn"
               style={{ padding: '0.75rem 1.6rem' }}
-              onClick={onComplete}
+              onClick={() => onComplete(createTrainingOutcome('ALTITUDE_ACCLIMATIZATION', `Gas ${gasCostPercent}%`, 'oxygen', calculateTrainingCost('ALTITUDE_ACCLIMATIZATION', gasCostPercent), 'El gas de prueba reduce la reserva respirable.'))}
             >
               <Sparkle weight="fill" />
-              <span>Validar Certificación en el Mapa</span>
+              <span>Confirmar costo de {(calculateTrainingCost('ALTITUDE_ACCLIMATIZATION', gasCostPercent))} punto(s) de Oxígeno y obtener el kit</span>
             </button>
           </div>
         )}

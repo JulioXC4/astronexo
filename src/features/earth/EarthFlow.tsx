@@ -5,6 +5,7 @@ import { DEFAULT_AVATAR, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../da
 import { buildVerifiedNasaDataset } from '../nasa/adapters';
 import type { MissionType, EarthMissionDefinition } from '../../data/missions';
 import { buildEarthV3Setup } from './earthToSpace';
+import type { TrainingOutcome } from '../../game';
 
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CitySelectionScreen } from './screens/CitySelectionScreen';
@@ -53,6 +54,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
   const [avatar, setAvatar] = useState<AvatarOption>(DEFAULT_AVATAR);
   const [fictionalName, setFictionalName] = useState<string>(SUGGESTED_CALLSIGNS[0]);
   const [completedMissions, setCompletedMissions] = useState<MissionType[]>([]);
+  const [trainingOutcomes, setTrainingOutcomes] = useState<TrainingOutcome[]>([]);
   const [backpack, setBackpack] = useState<Backpack | null>(null);
 
   function navigateTo(nextScreen: EarthScreenState) {
@@ -62,12 +64,14 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
 
   // Completa una misión tras satisfacer sus condiciones interactivas (RF-69)
   // Regla estricta: máximo 3 misiones elegidas
-  function handleCompleteMission(missionId: MissionType) {
+  function handleCompleteMission(outcome: TrainingOutcome) {
+    const missionId = outcome.missionId as MissionType;
     if (completedMissions.length >= 3) {
       navigateTo('MAP');
       return;
     }
     if (!completedMissions.includes(missionId)) {
+      setTrainingOutcomes((prev) => prev.some((item) => item.missionId === missionId) ? prev : [...prev, outcome]);
       setCompletedMissions((prev) => {
         if (prev.length >= 3) return prev;
         return [...prev, missionId];
@@ -79,7 +83,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
   // Al completar exactamente 3 misiones, se asignan EXACTAMENTE las 3 herramientas ganadas
   // NO se regalan ni rellenan herramientas arbitrarias del catálogo (RF-09, RF-10)
   function handleProceedToLaunch(derivedTools: readonly ToolId[]) {
-    if (derivedTools.length !== 3) return;
+    if (derivedTools.length !== 3 || trainingOutcomes.length !== 3) return;
 
     const earnedBackpack: Backpack = [derivedTools[0], derivedTools[1], derivedTools[2]];
     setBackpack(earnedBackpack);
@@ -87,7 +91,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
   }
 
   function handleLaunchMission() {
-    if (completedMissions.length !== 3) return;
+    if (completedMissions.length !== 3 || trainingOutcomes.length !== 3) return;
     if (!backpack) return;
 
     const verifiedNasaDataset = buildVerifiedNasaDataset(city.id);
@@ -95,7 +99,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
     onReady({
       setup: buildEarthV3Setup({
         city: city.id, destination, avatarId: avatar.id, fictionalName,
-        completedMissions, earnedTools: backpack,
+        completedMissions, earnedTools: backpack, trainingOutcomes,
       }),
       nasaData: verifiedNasaDataset,
     });
@@ -132,6 +136,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
             if (selectedCity.id !== city.id) {
               setCity(selectedCity);
               setCompletedMissions([]); // Reiniciar misiones si cambia de ciudad
+              setTrainingOutcomes([]);
               setBackpack(null);
             }
             navigateTo('DESTINATION');
@@ -193,6 +198,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
             destination={destination}
             astronautName={fictionalName}
             completedMissions={completedMissions}
+            trainingOutcomes={trainingOutcomes}
             onOpenMission={(mission: EarthMissionDefinition) => {
               // Cada misión abre una actividad interactiva real con decisión y costo (RF-69)
               // Ninguna misión se acredita directamente por presionar Ejecutar
@@ -219,7 +225,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
     case 'TRAINING_SOLAR':
       return (
         <SolarDetectiveGame
-          onComplete={() => handleCompleteMission('SOLAR_DETECTIVE')}
+          onComplete={handleCompleteMission}
           onBack={() => navigateTo('MAP')}
         />
       );
@@ -228,7 +234,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
     case 'TRAINING_DONKI':
       return (
         <SolarWatchGame
-          onComplete={() => handleCompleteMission('SOLAR_WATCH')}
+          onComplete={handleCompleteMission}
           onBack={() => navigateTo('MAP')}
         />
       );
@@ -237,7 +243,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
     case 'TRAINING_DARK_MONTHS':
       return (
         <DarkMonthsGame
-          onComplete={() => handleCompleteMission('DARK_MONTHS_RESERVE')}
+          onComplete={handleCompleteMission}
           onBack={() => navigateTo('MAP')}
         />
       );
@@ -246,7 +252,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
     case 'TRAINING_ALTITUDE':
       return (
         <AltitudeAcclimatizationGame
-          onComplete={() => handleCompleteMission('ALTITUDE_ACCLIMATIZATION')}
+          onComplete={handleCompleteMission}
           onBack={() => navigateTo('MAP')}
         />
       );
@@ -255,7 +261,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
     case 'TRAINING_ECLSS':
       return (
         <EclssTrainingGame
-          onComplete={() => handleCompleteMission('ECLSS_TRAINING')}
+          onComplete={handleCompleteMission}
           onBack={() => navigateTo('MAP')}
         />
       );
@@ -264,7 +270,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
     case 'TRAINING_VEGGIE':
       return (
         <VeggieLabGame
-          onComplete={() => handleCompleteMission('VEGGIE_LAB')}
+          onComplete={handleCompleteMission}
           onBack={() => navigateTo('MAP')}
         />
       );
@@ -273,7 +279,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
     case 'TRAINING_ARCTIC':
       return (
         <ArcticGreenhouseGame
-          onComplete={() => handleCompleteMission('ARCTIC_GREENHOUSE')}
+          onComplete={handleCompleteMission}
           onBack={() => navigateTo('MAP')}
         />
       );

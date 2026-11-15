@@ -1,10 +1,12 @@
+import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
+import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
 import { ArrowLeft, Snowflake, BatteryCharging, CheckCircle, Sparkle, ArrowCounterClockwise, Info } from '@phosphor-icons/react';
 import { TROMSO_SOLAR_RECORDS } from '../../../data/nasa/powerData';
 import '../screens/earth.css';
 
 interface DarkMonthsGameProps {
-  readonly onComplete: () => void;
+  readonly onComplete: (outcome: TrainingOutcome) => void;
   readonly onBack: () => void;
 }
 
@@ -318,10 +320,10 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
                 type="button"
                 className="earth-action-btn"
                 style={{ padding: '0.75rem 1.6rem' }}
-                onClick={onComplete}
+                onClick={() => onComplete(createTrainingOutcome('DARK_MONTHS_RESERVE', `Calefacción ${thermalHeat}%`, 'energy', calculateTrainingCost('DARK_MONTHS_RESERVE', thermalHeat), 'La calefacción consume parte de la reserva.'))}
               >
                 <Sparkle weight="fill" />
-                <span>Validar Certificación en el Mapa</span>
+                <span>Confirmar costo de {(calculateTrainingCost('DARK_MONTHS_RESERVE', thermalHeat))} punto(s) de Energía y obtener el kit</span>
               </button>
             )}
           </div>

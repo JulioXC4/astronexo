@@ -131,7 +131,17 @@ export function isValidGameSetup(setup: GameSetup) {
   }
   const actualCounts = new Map<ToolId, number>();
   for (const tool of setup.selectedTools) actualCounts.set(tool, (actualCounts.get(tool) ?? 0) + 1);
+  const outcomes = setup.earthProfile?.outcomes;
+  const validOutcomes = !outcomes || (earthV3
+    && outcomes.length === 3
+    && outcomes.every((outcome, index) => outcome.missionId === setup.earthProfile?.trainings[index]?.id
+      && outcome.tool === expectedTools[index]
+      && Number.isInteger(outcome.cost) && outcome.cost >= 1 && outcome.cost <= 3
+      && ['energy', 'oxygen', 'foodSupply'].includes(outcome.resource)
+      && Object.keys(outcome.spaceDelta).length === 1
+      && outcome.spaceDelta[outcome.resource] === -outcome.cost));
   return VALID_MODES.includes(setup.mode)
+    && validOutcomes
     && VALID_CITIES.includes(setup.city)
     && VALID_DESTINATIONS.includes(setup.destination)
     && VALID_DIFFICULTIES.includes(setup.difficulty)
