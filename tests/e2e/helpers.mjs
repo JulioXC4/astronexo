@@ -114,15 +114,15 @@ export async function passStationPrep(page) {
 }
 
 export async function chooseCity(page, city) {
-  await page.waitForSelector('.academy-card');
+  await page.waitForSelector('.city-selection__confirm');
   if (city === 'TROMSO') {
-    await page.click('.academy-card--tromso');
+    await page.locator('.city-selection__switcher [role=radio]').nth(1).click();
   }
-  await page.click('button.pixel-btn--primary');
+  await page.click('.city-selection__confirm');
 }
 
 export async function passAvatarAndBriefing(page) {
-  await page.waitForSelector('.avatar-pixel-card');
+  await page.waitForSelector('.asel-char');
   await page.click('button.pixel-btn--primary');
   await page.waitForSelector('.briefing-stage');
   await page.locator('.briefing-dialog-box__controls .pixel-btn--secondary').last().click();
