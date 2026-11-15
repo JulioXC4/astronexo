@@ -41,13 +41,13 @@ export function NextAdventureScreen({
           marginBottom: '1.5rem'
         }}>
           <span style={{ fontSize: '0.85rem', color: '#f6c15b', fontWeight: 700, textTransform: 'uppercase' }}>
-            Balance de la Misión {result.finalState.destination === 'MOON' ? 'Lunar' : 'Marciana'}
+            {t('nextAdventure.balanceTitle', { destination: result.finalState.destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name') })}
           </span>
           <p style={{ margin: '0.4rem 0 0 0', color: '#d9e7f5', fontSize: '0.95rem' }}>
-            {result.outcome === 'COMPLETED' ? 'Objetivo científico alcanzado.' : result.interruptionCause ?? 'La misión se interrumpió.'}
+            {result.outcome === 'COMPLETED' ? t('nextAdventure.balanceSuccess') : t('results.interruptedGeneric')}
           </p>
           <p style={{ margin: '0.5rem 0 0 0', color: '#7cb5c8', fontSize: '0.85rem' }}>
-            Entrenamientos aplicados a la guardia: <strong>{result.finalState.setup.earthProfile?.trainings.length ?? 0}</strong>.
+            {t('nextAdventure.trainingsApplied', { count: result.finalState.setup.earthProfile?.trainings.length ?? 0 })}
           </p>
         </div>
 
@@ -55,26 +55,26 @@ export function NextAdventureScreen({
           <div className="city-card" style={{ cursor: 'pointer' }} onClick={onReplay}>
             <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🎒</div>
             <h3 style={{ fontFamily: 'Fredoka', fontSize: '1.2rem', color: '#ffffff', margin: '0 0 0.3rem 0' }}>
-              Nueva Estrategia
+              {t('nextAdventure.newStrategyTitle')}
             </h3>
             <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.88rem', lineHeight: '1.4' }}>
-              Reintenta la misión completando tres entrenamientos para observar cómo cambian tus herramientas y opciones.
+              {t('nextAdventure.newStrategyDesc')}
             </p>
             <div style={{ marginTop: '0.8rem', color: '#f6c15b', fontWeight: 700, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-              <ArrowCounterClockwise weight="bold" /> {t('results.playAgainBtn')}
+              <ArrowCounterClockwise weight="bold" /> {t('nextAdventure.newStrategyAction')}
             </div>
           </div>
 
           <div className="city-card" style={{ cursor: 'pointer' }} onClick={onOpenLearn}>
             <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📖</div>
             <h3 style={{ fontFamily: 'Fredoka', fontSize: '1.2rem', color: '#ffffff', margin: '0 0 0.3rem 0' }}>
-              {t('learn.title')}
+              {t('nextAdventure.learnTitle')}
             </h3>
             <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.88rem', lineHeight: '1.4' }}>
-              {t('learn.subtitle')}
+              {t('nextAdventure.learnDesc')}
             </p>
             <div style={{ marginTop: '0.8rem', color: '#f6c15b', fontWeight: 700, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-              <BookOpen weight="bold" /> Ver Enciclopedia
+              <BookOpen weight="bold" /> {t('nextAdventure.learnAction')}
             </div>
           </div>
 
@@ -83,11 +83,11 @@ export function NextAdventureScreen({
             <h3 style={{ fontFamily: 'Fredoka', fontSize: '1.2rem', color: '#ffffff', margin: '0 0 0.3rem 0' }}>
               {t('welcome.stationMode')}
             </h3>
-            <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.88rem', lineHeight: '1.4' }}>
-              Explora la maqueta de 4 roles diseñada para jugar en equipo y en aulas escolares.
+              <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.88rem', lineHeight: '1.4' }}>
+              {t('nextAdventure.stationDesc')}
             </p>
             <div style={{ marginTop: '0.8rem', color: '#f6c15b', fontWeight: 700, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-              <UsersThree weight="bold" /> Ver Maqueta Aula
+              <UsersThree weight="bold" /> {t('nextAdventure.stationAction')}
             </div>
           </div>
         </div>

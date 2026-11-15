@@ -3,7 +3,6 @@ import { ArrowLeft, CheckCircle, Compass, Crosshair, Play, RocketLaunch, Sparkle
 import { getMissionsForCity, type EarthMissionDefinition, type MissionType } from '../../../data/missions';
 import type { ToolId } from '../../../game/contracts';
 import type { TrainingOutcome } from '../../../game';
-import { trainingResourceLabel } from '../trainingOutcome';
 import { EarthBaseScene } from '../../../visual-kit/EarthBaseScene';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
@@ -46,6 +45,7 @@ export function PreparationMapScreen({
     return found ? [found.targetTool] : [];
   });
   const activeOutcome = trainingOutcomes.find((outcome) => outcome.missionId === activeMission.id);
+  const missionCopy = `earthMissions.catalog.${activeMission.id}`;
   const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
 
   return (
@@ -59,7 +59,7 @@ export function PreparationMapScreen({
         <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <div className="earth-screen__progress-pill">
             <Compass weight="fill" color="#f6c15b" />
-            <span>Base: {cityName} ➔ {destName} ({astronautName})</span>
+            <span>{t('earthMissions.route', { city: cityName, destination: destName, astronaut: astronautName })}</span>
           </div>
 
           <div style={{
@@ -115,7 +115,7 @@ export function PreparationMapScreen({
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.3rem', flexWrap: 'wrap' }}>
               <Crosshair weight="bold" color="#f6c15b" size={20} />
               <h2 style={{ margin: 0, fontFamily: 'Fredoka', fontSize: '1.25rem', color: '#ffffff' }}>
-                {activeMission.name}
+                {t(`${missionCopy}.name`)}
               </h2>
 
               <span style={{
@@ -130,26 +130,29 @@ export function PreparationMapScreen({
               </span>
 
               <span style={{ fontSize: '0.8rem', color: '#4cc3d9', fontWeight: 700 }}>
-                [{activeMission.scienceSource}]
+                [{t(`${missionCopy}.source`)}]
               </span>
             </div>
 
             <p style={{ margin: '0.2rem 0', color: '#e0effe', fontSize: '0.88rem', lineHeight: '1.35' }}>
-              <strong>Objetivo:</strong> {activeMission.objective}
+              <strong>{t('earthMissions.objectiveLabel')}</strong> {t(`${missionCopy}.objective`)}
             </p>
             {activeOutcome && <p style={{ margin: '0.3rem 0', color: '#ffcf91', fontSize: '0.82rem' }}>
-              <strong>Tu preparación:</strong> {activeOutcome.decision} · costo de {activeOutcome.cost} punto(s) de {trainingResourceLabel(activeOutcome.resource)} al iniciar la guardia.
+              <strong>{t('earthMissions.trainingSavedLabel')}</strong> {t('earthMissions.preparationSaved', {
+                cost: activeOutcome.cost,
+                resource: t(`common.${activeOutcome.resource === 'foodSupply' ? 'food' : activeOutcome.resource}`),
+              })}
             </p>}
 
             <div style={{ display: 'flex', gap: '1.2rem', marginTop: '0.4rem', flexWrap: 'wrap', fontSize: '0.82rem' }}>
               <span style={{ color: '#69f0ae' }}>
-                🎁 <strong>Herramienta:</strong> {activeMission.toolLabel}
+                🎁 <strong>{t('earthMissions.toolLabel')}</strong> {t(`${missionCopy}.reward`)}
               </span>
               <span style={{ color: '#ffb74d' }}>
-                ⚖️ <strong>Costo:</strong> {activeMission.costDescription}
+                ⚖️ <strong>{t('earthMissions.costLabel')}</strong> {t(`${missionCopy}.cost`)}
               </span>
               <span style={{ color: '#b3e5fc' }}>
-                🚀 <strong>Efecto espacial:</strong> {activeMission.effectOnSpaceMission}
+                🚀 <strong>{t('earthMissions.effectLabel')}</strong> {t(`${missionCopy}.effect`)}
               </span>
             </div>
           </div>
@@ -170,13 +173,13 @@ export function PreparationMapScreen({
 
             {isCompleted && (
               <span style={{ color: '#69f0ae', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <CheckCircle weight="fill" size={20} /> Kit Asegurado
+                <CheckCircle weight="fill" size={20} /> {t('earthMissions.kitSecured')}
               </span>
             )}
 
             {isThreeDone && !isCompleted && (
               <span style={{ color: '#b0bec5', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <LockKey weight="bold" size={18} /> Bodega Completa (3/3)
+                <LockKey weight="bold" size={18} /> {t('earthMissions.storageFull')}
               </span>
             )}
 

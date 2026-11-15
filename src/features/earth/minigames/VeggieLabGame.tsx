@@ -57,7 +57,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
         </button>
         <div className="earth-screen__progress-pill">
           <PottedPlant weight="fill" color="#81c784" />
-          <span>{t('minigames.veggieLab.title')}</span>
+          <span>{t('minigames.veggie.title')}</span>
         </div>
         <LanguageSelector variant="hud" />
       </header>
@@ -67,10 +67,10 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <PottedPlant color="#81c784" weight="fill" />
-              <span>Laboratorio Veggie: Espectro LED y Nutrientes Espaciales</span>
+              <span>{t('minigames.veggie.title')}</span>
             </h1>
             <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              En el espacio no hay luz solar directa para plantas. Calibra los LEDs Rojos (660 nm) y Azules (430 nm) y raciona la solución nutritiva.
+              {t('minigames.veggie.subtitle')}
             </p>
           </div>
         </div>
@@ -89,7 +89,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
             viewBox="0 0 900 440"
             style={{ width: '100%', height: '100%', display: 'block', userSelect: 'none' }}
             role="img"
-            aria-label="Cámara hidropónica de cultivo Veggie de la NASA"
+            aria-label={t('minigames.veggie.cameraAria')}
           >
             <defs>
               <linearGradient id="ledGlowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -122,7 +122,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
             <rect x="200" y="320" width="500" height="70" rx="10" fill="#1b2a3a" stroke="#375577" strokeWidth="3" />
             <rect x="220" y="350" width="460" height="25" rx="5" fill="#0288d1" opacity="0.6" />
             <text x="450" y="367" textAnchor="middle" fontSize="11" fill="#e1f5fe" fontWeight="bold">
-              Solución Nutritiva Hidropónica (Sin Tierra)
+              {t('minigames.veggie.solutionLabel')}
             </text>
 
             {/* Plantas de lechuga espacial */}
@@ -138,11 +138,11 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
             {/* MONITOR DE FOTOSÍNTESIS DERECHA */}
             <g transform="translate(780, 180)">
               <rect x="-60" y="-70" width="120" height="140" rx="10" fill="#102030" stroke="#2e5077" strokeWidth="2" />
-              <text x="0" y="-45" textAnchor="middle" fontSize="10" fill="#90caf9" fontWeight="bold">FOTOSÍNTESIS</text>
+              <text x="0" y="-45" textAnchor="middle" fontSize="10" fill="#90caf9" fontWeight="bold">{t('minigames.veggie.photosynthesisLabel')}</text>
               <circle cx="0" cy="-5" r="32" fill="#172b40" stroke={photosynRate >= 90 ? "#69f0ae" : "#f6c15b"} strokeWidth="3" />
               <text x="0" y="2" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#ffffff">{photosynRate}%</text>
               <text x="0" y="45" textAnchor="middle" fontSize="11" fontWeight="bold" fill={photosynRate >= 90 ? "#69f0ae" : "#ffb74d"}>
-                {photosynRate >= 90 ? "ÓPTIMA" : "DEFICIENTE"}
+                {photosynRate >= 90 ? t('minigames.veggie.photosynthesisOptimal') : t('minigames.veggie.photosynthesisLow')}
               </text>
             </g>
           </svg>
@@ -162,14 +162,14 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
           {/* Espectro LED Rojo y Azul */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#ffffff', marginBottom: '0.3rem' }}>
-              <span>Espectro Lumínico LED:</span>
+              <span>{t('minigames.veggie.lightSpectrum')}</span>
               <span style={{ color: isRedOptimal && isBlueOptimal ? '#69f0ae' : '#ffb74d', fontFamily: 'Fredoka' }}>
-                {redSpectrum}% Rojo · {blueSpectrum}% Azul
+                {t('minigames.veggie.spectrumSummary', { red: redSpectrum, blue: blueSpectrum })}
               </span>
             </div>
             <div style={{ marginBottom: '0.6rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#ff8a80' }}>
-                <span>Luz Roja (660 nm - Biomasa):</span>
+                <span>{t('minigames.veggie.spectrumRed')}</span>
                 <span>{redSpectrum}%</span>
               </div>
               <input
@@ -187,14 +187,14 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
               />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9' }}>
-              <span>Objetivo del simulador: 70% Rojo / 30% Azul</span>
+              <span>{t('minigames.veggie.spectrumTarget')}</span>
               <button
                 type="button"
                 className="callsign-chip"
                 style={{ background: '#25446c', color: '#8ec5fc', padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}
                 onClick={handleAutoTune}
               >
-                Auto-Calibrar
+                {t('minigames.veggie.autoCalibrate')}
               </button>
             </div>
           </div>
@@ -202,7 +202,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
           {/* Dosificación Nutritiva con Costo de Agua */}
           <div>
             <span style={{ display: 'block', fontWeight: 700, color: '#ffffff', marginBottom: '0.4rem', fontSize: '0.95rem' }}>
-              Ración de Agua y Sales Nutritivas:
+              {t('minigames.veggie.nutrientDoseLabel')}
             </span>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <button
@@ -218,7 +218,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
                   setIsSimulated(false);
                 }}
               >
-                Baja (15 L/sem · Hojas secas)
+                {t('minigames.veggie.doseLow')}
               </button>
               <button
                 type="button"
@@ -233,7 +233,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
                   setIsSimulated(false);
                 }}
               >
-                ✓ Óptima (35 L/sem · Sustentable)
+                {t('minigames.veggie.doseOptimal')}
               </button>
               <button
                 type="button"
@@ -248,7 +248,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
                   setIsSimulated(false);
                 }}
               >
-                Excesiva (65 L/sem · Agota reserva)
+                {t('minigames.veggie.doseHigh')}
               </button>
             </div>
           </div>
@@ -264,11 +264,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
           marginTop: '1rem'
         }}>
           <div style={{ fontSize: '0.88rem', color: '#c5cae9' }}>
-            <span>Gasto Hídrico: </span>
-            <strong style={{ color: isWaterSafe ? '#69f0ae' : '#ef5350' }}>{waterCostLiters} Litros/semana</strong>
-            <span style={{ fontSize: '0.8rem', color: '#9fa8da', marginLeft: '0.4rem' }}>
-              (Presupuesto límite de base: ≤ 40 L)
-            </span>
+            <span style={{ color: isWaterSafe ? '#69f0ae' : '#ef5350' }}>{t('minigames.veggie.waterConsumption', { liters: waterCostLiters })}</span>
           </div>
 
           <div style={{ display: 'flex', gap: '0.8rem' }}>
@@ -278,13 +274,14 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
               onClick={() => setIsSimulated(true)}
             >
               <PottedPlant weight="fill" />
-              <span>Verificar Crecimiento Veggie</span>
+              <span>{t('minigames.veggie.verify')}</span>
             </button>
             <button
               type="button"
               className="earth-screen__back-btn"
               onClick={handleReset}
-              title="Reiniciar prueba"
+              aria-label={t('minigames.veggie.reset')}
+              title={t('minigames.veggie.reset')}
             >
               <ArrowCounterClockwise weight="bold" />
             </button>
@@ -307,13 +304,13 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
           }}>
             <Warning size={28} color="#ef5350" weight="fill" />
             <div>
-              <strong>¡Cultivo no equilibrado!</strong>
+              <strong>{t('minigames.veggie.failureTitle')}</strong>
               <div style={{ marginTop: '0.2rem' }}>
-                {!isRedOptimal && ' El espectro rojo debe estar cerca del 70% para maximizar la fotosíntesis.'}
-                {!isBlueOptimal && ' El espectro azul debe estar cerca del 30% para la estructura de las hojas.'}
-                {nutrientDose === 'LOW' && ' La ración nutritiva es insuficiente; las plantas no crecen.'}
-                {nutrientDose === 'HIGH' && ' Ración excesiva de agua; sobrepasa el presupuesto de la base.'}
-                {' Ajusta los controles y vuelve a probar.'}
+                {!isRedOptimal && ` ${t('minigames.veggie.redWarning')}`}
+                {!isBlueOptimal && ` ${t('minigames.veggie.blueWarning')}`}
+                {nutrientDose === 'LOW' && ` ${t('minigames.veggie.doseLowWarning')}`}
+                {nutrientDose === 'HIGH' && ` ${t('minigames.veggie.doseHighWarning')}`}
+                {` ${t('minigames.veggie.adjustAndRetry')}`}
               </div>
             </div>
           </div>
@@ -334,10 +331,10 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
           }}>
             <div>
               <strong style={{ color: '#69f0ae', fontFamily: 'Fredoka', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <CheckCircle weight="fill" size={22} /> ¡Cultivos Veggie Certificados con Éxito!
+                <CheckCircle weight="fill" size={22} /> {t('minigames.veggie.successTitle')}
               </strong>
               <p style={{ margin: '0.2rem 0 0 0', color: '#c8e6c9', fontSize: '0.88rem' }}>
-                Con 70% Rojo y 30% Azul lograste {photosynRate}% de tasa fotosintética y un gasto controlado de {waterCostLiters} L de agua. Has asegurado el <strong>Kit de cultivos</strong> para la misión espacial.
+                {t('minigames.veggie.successDesc', { rate: photosynRate, water: waterCostLiters })}
               </p>
             </div>
             <button
@@ -347,14 +344,14 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
               onClick={() => onComplete(createTrainingOutcome('VEGGIE_LAB', `Riego ${waterCostLiters} L, luz ${redSpectrum}% roja`, 'foodSupply', calculateTrainingCost('VEGGIE_LAB', redSpectrum), 'La prueba usa parte de las raciones de cultivo.'))}
             >
               <Sparkle weight="fill" />
-              <span>Confirmar costo de {(calculateTrainingCost('VEGGIE_LAB', redSpectrum))} punto(s) de Alimentos y obtener el kit</span>
+              <span>{t('minigames.veggie.confirmCost', { cost: calculateTrainingCost('VEGGIE_LAB', redSpectrum) })}</span>
             </button>
           </div>
         )}
 
         <div style={{ marginTop: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9bc0e4', fontSize: '0.82rem' }}>
           <Info size={16} color="#f6c15b" />
-          <span>NASA Veggie & Advanced Plant Habitat: Los astronautas en la ISS cosechan lechugas rojas y flores zinnias utilizando luces LED ajustadas a las bandas de absorción fotosintética de las plantas.</span>
+          <span>{t('minigames.veggie.scientificNote')}</span>
         </div>
       </main>
     </div>

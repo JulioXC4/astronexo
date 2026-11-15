@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useI18n } from '../../i18n';
 
 interface OxygenPatchGameProps {
   readonly onReadyChange: (ready: boolean) => void;
 }
 
 export function OxygenPatchGame({ onReadyChange }: OxygenPatchGameProps) {
+  const { t } = useI18n();
   const [sealed, setSealed] = useState<readonly number[]>([]);
 
   function seal(index: number) {
@@ -19,18 +21,18 @@ export function OxygenPatchGame({ onReadyChange }: OxygenPatchGameProps) {
     onReadyChange(true);
   }
 
-  return <div className="mini-game" aria-label="Minijuego para parchar fuga de oxígeno">
+  return <div className="mini-game" aria-label={t('interventions.gestures.oxygenGameAria')}>
     <div className="leak-points">
       {[0, 1, 2].map((index) => <button
         type="button"
         key={index}
-        aria-label={`Sellar punto de fuga ${index + 1}`}
+        aria-label={t('interventions.gestures.sealLeakPoint', { point: index + 1 })}
         className={sealed.includes(index) ? 'leak-point leak-point--sealed' : 'leak-point'}
         onClick={() => seal(index)}
       >{sealed.includes(index) ? '✓' : '!'}</button>)}
     </div>
     <button type="button" className="text-button" disabled={sealed.length === 3} onClick={sealAll}>
-      Alternativa accesible: sellar los tres puntos
+      {t('interventions.gestures.oxygenPatchAlt')}
     </button>
   </div>;
 }

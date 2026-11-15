@@ -1,4 +1,3 @@
-import { ALL_TOOL_CATALOG, getToolBenefit } from '../../game';
 import type { GameAction, MissionState } from '../../game';
 import { InterventionDock } from '../space-minigames';
 import { AlertCard } from './AlertCard';
@@ -26,11 +25,11 @@ export function MissionControlView({
   const { t } = useI18n();
   const destinationLabel = state.destination === 'MOON' ? t('destinations.moon.name').toUpperCase() : t('destinations.mars.name').toUpperCase();
   const communicationLabel = state.pendingCommunication
-    ? 'RESPUESTA EN TRÁNSITO'
+    ? t('missionControl.communication.inTransit')
     : state.communicationResponse
-      ? 'RESPUESTA RECIBIDA'
+      ? t('missionControl.communication.received')
       : state.consultationUsed
-        ? 'CONSULTA USADA'
+        ? t('missionControl.communication.used')
         : t('common.online');
   return <main className="mission-shell">
     <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginBottom: '0.6rem' }}>
@@ -38,68 +37,68 @@ export function MissionControlView({
     </div>
     <header className="mission-header pixel-panel">
       <div>
-        <span className="pixel-kicker">CONTROL DE MISIÓN · SIMULACIÓN EDUCATIVA</span>
-        <h1>Guardia en {destinationLabel}</h1>
+        <span className="pixel-kicker">{t('missionControl.headerKicker')}</span>
+        <h1>{t('missionControl.guardTitle', { destination: destinationLabel })}</h1>
       </div>
-      <div className="mission-clock" aria-label={`Turno ${state.turn} de ${state.maxTurns}`}>
-        <span>{t('missionControl.turnIndicator', { current: state.turn, total: state.maxTurns })}</span>
+      <div className="mission-clock" aria-label={t('missionControl.turnLabel', { turn: state.turn, maxTurns: state.maxTurns })}>
+        <span>{t('missionControl.turnLabel', { turn: state.turn, maxTurns: state.maxTurns })}</span>
         <strong>{state.clockLabel}</strong>
       </div>
     </header>
 
-    <section className={`resource-rack pixel-panel ${showFoodAsPrimary ? 'resource-rack--four' : ''}`} aria-label="Recursos principales">
-      <ResourceBar label="ENERGÍA" value={state.energy} tone="energy" />
-      <ResourceBar label="OXÍGENO" value={state.oxygen} tone="oxygen" />
-      <ResourceBar label="ESCUDO" value={state.shield} tone="shield" />
-      {showFoodAsPrimary && <ResourceBar label="COMIDA" value={state.foodSupply} tone="food" />}
+    <section className={`resource-rack pixel-panel ${showFoodAsPrimary ? 'resource-rack--four' : ''}`} aria-label={t('missionControl.resourceRackAria')}>
+      <ResourceBar label={t('missionControl.energy')} value={state.energy} tone="energy" />
+      <ResourceBar label={t('missionControl.oxygen')} value={state.oxygen} tone="oxygen" />
+      <ResourceBar label={t('missionControl.shield')} value={state.shield} tone="shield" />
+      {showFoodAsPrimary && <ResourceBar label={t('missionControl.food')} value={state.foodSupply} tone="food" />}
     </section>
 
     {state.earlyWarningForecast && state.turn < state.earlyWarningForecast.turn && <aside className="early-warning pixel-panel" role="status">
-      <strong>ALERTA TEMPRANA · PRÓXIMO TURNO</strong>
-      <span>{state.earlyWarningForecast.title}</span>
-      <small>Anticipa el riesgo; no reduce sus consecuencias si se ignora.</small>
+      <strong>{t('missionControl.earlyWarningTitle')}</strong>
+      <span>{t(`events.${state.earlyWarningForecast.kind}.title`)}</span>
+      <small>{t('missionControl.earlyWarningSub')}</small>
     </aside>}
 
     <div className="mission-grid">
       <section className="base-monitor pixel-panel" aria-labelledby="base-title">
         <div className="section-heading">
           <div>
-            <span className="pixel-kicker">CÁMARA 01</span>
-            <h2 id="base-title">Base espacial</h2>
+          <span className="pixel-kicker">{t('missionControl.cameraKicker')}</span>
+          <h2 id="base-title">{t('missionControl.baseTitle')}</h2>
           </div>
           <span className="status-light">{t('common.online')}</span>
         </div>
         <div className={`base-scene base-scene--${state.destination.toLowerCase()}`}>
           <span className="base-scene__stars" aria-hidden="true">· + · + ·</span>
-          <div className="pixel-base" aria-label={`Base espacial en ${destinationLabel}`}>
+          <div className="pixel-base" aria-label={t('missionControl.baseSceneAria', { destination: destinationLabel })}>
             <div className="pixel-base__dish" />
             <div className="pixel-base__hub">BASE</div>
             <div className="pixel-base__solar" />
           </div>
-          <small>BASE {destinationLabel} · {state.selectedModules.length} MÓDULOS OPERATIVOS</small>
+        <small>{t('missionControl.activeModulesCount', { destination: destinationLabel, count: state.selectedModules.length })}</small>
         </div>
         <dl className="telemetry-grid">
           <div><dt>{t('common.radiation')}</dt><dd>{state.radiationExposure}/100</dd></div>
           <div><dt>{t('common.science')}</dt><dd>{state.scienceProgress}/100</dd></div>
           {!showFoodAsPrimary && <div><dt>{t('common.food')}</dt><dd>{state.foodSupply}/100</dd></div>}
           <div><dt>{t('common.solarEfficiency')}</dt><dd>{state.solarEfficiency}/100</dd></div>
-          <div><dt>Invernadero</dt><dd>{state.greenhouseActive ? t('common.active') : t('common.suspended')}</dd></div>
-          <div><dt>Enlace Tierra</dt><dd>{communicationLabel}</dd></div>
+          <div><dt>{t('missionControl.telemetry.greenhouse')}</dt><dd>{state.greenhouseActive ? t('common.active') : t('common.suspended')}</dd></div>
+          <div><dt>{t('missionControl.telemetry.earthLink')}</dt><dd>{communicationLabel}</dd></div>
         </dl>
       </section>
 
       <section className="alerts-monitor pixel-panel" aria-labelledby="alerts-title">
         <div className="section-heading">
           <div>
-            <span className="pixel-kicker">SISTEMAS</span>
-            <h2 id="alerts-title">Alertas activas</h2>
+            <span className="pixel-kicker">{t('missionControl.alertsKicker')}</span>
+            <h2 id="alerts-title">{t('missionControl.alertsTitle')}</h2>
           </div>
           <strong>{state.activeAlerts.length}/2</strong>
         </div>
         <div className="alert-stack">
           {state.activeAlerts.length > 0
             ? state.activeAlerts.map((alert) => <AlertCard key={alert.id} alert={alert} />)
-            : <p className="empty-signal">Sin alertas activas.</p>}
+            : <p className="empty-signal">{t('missionControl.noAlerts')}</p>}
         </div>
       </section>
     </div>
@@ -107,11 +106,11 @@ export function MissionControlView({
     <ModuleCameras state={state} />
 
     <details className="tool-status pixel-panel">
-      <summary>BENEFICIOS DE HERRAMIENTAS · VER ESTADO</summary>
+      <summary>{t('missionControl.toolDrawerSummary')}</summary>
       <ul>{state.selectedTools.map((toolId, index) => <li key={`${toolId}-${index}`}>
-        <strong>{ALL_TOOL_CATALOG.find((tool) => tool.id === toolId)?.label ?? toolId}</strong>
-        <span>{getToolBenefit(toolId)}</span>
-        {toolId === 'SPARE_PARTS_KIT' && <em>{state.sparePartsCharges > 0 ? t('common.available') : 'Consumido'}</em>}
+        <strong>{t(`tools.catalog.${toolId}.label`)}</strong>
+        <span>{t(`tools.catalog.${toolId}.benefit`)}</span>
+        {toolId === 'SPARE_PARTS_KIT' && <em>{state.sparePartsCharges > 0 ? t('common.available') : t('missionControl.toolConsumed')}</em>}
       </li>)}</ul>
     </details>
 
@@ -124,19 +123,21 @@ export function MissionControlView({
     />
 
     {state.lastFeedback && <aside className="mission-feedback" role="status">
-      <strong>RESULTADO</strong> · {state.lastFeedback.message}
+      <strong>{t('common.result')}</strong> · {state.actionTakenThisTurn
+        ? t(`missionControl.actionFeedback.${state.decisions.at(-1)?.action ?? 'SKIP_INTERVENTION'}`)
+        : t('missionControl.communication.replyArrived')}
     </aside>}
 
     <footer className="turn-controls pixel-panel">
       <p>{state.actionTakenThisTurn
-        ? 'Decisión registrada. Revisa el tablero y finaliza el turno.'
-        : 'Elige una intervención principal o decide asumir las consecuencias.'}</p>
+        ? t('missionControl.turnControlsReady')
+        : t('missionControl.turnControlsPrompt')}</p>
       <button
         className="pixel-button pixel-button--primary"
         disabled={!state.actionTakenThisTurn}
         onClick={onAdvance}
       >
-        {state.turn === state.maxTurns ? 'CERRAR GUARDIA' : 'FINALIZAR TURNO'}
+        {state.turn === state.maxTurns ? t('missionControl.closeGuard') : t('missionControl.endTurn')}
       </button>
     </footer>
   </main>;

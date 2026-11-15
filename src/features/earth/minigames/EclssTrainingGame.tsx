@@ -46,7 +46,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
         </button>
         <div className="earth-screen__progress-pill">
           <Drop weight="fill" color="#4cc3d9" />
-          <span>{t('minigames.eclssTraining.title')}</span>
+          <span>{t('minigames.eclss.title')}</span>
         </div>
         <LanguageSelector variant="hud" />
       </header>
@@ -56,10 +56,10 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <Drop color="#4cc3d9" weight="fill" />
-              <span>Soporte Vital Regenerativo (NASA ECLSS)</span>
+              <span>{t('minigames.eclss.title')}</span>
             </h1>
             <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              En una base espacial nada se desperdicia. Equilibra la electrólisis de agua (O₂) y el filtrado de CO₂ sin fundir la red eléctrica (máx 450 W).
+              {t('minigames.eclss.subtitle')}
             </p>
           </div>
         </div>
@@ -78,7 +78,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
             viewBox="0 0 900 440"
             style={{ width: '100%', height: '100%', display: 'block', userSelect: 'none' }}
             role="img"
-            aria-label="Circuito cerrado de reciclaje de agua y generación de oxígeno ECLSS"
+            aria-label={t('minigames.eclss.circuitAria')}
           >
             <defs>
               <linearGradient id="pipeWater" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -100,46 +100,46 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
             {/* MÓDULO 1: Recuperador de Agua (Izquierda) */}
             <g transform="translate(130, 180)">
               <rect x="-65" y="-60" width="130" height="120" rx="12" fill="#162e4a" stroke="#29b6f6" strokeWidth="3" />
-              <text x="0" y="-30" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffffff">Reciclador H₂O</text>
+              <text x="0" y="-30" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffffff">{t('minigames.eclss.recycler')}</text>
               <text x="0" y="0" textAnchor="middle" fontSize="30">💧</text>
               <text x="0" y="30" textAnchor="middle" fontSize="12" fontWeight="bold" fill={isWaterOptimal ? "#69f0ae" : "#ffb74d"}>
-                {waterRecycleRate}% Efic.
+                {t('minigames.eclss.efficiency', { percent: waterRecycleRate })}
               </text>
-              <text x="0" y="48" textAnchor="middle" fontSize="9" fill="#90caf9">Recuperación</text>
+              <text x="0" y="48" textAnchor="middle" fontSize="9" fill="#90caf9">{t('minigames.eclss.recovery')}</text>
             </g>
 
             {/* MÓDULO 2: Reactor de Electrólisis (Centro) */}
             <g transform="translate(390, 180)">
               <rect x="-70" y="-70" width="140" height="140" rx="14" fill="#1b395a" stroke={isOxygenOptimal ? "#69f0ae" : "#f6c15b"} strokeWidth={isOxygenOptimal ? 4 : 2.5} />
-              <text x="0" y="-40" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#ffffff">Electrólisis OGA</text>
+              <text x="0" y="-40" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#ffffff">{t('minigames.eclss.electrolysis')}</text>
               <text x="0" y="-10" textAnchor="middle" fontSize="32">⚡</text>
               <text x="0" y="20" textAnchor="middle" fontSize="14" fontWeight="bold" fill={isOxygenOptimal ? "#69f0ae" : "#ffb74d"}>
                 {oxygenPercent}% O₂
               </text>
               <text x="0" y="40" textAnchor="middle" fontSize="10" fill="#b0bec5">
-                Consumo: {electrolysisWatts} W
+                {t('minigames.eclss.usage', { watts: electrolysisWatts })}
               </text>
             </g>
 
             {/* MÓDULO 3: Filtro Scrubber de CO2 (Derecha) */}
             <g transform="translate(650, 180)">
               <rect x="-65" y="-60" width="130" height="120" rx="12" fill={isCo2ScrubberOn ? "#1a4030" : "#372424"} stroke={isCo2ScrubberOn ? "#69f0ae" : "#ef5350"} strokeWidth={3} />
-              <text x="0" y="-30" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffffff">Filtro CO₂ CDRA</text>
+              <text x="0" y="-30" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffffff">{t('minigames.eclss.co2Filter')}</text>
               <text x="0" y="0" textAnchor="middle" fontSize="28">{isCo2ScrubberOn ? "🌬️" : "⛔"}</text>
               <text x="0" y="28" textAnchor="middle" fontSize="12" fontWeight="bold" fill={isCo2Safe ? "#69f0ae" : "#ef5350"}>
                 {co2Percent}% CO₂
               </text>
               <text x="0" y="46" textAnchor="middle" fontSize="9" fill={isCo2ScrubberOn ? "#69f0ae" : "#ef5350"}>
-                {isCo2ScrubberOn ? "ACTIVO (45W)" : "APAGADO"}
+                {isCo2ScrubberOn ? t('minigames.eclss.scrubberActiveShort') : t('minigames.eclss.scrubberOff')}
               </text>
             </g>
 
             {/* MONITOR DE POTENCIA TOTAL INFERIOR */}
             <g transform="translate(450, 370)">
               <rect x="-200" y="-25" width="400" height="50" rx="10" fill="#0d1c2d" stroke="#375a82" strokeWidth="2" />
-              <text x="-160" y="5" fontSize="12" fill="#b0bec5">Carga Eléctrica:</text>
+              <text x="-160" y="5" fontSize="12" fill="#b0bec5">{t('minigames.eclss.totalPowerLabel')}</text>
               <text x="-60" y="5" fontSize="14" fontWeight="bold" fill={isPowerSafe ? "#69f0ae" : "#ef5350"}>
-                {totalPowerConsumption} W / 450 W máx
+                {t('minigames.eclss.totalPower', { watts: totalPowerConsumption })}
               </text>
               <circle cx="140" cy="0" r="10" fill={isPowerSafe ? "#2e7d32" : "#c62828"} />
               <text x="140" y="4" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#ffffff">
@@ -163,7 +163,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
           {/* Potencia Electrólisis */}
           <div>
             <label htmlFor="watts-slider" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#ffffff', marginBottom: '0.4rem' }}>
-              <span>Potencia Electrólisis (O₂):</span>
+              <span>{t('minigames.eclss.wattsLabel')}</span>
               <span style={{ color: isOxygenOptimal ? '#69f0ae' : '#ffb74d', fontFamily: 'Fredoka', fontSize: '1.2rem' }}>
                 {electrolysisWatts} W ({oxygenPercent}% O₂)
               </span>
@@ -182,16 +182,16 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
               style={{ width: '100%', accentColor: isOxygenOptimal ? '#69f0ae' : '#ffb74d', cursor: 'pointer' }}
             />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9', marginTop: '0.2rem' }}>
-              <span>150 W (Bajo O₂)</span>
-              <span style={{ color: '#ffd54f' }}>340 W (21.0% O₂ óptimo)</span>
-              <span>550 W (Sobrecarga)</span>
+              <span>{t('minigames.eclss.lowPower')}</span>
+              <span style={{ color: '#ffd54f' }}>{t('minigames.eclss.optimalPower')}</span>
+              <span>{t('minigames.eclss.highPower')}</span>
             </div>
           </div>
 
           {/* Filtro Scrubber CO2 y Reciclaje de Agua */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 700, color: '#ffffff', fontSize: '0.9rem' }}>Filtro Scrubber de CO₂:</span>
+                <span style={{ fontWeight: 700, color: '#ffffff', fontSize: '0.9rem' }}>{t('minigames.eclss.scrubberLabel')}</span>
               <button
                 type="button"
                 className="callsign-chip"
@@ -205,13 +205,13 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
                   setIsSimulated(false);
                 }}
               >
-                {isCo2ScrubberOn ? '✓ Scrubber ACTIVO (+45 W)' : '⛔ Scrubber APAGADO'}
+                {isCo2ScrubberOn ? t('minigames.eclss.scrubberActive') : t('minigames.eclss.scrubberOff')}
               </button>
             </div>
 
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#ffffff', marginBottom: '0.2rem' }}>
-                <span>Tasa Reciclaje de Agua:</span>
+                <span>{t('minigames.eclss.recycleLabel')}</span>
                 <span style={{ color: isWaterOptimal ? '#69f0ae' : '#ffb74d', fontWeight: 700 }}>{waterRecycleRate}%</span>
               </div>
               <input
@@ -240,10 +240,10 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
           marginTop: '1rem'
         }}>
           <div style={{ fontSize: '0.88rem', color: '#c5cae9' }}>
-            <span>Carga Total: </span>
+            <span>{t('minigames.eclss.totalLoad')}</span>
             <strong style={{ color: isPowerSafe ? '#69f0ae' : '#ef5350' }}>{totalPowerConsumption} W</strong>
             <span style={{ fontSize: '0.8rem', color: '#9fa8da', marginLeft: '0.4rem' }}>
-              (Consumo equilibrado de soporte vital)
+              {t('minigames.eclss.balancedLoad')}
             </span>
           </div>
 
@@ -254,13 +254,14 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
               onClick={() => setIsSimulated(true)}
             >
               <Lightning weight="fill" />
-              <span>Verificar Circuito ECLSS</span>
+              <span>{t('minigames.eclss.verify')}</span>
             </button>
             <button
               type="button"
               className="earth-screen__back-btn"
               onClick={handleReset}
-              title="Reiniciar prueba"
+              aria-label={t('minigames.eclss.reset')}
+              title={t('minigames.eclss.reset')}
             >
               <ArrowCounterClockwise weight="bold" />
             </button>
@@ -283,13 +284,13 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
           }}>
             <Warning size={28} color="#ef5350" weight="fill" />
             <div>
-              <strong>¡Parámetros fuera de balance!</strong>
+              <strong>{t('minigames.eclss.failureTitle')}</strong>
               <div style={{ marginTop: '0.2rem' }}>
-                {!isCo2ScrubberOn && ' El filtro de CO₂ está apagado; el aire se volvería tóxico rápidamente.'}
-                {!isOxygenOptimal && ` El O₂ (${oxygenPercent}%) no está en el rango óptimo (20.5% - 21.5%).`}
-                {!isWaterOptimal && ' La recuperación de agua es muy baja (< 80%); se agotarían las reservas.'}
-                {!isPowerSafe && ` Consumo excesivo (${totalPowerConsumption} W > 450 W); riesgo de corte eléctrico.`}
-                {' Ajusta los controles y vuelve a probar.'}
+                {!isCo2ScrubberOn && ` ${t('minigames.eclss.scrubberOffWarning')}`}
+                {!isOxygenOptimal && ` ${t('minigames.eclss.oxygenWarning', { percent: oxygenPercent })}`}
+                {!isWaterOptimal && ` ${t('minigames.eclss.waterWarning')}`}
+                {!isPowerSafe && ` ${t('minigames.eclss.powerWarning', { watts: totalPowerConsumption })}`}
+                {` ${t('minigames.eclss.adjustAndRetry')}`}
               </div>
             </div>
           </div>
@@ -310,10 +311,10 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
           }}>
             <div>
               <strong style={{ color: '#69f0ae', fontFamily: 'Fredoka', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <CheckCircle weight="fill" size={22} /> ¡Circuito ECLSS Calibrado con Éxito!
+                <CheckCircle weight="fill" size={22} /> {t('minigames.eclss.successTitle')}
               </strong>
               <p style={{ margin: '0.2rem 0 0 0', color: '#c8e6c9', fontSize: '0.88rem' }}>
-                Alcanzaste {oxygenPercent}% de O₂, eliminaste el CO₂ a {co2Percent}% y reciclaste el {waterRecycleRate}% del agua con un consumo seguro de {totalPowerConsumption} W. Has asegurado el <strong>Kit de soporte vital</strong>.
+                {t('minigames.eclss.successDesc', { oxygen: oxygenPercent, co2: co2Percent, water: waterRecycleRate, watts: totalPowerConsumption })}
               </p>
             </div>
             <button
@@ -323,14 +324,14 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
               onClick={() => onComplete(createTrainingOutcome('ECLSS_TRAINING', `Electrólisis ${totalPowerConsumption} W`, 'energy', calculateTrainingCost('ECLSS_TRAINING', totalPowerConsumption), 'La prueba de electrólisis consume batería.'))}
             >
               <Sparkle weight="fill" />
-              <span>Confirmar costo de {(calculateTrainingCost('ECLSS_TRAINING', totalPowerConsumption))} punto(s) de Energía y obtener el kit</span>
+              <span>{t('minigames.eclss.confirmCost', { cost: calculateTrainingCost('ECLSS_TRAINING', totalPowerConsumption) })}</span>
             </button>
           </div>
         )}
 
         <div style={{ marginTop: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9bc0e4', fontSize: '0.82rem' }}>
           <Info size={16} color="#f6c15b" />
-          <span>NASA ECLSS (Environmental Control and Life Support System): En la ISS se recicla más del 98% de la orina y la condensación del aire en agua potable, y el generador OGA produce el oxígeno que respira la tripulación.</span>
+          <span>{t('minigames.eclss.scientificNote')}</span>
         </div>
       </main>
     </div>

@@ -1,5 +1,5 @@
-import { ALL_TOOL_CATALOG, MODULE_CATALOG } from '../../game';
-import type { MissionResult } from '../../game';
+import { EVENT_CONFIG, INTERVENTIONS, MODULE_CATALOG } from '../../game';
+import type { MissionResult, ResourceDelta } from '../../game';
 import { useI18n, LanguageSelector } from '../../i18n';
 
 interface MissionResultsViewProps {
@@ -15,28 +15,74 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
     && result.turnsReached === result.finalState.maxTurns
     && !result.scientificObjectiveAchieved;
   const { finalState, score } = result;
-  const toolLabels = result.relevantTools.map((toolId) =>
-    ALL_TOOL_CATALOG.find((tool) => tool.id === toolId)?.label ?? toolId);
+  const toolLabels = result.relevantTools.map((toolId) => t(`tools.catalog.${toolId}.label`));
+  const decisions = finalState.decisions.filter((decision) => decision.action !== 'SKIP_INTERVENTION');
+  const unresolvedEvents = finalState.unresolvedEvents.slice(-8);
+  const eventKindForId = (id: string) => Object.keys(EVENT_CONFIG).find((kind) => id.startsWith(kind));
+  const translateDelta = (delta: ResourceDelta) => ([
+    ['energy', 'common.energy'],
+    ['oxygen', 'common.oxygen'],
+    ['shield', 'common.shield'],
+    ['foodSupply', 'common.food'],
+    ['radiationExposure', 'common.radiationExposure'],
+    ['scienceProgress', 'common.science'],
+    ['solarEfficiency', 'common.solarEfficiency'],
+  ] as const).flatMap(([key, resourceKey]) => {
+    const amount = delta[key];
+    return amount ? [t('results.resourceDelta', {
+      sign: amount > 0 ? '+' : '−',
+      amount: Math.abs(amount),
+      resource: t(resourceKey),
+    })] : [];
+  }).join(' · ');
+  const decisionSummaries = decisions.map((decision) => {
+    const actionId = INTERVENTIONS.find((item) => item.action === decision.action)?.id;
+    const actionLabel = actionId ? t(`interventions.items.${actionId}.label`) : t('interventions.noIntervention');
+    const delta = translateDelta(decision.resourceDelta);
+    return `${t('results.actionRecorded', { action: actionLabel })}${delta ? ` ${t('results.actionResourceDelta', { delta })}` : ''}`;
+  });
+  const consequenceSummaries = unresolvedEvents.map((event) => {
+    const kind = eventKindForId(event.sourceAlertId);
+    const eventName = kind ? t(`events.${kind}.title`) : t('results.unknownEvent');
+    const delta = translateDelta(event.resourceDelta);
+    return `${t('results.consequenceRecorded', { event: eventName })}${delta ? ` ${t('results.actionResourceDelta', { delta })}` : ''}`;
+  });
+  const trainingEntries = finalState.setup.earthProfile?.trainings ?? [];
+  const outcomeByMission = new Map((finalState.setup.earthProfile?.outcomes ?? []).map((outcome) => [outcome.missionId, outcome]));
+  const trainingSummaries = trainingEntries.map((training) => {
+    const copy = `earthMissions.catalog.${training.id}`;
+    const outcome = outcomeByMission.get(training.id);
+    const cost = outcome ? translateDelta(outcome.spaceDelta) : '';
+    return `${t('results.earthTrainingTitle', { name: t(`${copy}.name`), effect: t(`${copy}.effect`) })}${cost ? ` ${t('results.earthTrainingCost', { cost })}` : ''}`;
+  });
+  const currentOutcomeTitle = completed
+    ? t('results.completed')
+    : scientificIncomplete
+      ? t('results.incomplete')
+      : t('results.interrupted');
+  const currentOutcomeDescription = completed
+    ? t('results.completedDesc')
+    : scientificIncomplete
+      ? t('results.objectiveIncomplete')
+      : t('results.interruptedGeneric');
   return <main className="results-shell">
     <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginBottom: '0.6rem' }}>
       <LanguageSelector variant="hud" />
     </div>
     <section className={`results-banner pixel-panel ${completed ? 'results-banner--success' : 'results-banner--failed'}`}>
-      <span className="pixel-kicker">P13 · FIN DE GUARDIA</span>
+      <span className="pixel-kicker">{t('results.bannerKicker')}</span>
       {result.finalState.setup.earthProfile && <p>{result.finalState.setup.earthProfile.fictionalName}</p>}
-      <h1>{completed ? t('results.victoryTitle') : scientificIncomplete ? 'MISIÓN INCOMPLETA' : t('results.partialTitle')}</h1>
-      <p>{completed
-        ? 'La tripulación sostuvo la base y alcanzó el objetivo científico.'
-        : result.interruptionCause}</p>
+      <h1>{currentOutcomeTitle}</h1>
+      <p>{currentOutcomeDescription}</p>
       <div className="score-total"><span>{t('results.scoreLabel')}</span><strong>{score.total}</strong><small>/100</small></div>
     </section>
 
     <div className="results-grid">
       <section className="pixel-panel">
-        <span className="pixel-kicker">P14 · {t('results.finalReportTitle').toUpperCase()}</span>
-        <h2>Estado final</h2>
+        <span className="pixel-kicker">{t('results.reportKicker')}</span>
+        <h2>{t('results.finalStateTitle')}</h2>
         <dl className="report-stats">
-          <div><dt>Turnos</dt><dd>{result.turnsReached}/{finalState.maxTurns}</dd></div>
+          <div><dt>{t('results.turns')}</dt><dd>{result.turnsReached}/{finalState.maxTurns}</dd></div>
           <div><dt>{t('common.energy')}</dt><dd>{finalState.energy}</dd></div>
           <div><dt>{t('common.oxygen')}</dt><dd>{finalState.oxygen}</dd></div>
           <div><dt>{t('common.shield')}</dt><dd>{finalState.shield}</dd></div>
@@ -47,56 +93,53 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
         </dl>
       </section>
       <section className="pixel-panel">
-        <span className="pixel-kicker">DESGLOSE DE JUEGO</span>
+        <span className="pixel-kicker">{t('results.scoreBreakdownTitle')}</span>
         <h2>{t('results.scoreLabel')}</h2>
         <ul className="score-list">
-          <li><span>Seguridad de la tripulación</span><strong>{score.crewSafety}</strong></li>
-          <li><span>Recursos finales</span><strong>{score.finalResources}</strong></li>
-          <li><span>Priorización de alertas</span><strong>{score.alertPrioritization}</strong></li>
-          <li><span>Guardia operativa (informativo)</span><strong>{score.operationalCompletion}</strong></li>
-          <li><span>Objetivo científico</span><strong>{score.scientificObjective}</strong></li>
-          <li><span>Factor de dificultad</span><strong>×{score.difficultyFactor}</strong></li>
+          <li><span>{t('results.crewSafety')}</span><strong>{score.crewSafety}</strong></li>
+          <li><span>{t('results.finalResources')}</span><strong>{score.finalResources}</strong></li>
+          <li><span>{t('results.alertPrioritization')}</span><strong>{score.alertPrioritization}</strong></li>
+          <li><span>{t('results.operationalCompletion')}</span><strong>{score.operationalCompletion}</strong></li>
+          <li><span>{t('results.scientificObjective')}</span><strong>{score.scientificObjective}</strong></li>
+          <li><span>{t('results.difficultyFactor')}</span><strong>×{score.difficultyFactor}</strong></li>
         </ul>
       </section>
     </div>
 
     <section className="decision-report pixel-panel">
       <div>
-        <h2>Intervenciones realizadas</h2>
-        {result.helpfulDecisions.length
-          ? <ul>{result.helpfulDecisions.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul>
-          : <p>No se realizaron intervenciones en esta guardia.</p>}
+        <h2>{t('results.interventionsTitle')}</h2>
+        {decisionSummaries.length
+          ? <ul>{decisionSummaries.map((item, index) => <li key={`action-${index}`}>{item}</li>)}</ul>
+          : <p>{t('results.noInterventions')}</p>}
       </div>
       <div>
-        <h2>Consecuencias acumuladas</h2>
-        {result.harmfulDecisions.length
-          ? <ul>{result.harmfulDecisions.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul>
-          : <p>No quedaron consecuencias pendientes.</p>}
+        <h2>{t('results.consequencesTitle')}</h2>
+        {consequenceSummaries.length
+          ? <ul>{consequenceSummaries.map((item, index) => <li key={`consequence-${index}`}>{item}</li>)}</ul>
+          : <p>{t('results.noConsequences')}</p>}
       </div>
     </section>
 
     <section className="module-report pixel-panel">
       <div className="section-heading">
-        <div><span className="pixel-kicker">CONFIGURACIÓN P10 → P14</span><h2>Módulos construidos</h2></div>
+        <div><span className="pixel-kicker">{t('results.modulesBuiltTitle')}</span><h2>{t('results.modulesBuiltTitle')}</h2></div>
         <strong>{result.relevantModules.length}/3</strong>
       </div>
       <div className="module-report-grid">
         {result.moduleReport.map((entry) => {
           const module = MODULE_CATALOG.find((candidate) => candidate.id === entry.moduleId);
-          const costs = [
-            entry.resourcesConsumed.energy ? `${Math.abs(entry.resourcesConsumed.energy)} Energía` : '',
-            entry.resourcesConsumed.oxygen ? `${Math.abs(entry.resourcesConsumed.oxygen)} Oxígeno` : '',
-            entry.resourcesConsumed.foodSupply ? `${Math.abs(entry.resourcesConsumed.foodSupply)} Alimentos` : '',
-          ].filter(Boolean);
+          const moduleCopy = `baseBuilder.catalog.${entry.moduleId}`;
+          const costs = translateDelta(entry.resourcesConsumed);
           return <article key={entry.moduleId}>
             <span className="module-report__icon" aria-hidden="true">{module?.icon}</span>
-            <h3>{module?.name ?? entry.moduleId}</h3>
-            <p><strong>Consumo real:</strong> {costs.length ? costs.join(' · ') : 'Sin consumo operativo registrado'}</p>
-            <strong>Beneficios con evidencia</strong>
+            <h3>{t(`${moduleCopy}.name`)}</h3>
+            <p><strong>{t('results.operatingCost')}</strong> {costs || t('results.noOperatingCost')}</p>
+            <strong>{t('results.moduleBenefits')}</strong>
             {entry.benefitsProvided.length
-              ? <ul>{entry.benefitsProvided.map((benefit) => <li key={benefit}>{benefit}</li>)}</ul>
-              : <p>No se activó un beneficio medible durante esta guardia.</p>}
-            {entry.relatedConsequences.length > 0 && <><strong>Consecuencias relacionadas</strong><ul>{entry.relatedConsequences.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul></>}
+              ? <ul><li>{t(`${moduleCopy}.benefit`)}</li></ul>
+              : <p>{t('results.noModuleBenefit')}</p>}
+            {entry.relatedConsequences.length > 0 && <p><strong>{t('results.relatedConsequences')}</strong> {t('results.moduleRelatedConsequences', { count: entry.relatedConsequences.length })}</p>}
           </article>;
         })}
       </div>
@@ -104,29 +147,27 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
 
     <section className="decision-report pixel-panel">
       <div>
-        <h2>Configuración y consecuencias</h2>
-        {result.configurationConsequences.length
-          ? <ul>{result.configurationConsequences.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul>
-          : <p>No hubo consecuencias del historial vinculadas a módulos.</p>}
+        <h2>{t('results.configConsequencesTitle')}</h2>
+        {trainingSummaries.length
+          ? <ul>{trainingSummaries.map((item, index) => <li key={`training-${index}`}>{item}</li>)}</ul>
+          : <p>{t('results.noModuleConsequences')}</p>}
       </div>
       <div>
-        <h2>Lectura educativa</h2>
-        <p>Los valores son parámetros del modelo educativo. El informe solo atribuye beneficios registrados por el motor.</p>
+        <h2>{t('results.educationalNoteTitle')}</h2>
+        <p>{t('results.educationalNoteDesc')}</p>
       </div>
     </section>
 
     <section className="decision-report pixel-panel">
       <div>
-        <h2>Causa y efecto</h2>
-        {result.causeAndEffect.length
-          ? <ul>{result.causeAndEffect.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul>
-          : <p>Sin relaciones adicionales registradas.</p>}
+        <h2>{t('results.causeAndEffectTitle')}</h2>
+        <p>{t('results.causeAndEffectSummary', { decisions: decisionSummaries.length, events: consequenceSummaries.length })}</p>
       </div>
       <div>
-        <h2>Objetivo y enlace</h2>
-        <p>Objetivo científico: <strong>{result.scientificObjectiveAchieved ? 'COMPLETADO' : 'PENDIENTE'}</strong></p>
-        <p>{finalState.communicationResponse ?? 'No se recibió una consulta a Tierra.'}</p>
-        <p><strong>Herramientas:</strong> {toolLabels.join(' · ')}</p>
+        <h2>{t('results.objectiveAndLinkTitle')}</h2>
+        <p>{t('results.scientificObjStatus', { status: result.scientificObjectiveAchieved ? t('results.achieved') : t('results.pending') })}</p>
+        <p>{finalState.communicationResponse ? t('results.earthReply') : finalState.consultationUsed ? t('results.communicationPending') : t('results.noConsultationReceived')}</p>
+        <p><strong>{t('results.toolsLabel')}</strong> {toolLabels.join(' · ')}</p>
       </div>
     </section>
 

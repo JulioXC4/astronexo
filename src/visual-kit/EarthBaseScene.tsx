@@ -28,16 +28,6 @@ const facilitySprites: Partial<Record<MissionType, string>> = {
   VEGGIE_LAB: 'hydroponic-greenhouse.png',
 };
 
-const shortNames: Record<MissionType, readonly [string, string]> = {
-  SOLAR_DETECTIVE: ['OBSERVATORIO', 'SOLAR'],
-  ALTITUDE_ACCLIMATIZATION: ['CÁMARA DE', 'ALTURA'],
-  DARK_MONTHS_RESERVE: ['BANCO DE', 'BATERÍAS'],
-  ARCTIC_GREENHOUSE: ['INVERNADERO', 'ÁRTICO'],
-  SOLAR_WATCH: ['CLIMA', 'ESPACIAL'],
-  ECLSS_TRAINING: ['SOPORTE', 'VITAL'],
-  VEGGIE_LAB: ['BIO-DOMO', 'VEGGIE'],
-};
-
 function FacilityArtwork({ id }: { id: MissionType }) {
   const base = <><path d="M-75 23 0 48 75 23 0-3Z" fill="#172b3b" /><path d="M-75 23V32L0 57V48ZM75 23V32L0 57V48Z" fill="#365360" /></>;
   if (id === 'SOLAR_DETECTIVE') return <>{base}<path d="M-55 10V-34L0-52 55-34V10L0 29Z" fill="#e8d8ae" stroke="#223d50" strokeWidth="3"/><path d="M-60-35 0-56 60-35 0-16Z" fill="#a76d54"/><path d="M-33-41a33 28 0 0 1 66 0" fill="#76aaba" stroke="#27495c" strokeWidth="4"/><path d="M-34-41h68" stroke="#d9ebdf" strokeWidth="3"/><rect x="-8" y="-62" width="16" height="13" rx="3" fill="#f6c15b"/><path d="M-43-6h21v18h-21zm65 0h21v18H22Z" fill="#2c637d"/></>;
@@ -52,7 +42,7 @@ export function EarthBaseScene({ cityId, missions, selectedMissionId, completedM
   const { t } = useI18n();
   const arctic = cityId === 'TROMSO';
   return <div className={`earth-base-scene ${arctic ? 'earth-base-scene--arctic' : 'earth-base-scene--andes'}`}>
-    <svg viewBox="0 0 1000 563" preserveAspectRatio="xMidYMid meet" role="group" aria-label={`Mapa de la base de ${arctic ? 'Tromsø' : 'Arequipa'} con cinco instalaciones`}>
+    <svg viewBox="0 0 1000 563" preserveAspectRatio="xMidYMid meet" role="group" aria-label={t('earthMissions.mapAria', { city: arctic ? 'Tromsø' : 'Arequipa' })}>
       <image href={`/assets/pixel-art/${arctic ? 'arctic-research-base.png' : 'andean-training-complex.png'}`} x="0" y="0" width="1000" height="563" preserveAspectRatio="none" />
       {missions.map((mission, index) => {
         const { x, y } = positions[index];
@@ -62,7 +52,7 @@ export function EarthBaseScene({ cityId, missions, selectedMissionId, completedM
         const state: FacilityState = completed ? 'completed' : locked ? 'locked' : selected ? 'selected' : 'available';
         return <g key={mission.id} transform={`translate(${x} ${y})`} className={`earth-base-facility earth-base-facility--${state}`}
           role="button" tabIndex={0} aria-pressed={selected}
-          aria-label={`${mission.facilityName}. ${mission.name}. Herramienta: ${mission.toolLabel}. Efecto: ${mission.effectOnSpaceMission} ${completed ? t('common.completed') : locked ? t('common.locked') : selected ? t('common.selected') : t('common.available')}`}
+          aria-label={`${t(`earthMissions.catalog.${mission.id}.facility`)}. ${t(`earthMissions.catalog.${mission.id}.name`)}. ${t('earthMissions.toolLabel')} ${t(`earthMissions.catalog.${mission.id}.reward`)}. ${t('earthMissions.effectLabel')} ${t(`earthMissions.catalog.${mission.id}.effect`)} ${completed ? t('common.completed') : locked ? t('common.locked') : selected ? t('common.selected') : t('common.available')}`}
           onClick={() => onSelectMission(mission.id)} onFocus={() => onSelectMission(mission.id)}
           onDoubleClick={() => { if (!completed && !locked) onOpenMission(mission); }}
           onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (selected && !completed && !locked) onOpenMission(mission); else onSelectMission(mission.id); } }}>
@@ -81,16 +71,16 @@ export function EarthBaseScene({ cityId, missions, selectedMissionId, completedM
           })()}
           <circle cx="63" cy="-52" r="17" fill={completed ? '#2a795b' : locked ? '#455a64' : selected ? '#f6c15b' : '#2d6f8b'} stroke="#eaf4e9" strokeWidth="3"/>
           <text x="63" y="-46" textAnchor="middle" className="earth-base-facility__badge">{completed ? '✓' : locked ? '×' : index + 1}</text>
-          <title>{`${mission.facilityName} · ${mission.toolLabel}`}</title>
+          <title>{`${t(`earthMissions.catalog.${mission.id}.facility`)} · ${t(`earthMissions.catalog.${mission.id}.reward`)}`}</title>
         </g>;
       })}
     </svg>
-    <ol className="earth-base-legend" aria-label="Instalaciones del mapa">
+    <ol className="earth-base-legend" aria-label={t('earthMissions.mapFacilities')}>
       {missions.map((mission, index) => {
         const completed = completedMissions.includes(mission.id);
         const locked = missionLimitReached && !completed;
         return <li key={mission.id} className={mission.id === selectedMissionId ? 'earth-base-legend__selected' : completed ? 'earth-base-legend__completed' : locked ? 'earth-base-legend__locked' : ''}>
-          <span>{completed ? '✓' : locked ? '×' : index + 1}</span>{shortNames[mission.id].join(' ')}
+          <span>{completed ? '✓' : locked ? '×' : index + 1}</span>{t(`earthMissions.shortNames.${mission.id}`)}
         </li>;
       })}
     </ol>

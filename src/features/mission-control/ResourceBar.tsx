@@ -13,7 +13,7 @@ export function ResourceBar({ label, value, tone }: ResourceBarProps) {
     <div
       className={`resource-bar__track resource-bar__track--${tone}`}
       role="meter"
-      aria-label={label}
+      aria-label={`${label}: ${value}/100`}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={value}

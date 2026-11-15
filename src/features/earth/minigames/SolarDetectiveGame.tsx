@@ -91,10 +91,10 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <Sun color="#f6c15b" weight="fill" />
-              <span>Detective del Sol: Orientación y Reserva de Baterías</span>
+              <span>{t('minigames.solarDetective.title')}</span>
             </h1>
             <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              Elige un día histórico, orienta los paneles hacia el Norte (óptimo 16°) y decide cuánta energía almacenar para la noche andina.
+              {t('minigames.solarDetective.subtitle')}
             </p>
           </div>
 
@@ -117,7 +117,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
                   handleReset();
                 }}
               >
-                {day.seasonLabel.split(' ')[0]} ({day.irradianceKwhPerM2} kWh/m²)
+                {t('minigames.solarDetective.historicalDay', { date: day.date })} ({day.irradianceKwhPerM2} kWh/m²)
               </button>
             ))}
           </div>
@@ -132,10 +132,10 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
             tiltAngle={tiltAngle}
           />
           <dl className="training-readouts">
-            <div><dt>NASA POWER · Día elegido</dt><dd>{currentDay.irradianceKwhPerM2} kWh/m²/día</dd></div>
-            <div><dt>Orientación del panel</dt><dd>{tiltAngle}° · {isOrientationGood ? 'Captación óptima' : 'Ajustar a 16°'}</dd></div>
-            <div><dt>Reserva nocturna</dt><dd>{reserveRatioPercent}% · {storedEnergyKwh} kWh</dd></div>
-            <div><dt>Batería</dt><dd>{batteryLevel}% · {isSwitchClosed ? 'Circuito cerrado' : 'Interruptor abierto'}</dd></div>
+            <div><dt>{t('minigames.solarDetective.dayChosen')}</dt><dd>{currentDay.irradianceKwhPerM2} kWh/m²/day</dd></div>
+            <div><dt>{t('minigames.solarDetective.panelOrientation')}</dt><dd>{tiltAngle}° · {isOrientationGood ? t('minigames.solarDetective.captureOptimal') : t('minigames.solarDetective.adjustToTarget')}</dd></div>
+            <div><dt>{t('minigames.solarDetective.reserveLabel')}</dt><dd>{reserveRatioPercent}% · {storedEnergyKwh} kWh</dd></div>
+            <div><dt>{t('minigames.solarDetective.battery')}</dt><dd>{batteryLevel}% · {isSwitchClosed ? t('minigames.solarDetective.circuitClosed') : t('minigames.solarDetective.switchOpen')}</dd></div>
           </dl>
         </div>
 
@@ -153,9 +153,9 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
           {/* Slider de Orientación */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#ffffff', marginBottom: '0.3rem' }}>
-              <span>Orientación Panel:</span>
+              <span>{t('minigames.solarDetective.tiltLabel')}</span>
               <span style={{ color: isOrientationGood ? '#69f0ae' : '#ffb74d', fontFamily: 'Fredoka', fontSize: '1.15rem' }}>
-                {tiltAngle}° hacia el Norte {isOrientationGood ? '(Óptimo)' : ''}
+                {t('minigames.solarDetective.currentTilt', { angle: tiltAngle })}{isOrientationGood ? ` · ${t('minigames.solarDetective.optimal')}` : ''}
               </span>
             </div>
             <input
@@ -164,7 +164,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               min="0"
               max="50"
               value={tiltAngle}
-              aria-label="Orientación Panel"
+              aria-label={t('minigames.solarDetective.tiltLabel')}
               onChange={(e) => {
                 setTiltAngle(Number(e.target.value));
                 if (isSwitchClosed) handleReset();
@@ -172,7 +172,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               style={{ width: '100%', accentColor: isOrientationGood ? '#69f0ae' : '#ffb74d', cursor: 'pointer' }}
             />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9', marginTop: '0.2rem' }}>
-              <span>0° (Horizontal)</span>
+              <span>{t('minigames.solarDetective.horizontal')}</span>
               <button
                 type="button"
                 className="callsign-chip"
@@ -182,18 +182,18 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
                   if (isSwitchClosed) handleReset();
                 }}
               >
-                16° (Óptimo Arequipa)
+                {t('minigames.solarDetective.optimalTilt')}
               </button>
-              <span>50° (Inclinado)</span>
+              <span>{t('minigames.solarDetective.steep')}</span>
             </div>
           </div>
 
           {/* Slider de Decisión de Reserva para Baterías */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#ffffff', marginBottom: '0.3rem' }}>
-              <span>Reserva Baterías Nocturnas:</span>
+              <span>{t('minigames.solarDetective.reserveLabel')}</span>
               <span style={{ color: isReserveOptimal ? '#69f0ae' : '#ffb74d', fontFamily: 'Fredoka', fontSize: '1.15rem' }}>
-                {reserveRatioPercent}% ({storedEnergyKwh} kWh)
+                {t('minigames.solarDetective.reserveWithStorage', { reserve: reserveRatioPercent, kwh: storedEnergyKwh })}
               </span>
             </div>
             <input
@@ -203,7 +203,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               max="85"
               step="5"
               value={reserveRatioPercent}
-              aria-label="Reserva Baterías Nocturnas"
+              aria-label={t('minigames.solarDetective.reserveLabel')}
               onChange={(e) => {
                 setReserveRatioPercent(Number(e.target.value));
                 if (isSwitchClosed) handleReset();
@@ -211,9 +211,9 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               style={{ width: '100%', accentColor: isReserveOptimal ? '#69f0ae' : '#ffb74d', cursor: 'pointer' }}
             />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9', marginTop: '0.2rem' }}>
-              <span>15% (Poco guardado)</span>
-              <span style={{ color: '#ffd54f' }}>30% a 60% (Recomendado)</span>
-              <span>85% (Exceso reserva)</span>
+              <span>{t('minigames.solarDetective.lowReserve')}</span>
+              <span style={{ color: '#ffd54f' }}>{t('minigames.solarDetective.optimalReserve')}</span>
+              <span>{t('minigames.solarDetective.highReserve')}</span>
             </div>
           </div>
         </div>
@@ -228,8 +228,8 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
           marginTop: '1rem'
         }}>
           <div style={{ fontSize: '0.88rem', color: '#c5cae9', display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-            <span>☀️ Diurno disponible: <strong>{daytimeAvailableKwh} kWh</strong></span>
-            <span>🔋 Reserva nocturna: <strong style={{ color: isReserveOptimal ? '#69f0ae' : '#ffb74d' }}>{storedEnergyKwh} kWh</strong></span>
+            <span>☀ {t('minigames.solarDetective.daytimeAvailable', { kwh: daytimeAvailableKwh })}</span>
+            <span>🔋 {t('minigames.solarDetective.nightReserve', { kwh: storedEnergyKwh })}</span>
           </div>
 
           <div style={{ display: 'flex', gap: '0.8rem' }}>
@@ -240,13 +240,14 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               onClick={() => setIsSwitchClosed(!isSwitchClosed)}
             >
               <Lightning weight="fill" />
-              <span>{isSwitchClosed ? 'Abrir Circuito' : 'Cerrar Interruptor'}</span>
+              <span>{isSwitchClosed ? t('minigames.solarDetective.openCircuit') : t('minigames.solarDetective.closeCircuit')}</span>
             </button>
             <button
               type="button"
               className="earth-screen__back-btn"
               onClick={handleReset}
-              title="Reiniciar prueba"
+              aria-label={t('minigames.solarDetective.reset')}
+              title={t('minigames.solarDetective.reset')}
             >
               <ArrowCounterClockwise weight="bold" />
             </button>
@@ -269,12 +270,12 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
           }}>
             <Warning size={28} color="#ef5350" weight="fill" />
             <div>
-              <strong>¡Circuito subóptimo!</strong>
+              <strong>{t('minigames.solarDetective.suboptimalWarning')}</strong>
               <div style={{ marginTop: '0.2rem' }}>
-                {!isOrientationGood && ` El panel está a ${tiltAngle}°; oriéntalo a 16° al Norte para captar la radiación de Arequipa.`}
-                {isReserveTooLow && ' Reserva nocturna insuficiente (< 30%). La base se quedaría sin energía durante la noche andina.'}
-                {isReserveTooHigh && ' Exceso de reserva (> 60%). La base diurna no tiene suficiente energía operativa.'}
-                {' Ajusta los controles y reconecta el circuito.'}
+                {!isOrientationGood && ` ${t('minigames.solarDetective.tiltWarning', { angle: tiltAngle })}`}
+                {isReserveTooLow && ` ${t('minigames.solarDetective.lowReserveWarning')}`}
+                {isReserveTooHigh && ` ${t('minigames.solarDetective.highReserveWarning')}`}
+                {` ${t('minigames.solarDetective.adjustAndReconnect')}`}
               </div>
             </div>
           </div>
@@ -295,10 +296,10 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
           }}>
             <div>
               <strong style={{ color: '#69f0ae', fontFamily: 'Fredoka', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <CheckCircle weight="fill" size={22} /> ¡Calibración Fotovoltaica en Arequipa Superada!
+                <CheckCircle weight="fill" size={22} /> {t('minigames.solarDetective.passedTitle')}
               </strong>
               <p style={{ margin: '0.2rem 0 0 0', color: '#c8e6c9', fontSize: '0.88rem' }}>
-                Con el panel a {tiltAngle}° y una reserva equilibrada del {reserveRatioPercent}%, generaste <strong>{totalDailyEnergyKwh} kWh</strong> ({efficiencyPercent}% de rendimiento) con <strong>{storedEnergyKwh} kWh</strong> almacenados para la noche. Has asegurado los <strong>Paneles plegables</strong>.
+                {t('minigames.solarDetective.passedDesc', { angle: tiltAngle, reserve: reserveRatioPercent, kwh: totalDailyEnergyKwh, efficiency: efficiencyPercent, stored: storedEnergyKwh })}
               </p>
             </div>
             <button
@@ -308,7 +309,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               onClick={() => onComplete(createTrainingOutcome('SOLAR_DETECTIVE', `Reserva ${reserveRatioPercent}%`, 'energy', calculateTrainingCost('SOLAR_DETECTIVE', reserveRatioPercent), 'La prueba solar consumió parte de la reserva.'))}
             >
               <Sparkle weight="fill" />
-              <span>Confirmar costo de {(calculateTrainingCost('SOLAR_DETECTIVE', reserveRatioPercent))} punto(s) de Energía y obtener el kit</span>
+              <span>{t('minigames.solarDetective.confirmCost', { cost: calculateTrainingCost('SOLAR_DETECTIVE', reserveRatioPercent) })}</span>
             </button>
           </div>
         )}
@@ -316,10 +317,10 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
         <div style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', color: '#9bc0e4', fontSize: '0.80rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <Info size={16} color="#f6c15b" />
-            <span><strong>Dato NASA POWER verificado:</strong> Radiación global incidente (ALLSKY_SFC_SW_DWN) en Arequipa (-16.4090° S, -71.5375° O): {currentDay.irradianceKwhPerM2} kW-hr/m²/día en {currentDay.seasonLabel}.</span>
+            <span>{t('minigames.solarDetective.scientificNote', { irradiance: currentDay.irradianceKwhPerM2, date: currentDay.date })}</span>
           </div>
           <div style={{ color: '#81d4fa', paddingLeft: '1.4rem' }}>
-            <span><strong>Supuestos de la simulación educativa:</strong> La inclinación óptima de 16° (derivada de la latitud geográfica) y la eficiencia del panel al 22% son supuestos de ingeniería para calcular la conversión eléctrica en la base.</span>
+            <span>{t('minigames.solarDetective.educationalNote')}</span>
           </div>
         </div>
       </main>

@@ -22,6 +22,9 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
   const [isStormImpacted, setIsStormImpacted] = useState<boolean>(false);
 
   const event: DonkiEventRecord = DONKI_HISTORICAL_EVENTS[eventIndex] ?? DONKI_HISTORICAL_EVENTS[0];
+  const eventSummary = eventIndex === 0
+    ? t('minigames.solarWatch.primaryEventSummary', { speed: event.observation.value })
+    : t('minigames.solarWatch.secondaryEventSummary', { speed: event.observation.value });
 
   // Secuencia de evacuación cuando suena la alarma
   useEffect(() => {
@@ -66,10 +69,10 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <Siren color="#ef5350" weight="fill" />
-              <span>Vigilante del Sol: Protocolo de Tormenta CME</span>
+              <span>{t('minigames.solarWatch.title')}</span>
             </h1>
             <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              El satélite detectó una eyección de masa coronal. ¡Protege a la tripulación en el refugio blindado!
+              {t('minigames.solarWatch.subtitle')}
             </p>
           </div>
 
@@ -101,9 +104,9 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
           <StormShelterVisual alert={isAlarmActive || isStormImpacted} doorClosed={isHatchSealed} crewEvacuated={isCrewEvacuated} crewSafe={isCrewEvacuated && isHatchSealed} />
           <dl className="training-readouts">
             <div><dt>NASA DONKI</dt><dd>{event.eventType} · {event.observedAt.slice(0, 10)}</dd></div>
-            <div><dt>Alarma</dt><dd>{isAlarmActive ? 'Activada' : 'En espera'}</dd></div>
-            <div><dt>Tripulación</dt><dd>{isCrewEvacuated ? 'En refugio' : 'Preparando evacuación'}</dd></div>
-            <div><dt>Compuerta y sensores</dt><dd>{isHatchSealed ? 'Sellada' : 'Abierta'} · {isSensorsProtected ? 'Protegidos' : 'Expuestos'}</dd></div>
+            <div><dt>{t('minigames.solarWatch.readouts.alarm')}</dt><dd>{isAlarmActive ? t('minigames.solarWatch.readouts.active') : t('minigames.solarWatch.readouts.waiting')}</dd></div>
+            <div><dt>{t('minigames.solarWatch.readouts.crew')}</dt><dd>{isCrewEvacuated ? t('minigames.solarWatch.readouts.inShelter') : t('minigames.solarWatch.readouts.preparing')}</dd></div>
+            <div><dt>{t('minigames.solarWatch.readouts.doorAndSensors')}</dt><dd>{isHatchSealed ? t('minigames.solarWatch.readouts.sealed') : t('minigames.solarWatch.readouts.open')} · {isSensorsProtected ? t('minigames.solarWatch.readouts.protected') : t('minigames.solarWatch.readouts.exposed')}</dd></div>
           </dl>
         </div>
 
@@ -131,7 +134,7 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
             onClick={() => setIsAlarmActive(true)}
           >
             <Siren weight="fill" size={20} />
-            <span>{isCrewEvacuated ? '✓ Tripulación Evacuada' : '1. Sonar Alarma de Evacuación'}</span>
+            <span>{isCrewEvacuated ? t('minigames.solarWatch.step1Done') : t('minigames.solarWatch.step1')}</span>
           </button>
 
           {/* Acción 2: Sellar escotilla */}
@@ -152,7 +155,7 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
             onClick={() => setIsHatchSealed(true)}
           >
             <LockKey weight="fill" size={20} />
-            <span>{isHatchSealed ? '✓ Compuerta Sellada' : '2. Cerrar Compuerta Blindada'}</span>
+            <span>{isHatchSealed ? t('minigames.solarWatch.step2Done') : t('minigames.solarWatch.step2')}</span>
           </button>
 
           {/* Acción 3: Proteger sensores y telemetría */}
@@ -173,7 +176,7 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
             onClick={() => setIsSensorsProtected(true)}
           >
             <Broadcast weight="fill" size={20} />
-            <span>{isSensorsProtected ? '✓ Sensores en Modo Seguro' : '3. Blindar Telemetría'}</span>
+            <span>{isSensorsProtected ? t('minigames.solarWatch.step3Done') : t('minigames.solarWatch.step3')}</span>
           </button>
         </div>
 
@@ -187,7 +190,7 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
             onClick={handleTestStorm}
           >
             <Siren weight="fill" />
-            <span>{isStormImpacted ? 'Impacto de la Tormenta Comprobado' : 'Simular Llegada de la Tormenta Solar (CME)'}</span>
+            <span>{isStormImpacted ? t('minigames.solarWatch.impactChecked') : t('minigames.solarWatch.simulateStorm')}</span>
           </button>
 
           <button
@@ -196,7 +199,7 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
             onClick={handleReset}
           >
             <ArrowCounterClockwise weight="bold" />
-            <span>Reiniciar Protocolo</span>
+            <span>{t('minigames.solarWatch.reset')}</span>
           </button>
         </div>
 
@@ -216,10 +219,10 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
           }}>
             <div>
               <strong style={{ color: '#69f0ae', fontFamily: 'Fredoka', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <CheckCircle weight="fill" size={22} /> ¡Tripulación a Salvo bajo el Escudo!
+                <CheckCircle weight="fill" size={22} /> {t('minigames.solarWatch.successTitle')}
               </strong>
               <p style={{ margin: '0.2rem 0 0 0', color: '#c8e6c9', fontSize: '0.88rem' }}>
-                {event.summary} En esta simulación completaste el protocolo de refugio y protección de sensores. El registro NASA no proporciona una dosis recibida por la tripulación.
+                {t('minigames.solarWatch.successDesc', { summary: eventSummary })}
               </p>
             </div>
             <button
@@ -229,7 +232,7 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
               onClick={() => onComplete(createTrainingOutcome('SOLAR_WATCH', `Protocolo CME ${eventIndex + 1}`, 'energy', calculateTrainingCost('SOLAR_WATCH', eventIndex), 'El refugio suspende operaciones durante la prueba.'))}
             >
               <Sparkle weight="fill" />
-              <span>Confirmar costo de {(calculateTrainingCost('SOLAR_WATCH', eventIndex))} punto(s) de Energía y obtener el kit</span>
+              <span>{t('minigames.solarWatch.confirmCost', { cost: calculateTrainingCost('SOLAR_WATCH', eventIndex) })}</span>
             </button>
           </div>
         )}
@@ -237,10 +240,10 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
         <div style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', color: '#9bc0e4', fontSize: '0.80rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <ShieldCheck size={16} color="#f6c15b" />
-            <span><strong>Dato NASA DONKI verificado:</strong> {event.summary} (Registro: {event.eventId}, CCMC GSFC NASA).</span>
+            <span>{t('minigames.solarWatch.scientificNote', { summary: eventSummary, id: event.eventId })}</span>
           </div>
           <div style={{ color: '#ce93d8', paddingLeft: '1.4rem' }}>
-            <span><strong>Reglas de simulación educativa:</strong> Las acciones de evacuación, blindaje con polietileno/agua y aislamiento de sensores son protocolos de ingeniería simulados; los niveles de severidad son cualitativos sin inventar dosis radiológicas.</span>
+            <span>{t('minigames.solarWatch.educationalNote')}</span>
           </div>
         </div>
       </main>

@@ -42,6 +42,18 @@ function interpolate(template: string, params?: Record<string, string | number>)
   });
 }
 
+export function resolveTranslation(
+  dictionaries: Record<SupportedLanguage, Record<string, any>>,
+  language: SupportedLanguage,
+  key: string,
+  params?: Record<string, string | number>,
+): string {
+  const activeValue = getNestedValue(dictionaries[language], key);
+  const fallbackValue = language === FALLBACK_LANGUAGE ? undefined : getNestedValue(dictionaries[FALLBACK_LANGUAGE], key);
+  const value = activeValue ?? fallbackValue;
+  return value ? interpolate(value, params) : key;
+}
+
 function getStoredLanguage(): SupportedLanguage {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -92,21 +104,7 @@ export function I18nProvider({ children, initialLanguage }: I18nProviderProps) {
 
   const t = useCallback(
     (key: string, params?: Record<string, string | number>): string => {
-      const activeDict = dictionaries[language];
-      let value = activeDict ? getNestedValue(activeDict, key) : undefined;
-
-      // Fallback to default/fallback language if missing in draft / active locale
-      if (!value && language !== FALLBACK_LANGUAGE) {
-        const fallbackDict = dictionaries[FALLBACK_LANGUAGE];
-        value = fallbackDict ? getNestedValue(fallbackDict, key) : undefined;
-      }
-
-      if (!value) {
-        // Return key if nowhere found
-        return key;
-      }
-
-      return interpolate(value, params);
+      return resolveTranslation(dictionaries, language, key, params);
     },
     [language],
   );

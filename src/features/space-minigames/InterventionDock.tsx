@@ -11,6 +11,7 @@ import { InterventionGesture } from './InterventionGesture';
 import { OxygenPatchGame } from './OxygenPatchGame';
 import { PanelRepairGame } from './PanelRepairGame';
 import { getInterventionPanelMode } from './interventionState';
+import { useI18n } from '../../i18n';
 
 interface InterventionDockProps {
   readonly state: MissionState;
@@ -19,12 +20,12 @@ interface InterventionDockProps {
   readonly groupDecisionPending?: boolean;
 }
 
-function formatCost(cost: ResourceDelta) {
+function formatCost(cost: ResourceDelta, t: ReturnType<typeof useI18n>['t']) {
   const parts = [];
-  if (cost.energy) parts.push(`${Math.abs(cost.energy)} Energía`);
-  if (cost.oxygen) parts.push(`${Math.abs(cost.oxygen)} Oxígeno`);
-  if (cost.foodSupply) parts.push(`${Math.abs(cost.foodSupply)} Alimento`);
-  return parts.join(' + ') || 'Sin costo de recursos';
+  if (cost.energy) parts.push(t('interventions.costItem', { amount: Math.abs(cost.energy), resource: t('common.energy') }));
+  if (cost.oxygen) parts.push(t('interventions.costItem', { amount: Math.abs(cost.oxygen), resource: t('common.oxygen') }));
+  if (cost.foodSupply) parts.push(t('interventions.costItem', { amount: Math.abs(cost.foodSupply), resource: t('common.food') }));
+  return parts.join(' + ') || t('interventions.noCost');
 }
 
 export function InterventionDock({
@@ -33,6 +34,7 @@ export function InterventionDock({
   onRequestConfirmation,
   groupDecisionPending = false,
 }: InterventionDockProps) {
+  const { t } = useI18n();
   const [selected, setSelected] = useState<InterventionAction | null>(null);
   const [choiceId, setChoiceId] = useState<ActionChoice | undefined>();
   const [interactionReady, setInteractionReady] = useState(false);
@@ -58,18 +60,18 @@ export function InterventionDock({
 
   function unavailableReason(action: InterventionAction) {
     const item = INTERVENTIONS.find((candidate) => candidate.action === action);
-    if (!item) return 'Intervención no disponible.';
+    if (!item) return t('interventions.blocked.unknown');
     if (item.requiresAlert && !state.activeAlerts.some((alert) => item.resolves.includes(alert.kind))) {
-      return 'Necesita una alerta compatible.';
+      return t('interventions.blocked.alertRequired');
     }
     if (action === 'CONSULT_EARTH') {
-      if (state.consultationUsed) return 'La consulta ya fue utilizada.';
-      if (!state.communicationAvailable) return 'El enlace con la Tierra no está disponible.';
-      if (state.destination === 'MARS' && state.turn === state.maxTurns) return 'La respuesta llegaría después de la guardia.';
+      if (state.consultationUsed) return t('interventions.blocked.consultationUsed');
+      if (!state.communicationAvailable) return t('interventions.blocked.earthUnavailable');
+      if (state.destination === 'MARS' && state.turn === state.maxTurns) return t('interventions.blocked.replyTooLate');
     }
-    if (action === 'RECYCLE_OXYGEN' && state.oxygen >= 100) return 'El Oxígeno ya está completo.';
-    if (action === 'REINFORCE_SHELTER' && state.shield >= 100) return 'El Escudo ya está completo.';
-    if (action === 'RUN_RESEARCH' && state.scienceProgress >= 100) return 'El progreso científico ya está completo.';
+    if (action === 'RECYCLE_OXYGEN' && state.oxygen >= 100) return t('interventions.blocked.oxygenFull');
+    if (action === 'REINFORCE_SHELTER' && state.shield >= 100) return t('interventions.blocked.shieldFull');
+    if (action === 'RUN_RESEARCH' && state.scienceProgress >= 100) return t('interventions.blocked.scienceFull');
     return null;
   }
 
@@ -107,11 +109,11 @@ export function InterventionDock({
   return <section className="intervention-dock pixel-panel" aria-labelledby="intervention-title">
     <div className="section-heading">
       <div>
-        <span className="pixel-kicker">P12 · UNA ACCIÓN PRINCIPAL</span>
-        <h2 id="intervention-title">Intervenciones G1–G8</h2>
+      <span className="pixel-kicker">{t('interventions.kicker')}</span>
+      <h2 id="intervention-title">{t('interventions.title')}</h2>
       </div>
       <span className={state.actionTakenThisTurn ? 'status-light' : 'status-light status-light--warning'}>
-        {state.actionTakenThisTurn ? 'REGISTRADA' : 'PENDIENTE'}
+        {state.actionTakenThisTurn ? t('interventions.statusRecorded') : t('interventions.statusPending')}
       </span>
     </div>
 
@@ -127,8 +129,8 @@ export function InterventionDock({
             onClick={() => choose(item.action)}
           >
             <span>{item.id}</span>
-            <strong>{item.label}</strong>
-            <small>{blockedReason ?? `Costo base: ${formatCost(item.cost)}`}</small>
+            <strong>{t(`interventions.items.${item.id}.label`)}</strong>
+            <small>{blockedReason ?? t('interventions.baseCost', { cost: formatCost(item.cost, t) })}</small>
           </button>;
         })}
         <button
@@ -137,23 +139,23 @@ export function InterventionDock({
           disabled={state.actionTakenThisTurn || groupDecisionPending}
           onClick={skip}
         >
-          <span>—</span><strong>No intervenir</strong><small>Las alertas empeorarán</small>
+          <span>—</span><strong>{t('interventions.noIntervention')}</strong><small>{t('interventions.noInterventionDesc')}</small>
         </button>
       </div>
 
       <div className="intervention-console">
         {panelMode === 'SKIPPED' ? <div className="console-placeholder">
           <div aria-hidden="true">■</div>
-          <p><strong>NO INTERVENIR REGISTRADO</strong></p>
-          <p>Las alertas activas aplicarán sus consecuencias al finalizar el turno.</p>
+          <p><strong>{t('interventions.skippedRecorded')}</strong></p>
+          <p>{t('interventions.skippedDesc')}</p>
         </div> : intervention && selected ? <>
-          <span className="pixel-kicker">{intervention.id} · VISTA PREVIA</span>
-          <h3>{intervention.label}</h3>
-          <p>{intervention.objective}</p>
-          <p><strong>Instrucción:</strong> {intervention.instructions}</p>
+          <span className="pixel-kicker">{t('interventions.previewKicker', { id: intervention.id })}</span>
+          <h3>{t(`interventions.items.${intervention.id}.label`)}</h3>
+          <p>{t(`interventions.items.${intervention.id}.objective`)}</p>
+          <p><strong>{t('interventions.instructionLabel')}</strong> {t(`interventions.items.${intervention.id}.instructions`)}</p>
           <div className="cost-preview">
-            <span>COSTO REAL</span><strong>{formatCost(cost)}</strong>
-            <span>BENEFICIO</span><strong>{intervention.benefit}</strong>
+            <span>{t('interventions.realCost')}</span><strong>{formatCost(cost, t)}</strong>
+            <span>{t('interventions.benefit')}</span><strong>{t(`interventions.items.${intervention.id}.benefit`)}</strong>
           </div>
           {selected === 'REPAIR_PANELS'
             ? <PanelRepairGame onReadyChange={setInteractionReady} />
@@ -165,16 +167,16 @@ export function InterventionDock({
                   onReadyChange={setInteractionReady}
                   onChoiceChange={setChoiceId}
                 />}
-          {!canPay && <p className="error-copy">Recursos insuficientes para esta acción.</p>}
+          {!canPay && <p className="error-copy" role="alert">{t('interventions.insufficientResources')}</p>}
           <button
             type="button"
             className="pixel-button pixel-button--confirm"
             disabled={!interactionReady || !canPay || state.actionTakenThisTurn || groupDecisionPending}
             onClick={confirm}
-          >{onRequestConfirmation ? 'SOLICITAR ACUERDO' : 'CONFIRMAR ACCIÓN'}</button>
+          >{onRequestConfirmation ? t('interventions.requestAgreement') : t('interventions.confirmAction')}</button>
         </> : <div className="console-placeholder">
           <div aria-hidden="true">◀ ▲ ▼ ▶</div>
-          <p>Selecciona una intervención para ver su costo, objetivo e interacción.</p>
+          <p>{t('interventions.selectPrompt')}</p>
         </div>}
       </div>
     </div>

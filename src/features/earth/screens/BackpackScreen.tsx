@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight, Backpack as BackpackIcon, CheckCircle, Warning, Sparkle } from '@phosphor-icons/react';
 import { TOOL_CATALOG, isValidBackpack, type Backpack, type ToolId } from '../../../game/contracts';
 import { ToolSprite } from '../../../visual-kit/ToolSprite';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface BackpackScreenProps {
@@ -10,34 +11,23 @@ interface BackpackScreenProps {
   readonly onBack: () => void;
 }
 
-const TOOL_ITEM_DATA: Record<Extract<ToolId, 'FOLDING_PANELS' | 'LIFE_SUPPORT' | 'SHELTER_KIT' | 'CROP_KIT'>, { color: string; badge: string; desc: string; risk: string }> = {
+const TOOL_ITEM_DATA: Record<Extract<ToolId, 'FOLDING_PANELS' | 'LIFE_SUPPORT' | 'SHELTER_KIT' | 'CROP_KIT'>, { color: string }> = {
   FOLDING_PANELS: {
     color: '#ffb300',
-    badge: 'ENERGÍA FOTOVOLTAICA',
-    desc: 'Celdas solares ultraligeras para recargar baterías durante el día lunar.',
-    risk: 'La base dependerá únicamente de la energía de reserva en turnos sin luz.',
   },
   LIFE_SUPPORT: {
     color: '#4cc3d9',
-    badge: 'OXÍGENO & ECLSS',
-    desc: 'Tanques presurizados y cartuchos regenerativos para sellar fugas de aire.',
-    risk: 'Cualquier fuga de aire requerirá un sobreesfuerzo masivo del soporte vital.',
   },
   SHELTER_KIT: {
     color: '#81c784',
-    badge: 'BLINDAJE DE REFUGIO',
-    desc: 'Placas de polietileno denso para mitigar radiación de tormentas solares (CME).',
-    risk: 'La tripulación absorberá mayor radiación en eventos de clima solar severo.',
   },
   CROP_KIT: {
     color: '#66bb6a',
-    badge: 'BIO-CULTIVOS VEGGIE',
-    desc: 'Almohadillas hidropónicas de crecimiento acelerado para alimento fresco.',
-    risk: 'No habrá renovación de raciones frescas durante la permanencia en la base.',
   },
 };
 
 export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack, onBack }: BackpackScreenProps) {
+  const { t } = useI18n();
   function handleSelectTool(id: ToolId) {
     if (selectedTools.includes(id)) {
       // Si ya está, lo quitamos de la bodega
@@ -58,12 +48,13 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
       <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Mapa del Centro Espacial</span>
+          <span>{t('backpack.backToMap')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <BackpackIcon weight="fill" color="#f6c15b" />
-          <span>Hangar de Equipamiento · Capacidad: 3 Kits Máximo</span>
+          <span>{t('backpack.hangar')}</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>
@@ -71,10 +62,10 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <BackpackIcon color="#f6c15b" weight="fill" />
-              <span>Bodega de Carga de la Nave (3 de 4)</span>
+              <span>{t('backpack.title')}</span>
             </h1>
             <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              Toca un contenedor para cargarlo en la nave o devolverlo a la mesa de preparación.
+              {t('backpack.subtitle')}
             </p>
           </div>
 
@@ -91,7 +82,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
             gap: '0.5rem'
           }}>
             {isFull ? <CheckCircle weight="fill" size={18} /> : null}
-            <span>Bodega: {selectedTools.length} / 3 Ocupadas</span>
+            <span>{t('backpack.capacity', { count: selectedTools.length })}</span>
           </div>
         </div>
 
@@ -109,7 +100,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
             gap: '0.7rem'
           }}>
             <h2 style={{ fontSize: '1rem', color: '#f6c15b', margin: '0 0 0.3rem 0', fontFamily: 'Fredoka', letterSpacing: '0.04em' }}>
-              📦 ESTANTERÍA DE EQUIPOS EN TIERRA (4 DISPONIBLES)
+              📦 {t('backpack.earthShelf')}
             </h2>
 
             {TOOL_CATALOG.map((tool) => {
@@ -119,6 +110,15 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
               return (
                 <div
                   key={tool.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isLoaded}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleSelectTool(tool.id);
+                    }
+                  }}
                   style={{
                     background: isLoaded ? '#1e334d' : '#182e49',
                     border: `2px solid ${isLoaded ? '#f6c15b' : '#355982'}`,
@@ -152,13 +152,13 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
                     </div>
                     <div>
                       <span style={{ fontSize: '0.72rem', color: meta.color, fontWeight: 700, letterSpacing: '0.05em' }}>
-                        {meta.badge}
+                        {t(`backpack.badges.${tool.id}`)}
                       </span>
                       <h3 style={{ margin: 0, fontFamily: 'Fredoka', fontSize: '1.05rem', color: '#ffffff' }}>
-                        {tool.label}
+                        {t(`tools.catalog.${tool.id}.label`)}
                       </h3>
                       <p style={{ margin: '0.1rem 0 0 0', color: '#bed4ea', fontSize: '0.8rem' }}>
-                        {meta.desc}
+                        {t(`backpack.descriptions.${tool.id}`)}
                       </p>
                     </div>
                   </div>
@@ -172,7 +172,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
                     color: isLoaded ? '#101d2d' : '#c3dcfa',
                     flexShrink: 0
                   }}>
-                    {isLoaded ? 'CARGADO ✓' : '+ CARGAR'}
+                    {isLoaded ? t('backpack.loaded') : t('backpack.load')}
                   </span>
                 </div>
               );
@@ -192,7 +192,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
           }}>
             <div>
               <h2 style={{ fontSize: '1rem', color: '#69f0ae', margin: '0 0 0.8rem 0', fontFamily: 'Fredoka', letterSpacing: '0.04em' }}>
-                🚀 BAHÍA DE CARGA DEL COHETE (3 RANURAS)
+              🚀 {t('backpack.rocketBay')}
               </h2>
 
               <div style={{ display: 'grid', gap: '0.8rem' }}>
@@ -223,10 +223,10 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
                             <ToolSprite id={toolId!} />
                             <div>
                               <span style={{ fontSize: '0.72rem', color: '#69f0ae', fontWeight: 700 }}>
-                                RANURA {slotIndex + 1} ENSAMBLADA
+                                {t('backpack.assembled', { slot: slotIndex + 1 })}
                               </span>
                               <h4 style={{ margin: 0, fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#ffffff' }}>
-                                {toolDef.label}
+                                {t(`tools.catalog.${toolDef.id}.label`)}
                               </h4>
                             </div>
                           </div>
@@ -244,7 +244,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
                             }}
                             onClick={() => handleSelectTool(toolDef.id)}
                           >
-                            Expulsar
+                            {t('backpack.eject')}
                           </button>
                         </>
                       ) : (
@@ -252,7 +252,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
                           <span style={{ width: '1.8rem', height: '1.8rem', borderRadius: '50%', border: '1px dashed #7cb5c8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700 }}>
                             {slotIndex + 1}
                           </span>
-                          <span>Ranura de Bodega Vacía</span>
+                          <span>{t('backpack.emptySlot')}</span>
                         </div>
                       )}
                     </div>
@@ -274,9 +274,9 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
               }}>
                 <Warning color="#ff8a80" size={24} weight="fill" style={{ flexShrink: 0 }} />
                 <div style={{ fontSize: '0.85rem', color: '#ffcdd2', lineHeight: '1.3' }}>
-                  <strong>Se queda en la Tierra: {leftOutTool.label}.</strong>
+                  <strong>{t('backpack.leftOnEarth', { tool: t(`tools.catalog.${leftOutTool.id}.label`) })}</strong>
                   <br />
-                  <em>Consecuencia: {TOOL_ITEM_DATA[leftOutTool.id].risk}</em>
+                  <em>{t('backpack.consequence', { risk: t(`backpack.risks.${leftOutTool.id}`) })}</em>
                 </div>
               </div>
             )}
@@ -298,7 +298,7 @@ export function BackpackScreen({ selectedTools, onUpdateTools, onConfirmBackpack
             }}
           >
             <Sparkle weight="fill" />
-            <span>Sellar Bodega y Continuar a Destino</span>
+            <span>{t('backpack.sealAndContinue')}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>

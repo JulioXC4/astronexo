@@ -54,7 +54,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
         </button>
         <div className="earth-screen__progress-pill">
           <Plant weight="fill" color="#a5d6a7" />
-          <span>{t('minigames.arcticGreenhouse.title')} · Tromsø</span>
+          <span>{t('minigames.arctic.title')} · Tromsø</span>
         </div>
         <LanguageSelector variant="hud" />
       </header>
@@ -64,10 +64,10 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <Plant color="#a5d6a7" weight="fill" />
-              <span>Invernadero Ártico: Calor Geotérmico en Frío Extremo</span>
+              <span>{t('minigames.arctic.title')}</span>
             </h1>
             <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              En Tromsø la noche polar congela el suelo a -15°C. Administra el calor geotérmico y sella la cúpula aislante (18°C a 24°C) sin agotar el fluido.
+              {t('minigames.arctic.subtitle')}
             </p>
           </div>
         </div>
@@ -86,7 +86,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
             viewBox="0 0 900 440"
             style={{ width: '100%', height: '100%', display: 'block', userSelect: 'none' }}
             role="img"
-            aria-label="Cúpula de bio-refugio ártico con calefacción geotérmica"
+            aria-label={t('minigames.arctic.shelterAria')}
           >
             <defs>
               <linearGradient id="auroraGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -106,7 +106,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
 
             {/* Suelo nevado exterior */}
             <path d="M 0 320 Q 450 310, 900 320 L 900 440 L 0 440 Z" fill="#cfd8dc" opacity="0.25" />
-            <text x="120" y="360" fontSize="13" fill="#b0bec5" fontWeight="bold">❄ Nieve Exterior: -15°C</text>
+            <text x="120" y="360" fontSize="13" fill="#b0bec5" fontWeight="bold">{t('minigames.arctic.outsideSnow')}</text>
 
             {/* CÚPULA DEL BIO-REFUGIO */}
             <path
@@ -137,19 +137,19 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
             {/* TUBERÍAS GEOTÉRMICAS SUBTERRÁNEAS */}
             <path d="M 330 360 L 570 360" stroke="#ff7043" strokeWidth="6" strokeDasharray="8 4" />
             <text x="450" y="390" textAnchor="middle" fontSize="11" fill="#ffab91" fontWeight="bold">
-              ♨ Serpentín Geotérmico Subterráneo ({geothermalFlow}% Caudal)
+              ♨ {t('minigames.arctic.geothermalPipe', { flow: geothermalFlow })}
             </text>
 
             {/* TERMÓMETRO DIGITAL DERECHA */}
             <g transform="translate(780, 200)">
               <rect x="-55" y="-70" width="110" height="140" rx="10" fill="#0d1b29" stroke="#2e4d70" strokeWidth="2" />
-              <text x="0" y="-45" textAnchor="middle" fontSize="10" fill="#90caf9" fontWeight="bold">TEMPERATURA</text>
+              <text x="0" y="-45" textAnchor="middle" fontSize="10" fill="#90caf9" fontWeight="bold">{t('minigames.arctic.temperature')}</text>
               <circle cx="0" cy="-5" r="30" fill="#13263b" stroke={isTempOptimal ? "#69f0ae" : "#ffb74d"} strokeWidth={3} />
               <text x="0" y="2" textAnchor="middle" fontSize="16" fontWeight="bold" fill={isTempOptimal ? "#69f0ae" : "#ffd54f"}>
                 {internalTempC}°C
               </text>
               <text x="0" y="45" textAnchor="middle" fontSize="11" fontWeight="bold" fill={isTempOptimal ? "#69f0ae" : (isFreezingRisk ? "#80d8ff" : "#ef5350")}>
-                {isTempOptimal ? "ÓPTIMA" : (isFreezingRisk ? "CONGELACIÓN" : "CALOR EXCESIVO")}
+                {isTempOptimal ? t('minigames.arctic.tempOptimalShort') : (isFreezingRisk ? t('minigames.arctic.freezingShort') : t('minigames.arctic.overheatingShort'))}
               </text>
             </g>
           </svg>
@@ -169,7 +169,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
           {/* Slider de Caudal Geotérmico */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#ffffff', marginBottom: '0.3rem' }}>
-              <span>Caudal Geotérmico:</span>
+              <span>{t('minigames.arctic.geothermalFlow')}</span>
               <span style={{ color: isGeothermalSafe ? '#69f0ae' : '#ffb74d', fontFamily: 'Fredoka' }}>
                 {geothermalFlow}% (Consumo sustentable)
               </span>
@@ -186,23 +186,23 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
               style={{ width: '100%', accentColor: isGeothermalSafe ? '#ff7043' : '#ef5350', cursor: 'pointer' }}
             />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9', marginTop: '0.2rem' }}>
-              <span>10% (Insuficiente)</span>
+              <span>{t('minigames.arctic.flowLow')}</span>
               <button
                 type="button"
                 className="callsign-chip"
                 style={{ background: '#25446c', color: '#8ec5fc', padding: '0.15rem 0.5rem', fontSize: '0.75rem' }}
                 onClick={handleAutoTune}
               >
-                Auto-Calibrar (52%)
+                {t('minigames.arctic.autoTune')}
               </button>
-              <span>90% (Gasto térmico crítico)</span>
+              <span>{t('minigames.arctic.flowHigh')}</span>
             </div>
           </div>
 
           {/* Cúpula Aislante e Iluminación */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 700, color: '#ffffff', fontSize: '0.9rem' }}>Aislamiento Térmico Cúpula:</span>
+              <span style={{ fontWeight: 700, color: '#ffffff', fontSize: '0.9rem' }}>{t('minigames.arctic.insulationLabel')}</span>
               <button
                 type="button"
                 className="callsign-chip"
@@ -216,12 +216,12 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
                   setIsSimulated(false);
                 }}
               >
-                {isDomeInsulated ? '✓ Cúpula CERRADA (Retiene calor)' : '○ Cúpula EXPUESTA'}
+                {isDomeInsulated ? t('minigames.arctic.domeClosed') : t('minigames.arctic.domeExposed')}
               </button>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.88rem', color: '#ffffff' }}>Luz LED Complementaria:</span>
+              <span style={{ fontSize: '0.88rem', color: '#ffffff' }}>{t('minigames.arctic.ledLabel')}</span>
               <div style={{ display: 'flex', gap: '0.4rem' }}>
                 {(['LOW', 'NORMAL', 'BOOST'] as const).map((mode) => (
                   <button
@@ -240,7 +240,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
                       setIsSimulated(false);
                     }}
                   >
-                    {mode === 'LOW' ? 'Baja' : (mode === 'NORMAL' ? 'Normal' : 'Intensa')}
+                    {mode === 'LOW' ? t('minigames.arctic.ledLow') : (mode === 'NORMAL' ? t('minigames.arctic.ledNormal') : t('minigames.arctic.ledBoost'))}
                   </button>
                 ))}
               </div>
@@ -259,11 +259,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
         }}>
           <div style={{ fontSize: '0.88rem', color: '#c5cae9', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <Thermometer size={18} color="#f6c15b" />
-            <span>Temp. Interior: </span>
-            <strong style={{ color: isTempOptimal ? '#69f0ae' : '#ef5350' }}>{internalTempC}°C</strong>
-            <span style={{ fontSize: '0.8rem', color: '#9fa8da', marginLeft: '0.4rem' }}>
-              (Rango de supervivencia biológica: 18°C a 24°C)
-            </span>
+            <strong style={{ color: isTempOptimal ? '#69f0ae' : '#ef5350' }}>{t('minigames.arctic.tempLabel', { temp: internalTempC })}</strong>
           </div>
 
           <div style={{ display: 'flex', gap: '0.8rem' }}>
@@ -273,13 +269,14 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
               onClick={() => setIsSimulated(true)}
             >
               <Plant weight="fill" />
-              <span>Verificar Ciclo Ártico</span>
+              <span>{t('minigames.arctic.verify')}</span>
             </button>
             <button
               type="button"
               className="earth-screen__back-btn"
               onClick={handleReset}
-              title="Reiniciar prueba"
+              aria-label={t('minigames.arctic.reset')}
+              title={t('minigames.arctic.reset')}
             >
               <ArrowCounterClockwise weight="bold" />
             </button>
@@ -302,13 +299,13 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
           }}>
             <Warning size={28} color="#ef5350" weight="fill" />
             <div>
-              <strong>¡El microclima del refugio falló!</strong>
+              <strong>{t('minigames.arctic.failureTitle')}</strong>
               <div style={{ marginTop: '0.2rem' }}>
-                {!isDomeInsulated && ' La cúpula aislante está abierta; el frío polar (-15°C) escapa el calor.'}
-                {isFreezingRisk && ` Temperatura letal (${internalTempC}°C < 14°C): las plantas se congelarían.`}
-                {isOverheatingRisk && ` Temperatura excesiva (${internalTempC}°C > 26°C): estrés térmico en hojas.`}
-                {!isGeothermalSafe && ' Consumo de fluido geotérmico excesivo (> 65%).'}
-                {' Ajusta los controles y vuelve a probar.'}
+                {!isDomeInsulated && ` ${t('minigames.arctic.domeOpenWarning')}`}
+                {isFreezingRisk && ` ${t('minigames.arctic.freezingWarning', { temp: internalTempC })}`}
+                {isOverheatingRisk && ` ${t('minigames.arctic.overheatingWarning', { temp: internalTempC })}`}
+                {!isGeothermalSafe && ` ${t('minigames.arctic.flowWarning')}`}
+                {` ${t('minigames.arctic.adjustAndRetry')}`}
               </div>
             </div>
           </div>
@@ -329,10 +326,10 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
           }}>
             <div>
               <strong style={{ color: '#69f0ae', fontFamily: 'Fredoka', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <CheckCircle weight="fill" size={22} /> ¡Bio-Refugio Ártico Estabilizado con Éxito!
+                <CheckCircle weight="fill" size={22} /> {t('minigames.arctic.successTitle')}
               </strong>
               <p style={{ margin: '0.2rem 0 0 0', color: '#c8e6c9', fontSize: '0.88rem' }}>
-                Mantuviste el interior a {internalTempC}°C con la cúpula aislada y 52% de flujo geotérmico, salvando los cultivos durante la noche polar. Has asegurado el <strong>Kit de cultivos</strong> para la misión lunar.
+                {t('minigames.arctic.successDesc', { temp: internalTempC })}
               </p>
             </div>
             <button
@@ -342,14 +339,14 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
               onClick={() => onComplete(createTrainingOutcome('ARCTIC_GREENHOUSE', `Flujo geotérmico ${geothermalFlow}%`, 'energy', calculateTrainingCost('ARCTIC_GREENHOUSE', geothermalFlow), 'Calefacción e iluminación consumen reserva.'))}
             >
               <Sparkle weight="fill" />
-              <span>Confirmar costo de {(calculateTrainingCost('ARCTIC_GREENHOUSE', geothermalFlow))} punto(s) de Energía y obtener el kit</span>
+              <span>{t('minigames.arctic.confirmCost', { cost: calculateTrainingCost('ARCTIC_GREENHOUSE', geothermalFlow) })}</span>
             </button>
           </div>
         )}
 
         <div style={{ marginTop: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9bc0e4', fontSize: '0.82rem' }}>
           <Info size={16} color="#f6c15b" />
-          <span>Biología Polar y Espacial: En los cráteres lunares la temperatura exterior desciende a -130°C. Los invernaderos subterráneos con aislamiento multicapa y calor de bucle cerrado son indispensables para la producción de alimentos.</span>
+          <span>{t('minigames.arctic.scientificNote')}</span>
         </div>
       </main>
     </div>

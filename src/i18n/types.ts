@@ -51,6 +51,17 @@ export const STORAGE_KEY = 'astronexo_lang_v3';
 
 export type TranslationDictionary = Record<string, any>;
 
+/** A draft locale may omit English keys, but it may not invent obsolete paths. */
+export type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends string
+    ? string
+    : T[K] extends readonly unknown[]
+      ? T[K]
+      : T[K] extends object
+        ? DeepPartial<T[K]>
+        : T[K];
+};
+
 export interface I18nContextValue {
   readonly language: SupportedLanguage;
   readonly languageInfo: LanguageInfo;
