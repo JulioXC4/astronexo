@@ -267,6 +267,14 @@ export const en = {
     availableBadge: 'AVAILABLE',
     proceedToLaunch: 'Proceed to Liftoff ({count}/3 Kits)!',
     facilitiesCompleted: '{completed}/{total} missions completed',
+    startTraining: 'Start training',
+    trainingProgress: '{completed}/{total} trainings',
+    scienceData: 'Science data',
+    moreDetails: 'More details',
+    lessDetails: 'Fewer details',
+    trainingCompletedToast: 'Training completed: {facility}. Tool secured: {tool}.',
+    mapAriaLabel: 'Base map of {city} with five training facilities',
+    launchPadReady: 'Launch pad ready',
     facilities: {
       SOLAR_DETECTIVE: {
         shortName: ['SOLAR', 'OBSERVATORY'],

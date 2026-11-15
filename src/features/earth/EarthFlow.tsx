@@ -56,8 +56,11 @@ export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
   const [completedMissions, setCompletedMissions] = useState<MissionType[]>([]);
   const [trainingOutcomes, setTrainingOutcomes] = useState<TrainingOutcome[]>([]);
   const [backpack, setBackpack] = useState<Backpack | null>(null);
+  // Solo para la confirmación visual del mapa al volver de un entrenamiento recién completado.
+  const [justCompletedMission, setJustCompletedMission] = useState<MissionType | null>(null);
 
   function navigateTo(nextScreen: EarthScreenState) {
+    if (nextScreen !== 'MAP') setJustCompletedMission(null);
     setPreviousScreen(screen);
     setScreen(nextScreen);
   }
@@ -71,6 +74,7 @@ export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
       return;
     }
     if (!completedMissions.includes(missionId)) {
+      setJustCompletedMission(missionId);
       setTrainingOutcomes((prev) => prev.some((item) => item.missionId === missionId) ? prev : [...prev, outcome]);
       setCompletedMissions((prev) => {
         if (prev.length >= 3) return prev;
@@ -201,6 +205,7 @@ export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
             astronautName={fictionalName}
             completedMissions={completedMissions}
             trainingOutcomes={trainingOutcomes}
+            justCompletedId={justCompletedMission}
             onOpenMission={(mission: EarthMissionDefinition) => {
               // Cada misión abre una actividad interactiva real con decisión y costo (RF-69)
               // Ninguna misión se acredita directamente por presionar Ejecutar

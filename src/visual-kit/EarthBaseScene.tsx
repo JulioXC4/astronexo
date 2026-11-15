@@ -1,23 +1,30 @@
+import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import type { EarthMissionDefinition, MissionType } from '../data/missions';
 import { useI18n } from '../i18n';
+import { FACILITY_POSITIONS as positions, LAUNCH_PAD, MAP_HEIGHT, MAP_WIDTH, computeSceneLayout } from './earthMapLayout';
 import './earth-base-scene.css';
+
+export { MAP_HEIGHT, MAP_WIDTH, computeSceneLayout } from './earthMapLayout';
+export type { SceneLayout } from './earthMapLayout';
 
 export type FacilityState = 'available' | 'selected' | 'completed' | 'locked';
 
 export interface EarthBaseSceneProps {
   readonly cityId: string;
   readonly missions: readonly EarthMissionDefinition[];
-  readonly selectedMissionId: MissionType;
+  /** Instalación seleccionada; `null` deja el mapa despejado. */
+  readonly selectedMissionId: MissionType | null;
   readonly completedMissions: readonly MissionType[];
   readonly missionLimitReached: boolean;
   readonly onSelectMission: (missionId: MissionType) => void;
   readonly onOpenMission: (mission: EarthMissionDefinition) => void;
+  /** Clic en el escenario vacío (cierra la ficha de misión). */
+  readonly onClearSelection?: () => void;
+  /** Instalación recién completada: muestra una confirmación visual breve. */
+  readonly justCompletedId?: MissionType | null;
+  /** Con 3/3 entrenamientos, la plataforma de lanzamiento recibe un brillo discreto. */
+  readonly launchReady?: boolean;
 }
-
-const positions = [
-  { x: 245, y: 185 }, { x: 608, y: 185 },
-  { x: 190, y: 325 }, { x: 630, y: 325 }, { x: 402, y: 438 },
-] as const;
 
 const facilitySprites: Partial<Record<MissionType, string>> = {
   SOLAR_DETECTIVE: 'andean-solar-observatory.png',
@@ -28,15 +35,14 @@ const facilitySprites: Partial<Record<MissionType, string>> = {
   VEGGIE_LAB: 'hydroponic-greenhouse.png',
 };
 
-const shortNames: Record<MissionType, readonly [string, string]> = {
-  SOLAR_DETECTIVE: ['OBSERVATORIO', 'SOLAR'],
-  ALTITUDE_ACCLIMATIZATION: ['CÁMARA DE', 'ALTURA'],
-  DARK_MONTHS_RESERVE: ['BANCO DE', 'BATERÍAS'],
-  ARCTIC_GREENHOUSE: ['INVERNADERO', 'ÁRTICO'],
-  SOLAR_WATCH: ['CLIMA', 'ESPACIAL'],
-  ECLSS_TRAINING: ['SOPORTE', 'VITAL'],
-  VEGGIE_LAB: ['BIO-DOMO', 'VEGGIE'],
-};
+function spriteFor(id: MissionType, arctic: boolean): string | undefined {
+  if (arctic) {
+    if (id === 'SOLAR_WATCH') return 'arctic-weather-station.png';
+    if (id === 'ECLSS_TRAINING') return 'polar-life-support-lab.png';
+    if (id === 'ARCTIC_GREENHOUSE') return undefined;
+  }
+  return facilitySprites[id];
+}
 
 function FacilityArtwork({ id }: { id: MissionType }) {
   const base = <><path d="M-75 23 0 48 75 23 0-3Z" fill="#172b3b" /><path d="M-75 23V32L0 57V48ZM75 23V32L0 57V48Z" fill="#365360" /></>;
@@ -48,51 +54,154 @@ function FacilityArtwork({ id }: { id: MissionType }) {
   return <>{base}<path d="M-62 15V-30L0-47 62-30V15L0 34Z" fill="#b1c9c7" stroke="#28495b" strokeWidth="3"/><path d="M-66-30 0-51 66-30 0-9Z" fill="#637c86"/><rect x="-46" y="-10" width="23" height="27" rx="10" fill="#7aa9ab" stroke="#dceee2" strokeWidth="3"/><rect x="23" y="-10" width="23" height="27" rx="10" fill="#7aa9ab" stroke="#dceee2" strokeWidth="3"/><circle cy="-5" r="16" fill="#2c6176" stroke="#dceee2" strokeWidth="4"/><path d="M-8-5h16m-8-8v16" stroke="#b9e5df" strokeWidth="3"/></>;
 }
 
-export function EarthBaseScene({ cityId, missions, selectedMissionId, completedMissions, missionLimitReached, onSelectMission, onOpenMission }: EarthBaseSceneProps) {
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), Math.max(min, max));
+
+/** Indicador pixel art sobre cada edificio: número, candado o marca de completado. */
+function PixelPin({ state, label }: { state: FacilityState; label: number }) {
+  return <g className="earth-base-pin" transform="translate(0 -80)" shapeRendering="crispEdges" aria-hidden="true">
+    <path className="earth-base-pin__shadow" d="M-9-3h18v3h-18z" />
+    <path className="earth-base-pin__body" d="M-9-27h18v2h4v2h2v14h-2v2h-4v2h-18v-2h-4v-2h-2v-14h2v-2h4Z" />
+    <path className="earth-base-pin__tail" d="M-4-5h8v3h-8zm2 3h4v3h-4z" />
+    {state === 'completed' && <path className="earth-base-pin__glyph" d="M-7-15h3v3h-3zm3 3h3v3h-3zm3 3h3v3h-3zm3-3h3v-3h-3zm3-3h3v-3h-3zm3-3h3v-3h-3z" />}
+    {state === 'locked' && <>
+      <path className="earth-base-pin__glyph" d="M-5-17h10v8h-10z" />
+      <path className="earth-base-pin__glyph-line" d="M-3-17v-3h6v3" />
+    </>}
+    {(state === 'available' || state === 'selected') && <text className="earth-base-pin__digit" x="0" y="-9.5" textAnchor="middle">{label}</text>}
+  </g>;
+}
+
+const BRACKETS = 'M-84-82V-102H-64M64-102H84V-82M84 22V42H64M-64 42H-84V22';
+const SPARKS = [[-52, -62], [-20, -90], [18, -78], [54, -58], [-36, -34], [40, -30]] as const;
+
+export function EarthBaseScene({
+  cityId, missions, selectedMissionId, completedMissions, missionLimitReached,
+  onSelectMission, onOpenMission, onClearSelection, justCompletedId = null, launchReady = false,
+}: EarthBaseSceneProps) {
   const { t } = useI18n();
   const arctic = cityId === 'TROMSO';
-  return <div className={`earth-base-scene ${arctic ? 'earth-base-scene--arctic' : 'earth-base-scene--andes'}`}>
-    <svg viewBox="0 0 1000 563" preserveAspectRatio="xMidYMid meet" role="group" aria-label={`Mapa de la base de ${arctic ? 'Tromsø' : 'Arequipa'} con cinco instalaciones`}>
-      <image href={`/assets/pixel-art/${arctic ? 'arctic-research-base.png' : 'andean-training-complex.png'}`} x="0" y="0" width="1000" height="563" preserveAspectRatio="none" />
-      {missions.map((mission, index) => {
-        const { x, y } = positions[index];
-        const selected = mission.id === selectedMissionId;
-        const completed = completedMissions.includes(mission.id);
-        const locked = missionLimitReached && !completed;
-        const state: FacilityState = completed ? 'completed' : locked ? 'locked' : selected ? 'selected' : 'available';
-        return <g key={mission.id} transform={`translate(${x} ${y})`} className={`earth-base-facility earth-base-facility--${state}`}
-          role="button" tabIndex={0} aria-pressed={selected}
-          aria-label={`${mission.facilityName}. ${mission.name}. Herramienta: ${mission.toolLabel}. Efecto: ${mission.effectOnSpaceMission} ${completed ? t('common.completed') : locked ? t('common.locked') : selected ? t('common.selected') : t('common.available')}`}
-          onClick={() => onSelectMission(mission.id)} onFocus={() => onSelectMission(mission.id)}
-          onDoubleClick={() => { if (!completed && !locked) onOpenMission(mission); }}
-          onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (selected && !completed && !locked) onOpenMission(mission); else onSelectMission(mission.id); } }}>
-          <ellipse cy="33" rx="93" ry="34" fill="#1d3340" opacity=".32"/>
-          {selected && <ellipse cy="18" rx="94" ry="65" fill="none" stroke="#ffd36b" strokeWidth="4" strokeDasharray="9 5"/>}
-          {(() => {
-            const sprite = arctic
-              ? mission.id === 'SOLAR_WATCH' ? 'arctic-weather-station.png'
-                : mission.id === 'ECLSS_TRAINING' ? 'polar-life-support-lab.png'
-                : mission.id === 'ARCTIC_GREENHOUSE' ? undefined
-                : facilitySprites[mission.id]
-              : facilitySprites[mission.id];
-            return sprite
-              ? <image href={`/assets/pixel-art/${sprite}`} x="-75" y="-100" width="150" height="135" preserveAspectRatio="xMidYMid meet" />
-              : <g transform={arctic && mission.id === 'ARCTIC_GREENHOUSE' ? 'scale(.68)' : undefined}><FacilityArtwork id={mission.id}/></g>;
-          })()}
-          <circle cx="63" cy="-52" r="17" fill={completed ? '#2a795b' : locked ? '#455a64' : selected ? '#f6c15b' : '#2d6f8b'} stroke="#eaf4e9" strokeWidth="3"/>
-          <text x="63" y="-46" textAnchor="middle" className="earth-base-facility__badge">{completed ? '✓' : locked ? '×' : index + 1}</text>
-          <title>{`${mission.facilityName} · ${mission.toolLabel}`}</title>
-        </g>;
-      })}
-    </svg>
-    <ol className="earth-base-legend" aria-label="Instalaciones del mapa">
-      {missions.map((mission, index) => {
-        const completed = completedMissions.includes(mission.id);
-        const locked = missionLimitReached && !completed;
-        return <li key={mission.id} className={mission.id === selectedMissionId ? 'earth-base-legend__selected' : completed ? 'earth-base-legend__completed' : locked ? 'earth-base-legend__locked' : ''}>
-          <span>{completed ? '✓' : locked ? '×' : index + 1}</span>{shortNames[mission.id].join(' ')}
-        </li>;
-      })}
-    </ol>
+  const cityName = arctic ? 'Tromsø' : 'Arequipa';
+  const background = `/assets/pixel-art/${arctic ? 'arctic-research-base.png' : 'andean-training-complex.png'}`;
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  const [hoverId, setHoverId] = useState<MissionType | null>(null);
+  const [focusId, setFocusId] = useState<MissionType | null>(null);
+
+  useLayoutEffect(() => {
+    const element = containerRef.current;
+    if (!element) return undefined;
+    const measure = () => {
+      const rect = element.getBoundingClientRect();
+      setSize((previous) => (previous.width === rect.width && previous.height === rect.height
+        ? previous
+        : { width: rect.width, height: rect.height }));
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', measure);
+      return () => window.removeEventListener('resize', measure);
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const layout = useMemo(() => computeSceneLayout(size.width, size.height), [size.width, size.height]);
+  const measured = size.width > 0 && size.height > 0;
+
+  const facilityName = (mission: EarthMissionDefinition) => t(`map.facilities.${mission.id}.facilityName`);
+  const stateOf = (mission: EarthMissionDefinition): FacilityState => {
+    if (completedMissions.includes(mission.id)) return 'completed';
+    if (missionLimitReached) return 'locked';
+    return mission.id === selectedMissionId ? 'selected' : 'available';
+  };
+  const stateLabel = (state: FacilityState) => (state === 'completed' ? t('common.completed')
+    : state === 'locked' ? t('common.locked') : state === 'selected' ? t('common.selected') : t('common.available'));
+
+  const tipId = hoverId ?? focusId;
+  const tipIndex = tipId ? missions.findIndex((mission) => mission.id === tipId) : -1;
+  const tipMission = tipIndex >= 0 ? missions[tipIndex] : null;
+  const tipStyle: CSSProperties | undefined = tipMission ? {
+    left: clamp(layout.x + positions[tipIndex].x * layout.scale, 110, Math.max(110, size.width - 110)),
+    top: layout.y + (positions[tipIndex].y + 44) * layout.scale,
+  } : undefined;
+
+  const stageStyle: CSSProperties = measured
+    ? { left: layout.x, top: layout.y, width: layout.width, height: layout.height }
+    : { left: 0, top: 0, width: '100%', height: '100%' };
+
+  return <div
+    ref={containerRef}
+    className={`earth-base-scene ${arctic ? 'earth-base-scene--arctic' : 'earth-base-scene--andes'}`}
+    data-letterbox-y={layout.letterboxY || undefined}
+    data-letterbox-x={layout.letterboxX || undefined}
+    data-letterbox-large={layout.letterboxLarge || undefined}
+  >
+    <div className="earth-base-scene__ambient" style={{ backgroundImage: `url(${background})` }} aria-hidden="true" />
+    <div className="earth-base-scene__stage" style={stageStyle}>
+      <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`} preserveAspectRatio="none" role="group"
+        aria-label={t('map.mapAriaLabel', { city: cityName })}>
+        <image className="earth-base-scene__background" href={background} x="0" y="0" width={MAP_WIDTH} height={MAP_HEIGHT}
+          preserveAspectRatio="none" onClick={() => onClearSelection?.()} />
+
+        {launchReady && <g className="earth-base-launch" transform={`translate(${LAUNCH_PAD.x} ${LAUNCH_PAD.y})`} pointerEvents="none">
+          <title>{t('map.launchPadReady')}</title>
+          <ellipse rx="96" ry="52" />
+          <ellipse className="earth-base-launch__inner" rx="70" ry="37" />
+        </g>}
+
+        {missions.map((mission, index) => {
+          const { x, y } = positions[index];
+          const state = stateOf(mission);
+          const chosen = mission.id === selectedMissionId;
+          const completed = state === 'completed';
+          const locked = state === 'locked';
+          const celebrating = justCompletedId === mission.id;
+          const sprite = spriteFor(mission.id, arctic);
+          return <g
+            key={mission.id}
+            transform={`translate(${x} ${y})`}
+            className={`earth-base-facility earth-base-facility--${state}${chosen ? ' earth-base-facility--chosen' : ''}${celebrating ? ' earth-base-facility--just-completed' : ''}`}
+            data-facility-id={mission.id}
+            data-state={state}
+            role="button"
+            tabIndex={0}
+            aria-pressed={chosen}
+            aria-label={`${facilityName(mission)}. ${t(`map.facilities.${mission.id}.name`)}. ${stateLabel(state)}`}
+            onClick={() => onSelectMission(mission.id)}
+            onDoubleClick={() => { if (!completed && !locked) onOpenMission(mission); }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelectMission(mission.id); }
+            }}
+            onPointerEnter={(event) => { if (event.pointerType === 'mouse') setHoverId(mission.id); }}
+            onPointerLeave={() => setHoverId((current) => (current === mission.id ? null : current))}
+            onFocus={() => setFocusId(mission.id)}
+            onBlur={() => setFocusId((current) => (current === mission.id ? null : current))}
+          >
+            <rect className="earth-base-facility__hit" x="-84" y="-104" width="168" height="150" />
+            <ellipse className="earth-base-facility__shadow" cy="31" rx="84" ry="27" />
+            {completed && <ellipse className="earth-base-facility__glow" cy="22" rx="86" ry="30" />}
+            <path className="earth-base-facility__brackets" d={BRACKETS} />
+            {celebrating && <g className="earth-base-facility__celebration" pointerEvents="none">
+              <ellipse className="earth-base-facility__wave" cy="22" rx="60" ry="22" />
+              <ellipse className="earth-base-facility__wave earth-base-facility__wave--late" cy="22" rx="60" ry="22" />
+              {SPARKS.map(([sx, sy], sparkIndex) => <rect key={sparkIndex} className="earth-base-facility__spark"
+                style={{ animationDelay: `${sparkIndex * 0.12}s` }} x={sx} y={sy} width="5" height="5" />)}
+            </g>}
+            {sprite
+              ? <image className="earth-base-facility__sprite" href={`/assets/pixel-art/${sprite}`} x="-75" y="-100" width="150" height="135" preserveAspectRatio="xMidYMid meet" />
+              : <g className="earth-base-facility__sprite" transform={arctic && mission.id === 'ARCTIC_GREENHOUSE' ? 'scale(.68)' : undefined}><FacilityArtwork id={mission.id} /></g>}
+            <PixelPin state={state} label={index + 1} />
+          </g>;
+        })}
+      </svg>
+      <div className="earth-base-scene__light" aria-hidden="true" />
+    </div>
+
+    {tipMission && <div className="earth-base-tooltip" style={tipStyle} aria-hidden="true">
+      <strong>{facilityName(tipMission)}</strong>
+      <span data-state={stateOf(tipMission)}>{stateLabel(stateOf(tipMission))}</span>
+    </div>}
   </div>;
 }

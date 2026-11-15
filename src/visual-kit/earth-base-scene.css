@@ -1,39 +1,154 @@
+/* Escenario inmersivo del mapa terrestre: llena el contenedor, conserva proporciones y es el menú principal. */
 .earth-base-scene {
+  --scene-accent: #f6c15b;
+  --scene-cool: #4cc3d9;
+  position: relative;
   width: 100%;
+  height: 100%;
   overflow: hidden;
-  border-radius: 18px;
-  box-shadow: 0 14px 36px rgba(4, 17, 28, .38);
-  background: #476e7b;
+  background: #0b1a2c;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.earth-base-scene--andes { --scene-accent: #ffb24a; --scene-cool: #5fd0cf; }
+.earth-base-scene--arctic { --scene-accent: #ffc96b; --scene-cool: #7fdcf2; }
+
+/* Relleno de franjas libres (tabletas 4:3, pantallas ultra anchas): el mismo paisaje, desenfocado. */
+.earth-base-scene__ambient {
+  position: absolute;
+  inset: -24px;
+  background: center / cover no-repeat;
+  filter: blur(14px) saturate(.85) brightness(.7);
+}
+.earth-base-scene[data-letterbox-large] .earth-base-scene__ambient { filter: blur(26px) saturate(.7) brightness(.38); }
+
+.earth-base-scene__stage { position: absolute; }
+.earth-base-scene[data-letterbox-y] .earth-base-scene__stage {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+}
+.earth-base-scene[data-letterbox-x] .earth-base-scene__stage {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+}
+.earth-base-scene svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
+.earth-base-scene__background { cursor: default; }
+
+/* Luz ambiental muy discreta, por encima del arte y sin capturar el puntero. */
+.earth-base-scene__light { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light; opacity: .55; }
+.earth-base-scene--andes .earth-base-scene__light {
+  background: radial-gradient(ellipse 60% 45% at 28% 18%, rgba(255, 224, 160, .55), transparent 70%);
+}
+.earth-base-scene--arctic .earth-base-scene__light {
+  background: linear-gradient(180deg, rgba(90, 255, 200, .5), rgba(120, 140, 255, .25) 22%, transparent 42%);
 }
 
-.earth-base-scene svg { display: block; width: 100%; aspect-ratio: 1000 / 563; }
+/* ---------- Instalaciones ---------- */
 .earth-base-facility { cursor: pointer; outline: none; }
-.earth-base-facility image { image-rendering: pixelated; }
-.earth-base-facility:hover image,
-.earth-base-facility--selected image { filter: drop-shadow(0 0 9px #ffe39a); }
-.earth-base-facility--locked { opacity: .7; }
-.earth-base-facility--completed .earth-base-facility__name { fill: #b9f2cc; }
-.earth-base-facility:focus-visible > ellipse:first-child { stroke: #fff; stroke-width: 5; }
-.earth-base-facility__name { fill: #fff6da; font: 700 15px 'Fredoka', sans-serif; letter-spacing: .01em; pointer-events: none; }
-.earth-base-facility__badge { fill: #fff; font: 700 17px 'Fredoka', sans-serif; pointer-events: none; }
-.earth-base-facility--selected .earth-base-facility__badge { fill: #172a3e; }
-.earth-base-legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 0; padding: 6px; list-style: none; background: #102a3b; }
-.earth-base-legend li { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 6px 4px; color: #f3f8ed; font: 700 13px 'Fredoka', sans-serif; line-height: 1.1; }
-.earth-base-legend li span { display: grid; flex: none; width: 24px; height: 24px; place-items: center; border: 2px solid #b8d6dc; border-radius: 50%; color: #fff; }
-.earth-base-legend__selected { background: #385473; outline: 2px solid #ffd36b; }
-.earth-base-legend__completed span { background: #2a795b; }
-.earth-base-legend__locked { opacity: .65; }
-
-.prep-map-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(310px, 360px); gap: 16px; align-items: start; width: 100%; max-width: 1600px; margin: 0 auto; }
-.prep-map-layout .prep-map-mission-panel { margin: 0; max-width: none; width: 100%; align-content: start; }
-.prep-map-layout .prep-map-mission-panel > div { min-width: 0; flex-basis: 100%; }
-.prep-map-layout .prep-map-mission-panel h2 { line-height: 1.1; }
-@media (max-width: 1020px) {
-  .prep-map-layout { grid-template-columns: 1fr; }
-  .prep-map-layout .prep-map-mission-panel { max-width: none; }
+.earth-base-facility__hit { fill: transparent; pointer-events: all; }
+.earth-base-facility__shadow { fill: #10202c; opacity: .22; pointer-events: none; }
+.earth-base-facility__sprite { image-rendering: pixelated; pointer-events: none; }
+.earth-base-facility__glow { fill: rgba(105, 240, 174, .16); stroke: rgba(105, 240, 174, .55); stroke-width: 2; stroke-dasharray: 6 4; pointer-events: none; }
+.earth-base-facility__brackets {
+  fill: none;
+  stroke: var(--scene-cool);
+  stroke-width: 4;
+  stroke-linecap: butt;
+  shape-rendering: crispEdges;
+  opacity: 0;
+  pointer-events: none;
 }
-@media (max-width: 700px) { .earth-base-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); } .earth-base-legend li { font-size: 12px; } }
+.earth-base-facility:hover .earth-base-facility__brackets,
+.earth-base-facility:focus-visible .earth-base-facility__brackets { opacity: .95; }
+.earth-base-facility--chosen .earth-base-facility__brackets { stroke: var(--scene-accent); stroke-width: 5; opacity: 1; }
+.earth-base-facility:focus-visible .earth-base-facility__brackets { stroke: #fff; }
 
+.earth-base-facility:hover .earth-base-facility__sprite,
+.earth-base-facility:focus-visible .earth-base-facility__sprite {
+  filter: drop-shadow(0 0 3px rgba(255, 244, 205, .9)) drop-shadow(0 0 9px rgba(255, 211, 107, .65));
+}
+.earth-base-facility--chosen .earth-base-facility__sprite {
+  filter: drop-shadow(0 0 3px rgba(255, 244, 205, .95)) drop-shadow(0 0 12px var(--scene-accent));
+}
+.earth-base-facility--locked .earth-base-facility__sprite { opacity: .72; filter: saturate(.6); }
+.earth-base-facility--locked { cursor: default; }
+
+/* ---------- Marcadores pixel art ---------- */
+.earth-base-pin__body { fill: #14304a; stroke: var(--scene-cool); stroke-width: 2; }
+.earth-base-pin__tail { fill: var(--scene-cool); }
+.earth-base-pin__shadow { fill: rgba(5, 14, 26, .35); }
+.earth-base-pin__digit { fill: #f4ecd0; font: 800 15px 'Fredoka', sans-serif; pointer-events: none; }
+.earth-base-pin__glyph { fill: #f4ecd0; }
+.earth-base-pin__glyph-line { fill: none; stroke: #f4ecd0; stroke-width: 2; }
+.earth-base-facility--chosen .earth-base-pin__body,
+.earth-base-facility--selected .earth-base-pin__body { fill: var(--scene-accent); stroke: #fff3cf; }
+.earth-base-facility--chosen .earth-base-pin__tail,
+.earth-base-facility--selected .earth-base-pin__tail { fill: #fff3cf; }
+.earth-base-facility--chosen .earth-base-pin__digit,
+.earth-base-facility--selected .earth-base-pin__digit { fill: #1a2638; }
+.earth-base-facility--completed .earth-base-pin__body { fill: #1f8f6c; stroke: #c6f6df; }
+.earth-base-facility--completed .earth-base-pin__tail { fill: #c6f6df; }
+.earth-base-facility--locked .earth-base-pin__body { fill: #38485a; stroke: #8798a8; }
+.earth-base-facility--locked .earth-base-pin__tail { fill: #8798a8; }
+.earth-base-facility--locked .earth-base-pin__glyph,
+.earth-base-facility--locked .earth-base-pin__glyph-line { fill: #c9d5df; stroke: #c9d5df; }
+.earth-base-facility--locked .earth-base-pin__glyph-line { fill: none; }
+
+/* ---------- Tooltip del cursor/teclado ---------- */
+.earth-base-tooltip {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  gap: 2px;
+  max-width: 220px;
+  padding: 6px 10px 7px;
+  border: 2px solid var(--scene-cool);
+  background: rgba(8, 22, 38, .94);
+  box-shadow: 3px 3px 0 rgba(2, 8, 19, .55);
+  color: #f5f0da;
+  font-family: 'Nunito', system-ui, sans-serif;
+  text-align: center;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+.earth-base-tooltip strong { font: 700 .86rem/1.15 'Fredoka', sans-serif; }
+.earth-base-tooltip span { color: #9fd8e5; font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.earth-base-tooltip span[data-state='completed'] { color: #8ff0c0; }
+.earth-base-tooltip span[data-state='selected'] { color: var(--scene-accent); }
+.earth-base-tooltip span[data-state='locked'] { color: #aeb9c4; }
+
+/* ---------- Plataforma de lanzamiento lista (3/3) ---------- */
+.earth-base-launch ellipse { fill: rgba(255, 211, 107, .08); stroke: #ffd36b; stroke-width: 3; stroke-dasharray: 10 6; }
+.earth-base-launch__inner { stroke: rgba(255, 244, 205, .75) !important; stroke-width: 2 !important; fill: none !important; }
+
+/* ---------- Animaciones: solo con movimiento permitido ---------- */
 @media (prefers-reduced-motion: no-preference) {
   .earth-base-facility { transition: opacity .2s ease; }
+  .earth-base-facility__sprite { transition: filter .15s ease; }
+  .earth-base-facility__brackets { transition: opacity .12s steps(2); }
+  .earth-base-facility--chosen .earth-base-facility__brackets { animation: earth-bracket-pulse 1.1s steps(2, end) infinite; }
+  .earth-base-facility--chosen .earth-base-pin,
+  .earth-base-facility--available .earth-base-pin { animation: earth-pin-bob 1.6s steps(4, end) infinite; }
+  .earth-base-facility--completed .earth-base-pin { animation: none; }
+  .earth-base-launch { animation: earth-launch-pulse 1.8s steps(3, end) infinite; }
+  .earth-base-scene--andes .earth-base-scene__light { animation: earth-light-drift 16s ease-in-out infinite alternate; }
+  .earth-base-scene--arctic .earth-base-scene__light { animation: earth-aurora 7s ease-in-out infinite alternate; }
+
+  .earth-base-facility__wave { fill: none; stroke: #8ff0c0; stroke-width: 4; transform-box: fill-box; transform-origin: center; animation: earth-complete-wave 1.6s ease-out 2 both; }
+  .earth-base-facility__wave--late { animation-delay: .5s; }
+  .earth-base-facility__spark { fill: #ffe9a3; animation: earth-spark 1.5s steps(6, end) 2 both; }
+  .earth-base-facility--just-completed .earth-base-facility__sprite { animation: earth-complete-flash 1.2s ease-out 1; }
 }
+@media (prefers-reduced-motion: reduce) {
+  .earth-base-facility__wave { fill: none; stroke: #8ff0c0; stroke-width: 4; opacity: .8; }
+  .earth-base-facility__spark { display: none; }
+}
+
+@keyframes earth-bracket-pulse { 0% { opacity: 1; } 50% { opacity: .55; } 100% { opacity: 1; } }
+@keyframes earth-pin-bob { 0%, 100% { transform: translate(0, -80px); } 50% { transform: translate(0, -84px); } }
+@keyframes earth-launch-pulse { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+@keyframes earth-light-drift { from { transform: translate(-3%, -2%); } to { transform: translate(5%, 3%); } }
+@keyframes earth-aurora { from { opacity: .3; } to { opacity: .6; } }
+@keyframes earth-complete-wave { from { transform: scale(.7); opacity: .9; } to { transform: scale(1.9); opacity: 0; } }
+@keyframes earth-spark { from { transform: translateY(14px); opacity: 1; } to { transform: translateY(-26px); opacity: 0; } }
+@keyframes earth-complete-flash { 0% { filter: brightness(1.9) drop-shadow(0 0 14px #8ff0c0); } 100% { filter: none; } }
