@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowCounterClockwise, CheckCircle, Info, Sun, Warning } from '@phosphor-icons/react';
+import { ArrowLeft, ArrowCounterClockwise, CheckCircle, Info, Warning } from '@phosphor-icons/react';
 import type { TrainingOutcome } from '../../../game';
 import { AREQUIPA_SOLAR_RECORDS, type SolarDayRecord } from '../../../data/nasa/powerData';
 import { useI18n, LanguageSelector } from '../../../i18n';
@@ -117,14 +117,9 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
         </div>
 
         <section className={`solar-game__scene ${nightMode ? 'is-night' : ''} ${isTestPassed && nightMode ? 'is-success' : ''}`} aria-label={tr('circuitScene')}>
-          <div className="solar-game__sky"><span className="solar-game__sun" aria-hidden="true" /> <span>{nightMode ? tr('night') : tr('day')}</span></div>
+          <div className="solar-game__window" aria-hidden="true"><span className="solar-game__window-light" /></div><div className="solar-game__sky"><span>{nightMode ? tr('night') : tr('day')}</span></div><div className="solar-game__ceiling-lamp" aria-hidden="true" /><div className="solar-game__power-conduit" aria-hidden="true" />
           <div className="solar-game__equipment">
-            <div className="solar-game__device solar-game__source">
-              <Sun className="solar-game__source-art" weight="fill" aria-hidden="true" />
-              <strong>{tr('sun')}</strong>
-              <small>NASA POWER · {currentDay.irradianceKwhPerM2} kWh/m²</small>
-            </div>
-            <div className={`solar-game__flow ${!nightMode && isSwitchClosed ? 'is-active' : ''}`} aria-hidden="true" />
+            
             <div className={`solar-game__device solar-game__panel ${isOrientationGood ? 'is-aligned' : 'is-misaligned'}`}>
               <button type="button" className="solar-game__sprite-button" onClick={() => changeTilt(PANEL_ANGLES[(PANEL_ANGLES.indexOf(tiltAngle as typeof PANEL_ANGLES[number]) + 1) % PANEL_ANGLES.length])}
                 aria-label={tr('rotatePanel')} title={tr('rotatePanel')}>
@@ -132,7 +127,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               </button>
               <strong>{tr('panel')}</strong><small>{tiltAngle}° · {efficiencyPercent}% {tr('capture')}</small>
             </div>
-            <div className={`solar-game__flow ${isSwitchClosed && !nightMode ? 'is-active' : ''}`} aria-hidden="true" />
+            
             <div className="solar-game__device solar-game__switch">
               <button type="button" className="solar-game__sprite-button" onClick={toggleSwitch} aria-pressed={isSwitchClosed}
                 aria-label={isSwitchClosed ? tr('openCircuit') : tr('closeCircuit')} title={isSwitchClosed ? tr('openCircuit') : tr('closeCircuit')}>
@@ -140,7 +135,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               </button>
               <strong>{tr('switch')}</strong><small>{isSwitchClosed ? tr('closed') : tr('open')}</small>
             </div>
-            <div className={`solar-game__flow ${isSwitchClosed && !nightMode ? 'is-active' : ''}`} aria-hidden="true" />
+            
             <div className={`solar-game__device solar-game__battery ${isCharging ? 'is-charging' : ''}`}>
               <div className="solar-game__battery-art">
                 <img src={`${ASSET_ROOT}${batterySprite}`} alt="" draggable="false" />
@@ -152,7 +147,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               <strong>{tr('battery')}</strong><small>{storedEnergyKwh} kWh {isSwitchClosed ? tr('reserved') : tr('potentialReserve')}</small>
             </div>
           </div>
-          <p className="solar-game__scene-feedback" aria-live="polite">{nightMode ? (isTestPassed ? tr('nightSuccess') : tr('nightFailure')) : isCharging ? tr('charging') : isSwitchClosed ? tr('readyForNight') : tr('connectPrompt')}</p>
+          <div className="solar-game__workbench" aria-hidden="true" /><p className="solar-game__scene-feedback" aria-live="polite">{nightMode ? (isTestPassed ? tr('nightSuccess') : tr('nightFailure')) : isCharging ? tr('charging') : isSwitchClosed ? tr('readyForNight') : tr('connectPrompt')}</p>
         </section>
 
         <section className="solar-game__controls" aria-label={tr('controls')}>
@@ -170,7 +165,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
 
         {failure && <div className="solar-game__result is-error" role="status"><Warning weight="fill" size={26} /><div><strong>{tr('suboptimalWarning')}</strong><p>{!isOrientationGood ? tr('tiltWarning', { angle: tiltAngle }) : reserveRatioPercent < 30 ? tr('lowReserveWarning') : tr('highReserveWarning')} {tr('retryPrompt')}</p></div></div>}
         {isTestPassed && nightMode && <div className="solar-game__result is-success" role="status"><CheckCircle weight="fill" size={28} /><div><strong>{tr('passedTitle')}</strong><p>{tr('passedDesc', { angle: tiltAngle, reserve: reserveRatioPercent, kwh: totalDailyEnergyKwh, efficiency: efficiencyPercent, stored: storedEnergyKwh })}</p></div><button type="button" className="solar-game__primary" onClick={() => onComplete(createTrainingOutcome('SOLAR_DETECTIVE', `Reserva ${reserveRatioPercent}%`, 'energy', calculateTrainingCost('SOLAR_DETECTIVE', reserveRatioPercent), 'La prueba solar consumió parte de la reserva.'))}>{tr('confirmCost', { cost: calculateTrainingCost('SOLAR_DETECTIVE', reserveRatioPercent) })}</button></div>}
-        <div className="solar-game__science"><Info size={18} /><span>{tr('scientificNote', { irradiance: currentDay.irradianceKwhPerM2 })} {tr('educationalNote')}</span></div>
+        <details className="solar-game__science"><summary><Info size={18} />{tr('scienceDetails')}</summary><p>{tr('scientificNote', { irradiance: currentDay.irradianceKwhPerM2 })} {tr('educationalNote')}</p></details>
       </main>
     </div>
   );

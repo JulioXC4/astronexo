@@ -273,6 +273,7 @@ export const es = {
     eclssTraining: { title: 'Entrenamiento de soporte vital' },
     veggieLab: { title: 'Laboratorio Veggie' },
     solarDetective: {
+      scienceDetails: 'Ciencia NASA y supuestos del simulador',
       missionPrompt: 'La base necesita electricidad. Orienta el panel, reserva energía y prueba si alcanza para la noche.',
       chooseDay: 'Elegir día histórico de NASA POWER',
       circuitScene: 'Circuito solar interactivo',

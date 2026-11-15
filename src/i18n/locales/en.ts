@@ -273,6 +273,7 @@ export const en = {
     eclssTraining: { title: 'Life-support training' },
     veggieLab: { title: 'Veggie Lab' },
     solarDetective: {
+      scienceDetails: 'NASA science and simulation assumptions',
       missionPrompt: 'The base needs electricity. Aim the panel, reserve energy, and test whether it lasts through the night.',
       chooseDay: 'Choose a historical NASA POWER day',
       circuitScene: 'Interactive solar circuit',
