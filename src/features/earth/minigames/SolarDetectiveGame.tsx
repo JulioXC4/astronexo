@@ -1,9 +1,11 @@
 import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
 import type { TrainingOutcome } from '../../../game';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Sun, Lightning, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Warning } from '@phosphor-icons/react';
+import { ArrowLeft, Sun, Moon, Lightning, CheckCircle, Sparkle, ArrowCounterClockwise, Warning } from '@phosphor-icons/react';
 import { AREQUIPA_SOLAR_RECORDS, type SolarDayRecord } from '../../../data/nasa/powerData';
 import { SolarCircuitVisual } from '../../../visual-kit/TrainingVisuals';
+import { MissionPulse } from './MissionPulse';
+import { evaluateSolarEnergy } from './challengeRules';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import '../screens/earth.css';
 
@@ -19,6 +21,8 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
   const [reserveRatioPercent, setReserveRatioPercent] = useState<number>(45); // Decisión de reserva energética nocturna: 30% a 60%
   const [isSwitchClosed, setIsSwitchClosed] = useState<boolean>(false);
   const [batteryLevel, setBatteryLevel] = useState<number>(0);
+  const [isNight, setIsNight] = useState(false);
+  const [nightVisited, setNightVisited] = useState(false);
 
   const currentDay: SolarDayRecord = AREQUIPA_SOLAR_RECORDS.days[selectedDayIndex] ?? AREQUIPA_SOLAR_RECORDS.days[0];
 
@@ -29,19 +33,17 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
   // - Eficiencia del panel fotovoltaico espacial: 22% (modelo de silicio monocristalino)
   // - Superficie: 10 m²
   const angleError = Math.abs(tiltAngle - 16);
-  const orientationFactor = Math.max(0.60, Math.cos((angleError * Math.PI) / 180));
-  const panelEfficiency = 0.22;
-  const areaM2 = 10;
-  const totalDailyEnergyKwh = Number((currentDay.irradianceKwhPerM2 * orientationFactor * panelEfficiency * areaM2).toFixed(2));
-  const maxPossibleKwh = Number((currentDay.irradianceKwhPerM2 * 1.0 * panelEfficiency * areaM2).toFixed(2));
+  const solarEnergy = evaluateSolarEnergy(currentDay.irradianceKwhPerM2, tiltAngle, reserveRatioPercent);
+  const totalDailyEnergyKwh = solarEnergy.totalKwh;
+  const maxPossibleKwh = Number((currentDay.irradianceKwhPerM2 * 0.22 * 10).toFixed(2));
   const efficiencyPercent = Math.round((totalDailyEnergyKwh / maxPossibleKwh) * 100);
 
   // Decisión de balance: Cuánta energía va a consumo diurno y cuánta a reserva de baterías para la noche
-  const isReserveOptimal = reserveRatioPercent >= 30 && reserveRatioPercent <= 60;
-  const isReserveTooLow = reserveRatioPercent < 30;
-  const isReserveTooHigh = reserveRatioPercent > 60;
-  const storedEnergyKwh = Number((totalDailyEnergyKwh * (reserveRatioPercent / 100)).toFixed(2));
-  const daytimeAvailableKwh = Number((totalDailyEnergyKwh - storedEnergyKwh).toFixed(2));
+  const isReserveOptimal = solarEnergy.dayPowered && solarEnergy.nightPowered;
+  const isReserveTooLow = !solarEnergy.nightPowered;
+  const isReserveTooHigh = !solarEnergy.dayPowered;
+  const storedEnergyKwh = solarEnergy.storedKwh;
+  const daytimeAvailableKwh = solarEnergy.daytimeKwh;
 
   // Animación de carga al cerrar el interruptor
   useEffect(() => {
@@ -66,10 +68,12 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
   function handleReset() {
     setIsSwitchClosed(false);
     setBatteryLevel(0);
+    setIsNight(false);
+    setNightVisited(false);
   }
 
   const isOrientationGood = angleError <= 5;
-  const isTestPassed = isSwitchClosed && isOrientationGood && isReserveOptimal && batteryLevel >= 60;
+  const isTestPassed = isSwitchClosed && nightVisited && isOrientationGood && isReserveOptimal && batteryLevel >= 60;
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
@@ -86,6 +90,11 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>
+        <MissionPulse objective={t('gameplayV2.solar.objective')} signals={[
+          { label: t('gameplayV2.solar.panel'), good: isOrientationGood },
+          { label: t('gameplayV2.solar.day'), good: !isReserveTooHigh },
+          { label: t('gameplayV2.solar.night'), good: !isReserveTooLow && nightVisited },
+        ]} hint={t('gameplayV2.solar.hint')} attempted={isSwitchClosed} solved={isTestPassed} fact={t('gameplayFacts.solar', { value: currentDay.irradianceKwhPerM2, date: currentDay.date })} />
         {/* Cabecera compacta con selector de días históricos reales de Arequipa */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem', marginBottom: '0.8rem' }}>
           <div>
@@ -93,9 +102,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
               <Sun color="#f6c15b" weight="fill" />
               <span>Detective del Sol: Orientación y Reserva de Baterías</span>
             </h1>
-            <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              Elige un día histórico, orienta los paneles hacia el Norte (óptimo 16°) y decide cuánta energía almacenar para la noche andina.
-            </p>
+            <details className="training-context"><summary>{t('gameplayV2.moreContext')}</summary><p>{t('minigames.solarDetective.subtitle')}</p></details>
           </div>
 
           {/* Diales de los 3 días históricos de Arequipa */}
@@ -137,6 +144,19 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
             <div><dt>Reserva nocturna</dt><dd>{reserveRatioPercent}% · {storedEnergyKwh} kWh</dd></div>
             <div><dt>Batería</dt><dd>{batteryLevel}% · {isSwitchClosed ? 'Circuito cerrado' : 'Interruptor abierto'}</dd></div>
           </dl>
+        </div>
+
+        <div className={`solar-cycle ${isNight ? 'solar-cycle--night' : ''}`} role="group" aria-label={t('gameplayV2.solar.objective')}>
+          <div className="solar-cycle__sky" aria-hidden="true">{isNight ? <Moon weight="fill" /> : <Sun weight="fill" />}</div>
+          <div className="solar-cycle__meter">
+            <strong>{t(isNight ? 'gameplayV2.solar.night' : 'gameplayV2.solar.day')}</strong>
+            <progress max={totalDailyEnergyKwh || 1} value={isNight ? storedEnergyKwh : daytimeAvailableKwh} />
+            <span>{isNight ? storedEnergyKwh : daytimeAvailableKwh} kWh</span>
+            <p role="status">{t(isNight ? (isReserveTooLow ? 'gameplayV2.solar.nightOutage' : 'gameplayV2.solar.nightOk') : (isReserveTooHigh ? 'gameplayV2.solar.dayLimited' : 'gameplayV2.solar.dayOk'))}</p>
+          </div>
+          <button type="button" onClick={() => { setIsNight((current) => !current); setNightVisited(true); }} disabled={!isSwitchClosed}>
+            {t(isNight ? 'gameplayV2.solar.backDay' : 'gameplayV2.solar.testNight')}
+          </button>
         </div>
 
         {/* CONTROLES DEL JUGADOR: ORIENTACIÓN Y RESERVA */}
@@ -274,6 +294,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
                 {!isOrientationGood && ` El panel está a ${tiltAngle}°; oriéntalo a 16° al Norte para captar la radiación de Arequipa.`}
                 {isReserveTooLow && ' Reserva nocturna insuficiente (< 30%). La base se quedaría sin energía durante la noche andina.'}
                 {isReserveTooHigh && ' Exceso de reserva (> 60%). La base diurna no tiene suficiente energía operativa.'}
+                {!nightVisited && ` ${t('gameplayV2.solar.nightNeeded')}`}
                 {' Ajusta los controles y reconecta el circuito.'}
               </div>
             </div>
@@ -313,15 +334,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGamePro
           </div>
         )}
 
-        <div style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', color: '#9bc0e4', fontSize: '0.80rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Info size={16} color="#f6c15b" />
-            <span><strong>Dato NASA POWER verificado:</strong> Radiación global incidente (ALLSKY_SFC_SW_DWN) en Arequipa (-16.4090° S, -71.5375° O): {currentDay.irradianceKwhPerM2} kW-hr/m²/día en {currentDay.seasonLabel}.</span>
-          </div>
-          <div style={{ color: '#81d4fa', paddingLeft: '1.4rem' }}>
-            <span><strong>Supuestos de la simulación educativa:</strong> La inclinación óptima de 16° (derivada de la latitud geográfica) y la eficiencia del panel al 22% son supuestos de ingeniería para calcular la conversión eléctrica en la base.</span>
-          </div>
-        </div>
+        <details className="training-science"><summary>{t('gameplayV2.scienceMore')}</summary><p>{t('gameplayScience.solar')}</p></details>
       </main>
     </div>
   );

@@ -235,6 +235,34 @@ export const en = {
     },
   },
 
+  gameplayScience: {
+    solar: 'NASA POWER measures incoming sunlight on a horizontal surface. Panel electricity, 22% efficiency and a 16° tilt are game-model choices, not NASA measurements.',
+    altitude: 'A cabin’s outside pressure affects the gas needed to pressurize it. Closing leaks reduces losses. This test’s thresholds and consumption are educational.',
+    watch: 'DONKI records historical solar events. Evacuation, shelter and sensor protection are simulated; the record does not measure a dose for this fictional crew.',
+    eclss: 'Electrolysis uses water to produce oxygen, while a filter removes CO₂. This circuit’s watts and limits are educational parameters, not ISS readings.',
+    veggie: 'Red and blue light contribute to photosynthesis, and plants need water and nutrients. This crop’s percentages and liters are game rules.',
+    dark: 'NASA POWER recorded 0 kWh/m² of incoming solar energy in Tromsø on December 21, 2024. Lunar night is only an analogy; its duration and conditions differ.',
+    arctic: 'Insulation reduces heat loss from a greenhouse. The outside temperature, heat flow and growth conditions shown here are simulator assumptions.',
+  },
+  gameplayFacts: {
+    solar: 'NASA POWER recorded {value} kWh/m² of incoming solar energy on {date}; the panel electricity is calculated by the game.',
+    altitude: 'Science principle: sealing leaks before pressurizing prevents gas loss. This chamber’s limits are simulated.',
+    watch: 'NASA DONKI recorded a CME on {date}. The shelter response is an educational simulation.',
+    eclss: 'Science principle: electrolysis uses water and electricity to produce oxygen. This circuit’s numbers are simulated.',
+    veggie: 'Science principle: light and nutrients affect crops. This game’s growth index is simulated.',
+    dark: 'NASA POWER recorded 0 kWh/m² of incoming solar energy in Tromsø on December 21, 2024.',
+    arctic: 'Science principle: insulation reduces heat loss. The greenhouse temperature is simulated.',
+  },
+  gameplayV2: {
+    systems: 'System status', ready: 'Ready', needsWork: 'Check', showHint: 'Show a hint', hideHint: 'Hide hint', moreContext: 'How does it work?', scienceMore: 'Explore the science', lower: 'Remove energy from {label}', raise: 'Give energy to {label}',
+    solar: { objective: 'Power the base by day and save energy for the night.', panel: 'Panel', day: 'Daytime base', night: 'Night battery', hint: 'Energy stored in the battery is unavailable during the day.', testNight: 'Test the night', backDay: 'Return to day', nightOutage: 'The battery cannot last through the night.', dayLimited: 'You stored so much that the daytime base has little power.', dayOk: 'The base is powered during the day.', nightOk: 'The battery powers the base at night.', nightNeeded: 'Test the night before confirming.' },
+    altitude: { objective: 'Seal three leaks and pressurize the cabin without wasting gas.', seals: 'Seals', pressure: 'Pressure', gas: 'Gas reserve', hint: 'Close the connections first, then adjust the pressure.' },
+    watch: { objective: 'Protect the crew and sensors before the storm arrives.', crew: 'Crew', hatch: 'Shelter', sensors: 'Sensors', hint: 'Close the hatch after the crew enters the shelter.', hatchTooEarly: 'The crew is still outside: sound the alarm before closing the hatch.', sensorsFirst: 'Sensors protected. The crew still needs to reach the shelter.', stage: 'Shelter preparation: {count} of 3 actions.' },
+    eclss: { objective: 'Keep water and air flowing without overloading the grid.', water: 'Water', oxygen: 'Oxygen', filter: 'CO₂ filter', power: 'Power', hint: 'Each subsystem draws power; check total consumption too.' },
+    veggie: { objective: 'Grow healthy plants without draining the water supply.', light: 'Light', nutrients: 'Nutrients', water: 'Water', hint: 'Mix the lights and observe the leaves before choosing irrigation.', lightHint: 'More red supports biomass; blue supports leaves. Find a mix where both respond.', hintButton: 'Lighting hint', moreRed: 'More red light', moreBlue: 'More blue light', success: 'With {red}% red light, {blue}% blue and {water} L of water, you reached a simulated photosynthesis index of {growth}%. You earned the', tool: 'Crop kit' },
+    dark: { objective: 'Keep heat, crops and radio alive through the night.', intro: 'In this simulated polar night, divide the battery among three systems. The NASA POWER solstice record shows 0 kWh/m² of incoming solar energy in Tromsø.', budget: 'Battery', heat: 'Heat', crops: 'Crops', radio: 'Radio', hint: 'The battery is limited: take energy from one system to supply another.', start: 'Start the polar night', phase1: 'First stretch: the habitat needs heat.', phase2: 'Midnight: the crops need light.', phase3: 'Final stretch: the radio must stay connected.', science: 'Historical NASA POWER record: solar irradiation in Tromsø on December 21, 2024. Lunar night is an educational analogy; its duration and conditions differ.' },
+    arctic: { objective: 'Save the plants from the cold without spending all the heat.', dome: 'Dome', climate: 'Climate', heat: 'Heating', hint: 'Seal the dome before raising the heating. Watch the thermometer and avoid waste.', toggleDome: 'Open or close the dome', flowHint: 'Seal the dome before raising the heating. Watch the thermometer and avoid waste.', hintButton: 'Heating hint', success: 'You kept the interior at {temp}°C with an insulated dome and {flow}% geothermal flow. You earned the', tool: 'Crop kit' },
+  },
   minigames: {
     solarDetective: {
       back: 'Back to Arequipa Map',

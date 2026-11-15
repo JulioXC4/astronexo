@@ -235,6 +235,34 @@ export const es = {
     },
   },
 
+  gameplayScience: {
+    solar: 'NASA POWER mide irradiación solar incidente sobre una superficie horizontal. La electricidad del panel, su eficiencia del 22% y la inclinación de 16° son reglas del simulador, no mediciones NASA.',
+    altitude: 'La presión exterior de una cabina determina cuánto gas se necesita para presurizarla. Cerrar fugas reduce pérdidas. Los umbrales y el consumo de esta prueba son educativos.',
+    watch: 'DONKI registra eventos solares históricos. La secuencia de evacuación, refugio y protección de sensores es una simulación; el registro no mide la dosis recibida por esta tripulación ficticia.',
+    eclss: 'La electrólisis separa agua para producir oxígeno, y un filtro retira CO₂. El consumo en vatios y los límites de este circuito son parámetros educativos, no datos de la ISS.',
+    veggie: 'La luz roja y azul participa en la fotosíntesis, y las plantas necesitan agua y nutrientes. Los porcentajes y litros de este cultivo son reglas del juego.',
+    dark: 'NASA POWER registró 0 kWh/m² de irradiación solar incidente en Tromsø el 21 de diciembre de 2024. La noche lunar es solo una analogía; su duración y condiciones son distintas.',
+    arctic: 'El aislamiento reduce la pérdida de calor de un invernadero. La temperatura exterior, el caudal y las condiciones de crecimiento mostrados aquí son supuestos del simulador.',
+  },
+  gameplayFacts: {
+    solar: 'NASA POWER registró {value} kWh/m² de irradiación solar incidente el {date}; la electricidad del panel es un cálculo del juego.',
+    altitude: 'Principio científico: cerrar fugas antes de presurizar evita perder gas. Los límites de esta cámara son simulados.',
+    watch: 'NASA DONKI registró una CME el {date}. La respuesta del refugio es una simulación educativa.',
+    eclss: 'Principio científico: la electrólisis usa agua y electricidad para producir oxígeno. Los valores de este circuito son simulados.',
+    veggie: 'Principio científico: la luz y los nutrientes influyen en el cultivo. El índice de crecimiento de este juego es simulado.',
+    dark: 'NASA POWER registró 0 kWh/m² de irradiación solar incidente en Tromsø el 21 de diciembre de 2024.',
+    arctic: 'Principio científico: el aislamiento reduce la pérdida de calor. La temperatura del invernadero es simulada.',
+  },
+  gameplayV2: {
+    systems: 'Estado de los sistemas', ready: 'Listo', needsWork: 'Revisar', showHint: 'Ver una pista', hideHint: 'Ocultar pista', moreContext: '¿Cómo funciona?', scienceMore: 'Explorar la ciencia', lower: 'Quitar energía de {label}', raise: 'Dar energía a {label}',
+    solar: { objective: 'Enciende la base de día y guarda energía para la noche.', panel: 'Panel', day: 'Base diurna', night: 'Batería nocturna', hint: 'Mover la energía a la batería deja menos para usar durante el día.', testNight: 'Probar noche', backDay: 'Volver al día', nightOutage: 'La batería no alcanza para la noche.', dayLimited: 'Guardaste tanto que la base diurna tiene poca energía.', dayOk: 'La base recibe energía durante el día.', nightOk: 'La batería sostiene la base durante la noche.', nightNeeded: 'Prueba también la noche antes de confirmar.' },
+    altitude: { objective: 'Cierra las tres fugas y presuriza la cabina sin gastar demasiado gas.', seals: 'Sellos', pressure: 'Presión', gas: 'Reserva de gas', hint: 'Primero cierra las conexiones; después ajusta la presión.' },
+    watch: { objective: 'Pon a salvo a la tripulación y los sensores antes de la tormenta.', crew: 'Tripulación', hatch: 'Refugio', sensors: 'Sensores', hint: 'La compuerta solo puede cerrarse después de que la tripulación entre al refugio.', hatchTooEarly: 'La tripulación sigue fuera: activa la alarma antes de cerrar.', sensorsFirst: 'Sensores protegidos. Aún falta llevar la tripulación al refugio.', stage: 'Preparación del refugio: {count} de 3 acciones.' },
+    eclss: { objective: 'Haz circular agua y aire sin sobrecargar la red.', water: 'Agua', oxygen: 'Oxígeno', filter: 'Filtro CO₂', power: 'Electricidad', hint: 'Cada subsistema consume energía; revisa también el consumo total.' },
+    veggie: { objective: 'Cultiva plantas sanas sin agotar el agua.', light: 'Luz', nutrients: 'Nutrientes', water: 'Agua', hint: 'Combina las luces y observa las hojas antes de elegir el riego.', lightHint: 'Más rojo ayuda a formar biomasa; el azul ayuda a las hojas. Busca una mezcla donde ambas respondan.', hintButton: 'Pista de iluminación', moreRed: 'Más luz roja', moreBlue: 'Más luz azul', success: 'Con {red}% de luz roja, {blue}% azul y {water} L de agua, alcanzaste un índice fotosintético simulado de {growth}%. Ganaste el', tool: 'Kit de cultivos' },
+    dark: { objective: 'Haz que calefacción, plantas y radio atraviesen la noche.', intro: 'En esta noche polar simulada, reparte el banco de baterías entre tres sistemas. El registro NASA POWER del solsticio marca 0 kWh/m² de irradiación solar incidente en Tromsø.', budget: 'Batería', heat: 'Calor', crops: 'Cultivos', radio: 'Radio', hint: 'La batería es limitada: quita energía de un sistema para alimentar otro.', start: 'Comienza la noche polar', phase1: 'Primer tramo: el hábitat necesita calor.', phase2: 'Mitad de la noche: los cultivos necesitan luz.', phase3: 'Último tramo: la radio debe seguir conectada.', science: 'Dato histórico NASA POWER: irradiación solar del 21 de diciembre de 2024 en Tromsø. La noche lunar es una analogía educativa; su duración y condiciones son diferentes.' },
+    arctic: { objective: 'Salva las plantas del frío sin gastar todo el calor.', dome: 'Cúpula', climate: 'Clima', heat: 'Calefacción', hint: 'Una cúpula abierta deja escapar calor aunque aumentes el caudal.', toggleDome: 'Abrir o cerrar la cúpula', flowHint: 'Sella la cúpula antes de subir la calefacción. Observa el termómetro y evita gastar de más.', hintButton: 'Pista térmica', success: 'Mantuviste el interior a {temp}°C con la cúpula aislada y {flow}% de caudal geotérmico. Ganaste el', tool: 'Kit de cultivos' },
+  },
   minigames: {
     solarDetective: {
       back: 'Volver al Mapa de Arequipa',

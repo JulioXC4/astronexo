@@ -1,8 +1,9 @@
 import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
 import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
-import { ArrowLeft, Plant, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Warning, Thermometer } from '@phosphor-icons/react';
+import { ArrowLeft, Plant, CheckCircle, Sparkle, ArrowCounterClockwise, Warning, Thermometer } from '@phosphor-icons/react';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { MissionPulse } from './MissionPulse';
 import '../screens/earth.css';
 
 interface ArcticGreenhouseGameProps {
@@ -17,6 +18,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
   const [isDomeInsulated, setIsDomeInsulated] = useState<boolean>(false);
   const [ledLightingMode, setLedLightingMode] = useState<'LOW' | 'NORMAL' | 'BOOST'>('NORMAL');
   const [isSimulated, setIsSimulated] = useState<boolean>(false);
+  const [showFlowHint, setShowFlowHint] = useState(false);
 
   // Cálculos térmicos y biológicos
   // Exterior ártico: -15°C
@@ -32,14 +34,19 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
   const isSuccess = isSimulated && isTempOptimal && isDomeInsulated && isGeothermalSafe;
 
   function handleAutoTune() {
-    setGeothermalFlow(52);
-    setIsSimulated(false);
+    setShowFlowHint(true);
   }
 
   function handleReset() {
     setGeothermalFlow(30);
     setIsDomeInsulated(false);
     setLedLightingMode('NORMAL');
+    setIsSimulated(false);
+    setShowFlowHint(false);
+  }
+
+  function toggleDome() {
+    setIsDomeInsulated((value) => !value);
     setIsSimulated(false);
   }
 
@@ -52,21 +59,24 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
         </button>
         <div className="earth-screen__progress-pill">
           <Plant weight="fill" color="#a5d6a7" />
-          <span>{t('minigames.arcticGreenhouse.title')} · Tromsø</span>
+          <span>{t('minigames.arctic.title')} · Tromsø</span>
         </div>
         <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>
+        <MissionPulse objective={t('gameplayV2.arctic.objective')} signals={[
+          { label: t('gameplayV2.arctic.dome'), good: isDomeInsulated },
+          { label: t('gameplayV2.arctic.climate'), good: isTempOptimal },
+          { label: t('gameplayV2.arctic.heat'), good: isGeothermalSafe },
+        ]} hint={t('gameplayV2.arctic.hint')} attempted={isSimulated} solved={isSuccess} fact={t('gameplayFacts.arctic')} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem', marginBottom: '0.8rem' }}>
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <Plant color="#a5d6a7" weight="fill" />
               <span>Invernadero Ártico: Calor Geotérmico en Frío Extremo</span>
             </h1>
-            <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              En Tromsø la noche polar congela el suelo a -15°C. Administra el calor geotérmico y sella la cúpula aislante (18°C a 24°C) sin agotar el fluido.
-            </p>
+            <details className="training-context"><summary>{t('gameplayV2.moreContext')}</summary><p>{t('minigames.arctic.subtitle')}</p></details>
           </div>
         </div>
 
@@ -83,7 +93,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
           <svg
             viewBox="0 0 900 440"
             style={{ width: '100%', height: '100%', display: 'block', userSelect: 'none' }}
-            role="img"
+            role="group"
             aria-label="Cúpula de bio-refugio ártico con calefacción geotérmica"
           >
             <defs>
@@ -109,20 +119,27 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
             {/* CÚPULA DEL BIO-REFUGIO */}
             <path
               d="M 260 320 A 190 190 0 0 1 640 320 Z"
+              role="button"
+              tabIndex={0}
+              aria-label={t('gameplayV2.arctic.toggleDome')}
+              aria-pressed={isDomeInsulated}
+              onClick={toggleDome}
+              onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleDome(); } }}
+              className="training-scene-control"
               fill={isDomeInsulated ? "#1b3752" : "#12202e"}
               stroke={isDomeInsulated ? "#69f0ae" : "#4fc3f7"}
               strokeWidth={isDomeInsulated ? 4 : 2}
             />
-            <path d="M 260 320 A 190 190 0 0 1 640 320 Z" fill="url(#greenhouseWarmth)" />
+            <path d="M 260 320 A 190 190 0 0 1 640 320 Z" fill="url(#greenhouseWarmth)" pointerEvents="none" />
 
             {/* Estructura geodésica de la cúpula */}
-            <line x1="450" y1="130" x2="350" y2="320" stroke="#375577" strokeWidth="1.5" />
-            <line x1="450" y1="130" x2="450" y2="320" stroke="#375577" strokeWidth="1.5" />
-            <line x1="450" y1="130" x2="550" y2="320" stroke="#375577" strokeWidth="1.5" />
-            <line x1="310" y1="230" x2="590" y2="230" stroke="#375577" strokeWidth="1.5" />
+            <line x1="450" y1="130" x2="350" y2="320" stroke="#375577" strokeWidth="1.5" pointerEvents="none" />
+            <line x1="450" y1="130" x2="450" y2="320" stroke="#375577" strokeWidth="1.5" pointerEvents="none" />
+            <line x1="450" y1="130" x2="550" y2="320" stroke="#375577" strokeWidth="1.5" pointerEvents="none" />
+            <line x1="310" y1="230" x2="590" y2="230" stroke="#375577" strokeWidth="1.5" pointerEvents="none" />
 
             {/* Plantas interiores protegidas */}
-            <g transform="translate(450, 315)">
+            <g transform="translate(450, 315)" pointerEvents="none">
               <ellipse cx="0" cy="0" rx="140" ry="8" fill="#2e7d32" opacity="0.3" />
               {[-80, -40, 0, 40, 80].map((posX, i) => (
                 <g key={i} transform={`translate(${posX} -8)`} opacity={ledLightingMode === 'LOW' ? 0.5 : 1}>
@@ -191,10 +208,11 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
                 style={{ background: '#25446c', color: '#8ec5fc', padding: '0.15rem 0.5rem', fontSize: '0.75rem' }}
                 onClick={handleAutoTune}
               >
-                Auto-Calibrar (52%)
+                {t('gameplayV2.arctic.hintButton')}
               </button>
               <span>90% (Gasto térmico crítico)</span>
             </div>
+            {showFlowHint && <p role="status" className="training-inline-hint">{t('gameplayV2.arctic.flowHint')}</p>}
           </div>
 
           {/* Cúpula Aislante e Iluminación */}
@@ -209,10 +227,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
                   color: isDomeInsulated ? '#b9f6ca' : '#cfd8dc',
                   border: `1px solid ${isDomeInsulated ? '#69f0ae' : '#607d8b'}`
                 }}
-                onClick={() => {
-                  setIsDomeInsulated(!isDomeInsulated);
-                  setIsSimulated(false);
-                }}
+                onClick={toggleDome}
               >
                 {isDomeInsulated ? '✓ Cúpula CERRADA (Retiene calor)' : '○ Cúpula EXPUESTA'}
               </button>
@@ -330,7 +345,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
                 <CheckCircle weight="fill" size={22} /> ¡Bio-Refugio Ártico Estabilizado con Éxito!
               </strong>
               <p style={{ margin: '0.2rem 0 0 0', color: '#c8e6c9', fontSize: '0.88rem' }}>
-                Mantuviste el interior a {internalTempC}°C con la cúpula aislada y 52% de flujo geotérmico, salvando los cultivos durante la noche polar. Has asegurado el <strong>Kit de cultivos</strong> para la misión lunar.
+                {t('gameplayV2.arctic.success', { temp: internalTempC, flow: geothermalFlow })} <strong>{t('gameplayV2.arctic.tool')}</strong>.
               </p>
             </div>
             <button
@@ -345,10 +360,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
           </div>
         )}
 
-        <div style={{ marginTop: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9bc0e4', fontSize: '0.82rem' }}>
-          <Info size={16} color="#f6c15b" />
-          <span>Biología Polar y Espacial: En los cráteres lunares la temperatura exterior desciende a -130°C. Los invernaderos subterráneos con aislamiento multicapa y calor de bucle cerrado son indispensables para la producción de alimentos.</span>
-        </div>
+        <details className="training-science"><summary>{t('gameplayV2.scienceMore')}</summary><p>{t('gameplayScience.arctic')}</p></details>
       </main>
     </div>
   );

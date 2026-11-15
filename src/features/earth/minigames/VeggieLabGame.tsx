@@ -1,8 +1,9 @@
 import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
 import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
-import { ArrowLeft, PottedPlant, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Warning } from '@phosphor-icons/react';
+import { ArrowLeft, PottedPlant, CheckCircle, Sparkle, ArrowCounterClockwise, Warning } from '@phosphor-icons/react';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { MissionPulse } from './MissionPulse';
 import '../screens/earth.css';
 
 interface VeggieLabGameProps {
@@ -17,6 +18,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
   const [blueSpectrum, setBlueSpectrum] = useState<number>(50); // Óptimo: 25% a 35%
   const [nutrientDose, setNutrientDose] = useState<'LOW' | 'OPTIMAL' | 'HIGH'>('LOW');
   const [isSimulated, setIsSimulated] = useState<boolean>(false);
+  const [showLedHint, setShowLedHint] = useState(false);
 
   // Cálculos de salud botánica espacial
   const isRedOptimal = redSpectrum >= 65 && redSpectrum <= 75;
@@ -26,7 +28,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
   const photosynRate = Math.round(
     (isRedOptimal ? 50 : 25) +
     (isBlueOptimal ? 30 : 15) +
-    (isNutrientOptimal ? 20 : (nutrientDose === 'HIGH' ? 10 : 5))
+    (isNutrientOptimal ? 20 : (nutrientDose === 'HIGH' ? 0 : 5))
   );
 
   const waterCostLiters = nutrientDose === 'HIGH' ? 65 : (nutrientDose === 'OPTIMAL' ? 35 : 15);
@@ -35,9 +37,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
   const isSuccess = isSimulated && photosynRate >= 90 && isNutrientOptimal;
 
   function handleAutoTune() {
-    setRedSpectrum(70);
-    setBlueSpectrum(30);
-    setIsSimulated(false);
+    setShowLedHint(true);
   }
 
   function handleReset() {
@@ -45,6 +45,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
     setBlueSpectrum(50);
     setNutrientDose('LOW');
     setIsSimulated(false);
+    setShowLedHint(false);
   }
 
   return (
@@ -56,21 +57,24 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
         </button>
         <div className="earth-screen__progress-pill">
           <PottedPlant weight="fill" color="#81c784" />
-          <span>{t('minigames.veggieLab.title')}</span>
+          <span>{t('minigames.veggie.title')}</span>
         </div>
         <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>
+        <MissionPulse objective={t('gameplayV2.veggie.objective')} signals={[
+          { label: t('gameplayV2.veggie.light'), good: isRedOptimal && isBlueOptimal },
+          { label: t('gameplayV2.veggie.nutrients'), good: isNutrientOptimal },
+          { label: t('gameplayV2.veggie.water'), good: isWaterSafe },
+        ]} hint={t('gameplayV2.veggie.hint')} attempted={isSimulated} solved={isSuccess} fact={t('gameplayFacts.veggie')} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem', marginBottom: '0.8rem' }}>
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <PottedPlant color="#81c784" weight="fill" />
               <span>Laboratorio Veggie: Espectro LED y Nutrientes Espaciales</span>
             </h1>
-            <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              En el espacio no hay luz solar directa para plantas. Calibra los LEDs Rojos (660 nm) y Azules (430 nm) y raciona la solución nutritiva.
-            </p>
+            <details className="training-context"><summary>{t('gameplayV2.moreContext')}</summary><p>{t('minigames.veggie.subtitle')}</p></details>
           </div>
         </div>
 
@@ -128,9 +132,9 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
             {[-140, -70, 0, 70, 140].map((offsetX, idx) => (
               <g key={idx} transform={`translate(${450 + offsetX}, 320)`}>
                 {/* Tallo y hojas con tamaño según tasa fotosintética */}
-                <ellipse cx="0" cy={-15 - (photosynRate * 0.15)} rx={14 + (photosynRate * 0.15)} ry={18 + (photosynRate * 0.2)} fill={photosynRate >= 80 ? "#4caf50" : (photosynRate >= 50 ? "#8bc34a" : "#cddc39")} />
-                <ellipse cx="-12" cy={-10 - (photosynRate * 0.1)} rx={10 + (photosynRate * 0.1)} ry={14 + (photosynRate * 0.15)} fill={photosynRate >= 80 ? "#388e3c" : "#7cb342"} />
-                <ellipse cx="12" cy={-10 - (photosynRate * 0.1)} rx={10 + (photosynRate * 0.1)} ry={14 + (photosynRate * 0.15)} fill={photosynRate >= 80 ? "#2e7d32" : "#689f38"} />
+                <ellipse cx="0" cy={-15 - (photosynRate * 0.15)} rx={14 + (photosynRate * 0.15)} ry={18 + (photosynRate * 0.2)} fill={nutrientDose === 'HIGH' ? '#b39460' : nutrientDose === 'LOW' ? '#b0bd65' : photosynRate >= 80 ? '#4caf50' : '#8bc34a'} />
+                <ellipse cx="-12" cy={-10 - (photosynRate * 0.1)} rx={10 + (photosynRate * 0.1)} ry={14 + (photosynRate * 0.15)} fill={nutrientDose === 'HIGH' ? '#9b7954' : nutrientDose === 'LOW' ? '#9ead61' : photosynRate >= 80 ? '#388e3c' : '#7cb342'} />
+                <ellipse cx="12" cy={-10 - (photosynRate * 0.1)} rx={10 + (photosynRate * 0.1)} ry={14 + (photosynRate * 0.15)} fill={nutrientDose === 'HIGH' ? '#9b7954' : nutrientDose === 'LOW' ? '#9ead61' : photosynRate >= 80 ? '#2e7d32' : '#689f38'} />
               </g>
             ))}
 
@@ -171,31 +175,26 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
                 <span>Luz Roja (660 nm - Biomasa):</span>
                 <span>{redSpectrum}%</span>
               </div>
-              <input
-                type="range"
-                min="30"
-                max="90"
-                value={redSpectrum}
-                onChange={(e) => {
-                  const val = Number(e.target.value);
-                  setRedSpectrum(val);
-                  setBlueSpectrum(100 - val);
-                  setIsSimulated(false);
-                }}
-                style={{ width: '100%', accentColor: '#ef5350', cursor: 'pointer' }}
-              />
+              <div className="light-mixer" role="group" aria-label={t('gameplayV2.veggie.light')}>
+                <button type="button" disabled={redSpectrum <= 30} aria-label={t('gameplayV2.veggie.moreBlue')} onClick={() => { setRedSpectrum(redSpectrum - 5); setBlueSpectrum(blueSpectrum + 5); setIsSimulated(false); }}>−</button>
+                <div className="light-mixer__track" role="img" aria-label={`${redSpectrum}% / ${blueSpectrum}%`}>
+                  <span style={{ width: `${redSpectrum}%` }} /><span style={{ width: `${blueSpectrum}%` }} />
+                </div>
+                <button type="button" disabled={redSpectrum >= 90} aria-label={t('gameplayV2.veggie.moreRed')} onClick={() => { setRedSpectrum(redSpectrum + 5); setBlueSpectrum(blueSpectrum - 5); setIsSimulated(false); }}>+</button>
+              </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9' }}>
-              <span>Objetivo del simulador: 70% Rojo / 30% Azul</span>
+              <span>{t('gameplayV2.veggie.hint')}</span>
               <button
                 type="button"
                 className="callsign-chip"
                 style={{ background: '#25446c', color: '#8ec5fc', padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}
                 onClick={handleAutoTune}
               >
-                Auto-Calibrar
+                {t('gameplayV2.veggie.hintButton')}
               </button>
             </div>
+            {showLedHint && <p role="status" className="training-inline-hint">{t('gameplayV2.veggie.lightHint')}</p>}
           </div>
 
           {/* Dosificación Nutritiva con Costo de Agua */}
@@ -336,7 +335,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
                 <CheckCircle weight="fill" size={22} /> ¡Cultivos Veggie Certificados con Éxito!
               </strong>
               <p style={{ margin: '0.2rem 0 0 0', color: '#c8e6c9', fontSize: '0.88rem' }}>
-                Con 70% Rojo y 30% Azul lograste {photosynRate}% de tasa fotosintética y un gasto controlado de {waterCostLiters} L de agua. Has asegurado el <strong>Kit de cultivos</strong> para la misión espacial.
+                {t('gameplayV2.veggie.success', { red: redSpectrum, blue: blueSpectrum, growth: photosynRate, water: waterCostLiters })} <strong>{t('gameplayV2.veggie.tool')}</strong>.
               </p>
             </div>
             <button
@@ -351,10 +350,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
           </div>
         )}
 
-        <div style={{ marginTop: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9bc0e4', fontSize: '0.82rem' }}>
-          <Info size={16} color="#f6c15b" />
-          <span>NASA Veggie & Advanced Plant Habitat: Los astronautas en la ISS cosechan lechugas rojas y flores zinnias utilizando luces LED ajustadas a las bandas de absorción fotosintética de las plantas.</span>
-        </div>
+        <details className="training-science"><summary>{t('gameplayV2.scienceMore')}</summary><p>{t('gameplayScience.veggie')}</p></details>
       </main>
     </div>
   );

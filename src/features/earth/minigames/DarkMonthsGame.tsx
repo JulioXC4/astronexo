@@ -1,9 +1,12 @@
 import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
 import type { TrainingOutcome } from '../../../game';
-import { useState } from 'react';
-import { ArrowLeft, Snowflake, BatteryCharging, CheckCircle, Sparkle, ArrowCounterClockwise, Info } from '@phosphor-icons/react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Snowflake, BatteryCharging, CheckCircle, Sparkle, ArrowCounterClockwise } from '@phosphor-icons/react';
 import { TROMSO_SOLAR_RECORDS } from '../../../data/nasa/powerData';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { MissionPulse } from './MissionPulse';
+import { evaluatePolarAllocation } from './challengeRules';
+import { EnergyDial } from './EnergyDial';
 import '../screens/earth.css';
 
 interface DarkMonthsGameProps {
@@ -18,23 +21,33 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
   const [bioLighting, setBioLighting] = useState<number>(35);
   const [telemetry, setTelemetry] = useState<number>(25);
   const [isTested, setIsTested] = useState<boolean>(false);
+  const [nightPhase, setNightPhase] = useState(0);
 
   // Datos reales de Tromsø en diciembre (Noche polar)
   const polarNightRecord = TROMSO_SOLAR_RECORDS.days[2];
 
   function handleSimulatePolarNight() {
-    setIsTested(true);
+    setIsTested(false);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setNightPhase(3);
+      setIsTested(true);
+    } else setNightPhase(1);
   }
+
+  useEffect(() => {
+    if (nightPhase === 0 || nightPhase === 3) return;
+    const timer = window.setTimeout(() => {
+      if (nightPhase === 2) { setNightPhase(3); setIsTested(true); }
+      else setNightPhase(2);
+    }, 450);
+    return () => window.clearTimeout(timer);
+  }, [nightPhase]);
 
   // Criterios de éxito:
   // Calefacción mínima requerida: >= 50% (evita congelamiento del hábitat)
   // Iluminación biológica mínima: >= 20% (evita muerte de plantas)
   // Telemetría mínima: >= 10% (mantiene comunicaciones con la Tierra)
-  const isHeatingSafe = thermalHeat >= 50;
-  const isBioSafe = bioLighting >= 20;
-  const isTelemetrySafe = telemetry >= 10;
-  const allocatedPower = thermalHeat + bioLighting + telemetry;
-  const isSuccess = allocatedPower === 100 && isHeatingSafe && isBioSafe && isTelemetrySafe;
+  const { allocated: allocatedPower, heatingSafe: isHeatingSafe, cropsSafe: isBioSafe, radioSafe: isTelemetrySafe, success: isSuccess } = evaluatePolarAllocation(thermalHeat, bioLighting, telemetry);
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
@@ -51,15 +64,19 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>
+        <MissionPulse objective={t('gameplayV2.dark.objective')} signals={[
+          { label: t('gameplayV2.dark.budget'), good: allocatedPower === 100 },
+          { label: t('gameplayV2.dark.heat'), good: isHeatingSafe },
+          { label: t('gameplayV2.dark.crops'), good: isBioSafe },
+          { label: t('gameplayV2.dark.radio'), good: isTelemetrySafe },
+        ]} hint={t('gameplayV2.dark.hint')} attempted={isTested} solved={isTested && isSuccess} fact={t('gameplayFacts.dark')} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem', marginBottom: '0.8rem' }}>
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <Snowflake color="#80d8ff" weight="fill" />
               <span>Reserva Polar: Distribución en Noche Continua</span>
             </h1>
-            <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              En Tromsø (como en la noche lunar de 14 días), el Sol no sale durante semanas. ¡Raciona la energía del banco de baterías!
-            </p>
+            <details className="training-context"><summary>{t('gameplayV2.moreContext')}</summary><p>{t('gameplayV2.dark.intro')}</p></details>
           </div>
 
           <div style={{
@@ -210,79 +227,32 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
           gridTemplateColumns: 'repeat(auto-fit, minmax(13rem, 1fr))',
           gap: '1rem'
         }}>
-          <div>
-            <label htmlFor="polar-heat" style={{ display: 'block', color: '#ffab91', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.2rem' }}>
-              Calefacción Térmica: {thermalHeat}% (Mínimo 50%)
-            </label>
-            <input
-              id="polar-heat"
-              type="range"
-              min="30"
-              max="70"
-              value={thermalHeat}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                setThermalHeat(val);
-                setIsTested(false);
-              }}
-              style={{ width: '100%', accentColor: '#ff7043' }}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="polar-crops" style={{ display: 'block', color: '#b9f6ca', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.2rem' }}>
-              Iluminación de Cultivos: {bioLighting}% (Mínimo 20%)
-            </label>
-            <input
-              id="polar-crops"
-              type="range"
-              min="10"
-              max="40"
-              value={bioLighting}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                setBioLighting(val);
-                setIsTested(false);
-              }}
-              style={{ width: '100%', accentColor: '#69f0ae' }}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="polar-radio" style={{ display: 'block', color: '#b3e5fc', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.2rem' }}>
-              Radio & Telemetría: {telemetry}% (Mínimo 10%)
-            </label>
-            <input
-              id="polar-radio"
-              type="range"
-              min="5"
-              max="30"
-              value={telemetry}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                setTelemetry(val);
-                setIsTested(false);
-              }}
-              style={{ width: '100%', accentColor: '#4fc3f7' }}
-            />
-          </div>
+          <EnergyDial label={t('gameplayV2.dark.heat')} value={thermalHeat} min={30} max={70} color="#ff7043" onChange={(value) => { setThermalHeat(value); setIsTested(false); setNightPhase(0); }} />
+          <EnergyDial label={t('gameplayV2.dark.crops')} value={bioLighting} min={10} max={40} color="#69f0ae" onChange={(value) => { setBioLighting(value); setIsTested(false); setNightPhase(0); }} />
+          <EnergyDial label={t('gameplayV2.dark.radio')} value={telemetry} min={5} max={30} color="#4fc3f7" onChange={(value) => { setTelemetry(value); setIsTested(false); setNightPhase(0); }} />
         </div>
 
         {/* ACCIONES Y SIMULACIÓN */}
         <p role="status" style={{ color: allocatedPower === 100 ? '#69f0ae' : '#ffb74d', fontWeight: 700 }}>
           {t('minigames.darkMonths.allocation', { used: allocatedPower })}
         </p>
+        <div className="polar-timeline" role="status" aria-live="polite">
+          {[1, 2, 3].map((phase) => <div key={phase} className={nightPhase >= phase ? 'polar-timeline__active' : ''}>
+            <span>{phase}</span> {t(`gameplayV2.dark.phase${phase}`)}
+          </div>)}
+        </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem', marginTop: '0.8rem' }}>
           <button
             type="button"
             className="facility-card__btn facility-card__btn--gold"
             onClick={handleSimulatePolarNight}
+            disabled={nightPhase > 0 && nightPhase < 3}
           >
             <BatteryCharging weight="fill" size={20} />
-            <span>Simular Noche Continua (14 Días)</span>
+            <span>{t('gameplayV2.dark.start')}</span>
           </button>
 
-          <button type="button" className="earth-screen__back-btn" onClick={() => { setThermalHeat(40); setBioLighting(35); setTelemetry(25); setIsTested(false); }}>
+          <button type="button" className="earth-screen__back-btn" onClick={() => { setThermalHeat(40); setBioLighting(35); setTelemetry(25); setIsTested(false); setNightPhase(0); }}>
             <ArrowCounterClockwise weight="bold" /> {t('minigames.darkMonths.reset')}
           </button>
         </div>
@@ -327,11 +297,7 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
           </div>
         )}
 
-        {/* NOTA CIENTÍFICA AL PIE */}
-        <div style={{ marginTop: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9bc0e4', fontSize: '0.82rem' }}>
-          <Info size={16} color="#80d8ff" />
-          <span>Fuente: Registros históricos de NASA POWER para Tromsø (Latitud 69.6° N). La noche polar simula la duración de la noche lunar.</span>
-        </div>
+        <details className="training-science"><summary>{t('gameplayV2.scienceMore')}</summary><p>{t('gameplayScience.dark')}</p></details>
       </main>
     </div>
   );

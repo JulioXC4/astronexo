@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, ShieldCheck, Siren, LockKey, Broadcast, Sparkle, CheckCircle, ArrowCounterClockwise } from '@phosphor-icons/react';
 import { DONKI_HISTORICAL_EVENTS, type DonkiEventRecord } from '../../../data/nasa/donkiData';
 import { StormShelterVisual } from '../../../visual-kit/TrainingVisuals';
+import { MissionPulse } from './MissionPulse';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import '../screens/earth.css';
 
@@ -20,13 +21,14 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
   const [isHatchSealed, setIsHatchSealed] = useState<boolean>(false);
   const [isSensorsProtected, setIsSensorsProtected] = useState<boolean>(false);
   const [isStormImpacted, setIsStormImpacted] = useState<boolean>(false);
+  const [protocolMessage, setProtocolMessage] = useState<string>('');
 
   const event: DonkiEventRecord = DONKI_HISTORICAL_EVENTS[eventIndex] ?? DONKI_HISTORICAL_EVENTS[0];
 
   // Secuencia de evacuación cuando suena la alarma
   useEffect(() => {
     if (isAlarmActive && !isCrewEvacuated) {
-      const timer = setTimeout(() => setIsCrewEvacuated(true), 600);
+      const timer = setTimeout(() => { setIsCrewEvacuated(true); setProtocolMessage(''); }, 600);
       return () => clearTimeout(timer);
     }
   }, [isAlarmActive, isCrewEvacuated]);
@@ -37,6 +39,7 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
     setIsHatchSealed(false);
     setIsSensorsProtected(false);
     setIsStormImpacted(false);
+    setProtocolMessage('');
   }
 
   function handleTestStorm() {
@@ -61,6 +64,11 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>
+        <MissionPulse objective={t('gameplayV2.watch.objective')} signals={[
+          { label: t('gameplayV2.watch.crew'), good: isCrewEvacuated },
+          { label: t('gameplayV2.watch.hatch'), good: isHatchSealed },
+          { label: t('gameplayV2.watch.sensors'), good: isSensorsProtected },
+        ]} hint={t('gameplayV2.watch.hint')} attempted={isAlarmActive} solved={isMissionSuccess} fact={t('gameplayFacts.watch', { date: event.observedAt.slice(0, 10) })} />
         {/* Cabecera con selector de evento histórico verificado */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem', marginBottom: '0.8rem' }}>
           <div>
@@ -68,9 +76,7 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
               <Siren color="#ef5350" weight="fill" />
               <span>Vigilante del Sol: Protocolo de Tormenta CME</span>
             </h1>
-            <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              El satélite detectó una eyección de masa coronal. ¡Protege a la tripulación en el refugio blindado!
-            </p>
+            <details className="training-context"><summary>{t('gameplayV2.moreContext')}</summary><p>{t('minigames.solarWatch.subtitle')}</p></details>
           </div>
 
           <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
@@ -138,7 +144,6 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
           <button
             type="button"
             className="facility-card__btn"
-            disabled={!isCrewEvacuated}
             style={{
               background: isHatchSealed ? '#1b5e20' : '#f57c00',
               color: '#ffffff',
@@ -149,7 +154,10 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
               gap: '0.5rem',
               fontSize: '0.95rem'
             }}
-            onClick={() => setIsHatchSealed(true)}
+            onClick={() => {
+              if (isCrewEvacuated) { setIsHatchSealed(true); setProtocolMessage(''); }
+              else setProtocolMessage(t('gameplayV2.watch.hatchTooEarly'));
+            }}
           >
             <LockKey weight="fill" size={20} />
             <span>{isHatchSealed ? '✓ Compuerta Sellada' : '2. Cerrar Compuerta Blindada'}</span>
@@ -159,7 +167,6 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
           <button
             type="button"
             className="facility-card__btn"
-            disabled={!isHatchSealed}
             style={{
               background: isSensorsProtected ? '#1b5e20' : '#1976d2',
               color: '#ffffff',
@@ -170,12 +177,20 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
               gap: '0.5rem',
               fontSize: '0.95rem'
             }}
-            onClick={() => setIsSensorsProtected(true)}
+            onClick={() => {
+              setIsSensorsProtected(true);
+              setProtocolMessage(!isCrewEvacuated ? t('gameplayV2.watch.sensorsFirst') : '');
+            }}
           >
             <Broadcast weight="fill" size={20} />
             <span>{isSensorsProtected ? '✓ Sensores en Modo Seguro' : '3. Blindar Telemetría'}</span>
           </button>
         </div>
+
+        <div className="storm-approach" aria-label={t('gameplayV2.watch.stage', { count: Number(isCrewEvacuated) + Number(isHatchSealed) + Number(isSensorsProtected) })}>
+          <span style={{ width: `${(Number(isCrewEvacuated) + Number(isHatchSealed) + Number(isSensorsProtected)) / 3 * 100}%` }} />
+        </div>
+        <p role="status" className="training-inline-hint">{protocolMessage || t('gameplayV2.watch.stage', { count: Number(isCrewEvacuated) + Number(isHatchSealed) + Number(isSensorsProtected) })}</p>
 
         {/* BOTÓN DE DISPARO DEL EVENTO DE LA TORMENTA */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem', marginTop: '0.8rem' }}>
@@ -240,15 +255,7 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
           </div>
         )}
 
-        <div style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', color: '#9bc0e4', fontSize: '0.80rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <ShieldCheck size={16} color="#f6c15b" />
-            <span><strong>Dato NASA DONKI verificado:</strong> {event.summary} (Registro: {event.eventId}, CCMC GSFC NASA).</span>
-          </div>
-          <div style={{ color: '#ce93d8', paddingLeft: '1.4rem' }}>
-            <span><strong>Reglas de simulación educativa:</strong> Las acciones de evacuación, blindaje con polietileno/agua y aislamiento de sensores son protocolos de ingeniería simulados; los niveles de severidad son cualitativos sin inventar dosis radiológicas.</span>
-          </div>
-        </div>
+        <details className="training-science"><summary>{t('gameplayV2.scienceMore')}</summary><p>{t('gameplayScience.watch')} {event.eventId}</p></details>
       </main>
     </div>
   );

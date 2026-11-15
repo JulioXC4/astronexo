@@ -1,8 +1,9 @@
 import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
 import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
-import { ArrowLeft, Drop, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Lightning, Warning } from '@phosphor-icons/react';
+import { ArrowLeft, Drop, CheckCircle, Sparkle, ArrowCounterClockwise, Lightning, Warning } from '@phosphor-icons/react';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { MissionPulse } from './MissionPulse';
 import '../screens/earth.css';
 
 interface EclssTrainingGameProps {
@@ -37,6 +38,11 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
     setIsSimulated(false);
   }
 
+  function toggleScrubber() {
+    setIsCo2ScrubberOn((value) => !value);
+    setIsSimulated(false);
+  }
+
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
       <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -46,21 +52,25 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
         </button>
         <div className="earth-screen__progress-pill">
           <Drop weight="fill" color="#4cc3d9" />
-          <span>{t('minigames.eclssTraining.title')}</span>
+          <span>{t('minigames.eclss.title')}</span>
         </div>
         <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>
+        <MissionPulse objective={t('gameplayV2.eclss.objective')} signals={[
+          { label: t('gameplayV2.eclss.water'), good: isWaterOptimal },
+          { label: t('gameplayV2.eclss.oxygen'), good: isOxygenOptimal },
+          { label: t('gameplayV2.eclss.filter'), good: isCo2Safe },
+          { label: t('gameplayV2.eclss.power'), good: isPowerSafe },
+        ]} hint={t('gameplayV2.eclss.hint')} attempted={isSimulated} solved={isSuccess} fact={t('gameplayFacts.eclss')} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem', marginBottom: '0.8rem' }}>
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <Drop color="#4cc3d9" weight="fill" />
               <span>Soporte Vital Regenerativo (NASA ECLSS)</span>
             </h1>
-            <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              En una base espacial nada se desperdicia. Equilibra la electrólisis de agua (O₂) y el filtrado de CO₂ sin fundir la red eléctrica (máx 450 W).
-            </p>
+            <details className="training-context"><summary>{t('gameplayV2.moreContext')}</summary><p>{t('minigames.eclss.subtitle')}</p></details>
           </div>
         </div>
 
@@ -77,7 +87,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
           <svg
             viewBox="0 0 900 440"
             style={{ width: '100%', height: '100%', display: 'block', userSelect: 'none' }}
-            role="img"
+            role="group"
             aria-label="Circuito cerrado de reciclaje de agua y generación de oxígeno ECLSS"
           >
             <defs>
@@ -122,7 +132,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
             </g>
 
             {/* MÓDULO 3: Filtro Scrubber de CO2 (Derecha) */}
-            <g transform="translate(650, 180)">
+            <g transform="translate(650, 180)" role="button" tabIndex={0} aria-label={t('minigames.eclss.scrubberLabel')} aria-pressed={isCo2ScrubberOn} onClick={toggleScrubber} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleScrubber(); } }} className="training-scene-control">
               <rect x="-65" y="-60" width="130" height="120" rx="12" fill={isCo2ScrubberOn ? "#1a4030" : "#372424"} stroke={isCo2ScrubberOn ? "#69f0ae" : "#ef5350"} strokeWidth={3} />
               <text x="0" y="-30" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffffff">Filtro CO₂ CDRA</text>
               <text x="0" y="0" textAnchor="middle" fontSize="28">{isCo2ScrubberOn ? "🌬️" : "⛔"}</text>
@@ -200,10 +210,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
                   color: isCo2ScrubberOn ? '#b9f6ca' : '#ffcdd2',
                   border: `1px solid ${isCo2ScrubberOn ? '#69f0ae' : '#ef5350'}`
                 }}
-                onClick={() => {
-                  setIsCo2ScrubberOn(!isCo2ScrubberOn);
-                  setIsSimulated(false);
-                }}
+                onClick={toggleScrubber}
               >
                 {isCo2ScrubberOn ? '✓ Scrubber ACTIVO (+45 W)' : '⛔ Scrubber APAGADO'}
               </button>
@@ -245,6 +252,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
             <span style={{ fontSize: '0.8rem', color: '#9fa8da', marginLeft: '0.4rem' }}>
               (Consumo equilibrado de soporte vital)
             </span>
+            <progress max="450" value={Math.min(450, totalPowerConsumption)} aria-label={t('gameplayV2.eclss.power')} style={{ display: 'block', width: '100%', marginTop: '0.35rem', accentColor: isPowerSafe ? '#69f0ae' : '#ef5350' }} />
           </div>
 
           <div style={{ display: 'flex', gap: '0.8rem' }}>
@@ -328,10 +336,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
           </div>
         )}
 
-        <div style={{ marginTop: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9bc0e4', fontSize: '0.82rem' }}>
-          <Info size={16} color="#f6c15b" />
-          <span>NASA ECLSS inspira este circuito de reciclaje de agua, producción de oxígeno y filtrado de CO₂. Los porcentajes, vatios y límites que ajustas aquí son parámetros del simulador educativo.</span>
-        </div>
+        <details className="training-science"><summary>{t('gameplayV2.scienceMore')}</summary><p>{t('gameplayScience.eclss')}</p></details>
       </main>
     </div>
   );

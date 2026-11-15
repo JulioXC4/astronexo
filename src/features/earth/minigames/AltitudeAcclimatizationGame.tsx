@@ -1,8 +1,9 @@
 import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
 import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
-import { ArrowLeft, Wind, CheckCircle, Sparkle, ArrowCounterClockwise, Info, ShieldCheck, Warning } from '@phosphor-icons/react';
+import { ArrowLeft, Wind, CheckCircle, Sparkle, ArrowCounterClockwise, ShieldCheck, Warning } from '@phosphor-icons/react';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { MissionPulse } from './MissionPulse';
 import '../screens/earth.css';
 
 interface AltitudeAcclimatizationGameProps {
@@ -42,6 +43,17 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
     setIsTested(false);
   }
 
+  function toggleSeal(which: 'main' | 'hatch' | 'nitrogen') {
+    if (which === 'main') setSealMain((value) => !value);
+    else if (which === 'hatch') setSealHatch((value) => !value);
+    else setSealNitrogen((value) => !value);
+    setIsTested(false);
+  }
+
+  function onSealKey(event: React.KeyboardEvent<SVGGElement>, which: 'main' | 'hatch' | 'nitrogen') {
+    if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleSeal(which); }
+  }
+
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
       <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -57,15 +69,18 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>
+        <MissionPulse objective={t('gameplayV2.altitude.objective')} signals={[
+          { label: t('gameplayV2.altitude.seals'), good: allSealsSecured },
+          { label: t('gameplayV2.altitude.pressure'), good: isPressureOptimal },
+          { label: t('gameplayV2.altitude.gas'), good: isGasSafe },
+        ]} hint={t('gameplayV2.altitude.hint')} attempted={isTested} solved={isMissionPassed} fact={t('gameplayFacts.altitude')} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem', marginBottom: '0.8rem' }}>
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <Wind color="#80d8ff" weight="fill" />
               <span>Aclimatación de Altura: Presurización y Sellos Herméticos</span>
             </h1>
-            <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              En Arequipa la atmósfera es delgada. Calibra la presión de cabina (70-82 kPa) y asegura los 3 sellos herméticos sin agotar los tanques de gas.
-            </p>
+            <details className="training-context"><summary>{t('gameplayV2.moreContext')}</summary><p>{t('minigames.altitude.subtitle')}</p></details>
           </div>
         </div>
 
@@ -82,7 +97,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
           <svg
             viewBox="0 0 900 440"
             style={{ width: '100%', height: '100%', display: 'block', userSelect: 'none' }}
-            role="img"
+            role="group"
             aria-label="Cámara hipobárica de presurización y sellado hermético"
           >
             <defs>
@@ -110,7 +125,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
             </text>
 
             {/* SELLO 1: Válvula Principal (Izquierda) */}
-            <g transform="translate(130, 140)">
+            <g transform="translate(130, 140)" role="button" tabIndex={0} aria-label={t('minigames.altitude.sealMain')} aria-pressed={sealMain} onClick={() => toggleSeal('main')} onKeyDown={(event) => onSealKey(event, 'main')} className="training-scene-control">
               <rect x="-60" y="-35" width="120" height="70" rx="10" fill={sealMain ? "#183b2e" : "#243447"} stroke={sealMain ? "#69f0ae" : "#ffb74d"} strokeWidth="2" />
               <text x="0" y="-12" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffffff">Sello Principal</text>
               <text x="0" y="8" textAnchor="middle" fontSize="18">{sealMain ? "🔒" : "🔓"}</text>
@@ -120,7 +135,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
             </g>
 
             {/* SELLO 2: Escotilla Exterior (Superior) */}
-            <g transform="translate(450, 25)">
+            <g transform="translate(450, 25)" role="button" tabIndex={0} aria-label={t('minigames.altitude.sealHatch')} aria-pressed={sealHatch} onClick={() => toggleSeal('hatch')} onKeyDown={(event) => onSealKey(event, 'hatch')} className="training-scene-control">
               <rect x="-65" y="-15" width="130" height="30" rx="6" fill={sealHatch ? "#183b2e" : "#243447"} stroke={sealHatch ? "#69f0ae" : "#ffb74d"} strokeWidth="2" />
               <text x="0" y="5" textAnchor="middle" fontSize="10" fontWeight="bold" fill={sealHatch ? "#69f0ae" : "#ffffff"}>
                 {sealHatch ? "✓ ESCOTILLA SELLADA" : "⚠ ESCOTILLA EXPUESTA"}
@@ -128,7 +143,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
             </g>
 
             {/* SELLO 3: Retorno de Nitrógeno (Derecha) */}
-            <g transform="translate(770, 140)">
+            <g transform="translate(770, 140)" role="button" tabIndex={0} aria-label={t('minigames.altitude.sealNitrogen')} aria-pressed={sealNitrogen} onClick={() => toggleSeal('nitrogen')} onKeyDown={(event) => onSealKey(event, 'nitrogen')} className="training-scene-control">
               <rect x="-60" y="-35" width="120" height="70" rx="10" fill={sealNitrogen ? "#183b2e" : "#243447"} stroke={sealNitrogen ? "#69f0ae" : "#ffb74d"} strokeWidth="2" />
               <text x="0" y="-12" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#ffffff">Retorno N₂</text>
               <text x="0" y="8" textAnchor="middle" fontSize="18">{sealNitrogen ? "🔒" : "🔓"}</text>
@@ -136,6 +151,10 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
                 {sealNitrogen ? "HERMÉTICO" : "ABIERTO"}
               </text>
             </g>
+
+            {!sealMain && <path className="training-air-leak" d="M215 140l-30-18m28 26l-35 3" stroke="#8adfff" strokeWidth="4" strokeLinecap="round" />}
+            {!sealHatch && <path className="training-air-leak" d="M450 43l-14-24m24 25l12-24" stroke="#8adfff" strokeWidth="4" strokeLinecap="round" />}
+            {!sealNitrogen && <path className="training-air-leak" d="M687 140l30-18m-28 26l35 3" stroke="#8adfff" strokeWidth="4" strokeLinecap="round" />}
 
             {/* PANEL DE MONITOREO INFERIOR */}
             <g transform="translate(450, 340)">
@@ -263,6 +282,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
             <span style={{ fontSize: '0.8rem', color: '#9fa8da', marginLeft: '0.4rem' }}>
               (Límite de seguridad: ≤ 65%)
             </span>
+            <progress max="100" value={Math.min(100, gasCostPercent)} aria-label={t('gameplayV2.altitude.gas')} style={{ display: 'block', width: '100%', marginTop: '0.3rem', accentColor: isGasSafe ? '#69f0ae' : '#ef5350' }} />
           </div>
 
           <div style={{ display: 'flex', gap: '0.8rem' }}>
@@ -347,10 +367,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
           </div>
         )}
 
-        <div style={{ marginTop: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9bc0e4', fontSize: '0.82rem' }}>
-          <Info size={16} color="#f6c15b" />
-          <span>Medicina Aeroespacial de Altura: En la Luna la presión exterior es 0 kPa. Entrenar en Arequipa (~77 kPa) simula el gradiente barométrico y enseña a evitar fugas sin malgastar reservas de gas.</span>
-        </div>
+        <details className="training-science"><summary>{t('gameplayV2.scienceMore')}</summary><p>{t('gameplayScience.altitude')}</p></details>
       </main>
     </div>
   );

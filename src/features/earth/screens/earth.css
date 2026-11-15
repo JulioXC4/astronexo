@@ -911,3 +911,84 @@
 @media (prefers-reduced-motion: reduce) {
   .training-flow--active { animation: none; }
 }
+
+.mission-pulse {
+  margin: 0.8rem 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid #3b638b;
+  border-radius: 0.8rem;
+  background: #10243a;
+  color: #f3f8ff;
+}
+
+.mission-pulse__objective { margin: 0 0 0.65rem; font-weight: 800; font-size: 1rem; }
+.mission-pulse__signals { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.mission-pulse__signal {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  min-height: 2.25rem; padding: 0.25rem 0.65rem;
+  border-radius: 0.5rem; background: #243648; color: #fff3de;
+  font-size: 0.82rem;
+}
+.mission-pulse__signal--good { background: #194338; color: #e0ffed; }
+.mission-pulse__signal strong { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.mission-pulse__light { width: 0.55rem; height: 0.55rem; flex: none; border-radius: 50%; background: #ffb455; }
+.mission-pulse__signal--good .mission-pulse__light { background: #70e8a7; }
+.mission-pulse__help { margin-top: 0.65rem; }
+.mission-pulse__help button { border: 0; background: transparent; color: #bce3ff; font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.mission-pulse__help p { margin: 0.35rem 0 0; color: #fff1c8; }
+.mission-pulse__help button:focus-visible { outline: 2px solid #f6c15b; outline-offset: 3px; }
+.mission-pulse__fact { margin: 0.65rem 0 0; color: #c6e6ff; font-size: 0.84rem; }
+
+.solar-cycle { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 0.8rem; padding: 0.7rem 1rem; border-radius: 0.8rem; background: #29415f; color: #fff; transition: background 250ms ease; }
+.solar-cycle--night { background: #101c3d; }
+.solar-cycle__sky { display: grid; place-items: center; width: 3.2rem; height: 3.2rem; border-radius: 50%; background: #f8c35c; color: #492d0e; transition: background 250ms ease; }
+.solar-cycle--night .solar-cycle__sky { background: #cbdcf5; color: #1c3150; }
+.solar-cycle__meter { flex: 1 1 13rem; display: grid; gap: 0.2rem; }
+.solar-cycle__meter progress { width: 100%; height: 0.65rem; accent-color: #f8c35c; }
+.solar-cycle__meter p { margin: 0; font-size: 0.82rem; }
+.solar-cycle button { min-height: 2.5rem; padding: 0.4rem 0.8rem; border: 1px solid #a9d4ff; border-radius: 0.5rem; background: #16385c; color: #fff; cursor: pointer; }
+.solar-cycle button:disabled { opacity: 0.55; cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { .solar-cycle, .solar-cycle__sky { transition: none; } }
+
+@keyframes training-air-leak { to { stroke-dashoffset: -18; opacity: 0.5; } }
+.training-air-leak { stroke-dasharray: 7 5; animation: training-air-leak 0.7s linear infinite; }
+.training-inline-hint { margin: 0.45rem 0 0; color: #fbe2a0; font-size: 0.82rem; }
+@media (prefers-reduced-motion: reduce) { .training-air-leak { animation: none; } }
+
+.storm-approach { overflow: hidden; height: 0.5rem; border-radius: 0.4rem; background: #4c273c; margin-top: 0.8rem; }
+.storm-approach span { display: block; height: 100%; background: #76dfad; }
+@media (prefers-reduced-motion: reduce) { .storm-approach span { transition: none; } }
+
+.polar-timeline { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+.polar-timeline > div { min-height: 3rem; padding: 0.5rem; border-radius: 0.5rem; background: #25394d; color: #d7e0e9; font-size: 0.82rem; }
+.polar-timeline__active { background: #215c5b !important; color: #fff !important; }
+.polar-timeline span { display: inline-grid; place-items: center; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: #56758b; font-weight: 800; }
+.polar-timeline__active span { background: #81d9ba; color: #0b2930; }
+@media (max-width: 650px) { .polar-timeline { grid-template-columns: 1fr; } }
+
+.energy-dial { display: grid; gap: 0.5rem; color: #fff; }
+.energy-dial__heading { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.9rem; }
+.energy-dial__heading span { font-weight: 800; font-variant-numeric: tabular-nums; }
+.energy-dial progress { width: 100%; height: 0.8rem; }
+.energy-dial__controls { display: flex; gap: 0.5rem; }
+.energy-dial__controls button { flex: 1; min-height: 2.75rem; border: 1px solid #77a2c7; border-radius: 0.5rem; background: #234766; color: #fff; font: inherit; font-size: 1.2rem; font-weight: 800; cursor: pointer; }
+.energy-dial__controls button:disabled { opacity: 0.45; cursor: not-allowed; }
+.energy-dial__controls button:focus-visible { outline: 2px solid #f6c15b; outline-offset: 2px; }
+
+.light-mixer { display: flex; align-items: center; gap: 0.5rem; }
+.light-mixer button { width: 2.75rem; height: 2.75rem; flex: none; border: 1px solid #7b9dbf; border-radius: 0.5rem; background: #233f61; color: #fff; font: inherit; font-weight: 800; font-size: 1.2rem; cursor: pointer; }
+.light-mixer button:disabled { opacity: 0.45; cursor: not-allowed; }
+.light-mixer button:focus-visible { outline: 2px solid #f6c15b; outline-offset: 2px; }
+.light-mixer__track { flex: 1; display: flex; overflow: hidden; height: 1.2rem; border-radius: 0.5rem; }
+.light-mixer__track span:first-child { background: #e76565; }
+.light-mixer__track span:last-child { background: #65b2ef; }
+.training-scene-control { cursor: pointer; }
+.training-scene-control:focus-visible { outline: 3px solid #f6c15b; outline-offset: 3px; }
+.training-context { margin-top: 0.15rem; color: #b8dcff; font-size: 0.84rem; }
+.training-context summary { cursor: pointer; width: fit-content; font-weight: 700; }
+.training-context summary:focus-visible { outline: 2px solid #f6c15b; outline-offset: 2px; }
+.training-context p { max-width: 70ch; margin: 0.35rem 0 0; }
+.training-science { margin-top: 0.9rem; color: #b8dcff; font-size: 0.84rem; }
+.training-science summary { cursor: pointer; width: fit-content; font-weight: 700; }
+.training-science summary:focus-visible { outline: 2px solid #f6c15b; outline-offset: 2px; }
+.training-science p { max-width: 72ch; margin: 0.35rem 0 0; }
