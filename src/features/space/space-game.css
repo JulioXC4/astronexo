@@ -162,6 +162,9 @@
 .module-camera { min-width:0; padding:.55rem; border:3px solid var(--space-green); background:#091a2b; }
 .module-camera__feed { position:relative; display:grid; min-height:4.4rem; place-items:center; overflow:hidden; border:3px solid #315b73; background:repeating-linear-gradient(0deg,#102a43 0 5px,#0b2033 5px 7px); }
 .module-camera__feed { background-position: center; background-size: cover; image-rendering: pixelated; }
+.module-camera__feed--mars { background-image: linear-gradient(135deg,#523428,#172b3f 55%,#67402b), repeating-linear-gradient(90deg,#d5975940 0 2px,transparent 2px 18px); background-blend-mode: screen; }
+.module-camera__feed--mars span { font-size: 3rem; text-shadow: 0 2px 8px #000; }
+.module-camera__feed--mars b { position: absolute; left: .35rem; bottom: .25rem; padding: .15rem .3rem; color: #ffe0b1; background: #251814dd; font-size: .7rem; }
 .module-camera--apagado .module-camera__feed { filter: grayscale(1) brightness(.6); }
 .module-camera__feed span { color:var(--space-yellow); font-size:2rem; }.module-camera__feed i{position:absolute;right:3px;bottom:2px;color:var(--space-muted);font-size:.55rem;font-style:normal}
 .module-camera h3{min-height:2.2rem;margin:.45rem 0 .25rem;font-size:.7rem;text-transform:uppercase}.module-camera>strong{display:block;color:var(--space-green);font-size:.65rem}.module-camera>small{display:block;margin-top:.25rem;color:var(--space-muted);font-size:.6rem;line-height:1.3}
@@ -282,3 +285,31 @@
 @media (prefers-reduced-motion: reduce) {
   .resource-bar__track span { transition: none; }
 }
+
+/* Readable camera and decision text at desktop and tablet widths. */
+.mission-header,.resource-rack,.early-warning,.mission-grid,.module-cameras,.tool-status,.intervention-dock,.turn-controls,.results-grid,.decision-report,.module-report,.results-banner,.results-actions { width: min(1320px,100%); }
+.pixel-kicker { font-size: .88rem; }
+.resource-bar__label { font-size: 1rem; }
+.resource-bar__track { height: 1.55rem; }
+.telemetry-grid dt,.report-stats dt { font-size: .88rem; }
+.telemetry-grid dd,.report-stats dd { font-size: 1rem; }
+.base-scene small { font-size: .78rem; }
+.alert-card h3 { font-size: 1.1rem; }
+.alert-card p { font-size: 1rem; }
+.module-camera-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: .8rem; }
+.module-camera { padding: .65rem; }
+.module-camera__feed { min-height: 8rem; }
+.module-camera h3 { min-height: 0; font-size: 1rem; }
+.module-camera > strong { font-size: .9rem; }
+.module-camera > small { font-size: .85rem; line-height: 1.4; }
+.module-camera__feed i { font-size: .7rem; }
+.tool-status span,.tool-status em { font-size: .85rem; }
+.intervention-option { font-size: .95rem; }
+.intervention-option small { font-size: .85rem; }
+.intervention-console p,.cost-preview strong { font-size: 1rem; }
+.cost-preview span { font-size: .85rem; }
+.pixel-button { font-size: .95rem; min-height: 2.75rem; }
+.module-report-grid h3 { font-size: 1rem; }
+.module-report-grid p,.module-report-grid li { font-size: .9rem; }
+@media (max-width: 1020px) { .module-camera-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 520px) { .module-camera-grid { grid-template-columns: 1fr; } }

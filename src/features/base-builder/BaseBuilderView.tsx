@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MODULE_CATALOG } from '../../game';
 import type { Destination, ModuleId } from '../../game';
+import { lunarModuleScenes } from '../../assets/moduleScenes';
 import {
   EMPTY_MODULE_SLOTS,
   isCompleteBase,
@@ -65,6 +66,7 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
               const module = moduleId ? MODULE_CATALOG.find((item) => item.id === moduleId) : undefined;
               return <div
                 className={`module-slot ${module ? 'module-slot--filled' : ''}`}
+                style={module && destination === 'MOON' ? { backgroundImage: `linear-gradient(#071426b8, #071426d9), url('${lunarModuleScenes[module.id]}')` } : undefined}
                 key={index}
                 onDragOver={(event) => event.preventDefault()}
                 onDrop={(event) => place(index, event.dataTransfer.getData('text/module-id') as ModuleId)}
@@ -126,6 +128,7 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
           >
             <div className="module-card__icon" aria-hidden="true">{module.icon}</div>
             <div><span>{installed ? 'INSTALADO' : armed ? 'LISTO PARA REEMPLAZAR' : 'DISPONIBLE'}</span><h3>{module.name}</h3></div>
+            {destination === 'MOON' && <img className="module-card__preview" src={lunarModuleScenes[module.id]} alt="" loading="lazy" />}
             <p>{module.description}</p>
             <dl><div><dt>BENEFICIO</dt><dd>{module.benefit}</dd></div><div><dt>COSTO</dt><dd>{module.costLabel}</dd></div></dl>
             <button type="button" className="pixel-button" onClick={() => chooseModule(module.id)}>

@@ -44,10 +44,10 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <Crosshair color="#f6c15b" weight="bold" />
-              <span>Mapa Satelital Global NASA POWER</span>
+              <span>Elige tu base terrestre</span>
             </h1>
             <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              Elige entre las dos bases oficiales del reto: Arequipa (Perú) o Tromsø (Noruega).
+              Arequipa o Tromsø: dos lugares reales para comenzar la aventura.
             </p>
           </div>
 
@@ -82,6 +82,7 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
         </div>
 
         <CityLandscape cityId={selectedCityId} />
+        <p className="city-illustration-note">Escenario ilustrado · Los datos solares del panel provienen de NASA POWER.</p>
 
         {/* CONTENEDOR DIVIDIDO: MAPA GLOBAL SVG (IZQ) Y HUD CIENTÍFICO (DER) */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))', gap: '1.2rem', alignItems: 'center' }}>
@@ -261,9 +262,10 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
               <h2 style={{ fontFamily: 'Fredoka', fontSize: '1.8rem', color: '#ffffff', margin: '0.3rem 0 0.1rem 0' }}>
                 {selectedCity.name}, {selectedCity.country}
               </h2>
-              <div style={{ fontFamily: 'monospace', color: '#7cb5c8', fontSize: '0.85rem', marginBottom: '0.8rem' }}>
-                LAT: {selectedCity.latitude}° | LON: {selectedCity.longitude}° | ALTITUD: {selectedCity.altitudeMeters} m
-              </div>
+              <details className="city-coordinates">
+                <summary>Ver ubicación geográfica</summary>
+                <span>Latitud: {selectedCity.latitude}° · Longitud: {selectedCity.longitude}° · Altitud: {selectedCity.altitudeMeters} m</span>
+              </details>
 
               {/* Medidor de radiación solar de NASA POWER */}
               <div style={{

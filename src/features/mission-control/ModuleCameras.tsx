@@ -1,15 +1,8 @@
 import { getModuleWarnings, MODULE_CATALOG } from '../../game';
 import type { MissionState } from '../../game';
+import { lunarModuleScenes } from '../../assets/moduleScenes';
 
 interface ModuleCamerasProps { readonly state: MissionState }
-
-const moduleScenes: Record<string, string> = {
-  SOLAR_STORAGE: 'lunar-energy-module.png',
-  REINFORCED_LIFE_SUPPORT: 'lunar-life-support-room.png',
-  STORM_SHELTER: 'airlock-refuge.png',
-  GREENHOUSE: 'lunar-greenhouse-lab.png',
-  SCIENCE_LAB: 'lunar-laboratory.png',
-};
 
 export function ModuleCameras({ state }: ModuleCamerasProps) {
   const warnings = new Set(getModuleWarnings(state));
@@ -29,7 +22,10 @@ export function ModuleCameras({ state }: ModuleCamerasProps) {
           className={`module-camera module-camera--${status.toLowerCase()}`}
           aria-label={`Cámara ${index + 2}, ${module.name}: ${status}`}
         >
-          <div className="module-camera__feed" style={state.destination === 'MOON' ? { backgroundImage: `linear-gradient(#06132125, #06132150), url('/assets/pixel-art/${moduleScenes[module.id]}')` } : undefined} aria-hidden="true"><i>CAM {String(index + 2).padStart(2, '0')}</i></div>
+          <div className={`module-camera__feed ${state.destination === 'MARS' ? 'module-camera__feed--mars' : ''}`} style={state.destination === 'MOON' ? { backgroundImage: `linear-gradient(#06132125, #06132150), url('${lunarModuleScenes[module.id]}')` } : undefined} aria-hidden="true">
+            {state.destination === 'MARS' && <><span>{module.icon}</span><b>SEÑAL MARTE</b></>}
+            <i>CAM {String(index + 2).padStart(2, '0')}</i>
+          </div>
           <h3>{module.name}</h3>
           <strong>{status}</strong>
           <small>{!built ? 'No construido' : warning ? 'Una alerta afecta este sistema' : standby ? 'Sin consumo ni producción' : module.benefit}</small>
