@@ -3,15 +3,18 @@ import type { MissionResult as LegacyMissionResult, SpaceGameProps } from '../..
 import {
   advanceTurn,
   applyAction,
-  createMission,
+  createLegacyDemoMission,
   getMissionResult,
+  LEGACY_DEMO_SCENARIO_ID,
 } from '../../game';
 import type {
   GameAction,
   GameSetup as MissionSetup,
   MissionResult,
   MissionState,
+  ModuleId,
 } from '../../game';
+import { BaseBuilderView } from '../base-builder';
 import { MissionControlView } from '../mission-control';
 import { MissionResultsView } from '../mission-results';
 import './space-game.css';
@@ -24,7 +27,7 @@ function adaptSetup(setup: SpaceGameProps['setup']): MissionSetup {
     completedEarthMissions: [],
     selectedTools: [...setup.backpack],
     selectedModules: [],
-    scenarioId: 'H1_LUNAR_TRAINING',
+    scenarioId: LEGACY_DEMO_SCENARIO_ID,
     difficulty: 'CALM',
   };
 }
@@ -75,22 +78,33 @@ function adaptLegacyResult(
 
 export function SpaceGame({ setup, nasaData, onFinish }: SpaceGameProps) {
   const missionSetup = adaptSetup(setup);
-  const [mission, setMission] = useState<MissionState>(() => createMission(missionSetup));
+  const [mission, setMission] = useState<MissionState | null>(null);
   const [transition, setTransition] = useState<string | null>(null);
 
+  function startGuard(selectedModules: readonly ModuleId[]) {
+    setMission(createLegacyDemoMission({ ...missionSetup, selectedModules }));
+    setTransition('Base construida · Guardia lista');
+  }
+
   function handleAction(action: GameAction) {
-    setMission((current) => applyAction(current, action));
+    setMission((current) => current ? applyAction(current, action) : current);
   }
 
   function handleAdvance() {
+    if (!mission) return;
     const next = advanceTurn(mission);
     setMission(next);
     setTransition(next.outcome === 'IN_PROGRESS' ? next.clockLabel : 'Informe final de guardia');
   }
 
   function retry() {
-    setMission(createMission(missionSetup));
+    if (!mission) return;
+    setMission(createLegacyDemoMission(mission.setup));
     setTransition(null);
+  }
+
+  if (!mission) {
+    return <BaseBuilderView destination={missionSetup.destination} onStart={startGuard} />;
   }
 
   if (transition) {

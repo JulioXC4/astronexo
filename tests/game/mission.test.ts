@@ -8,7 +8,7 @@ export const baseSetup: GameSetup = {
   destination: 'MOON',
   completedEarthMissions: ['M1', 'M2', 'M3'],
   selectedTools: ['SPARE_PARTS_KIT', 'EARLY_WARNING', 'GROW_TRAY'],
-  selectedModules: [],
+  selectedModules: ['SOLAR_STORAGE', 'STORM_SHELTER', 'SCIENCE_LAB'],
   scenarioId: 'H2_REPRODUCIBLE',
   difficulty: 'CALM',
 };
@@ -70,7 +70,11 @@ describe('motor H0–H2', () => {
   });
 
   it('interrumpe y puntúa parcialmente cuando se ignoran todas las alertas', () => {
-    let state = createMission({ ...baseSetup, selectedTools: ['SPARE_PARTS_KIT', 'GROW_TRAY', 'CROP_KIT'] });
+    let state = createMission({
+      ...baseSetup,
+      completedEarthMissions: ['M1', 'M3', 'M4'],
+      selectedTools: ['SPARE_PARTS_KIT', 'GROW_TRAY', 'EXTRA_BATTERY'],
+    });
     while (state.outcome === 'IN_PROGRESS') {
       state = advanceTurn(applyAction(state, { type: 'SKIP_INTERVENTION' }));
     }
@@ -89,6 +93,8 @@ describe('motor H0–H2', () => {
 
     expect(result?.score.scientificObjective).toBe(0);
     expect(result?.scientificObjectiveAchieved).toBe(false);
+    expect(result?.outcome).toBe('INTERRUPTED');
+    expect(result?.interruptionCause).toContain('objetivo científico');
   });
 
   it('interrumpe por alimento y por exposición sin consumir Escudo automáticamente', () => {

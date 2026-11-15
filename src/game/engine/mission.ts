@@ -3,9 +3,18 @@ import {
   DIFFICULTY_SCORE_FACTOR,
   EVENT_CONFIG,
   H2_EVENT_SCHEDULE,
+  H2_TOOL_RULES,
   INITIAL_RESOURCES,
+  LEGACY_DEMO_SCENARIO_ID,
   SCIENCE_TARGET,
+  getInitialModuleDelta,
+  getInitialModuleOperations,
   getIntervention,
+  getModuleDefinition,
+  getModuleTurnOperations,
+  MODULE_CATALOG,
+  isLegacyDemoSetup,
+  isValidGameSetup,
   scenarioSeedFromId,
 } from '../config';
 import { applyResourceDelta, canAfford, clampResource } from '../rules';
@@ -18,6 +27,8 @@ import type {
   MissionAlert,
   MissionResult,
   MissionState,
+  ModuleOperationRecord,
+  ModuleReportEntry,
   ResourceDelta,
   ScoreBreakdown,
   SelectedTools,
@@ -68,10 +79,11 @@ function scaleDelta(delta: ResourceDelta, factor: number): ResourceDelta {
 function initialToolDelta(tools: SelectedTools): ResourceDelta {
   const deltas = tools.map<ResourceDelta>((tool) => {
     switch (tool) {
-      case 'EXTRA_BATTERY': return { energy: 18 };
-      case 'GROW_TRAY': return { foodSupply: 14 };
-      case 'WATER_RECYCLER': return { oxygen: 8, foodSupply: 6 };
-      case 'THERMAL_INSULATION': return { shield: 15 };
+      case 'EXTRA_BATTERY': return { energy: H2_TOOL_RULES.EXTRA_BATTERY.initialEnergy };
+      case 'WATER_RECYCLER': return {
+        oxygen: H2_TOOL_RULES.WATER_RECYCLER.initialOxygen,
+        foodSupply: H2_TOOL_RULES.WATER_RECYCLER.initialFood,
+      };
       case 'FOLDING_PANELS': return { energy: 8 };
       case 'LIFE_SUPPORT': return { oxygen: 8 };
       case 'SHELTER_KIT': return { shield: 8 };
@@ -80,6 +92,14 @@ function initialToolDelta(tools: SelectedTools): ResourceDelta {
     }
   });
   return sumDeltas(deltas);
+}
+
+function earlyWarningForecast(setup: GameSetup, seed: number) {
+  if (!setup.selectedTools.includes('EARLY_WARNING')) return null;
+  const turn = 1 + H2_TOOL_RULES.EARLY_WARNING.turnsAhead;
+  const kind = rotatedCandidates(H2_EVENT_SCHEDULE[setup.destination][turn - 1] ?? [], turn, seed)
+    .find((candidate) => EVENT_CONFIG[candidate].destinations.includes(setup.destination));
+  return kind ? { turn, kind, title: EVENT_CONFIG[kind].title } : null;
 }
 
 function createAlert(kind: AlertKind, turn: number, seed: number): MissionAlert {
@@ -121,10 +141,16 @@ function fillTurnAlerts(
   return alerts;
 }
 
-export function createMission(setup: GameSetup): MissionState {
+function createMissionState(setup: GameSetup, legacyDemo: boolean): MissionState {
+  if (legacyDemo ? !isLegacyDemoSetup(setup) : !isValidGameSetup(setup)) {
+    throw new Error(legacyDemo
+      ? `Configuración legacy inválida: usa ${LEGACY_DEMO_SCENARIO_ID}, tres herramientas antiguas y tres módulos distintos.`
+      : 'GameSetup inválido: requiere modo/destino válidos, tres misiones con sus herramientas y tres módulos distintos.');
+  }
   const config = DESTINATION_CONFIG[setup.destination];
   const selectedTools = cloneTools(setup.selectedTools);
   const scenarioSeed = scenarioSeedFromId(setup.scenarioId);
+  const forecast = earlyWarningForecast(setup, scenarioSeed);
   const baseState: MissionState = {
     setup: {
       ...setup,
@@ -142,7 +168,11 @@ export function createMission(setup: GameSetup): MissionState {
     communicationAvailable: true,
     consultationUsed: false,
     pendingCommunication: null,
-    earlyWarningCharges: selectedTools.includes('EARLY_WARNING') ? 1 : 0,
+    sparePartsCharges: selectedTools.includes('SPARE_PARTS_KIT')
+      ? H2_TOOL_RULES.SPARE_PARTS_KIT.charges
+      : 0,
+    earlyWarningCharges: 0,
+    earlyWarningForecast: forecast,
     scenarioSeed,
     activeAlerts: fillTurnAlerts(setup.destination, 1, [], scenarioSeed, false),
     unresolvedEvents: [],
@@ -150,11 +180,24 @@ export function createMission(setup: GameSetup): MissionState {
     selectedModules: [...setup.selectedModules],
     actionTakenThisTurn: false,
     decisions: [],
+    moduleOperations: getInitialModuleOperations(setup.selectedModules),
     resolvedAlertCount: 0,
     ignoredAlertCount: 0,
     outcome: 'IN_PROGRESS',
   };
-  return applyResourceDelta(baseState, initialToolDelta(selectedTools));
+  return applyResourceDelta(
+    applyResourceDelta(baseState, initialToolDelta(selectedTools)),
+    getInitialModuleDelta(setup.selectedModules),
+  );
+}
+
+export function createMission(setup: GameSetup): MissionState {
+  return createMissionState(setup, false);
+}
+
+/** Único borde permitido para la demostración H1 mientras Julio migra EarthFlow. */
+export function createLegacyDemoMission(setup: GameSetup): MissionState {
+  return createMissionState(setup, true);
 }
 
 export function getActionCost(state: MissionState, action: GameAction): ResourceDelta {
@@ -162,8 +205,8 @@ export function getActionCost(state: MissionState, action: GameAction): Resource
   const intervention = getIntervention(action.type);
   if (!intervention) return {};
   if (action.type === 'MANAGE_GREENHOUSE' && action.choiceId === 'SUSPEND_CROPS') return {};
-  if (action.type === 'REPAIR_PANELS' && hasTool(state, 'SPARE_PARTS_KIT')) {
-    return { ...intervention.cost, energy: -3 };
+  if (action.type === 'REPAIR_PANELS' && state.sparePartsCharges > 0) {
+    return { ...intervention.cost, energy: H2_TOOL_RULES.SPARE_PARTS_KIT.repairEnergyCost };
   }
   return intervention.cost;
 }
@@ -173,12 +216,26 @@ function getActionEffect(state: MissionState, action: GameAction): ResourceDelta
   const intervention = getIntervention(action.type);
   if (!intervention) return {};
   if (action.type === 'RECYCLE_OXYGEN' && hasTool(state, 'WATER_RECYCLER')) {
-    return { ...intervention.effect, oxygen: 25 };
+    return {
+      ...intervention.effect,
+      oxygen: (intervention.effect.oxygen ?? 0) + H2_TOOL_RULES.WATER_RECYCLER.recycleOxygenBonus,
+    };
   }
   if (action.type === 'MANAGE_GREENHOUSE') {
-    if (action.choiceId === 'SUSPEND_CROPS') return { energy: 5, foodSupply: -5 };
-    const foodBonus = hasTool(state, 'GROW_TRAY', 'CROP_KIT') ? 4 : 0;
+    if (action.choiceId === 'SUSPEND_CROPS') return {};
+    const foodBonus = hasTool(state, 'GROW_TRAY', 'CROP_KIT')
+      ? H2_TOOL_RULES.GROW_TRAY.greenhouseFoodBonus
+      : 0;
     return { foodSupply: 16 + foodBonus };
+  }
+  if (action.type === 'RUN_RESEARCH') {
+    const researchBonus = state.selectedModules.includes('SCIENCE_LAB')
+      ? (getModuleDefinition('SCIENCE_LAB')?.researchBonus ?? 0)
+      : 0;
+    return {
+      ...intervention.effect,
+      scienceProgress: (intervention.effect.scienceProgress ?? 0) + researchBonus,
+    };
   }
   return intervention.effect;
 }
@@ -220,7 +277,7 @@ function actionAllowed(state: MissionState, action: GameAction) {
 function actionSummary(action: GameAction, alert: MissionAlert | undefined, response?: string) {
   if (action.type === 'MANAGE_GREENHOUSE') {
     return action.choiceId === 'SUSPEND_CROPS'
-      ? 'Invernadero suspendido: se ahorró energía a cambio de alimento.'
+      ? 'Invernadero suspendido: no produce alimento ni consume energía en los siguientes turnos.'
       : 'Invernadero mantenido: se invirtió energía para recuperar alimento.';
   }
   if (action.type === 'CONSULT_EARTH') {
@@ -265,6 +322,19 @@ export function applyAction(state: MissionState, action: GameAction): MissionSta
     ? { request: guidance, requestedTurn: state.turn, dueTurn: state.turn + 1 }
     : state.pendingCommunication;
   const summary = actionSummary(action, alert, immediateResponse);
+  const sparePartsUsed = action.type === 'REPAIR_PANELS' && state.sparePartsCharges > 0;
+  const labUsed = action.type === 'RUN_RESEARCH' && state.selectedModules.includes('SCIENCE_LAB');
+  const moduleOperation: ModuleOperationRecord | undefined = labUsed ? {
+    turn: state.turn,
+    moduleId: 'SCIENCE_LAB',
+    phase: 'ACTION',
+    summary: 'Laboratorio: mejoró el procesamiento de la muestra en 10 puntos de Ciencia.',
+    cost: {},
+    benefit: { scienceProgress: getModuleDefinition('SCIENCE_LAB')?.researchBonus ?? 0 },
+  } : undefined;
+  const recordedSummary = `${summary}${sparePartsUsed
+    ? ' El Kit de repuestos cubrió toda la Energía de esta reparación.'
+    : ''}${labUsed ? ' El Laboratorio mejoró el resultado científico.' : ''}`;
 
   return {
     ...changed,
@@ -278,16 +348,20 @@ export function applyAction(state: MissionState, action: GameAction): MissionSta
     communicationAvailable: action.type === 'CONSULT_EARTH' ? false : state.communicationAvailable,
     communicationResponse: immediateResponse ?? state.communicationResponse,
     pendingCommunication,
+    sparePartsCharges: sparePartsUsed ? state.sparePartsCharges - 1 : state.sparePartsCharges,
     actionTakenThisTurn: true,
     decisions: [...state.decisions, {
       turn: state.turn,
       action: action.type,
       alertId: alert?.id,
-      summary,
+      summary: recordedSummary,
       resourceDelta: sumDeltas([cost, effect]),
     }],
+    moduleOperations: moduleOperation
+      ? [...state.moduleOperations, moduleOperation]
+      : state.moduleOperations,
     resolvedAlertCount: state.resolvedAlertCount + (alert ? 1 : 0),
-    lastFeedback: { ok: true, message: summary, resourceDelta: sumDeltas([cost, effect]) },
+    lastFeedback: { ok: true, message: recordedSummary, resourceDelta: sumDeltas([cost, effect]) },
   };
 }
 
@@ -310,15 +384,22 @@ function operationalDelta(state: MissionState): ResourceDelta {
   const solarGain = Math.round(config.solarProduction[state.turn - 1] * state.solarEfficiency / 100);
   const waterRecycler = hasTool(state, 'WATER_RECYCLER');
   const lifeSupport = hasTool(state, 'LIFE_SUPPORT');
-  const insulated = hasTool(state, 'THERMAL_INSULATION', 'SHELTER_KIT');
+  const insulated = hasTool(state, 'THERMAL_INSULATION');
+  const thermalEnergySaving = insulated ? H2_TOOL_RULES.THERMAL_INSULATION.energySaving : 0;
+  const greenhouseEnergyUse = state.greenhouseActive ? 2 : 0;
+  const greenhouseFoodSupport = state.greenhouseActive ? 2 : 0;
   const radiationGain = Math.max(
     0,
-    config.radiationPerTurn - state.shield * 0.05 - (insulated ? 1 : 0),
+    config.radiationPerTurn - state.shield * 0.05,
   );
   return {
-    energy: solarGain - config.baseEnergyUse,
-    oxygen: -Math.max(1, config.baseOxygenUse - (waterRecycler || lifeSupport ? 1 : 0)),
-    foodSupply: -Math.max(1, config.baseFoodUse - (waterRecycler ? 1 : 0)),
+    energy: solarGain - config.baseEnergyUse + thermalEnergySaving - greenhouseEnergyUse,
+    oxygen: -Math.max(1, config.baseOxygenUse - (
+      waterRecycler ? H2_TOOL_RULES.WATER_RECYCLER.consumptionSaving : lifeSupport ? 1 : 0
+    )),
+    foodSupply: -Math.max(1, config.baseFoodUse - (
+      waterRecycler ? H2_TOOL_RULES.WATER_RECYCLER.consumptionSaving : 0
+    ) - greenhouseFoodSupport),
     radiationExposure: radiationGain,
   };
 }
@@ -326,22 +407,26 @@ function operationalDelta(state: MissionState): ResourceDelta {
 export function advanceTurn(state: MissionState): MissionState {
   if (state.outcome !== 'IN_PROGRESS' || !state.actionTakenThisTurn) return state;
 
-  const earlyWarningUsed = state.earlyWarningCharges > 0 && state.activeAlerts.length > 0;
-  const unresolvedEvents: UnresolvedEvent[] = state.activeAlerts.map((alert, index) => {
-    const protectedByWarning = earlyWarningUsed && index === 0;
-    const resourceDelta = protectedByWarning
-      ? scaleDelta(alertConsequence(alert), 0.5)
-      : alertConsequence(alert);
+  const unresolvedEvents: UnresolvedEvent[] = state.activeAlerts.map((alert) => {
+    const resourceDelta = alertConsequence(alert);
     return {
       id: `UNRESOLVED-${alert.id}-T${state.turn}`,
       sourceAlertId: alert.id,
       turn: state.turn,
-      summary: `${alert.title} aplicó consecuencias de nivel ${alert.severity}${protectedByWarning ? ' reducidas por Alerta temprana' : ''}.`,
+      summary: `${alert.title} aplicó consecuencias de nivel ${alert.severity}.`,
       resourceDelta,
     };
   });
   const afterAlerts = applyResourceDelta(state, sumDeltas(unresolvedEvents.map((event) => event.resourceDelta)));
-  const afterOperations = applyResourceDelta(afterAlerts, operationalDelta(afterAlerts));
+  const baseOperations = operationalDelta(afterAlerts);
+  const moduleOperations = getModuleTurnOperations(
+    afterAlerts,
+    Math.max(0, baseOperations.radiationExposure ?? 0),
+  );
+  const moduleDelta = sumDeltas(
+    moduleOperations.flatMap((operation) => [operation.cost, operation.benefit]),
+  );
+  const afterOperations = applyResourceDelta(afterAlerts, sumDeltas([baseOperations, moduleDelta]));
   const completedTurns = state.completedTurns + 1;
   const nextTurn = state.turn + 1;
   const communicationArrived = state.pendingCommunication !== null
@@ -354,7 +439,7 @@ export function advanceTurn(state: MissionState): MissionState {
     completedTurns,
     unresolvedEvents: [...state.unresolvedEvents, ...unresolvedEvents],
     ignoredAlertCount: state.ignoredAlertCount + state.activeAlerts.length,
-    earlyWarningCharges: earlyWarningUsed ? state.earlyWarningCharges - 1 : state.earlyWarningCharges,
+    moduleOperations: [...state.moduleOperations, ...moduleOperations],
     pendingCommunication: communicationArrived ? null : state.pendingCommunication,
     communicationResponse,
     lastFeedback: communicationArrived && communicationResponse
@@ -363,7 +448,16 @@ export function advanceTurn(state: MissionState): MissionState {
   };
   const cause = interruptionCause(withHistory);
   if (cause) return { ...withHistory, outcome: 'INTERRUPTED', interruptionCause: cause };
-  if (state.turn === MAX_TURNS) return { ...withHistory, outcome: 'COMPLETED' };
+  if (state.turn === MAX_TURNS) {
+    if (withHistory.scienceProgress >= SCIENCE_TARGET) {
+      return { ...withHistory, outcome: 'COMPLETED' };
+    }
+    return {
+      ...withHistory,
+      outcome: 'INTERRUPTED',
+      interruptionCause: `La guardia llegó a cinco turnos, pero el objetivo científico quedó en ${withHistory.scienceProgress}/${SCIENCE_TARGET}.`,
+    };
+  }
 
   const carried = state.activeAlerts.map((alert) => ({
     ...alert,
@@ -409,6 +503,40 @@ function calculateScore(state: MissionState): ScoreBreakdown {
   };
 }
 
+function hasNonZeroDelta(delta: ResourceDelta) {
+  return Object.values(delta).some((value) => value !== undefined && value !== 0);
+}
+
+function buildModuleReport(state: MissionState): readonly ModuleReportEntry[] {
+  return state.selectedModules.map((moduleId) => {
+    const definition = getModuleDefinition(moduleId);
+    const operations = state.moduleOperations.filter((operation) => operation.moduleId === moduleId);
+    const benefitsProvided = [...new Set(
+      operations.filter((operation) => hasNonZeroDelta(operation.benefit))
+        .map((operation) => operation.summary),
+    )];
+    const relatedConsequences = state.unresolvedEvents
+      .filter((event) => definition?.affectedBy.some((kind) => event.sourceAlertId.startsWith(kind)))
+      .map((event) => event.summary);
+    return {
+      moduleId,
+      benefitsProvided,
+      resourcesConsumed: sumDeltas(operations.map((operation) => operation.cost)),
+      relatedConsequences,
+    };
+  });
+}
+
+function buildConfigurationConsequences(state: MissionState) {
+  return state.unresolvedEvents.flatMap((event) => {
+    const related = MODULE_CATALOG.filter((module) =>
+      module.affectedBy.some((kind) => event.sourceAlertId.startsWith(kind)));
+    return related.map((module) => `${event.summary} Configuración relacionada: ${module.name} ${
+      state.selectedModules.includes(module.id) ? 'construido' : 'no construido'
+    }.`);
+  });
+}
+
 export function getMissionResult(state: MissionState): MissionResult | null {
   if (state.outcome === 'IN_PROGRESS') return null;
   const helpfulDecisions = state.decisions
@@ -427,5 +555,7 @@ export function getMissionResult(state: MissionState): MissionResult | null {
     scientificObjectiveAchieved: state.scienceProgress >= SCIENCE_TARGET,
     relevantTools: state.selectedTools,
     relevantModules: [...state.selectedModules],
+    moduleReport: buildModuleReport(state),
+    configurationConsequences: buildConfigurationConsequences(state),
   };
 }

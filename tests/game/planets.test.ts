@@ -9,11 +9,15 @@ import {
 import type { Destination, GameAction, GameSetup, MissionState } from '../../src/game';
 
 function setup(destination: Destination, scenarioId = `H2_${destination}_VICTORY`): GameSetup {
+  const tromso = destination === 'MARS';
   return {
-    mode: 'SOLO', city: destination === 'MOON' ? 'AREQUIPA' : 'TROMSO', destination,
-    completedEarthMissions: ['M1', 'M2', 'M3'],
-    selectedTools: ['EXTRA_BATTERY', 'WATER_RECYCLER', 'THERMAL_INSULATION'],
-    selectedModules: [], scenarioId, difficulty: 'CALM',
+    mode: 'SOLO', city: tromso ? 'TROMSO' : 'AREQUIPA', destination,
+    completedEarthMissions: ['M1', 'M4', 'M5'],
+    selectedTools: tromso
+      ? ['SPARE_PARTS_KIT', 'EXTRA_BATTERY', 'THERMAL_INSULATION']
+      : ['SPARE_PARTS_KIT', 'EXTRA_BATTERY', 'WATER_RECYCLER'],
+    selectedModules: ['SOLAR_STORAGE', 'STORM_SHELTER', 'SCIENCE_LAB'],
+    scenarioId, difficulty: 'CALM',
   };
 }
 
@@ -75,7 +79,8 @@ describe('Luna y Marte con el mismo motor', () => {
   it.each(['MOON', 'MARS'] as const)('permite interrupción en %s', (destination) => {
     let state = createMission({
       ...setup(destination, `H2_${destination}_FAILURE`),
-      selectedTools: ['SPARE_PARTS_KIT', 'GROW_TRAY', 'CROP_KIT'],
+      completedEarthMissions: ['M1', 'M3', 'M4'],
+      selectedTools: ['SPARE_PARTS_KIT', 'GROW_TRAY', 'EXTRA_BATTERY'],
     });
     while (state.outcome === 'IN_PROGRESS') {
       state = advanceTurn(applyAction(state, { type: 'SKIP_INTERVENTION' }));

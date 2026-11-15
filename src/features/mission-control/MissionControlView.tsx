@@ -1,7 +1,9 @@
+import { ALL_TOOL_CATALOG, getToolBenefit } from '../../game';
 import type { GameAction, MissionState } from '../../game';
 import { InterventionDock } from '../space-minigames';
 import { AlertCard } from './AlertCard';
 import { ResourceBar } from './ResourceBar';
+import { ModuleCameras } from './ModuleCameras';
 
 interface MissionControlViewProps {
   readonly state: MissionState;
@@ -35,6 +37,12 @@ export function MissionControlView({ state, onAction, onAdvance }: MissionContro
       <ResourceBar label="OXÍGENO" value={state.oxygen} tone="oxygen" />
       <ResourceBar label="ESCUDO" value={state.shield} tone="shield" />
     </section>
+
+    {state.earlyWarningForecast && state.turn < state.earlyWarningForecast.turn && <aside className="early-warning pixel-panel" role="status">
+      <strong>ALERTA TEMPRANA · PRÓXIMO TURNO</strong>
+      <span>{state.earlyWarningForecast.title}</span>
+      <small>Anticipa el riesgo; no reduce sus consecuencias si se ignora.</small>
+    </aside>}
 
     <div className="mission-grid">
       <section className="base-monitor pixel-panel" aria-labelledby="base-title">
@@ -79,6 +87,17 @@ export function MissionControlView({ state, onAction, onAdvance }: MissionContro
         </div>
       </section>
     </div>
+
+    <ModuleCameras state={state} />
+
+    <details className="tool-status pixel-panel">
+      <summary>BENEFICIOS DE HERRAMIENTAS · VER ESTADO</summary>
+      <ul>{state.selectedTools.map((toolId) => <li key={toolId}>
+        <strong>{ALL_TOOL_CATALOG.find((tool) => tool.id === toolId)?.label ?? toolId}</strong>
+        <span>{getToolBenefit(toolId)}</span>
+        {toolId === 'SPARE_PARTS_KIT' && <em>{state.sparePartsCharges > 0 ? 'Disponible' : 'Consumido'}</em>}
+      </li>)}</ul>
+    </details>
 
     <InterventionDock key={state.turn} state={state} onAction={onAction} />
 

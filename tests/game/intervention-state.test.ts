@@ -8,8 +8,8 @@ const setup: GameSetup = {
   city: 'AREQUIPA',
   destination: 'MOON',
   completedEarthMissions: ['M1', 'M2', 'M3'],
-  selectedTools: ['FOLDING_PANELS', 'LIFE_SUPPORT', 'SHELTER_KIT'],
-  selectedModules: [],
+  selectedTools: ['SPARE_PARTS_KIT', 'EARLY_WARNING', 'GROW_TRAY'],
+  selectedModules: ['SOLAR_STORAGE', 'STORM_SHELTER', 'SCIENCE_LAB'],
   scenarioId: 'H1_INTERVENTION_UI_TEST',
   difficulty: 'CALM',
 };

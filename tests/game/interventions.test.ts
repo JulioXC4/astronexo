@@ -9,10 +9,11 @@ import {
 import type { AlertKind, Destination, GameSetup, MissionState } from '../../src/game';
 
 const setup: GameSetup = {
-  mode: 'SOLO', city: 'AREQUIPA', destination: 'MOON',
-  completedEarthMissions: ['M1', 'M2', 'M3'],
+  mode: 'SOLO', city: 'TROMSO', destination: 'MOON',
+  completedEarthMissions: ['M2', 'M3', 'M5'],
   selectedTools: ['EARLY_WARNING', 'GROW_TRAY', 'THERMAL_INSULATION'],
-  selectedModules: [], scenarioId: 'H2_ACTION_COSTS', difficulty: 'CALM',
+  selectedModules: ['SOLAR_STORAGE', 'REINFORCED_LIFE_SUPPORT', 'STORM_SHELTER'],
+  scenarioId: 'H2_ACTION_COSTS', difficulty: 'CALM',
 };
 
 function withAlert(kind: AlertKind, destination: Destination = 'MOON'): MissionState {
@@ -79,8 +80,8 @@ describe('G1–G8', () => {
     const suspended = applyAction(initial, { type: 'MANAGE_GREENHOUSE', choiceId: 'SUSPEND_CROPS' });
     expect(maintained.energy).toBe(initial.energy - 3);
     expect(maintained.foodSupply).toBe(70);
-    expect(suspended.energy).toBe(initial.energy + 5);
-    expect(suspended.foodSupply).toBe(45);
+    expect(suspended.energy).toBe(initial.energy);
+    expect(suspended.foodSupply).toBe(initial.foodSupply);
     expect(suspended.greenhouseActive).toBe(false);
   });
 

@@ -109,6 +109,28 @@ export interface PendingCommunication {
   readonly dueTurn: number;
 }
 
+export interface EarlyWarningForecast {
+  readonly turn: number;
+  readonly kind: AlertKind;
+  readonly title: string;
+}
+
+export interface ModuleOperationRecord {
+  readonly turn: number;
+  readonly moduleId: ModuleId;
+  readonly phase: 'SETUP' | 'TURN' | 'ACTION';
+  readonly summary: string;
+  readonly cost: ResourceDelta;
+  readonly benefit: ResourceDelta;
+}
+
+export interface ModuleReportEntry {
+  readonly moduleId: ModuleId;
+  readonly benefitsProvided: readonly string[];
+  readonly resourcesConsumed: ResourceDelta;
+  readonly relatedConsequences: readonly string[];
+}
+
 export interface ActionFeedback {
   readonly ok: boolean;
   readonly message: string;
@@ -133,7 +155,9 @@ export interface MissionState {
   readonly consultationUsed: boolean;
   readonly pendingCommunication: PendingCommunication | null;
   readonly communicationResponse?: string;
+  readonly sparePartsCharges: number;
   readonly earlyWarningCharges: number;
+  readonly earlyWarningForecast: EarlyWarningForecast | null;
   readonly scenarioSeed: number;
   readonly completedTurns: number;
   readonly activeAlerts: readonly MissionAlert[];
@@ -142,6 +166,7 @@ export interface MissionState {
   readonly selectedModules: readonly ModuleId[];
   readonly actionTakenThisTurn: boolean;
   readonly decisions: readonly DecisionRecord[];
+  readonly moduleOperations: readonly ModuleOperationRecord[];
   readonly resolvedAlertCount: number;
   readonly ignoredAlertCount: number;
   readonly outcome: MissionOutcome;
@@ -171,4 +196,6 @@ export interface MissionResult {
   readonly scientificObjectiveAchieved: boolean;
   readonly relevantTools: SelectedTools;
   readonly relevantModules: readonly ModuleId[];
+  readonly moduleReport: readonly ModuleReportEntry[];
+  readonly configurationConsequences: readonly string[];
 }
