@@ -51,13 +51,18 @@ describe('constructor P10 y módulos H3', () => {
     expect(state.selectedModules).toEqual(selected);
   });
 
-  it('Paneles/baterías modifica la reserva y genera energía por turno', () => {
+  it('Paneles/baterías separa reserva de una bonificación ligada a la generación real', () => {
     const initial = createMission(setup(commonModules));
     expect(initial.energy).toBe(94);
     const next = closeQuietTurn(commonModules);
     const solar = next.moduleOperations.filter((operation) => operation.moduleId === 'SOLAR_STORAGE');
     expect(solar.some((operation) => operation.phase === 'SETUP' && operation.benefit.energy === 12)).toBe(true);
     expect(solar.some((operation) => operation.phase === 'TURN' && operation.benefit.energy === 3)).toBe(true);
+
+    const lowLight = closeQuietTurn(commonModules, { turn: 5, solarEfficiency: 10 });
+    const lowLightOperation = lowLight.moduleOperations.find((operation) =>
+      operation.moduleId === 'SOLAR_STORAGE' && operation.phase === 'TURN');
+    expect(lowLightOperation?.benefit.energy).toBe(0);
   });
 
   it('Soporte vital mejora oxígeno y cobra una vez por turno', () => {

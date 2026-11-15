@@ -1,0 +1,57 @@
+.coop-mission-shell,
+.coop-results-shell {
+  min-height: 100vh;
+  color: var(--space-paper);
+  background: var(--space-ink);
+  font-family: "Courier New", monospace;
+}
+
+.coop-role-bar {
+  position: relative;
+  z-index: 4;
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: .85rem;
+  border-color: var(--space-yellow);
+}
+
+.coop-mission-shell { padding-top: 1rem; background-image: radial-gradient(circle at 18% 20%, #fff 0 1px, transparent 2px); background-size: 91px 91px; }
+.coop-mission-shell .mission-shell { min-height: auto; padding-top: 1rem; }
+.coop-role-bar__title { display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; }
+.coop-role-bar__title > strong { color: var(--space-yellow); font-size: 1.2rem; text-transform: uppercase; }
+.coop-role-bar__title > small { margin-left: auto; color: var(--space-muted); }
+.coop-role-bar ol { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .55rem; margin: .75rem 0 0; padding: 0; list-style: none; }
+.coop-player { display: grid; grid-template-columns: 2rem 1fr; gap: .35rem; min-width: 0; padding: .5rem; border: 3px solid #315b73; background: #091a2b; }
+.coop-player > span { display: grid; grid-row: 1 / 3; width: 2rem; height: 2rem; place-items: center; color: var(--space-paper); border: 2px solid #315b73; }
+.coop-player div { min-width: 0; }.coop-player div strong,.coop-player div small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.coop-player div small { color: var(--space-muted); font-size: .62rem; }.coop-player em { grid-column: 1 / -1; color: #7e96a7; font-size: .56rem; font-style: normal; font-weight: 900; }
+.coop-player--active { color: #071426; border-color: #fff2a6; background: var(--space-yellow); box-shadow: 4px 4px 0 #020813; }
+.coop-player--active > span { color: #071426; border-color: #071426; }.coop-player--active div small,.coop-player--active em { color: #173148; }
+
+.coop-dialog-backdrop { position: fixed; z-index: 30; inset: 0; display: grid; place-items: center; padding: 1rem; background: rgb(2 8 19 / 82%); }
+.group-decision-dialog { width: min(42rem, 100%); max-height: calc(100vh - 2rem); overflow: auto; padding: 1.2rem; border-color: var(--space-yellow); }
+.group-decision-dialog h2 { margin: .35rem 0; color: var(--space-yellow); text-transform: uppercase; }
+.group-decision-dialog dl { display: grid; gap: .55rem; }.group-decision-dialog dl div { padding: .65rem; border-left: 5px solid var(--space-orange); background: #091a2b; }
+.group-decision-dialog dt { color: var(--space-orange); font-size: .65rem; font-weight: 900; }.group-decision-dialog dd { margin: .25rem 0 0; line-height: 1.4; }
+.group-decision-dialog__notice { padding: .6rem; color: #071426; background: var(--space-green); font-weight: 900; }
+.group-decision-dialog footer { display: flex; justify-content: flex-end; gap: .8rem; }
+
+.coop-results-summary { position: relative; z-index: 2; width: min(1180px, calc(100% - 2rem)); margin: 0 auto -1px; padding: 1rem; border-color: var(--space-yellow); }
+.coop-results-summary h1 { margin: .3rem 0; color: var(--space-yellow); text-transform: uppercase; }
+.coop-results-summary dl { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
+.coop-results-summary dl div { padding: .55rem; border: 2px solid #315b73; background: #091a2b; }.coop-results-summary dt{color:var(--space-muted);font-size:.65rem}.coop-results-summary dd{margin:.2rem 0 0;font-weight:900}
+.coop-results-summary__team { display: flex; flex-wrap: wrap; gap: .5rem; }.coop-results-summary__team span{padding:.4rem;border:2px solid #315b73;background:#091a2b;font-size:.7rem}
+.coop-learnings { margin-top: .7rem; padding: .7rem; border: 3px solid #315b73; background: #091a2b; }.coop-learnings h2{margin:0;text-transform:uppercase;font-size:1rem}.coop-learnings li{margin-top:.35rem;line-height:1.35}
+.coop-results-summary > p { margin-bottom: 0; color: var(--space-muted); font-size: .72rem; }
+.coop-error-shell,.coop-demo-finished { width:min(42rem,calc(100% - 2rem));margin:3rem auto;padding:1.2rem;color:var(--space-paper);font-family:"Courier New",monospace }
+
+@media (max-width: 900px) {
+  .coop-role-bar ol { grid-template-columns: repeat(2, 1fr); }
+  .coop-results-summary dl { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .coop-role-bar { width: calc(100% - 1rem); }.coop-role-bar ol{grid-template-columns:1fr}.coop-role-bar__title>small{margin-left:0}
+  .group-decision-dialog footer { align-items: stretch; flex-direction: column; }
+  .coop-results-summary { width: calc(100% - 1rem); }.coop-results-summary dl{grid-template-columns:1fr}
+}

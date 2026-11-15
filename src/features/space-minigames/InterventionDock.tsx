@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { INTERVENTIONS, getActionCost } from '../../game';
 import type {
   ActionChoice,
@@ -15,6 +15,8 @@ import { getInterventionPanelMode } from './interventionState';
 interface InterventionDockProps {
   readonly state: MissionState;
   readonly onAction: (action: GameAction) => void;
+  readonly onRequestConfirmation?: (action: GameAction) => void;
+  readonly groupDecisionPending?: boolean;
 }
 
 function formatCost(cost: ResourceDelta) {
@@ -25,11 +27,17 @@ function formatCost(cost: ResourceDelta) {
   return parts.join(' + ') || 'Sin costo de recursos';
 }
 
-export function InterventionDock({ state, onAction }: InterventionDockProps) {
+export function InterventionDock({
+  state,
+  onAction,
+  onRequestConfirmation,
+  groupDecisionPending = false,
+}: InterventionDockProps) {
   const [selected, setSelected] = useState<InterventionAction | null>(null);
   const [choiceId, setChoiceId] = useState<ActionChoice | undefined>();
   const [interactionReady, setInteractionReady] = useState(false);
   const actionLock = useRef(false);
+  const requestLock = useRef(false);
   const panelMode = getInterventionPanelMode(state, selected);
   const intervention = INTERVENTIONS.find((item) => item.action === selected);
   const matchingAlert = intervention
@@ -43,6 +51,10 @@ export function InterventionDock({ state, onAction }: InterventionDockProps) {
   const cost = pendingAction ? getActionCost(state, pendingAction) : {};
   const canPay = state.energy + (cost.energy ?? 0) >= 0
     && state.oxygen + (cost.oxygen ?? 0) >= 0;
+
+  useEffect(() => {
+    if (!groupDecisionPending) requestLock.current = false;
+  }, [groupDecisionPending]);
 
   function isAvailable(action: InterventionAction) {
     const item = INTERVENTIONS.find((candidate) => candidate.action === action);
@@ -66,17 +78,27 @@ export function InterventionDock({ state, onAction }: InterventionDockProps) {
   }
 
   function confirm() {
-    if (!pendingAction || !interactionReady || !canPay || actionLock.current) return;
+    if (!pendingAction || !interactionReady || !canPay || actionLock.current || requestLock.current) return;
+    if (onRequestConfirmation) {
+      requestLock.current = true;
+      onRequestConfirmation(pendingAction);
+      return;
+    }
     actionLock.current = true;
     onAction(pendingAction);
   }
 
   function skip() {
-    if (actionLock.current) return;
-    actionLock.current = true;
+    if (actionLock.current || requestLock.current) return;
     setSelected(null);
     setChoiceId(undefined);
     setInteractionReady(false);
+    if (onRequestConfirmation) {
+      requestLock.current = true;
+      onRequestConfirmation({ type: 'SKIP_INTERVENTION' });
+      return;
+    }
+    actionLock.current = true;
     onAction({ type: 'SKIP_INTERVENTION' });
   }
 
@@ -97,7 +119,7 @@ export function InterventionDock({ state, onAction }: InterventionDockProps) {
           type="button"
           key={item.id}
           className={`intervention-option ${selected === item.action ? 'intervention-option--selected' : ''}`}
-          disabled={state.actionTakenThisTurn || !isAvailable(item.action)}
+          disabled={state.actionTakenThisTurn || groupDecisionPending || !isAvailable(item.action)}
           onClick={() => choose(item.action)}
         >
           <span>{item.id}</span>
@@ -107,7 +129,7 @@ export function InterventionDock({ state, onAction }: InterventionDockProps) {
         <button
           type="button"
           className="intervention-option intervention-option--skip"
-          disabled={state.actionTakenThisTurn}
+          disabled={state.actionTakenThisTurn || groupDecisionPending}
           onClick={skip}
         >
           <span>—</span><strong>No intervenir</strong><small>Las alertas empeorarán</small>
@@ -142,9 +164,9 @@ export function InterventionDock({ state, onAction }: InterventionDockProps) {
           <button
             type="button"
             className="pixel-button pixel-button--confirm"
-            disabled={!interactionReady || !canPay || state.actionTakenThisTurn}
+            disabled={!interactionReady || !canPay || state.actionTakenThisTurn || groupDecisionPending}
             onClick={confirm}
-          >CONFIRMAR ACCIÓN</button>
+          >{onRequestConfirmation ? 'SOLICITAR ACUERDO' : 'CONFIRMAR ACCIÓN'}</button>
         </> : <div className="console-placeholder">
           <div aria-hidden="true">◀ ▲ ▼ ▶</div>
           <p>Selecciona una intervención para ver su costo, objetivo e interacción.</p>

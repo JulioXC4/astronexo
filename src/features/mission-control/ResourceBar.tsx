@@ -1,7 +1,7 @@
 interface ResourceBarProps {
   readonly label: string;
   readonly value: number;
-  readonly tone: 'energy' | 'oxygen' | 'shield';
+  readonly tone: 'energy' | 'oxygen' | 'shield' | 'food';
 }
 
 export function ResourceBar({ label, value, tone }: ResourceBarProps) {

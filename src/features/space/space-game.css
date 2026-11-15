@@ -93,6 +93,7 @@
   margin-top: 1rem;
   padding: 0.9rem;
 }
+.resource-rack--four { grid-template-columns: repeat(4, 1fr); }
 
 .early-warning { display:flex; align-items:center; gap:1rem; margin-top:1rem; padding:.75rem 1rem; border-color:var(--space-yellow); }
 .early-warning strong { color:var(--space-yellow); }.early-warning span{font-weight:900}.early-warning small{margin-left:auto;color:var(--space-muted)}
@@ -102,6 +103,7 @@
 .resource-bar__track span { display: block; height: 100%; background: var(--space-yellow); transition: width 180ms steps(5, end); }
 .resource-bar__track--oxygen span { background: var(--space-green); }
 .resource-bar__track--shield span { background: #62d4ee; }
+.resource-bar__track--food span { background: var(--space-orange); }
 
 .mission-grid,
 .results-grid {

@@ -379,9 +379,13 @@ function interruptionCause(state: MissionState): string | undefined {
   return undefined;
 }
 
-function operationalDelta(state: MissionState): ResourceDelta {
+function solarGenerationForTurn(state: MissionState) {
   const config = DESTINATION_CONFIG[state.destination];
-  const solarGain = Math.round(config.solarProduction[state.turn - 1] * state.solarEfficiency / 100);
+  return Math.round(config.solarProduction[state.turn - 1] * state.solarEfficiency / 100);
+}
+
+function operationalDelta(state: MissionState, solarGain: number): ResourceDelta {
+  const config = DESTINATION_CONFIG[state.destination];
   const waterRecycler = hasTool(state, 'WATER_RECYCLER');
   const lifeSupport = hasTool(state, 'LIFE_SUPPORT');
   const insulated = hasTool(state, 'THERMAL_INSULATION');
@@ -418,10 +422,12 @@ export function advanceTurn(state: MissionState): MissionState {
     };
   });
   const afterAlerts = applyResourceDelta(state, sumDeltas(unresolvedEvents.map((event) => event.resourceDelta)));
-  const baseOperations = operationalDelta(afterAlerts);
+  const solarGeneration = solarGenerationForTurn(afterAlerts);
+  const baseOperations = operationalDelta(afterAlerts, solarGeneration);
   const moduleOperations = getModuleTurnOperations(
     afterAlerts,
     Math.max(0, baseOperations.radiationExposure ?? 0),
+    solarGeneration,
   );
   const moduleDelta = sumDeltas(
     moduleOperations.flatMap((operation) => [operation.cost, operation.benefit]),

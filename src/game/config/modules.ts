@@ -19,6 +19,7 @@ export interface ModuleDefinition {
   readonly turnBenefit?: ResourceDelta;
   readonly requiresActiveGreenhouse?: boolean;
   readonly researchBonus?: number;
+  readonly solarGenerationBonusRatio?: number;
   readonly affectedBy: readonly AlertKind[];
 }
 
@@ -26,9 +27,9 @@ export const MODULE_CATALOG: readonly ModuleDefinition[] = [
   {
     id: 'SOLAR_STORAGE', name: 'Paneles y baterías', icon: '☀',
     description: 'Amplía la reserva y aprovecha mejor cada ciclo solar.',
-    benefit: '+12 Energía inicial y +3 por turno.', costLabel: 'Sin costo operativo',
-    rule: 'Añade reserva al desplegarse y generación en cada cierre de turno.',
-    initialEffect: { energy: 12 }, turnBenefit: { energy: 3 },
+    benefit: '+12 de reserva inicial y +30% de la generación solar efectiva.', costLabel: 'Sin costo operativo',
+    rule: 'La batería amplía la reserva; el aporte por turno depende de la luz y eficiencia disponibles.',
+    initialEffect: { energy: 12 }, solarGenerationBonusRatio: 0.3,
     affectedBy: ['PANEL_DAMAGE', 'DUSTY_PANELS', 'MARS_DUST_STORM'],
   },
   {
@@ -110,13 +111,16 @@ export function getInitialModuleOperations(modules: readonly ModuleId[]): readon
 export function getModuleTurnOperations(
   state: Pick<MissionState, 'turn' | 'selectedModules' | 'greenhouseActive'>,
   radiationIncrease: number,
+  solarGeneration: number,
 ): readonly ModuleOperationRecord[] {
   return state.selectedModules.flatMap((id) => {
     const module = getModuleDefinition(id);
     if (!module || (module.requiresActiveGreenhouse && !state.greenhouseActive)) return [];
     const benefit = id === 'STORM_SHELTER'
       ? { radiationExposure: -Math.min(radiationIncrease, 2) }
-      : (module.turnBenefit ?? {});
+      : id === 'SOLAR_STORAGE'
+        ? { energy: Math.round(solarGeneration * (module.solarGenerationBonusRatio ?? 0)) }
+        : (module.turnBenefit ?? {});
     if (!module.operationalCost && Object.keys(benefit).length === 0) return [];
     return [{
       turn: state.turn,

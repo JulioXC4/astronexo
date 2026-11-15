@@ -9,9 +9,19 @@ interface MissionControlViewProps {
   readonly state: MissionState;
   readonly onAction: (action: GameAction) => void;
   readonly onAdvance: () => void;
+  readonly onRequestConfirmation?: (action: GameAction) => void;
+  readonly groupDecisionPending?: boolean;
+  readonly showFoodAsPrimary?: boolean;
 }
 
-export function MissionControlView({ state, onAction, onAdvance }: MissionControlViewProps) {
+export function MissionControlView({
+  state,
+  onAction,
+  onAdvance,
+  onRequestConfirmation,
+  groupDecisionPending = false,
+  showFoodAsPrimary = false,
+}: MissionControlViewProps) {
   const destinationLabel = state.destination === 'MOON' ? 'LUNA' : 'MARTE';
   const communicationLabel = state.pendingCommunication
     ? 'RESPUESTA EN TRÁNSITO'
@@ -32,10 +42,11 @@ export function MissionControlView({ state, onAction, onAdvance }: MissionContro
       </div>
     </header>
 
-    <section className="resource-rack pixel-panel" aria-label="Recursos principales">
+    <section className={`resource-rack pixel-panel ${showFoodAsPrimary ? 'resource-rack--four' : ''}`} aria-label="Recursos principales">
       <ResourceBar label="ENERGÍA" value={state.energy} tone="energy" />
       <ResourceBar label="OXÍGENO" value={state.oxygen} tone="oxygen" />
       <ResourceBar label="ESCUDO" value={state.shield} tone="shield" />
+      {showFoodAsPrimary && <ResourceBar label="COMIDA" value={state.foodSupply} tone="food" />}
     </section>
 
     {state.earlyWarningForecast && state.turn < state.earlyWarningForecast.turn && <aside className="early-warning pixel-panel" role="status">
@@ -65,7 +76,7 @@ export function MissionControlView({ state, onAction, onAdvance }: MissionContro
         <dl className="telemetry-grid">
           <div><dt>Exposición</dt><dd>{state.radiationExposure}/100</dd></div>
           <div><dt>Ciencia</dt><dd>{state.scienceProgress}/100</dd></div>
-          <div><dt>Alimentos</dt><dd>{state.foodSupply}/100</dd></div>
+          {!showFoodAsPrimary && <div><dt>Alimentos</dt><dd>{state.foodSupply}/100</dd></div>}
           <div><dt>Solar</dt><dd>{state.solarEfficiency}/100</dd></div>
           <div><dt>Invernadero</dt><dd>{state.greenhouseActive ? 'ACTIVO' : 'SUSPENDIDO'}</dd></div>
           <div><dt>Enlace Tierra</dt><dd>{communicationLabel}</dd></div>
@@ -99,7 +110,13 @@ export function MissionControlView({ state, onAction, onAdvance }: MissionContro
       </li>)}</ul>
     </details>
 
-    <InterventionDock key={state.turn} state={state} onAction={onAction} />
+    <InterventionDock
+      key={state.turn}
+      state={state}
+      onAction={onAction}
+      onRequestConfirmation={onRequestConfirmation}
+      groupDecisionPending={groupDecisionPending}
+    />
 
     {state.lastFeedback && <aside className="mission-feedback" role="status">
       <strong>RESULTADO</strong> · {state.lastFeedback.message}
