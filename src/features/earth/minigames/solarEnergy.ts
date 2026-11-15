@@ -48,3 +48,12 @@ export function remainingNightEnergy(allocation: Allocation, tick: number) {
   const shelter = allocation.shelter;
   return Math.max(0, communicationsNight + shelter - Math.min(tick, 2) - Math.min(Math.max(tick - 2, 0), 5));
 }
+
+/** Remaining assigned energy after each of the seven simulated night intervals. */
+export function nightSystemEnergy(allocation: Allocation, tick: number) {
+  const interval = Math.max(0, Math.min(7, Math.floor(tick)));
+  return {
+    communications: Math.max(0, allocation.communications - 2 - Math.min(interval, 2)),
+    shelter: Math.max(0, allocation.shelter - Math.max(0, interval - 2)),
+  };
+}
