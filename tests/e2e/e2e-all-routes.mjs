@@ -82,7 +82,7 @@ async function runTest() {
       // Mission 1: SOLAR_DETECTIVE (Decision: reserve 45% -> cost: 2 energy)
       console.log('Route 1: Completing Mission 1 (Solar Detective, 45% reserve)');
       await page.locator('.earth-base-facility').nth(0).click();
-      await page.click('button:has-text("Ejecutar Misión")');
+      await page.click('.emap-panel__start');
       await page.waitForSelector('button:has-text("Cerrar Interruptor")');
       await page.click('button:has-text("Cerrar Interruptor")');
       await page.waitForSelector('button:has-text("Confirmar costo de 2 punto(s) de Energía")');
@@ -96,7 +96,7 @@ async function runTest() {
       // Mission 2: ALTITUDE_ACCLIMATIZATION (Decision: 72 kPa -> cost: 1 oxygen)
       console.log('Route 1: Completing Mission 2 (Altitude Acclimatization, 72 kPa)');
       await page.locator('.earth-base-facility').nth(1).click();
-      await page.click('button:has-text("Ejecutar Misión")');
+      await page.click('.emap-panel__start');
       await setSliderValue(page, '#pressure-slider', '72');
       await page.click('button:has-text("Sello Principal")');
       await page.click('button:has-text("Escotilla Exterior")');
@@ -113,7 +113,7 @@ async function runTest() {
       // Mission 3: SOLAR_WATCH (Decision: CME Event 1 -> cost: 2 energy)
       console.log('Route 1: Completing Mission 3 (Solar Watch, Event 1)');
       await page.locator('.earth-base-facility').nth(2).click();
-      await page.click('button:has-text("Ejecutar Misión")');
+      await page.click('.emap-panel__start');
       await page.waitForSelector('button:has-text("1. Sonar Alarma de Evacuación")');
       await page.click('button:has-text("1. Sonar Alarma de Evacuación")');
       await page.waitForSelector('button:has-text("2. Cerrar Compuerta Blindada"):not([disabled])');
@@ -255,7 +255,7 @@ async function runTest() {
       // Mission 1: SOLAR_DETECTIVE with 55% reserve (Different decision: cost 1 instead of 2)
       console.log('Route 2: Mission 1 (Solar Detective with 55% reserve -> cost 1)');
       await page.locator('.earth-base-facility').nth(0).click();
-      await page.click('button:has-text("Ejecutar Misión")');
+      await page.click('.emap-panel__start');
       await setSliderValue(page, '#solar-reserve-slider', '55');
       await page.click('button:has-text("Cerrar Interruptor")');
       await page.waitForSelector('button:has-text("Confirmar costo de 1 punto(s) de Energía")');
@@ -265,7 +265,7 @@ async function runTest() {
       // Mission 2: ALTITUDE_ACCLIMATIZATION with 80 kPa (Different decision: cost 2 instead of 1)
       console.log('Route 2: Mission 2 (Altitude Acclimatization with 80 kPa -> cost 2)');
       await page.locator('.earth-base-facility').nth(1).click();
-      await page.click('button:has-text("Ejecutar Misión")');
+      await page.click('.emap-panel__start');
       await setSliderValue(page, '#pressure-slider', '80');
       await page.click('button:has-text("Sello Principal")');
       await page.click('button:has-text("Escotilla Exterior")');
@@ -278,7 +278,7 @@ async function runTest() {
       // Mission 3: SOLAR_WATCH with CME Event 2 (Different decision: cost 1 instead of 2)
       console.log('Route 2: Mission 3 (Solar Watch with CME Event 2 -> cost 1)');
       await page.locator('.earth-base-facility').nth(2).click();
-      await page.click('button:has-text("Ejecutar Misión")');
+      await page.click('.emap-panel__start');
       await page.waitForSelector('.callsign-chip');
       // Select 2nd CME event
       await page.locator('.callsign-chip').nth(1).click();
@@ -413,7 +413,7 @@ async function runTest() {
       // Mission 1: DARK_MONTHS_RESERVE
       console.log('Route 3: Mission 1 (Dark Months Reserve)');
       await page.locator('.earth-base-facility').nth(0).click();
-      await page.click('button:has-text("Ejecutar Misión")');
+      await page.click('.emap-panel__start');
       await page.waitForSelector('button:has-text("Simular Noche Continua")');
       await page.click('button:has-text("Simular Noche Continua")');
       await page.waitForSelector('button:has-text("Confirmar costo de")');
@@ -423,7 +423,7 @@ async function runTest() {
       // Mission 2: ARCTIC_GREENHOUSE
       console.log('Route 3: Mission 2 (Arctic Greenhouse)');
       await page.locator('.earth-base-facility').nth(1).click();
-      await page.click('button:has-text("Ejecutar Misión")');
+      await page.click('.emap-panel__start');
       await page.waitForSelector('button:has-text("Auto-Calibrar")');
       await page.click('button:has-text("Auto-Calibrar")');
       await page.click('button:has-text("Verificar Ciclo Ártico")');
@@ -434,7 +434,7 @@ async function runTest() {
       // Mission 3: SOLAR_WATCH
       console.log('Route 3: Mission 3 (Solar Watch)');
       await page.locator('.earth-base-facility').nth(2).click();
-      await page.click('button:has-text("Ejecutar Misión")');
+      await page.click('.emap-panel__start');
       await page.waitForSelector('button:has-text("1. Sonar Alarma de Evacuación")');
       await page.click('button:has-text("1. Sonar Alarma de Evacuación")');
       await page.waitForSelector('button:has-text("2. Cerrar Compuerta Blindada"):not([disabled])');
@@ -549,7 +549,7 @@ async function runTest() {
       // Mission 1: DARK_MONTHS_RESERVE
       console.log('Route 4: Mission 1 (Dark Months)');
       await page.locator('.earth-base-facility').nth(0).click();
-      await page.click('button:has-text("Ejecutar Misión")');
+      await page.click('.emap-panel__start');
       await page.waitForSelector('button:has-text("Simular Noche Continua")');
       await page.click('button:has-text("Simular Noche Continua")');
       await page.waitForSelector('button:has-text("Confirmar costo de")');
@@ -558,7 +558,7 @@ async function runTest() {
       // Mission 2: ARCTIC_GREENHOUSE
       console.log('Route 4: Mission 2 (Arctic Greenhouse)');
       await page.locator('.earth-base-facility').nth(1).click();
-      await page.click('button:has-text("Ejecutar Misión")');
+      await page.click('.emap-panel__start');
       await page.waitForSelector('button:has-text("Auto-Calibrar")');
       await page.click('button:has-text("Auto-Calibrar")');
       await page.click('button:has-text("Verificar Ciclo Ártico")');
@@ -568,7 +568,7 @@ async function runTest() {
       // Mission 3: ECLSS_TRAINING (4th facility on Tromsø map)
       console.log('Route 4: Mission 3 (ECLSS Training)');
       await page.locator('.earth-base-facility').nth(3).click();
-      await page.click('button:has-text("Ejecutar Misión")');
+      await page.click('.emap-panel__start');
       // Set electrolysis to 350W
       await setSliderValue(page, '#watts-slider', '350');
       // Activate scrubber

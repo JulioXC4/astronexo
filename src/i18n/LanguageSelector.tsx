@@ -6,12 +6,15 @@ export interface LanguageSelectorProps {
   readonly variant?: 'welcome' | 'hud' | 'compact';
   readonly className?: string;
   readonly showDraftNotice?: boolean;
+  /** Muestra solo el código del idioma, sin banderas ni emojis (HUD de juego). */
+  readonly plain?: boolean;
 }
 
 export function LanguageSelector({
   variant = 'hud',
   className = '',
   showDraftNotice = true,
+  plain = false,
 }: LanguageSelectorProps) {
   const { language, setLanguage, languageInfo, t } = useI18n();
 
@@ -91,9 +94,11 @@ export function LanguageSelector({
               title={`${lang.nativeName} (${lang.name})${lang.isDraft ? ' - ' + lang.draftNotice : ''}`}
               onClick={() => handleSelect(lang.code)}
             >
-              <span className="lang-hud-flag" aria-hidden="true">
-                {lang.flag}
-              </span>
+              {!plain && (
+                <span className="lang-hud-flag" aria-hidden="true">
+                  {lang.flag}
+                </span>
+              )}
               <span className="lang-hud-code">{lang.code.toUpperCase()}</span>
             </button>
           );
@@ -105,7 +110,7 @@ export function LanguageSelector({
           title={languageInfo.draftNotice}
           aria-label={languageInfo.draftNotice}
         >
-          ⚠️ Draft
+          {plain ? 'Draft' : '⚠️ Draft'}
         </span>
       )}
     </div>
