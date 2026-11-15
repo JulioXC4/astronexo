@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ArrowLeft, CheckCircle, Compass, Crosshair, Play, RocketLaunch, Sparkle, LockKey } from '@phosphor-icons/react';
 import { getMissionsForCity, type EarthMissionDefinition, type MissionType } from '../../../data/missions';
 import type { ToolId } from '../../../game/contracts';
@@ -6,7 +6,10 @@ import type { TrainingOutcome } from '../../../game';
 import { trainingResourceLabel } from '../trainingOutcome';
 import { EarthBaseScene } from '../../../visual-kit/EarthBaseScene';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
 import './earth.css';
+
+const MAP_TUTORIAL_STEPS = ['map.pin', 'map.tool', 'map.counter'] as const;
 
 interface PreparationMapScreenProps {
   readonly cityId: string;
@@ -34,6 +37,7 @@ export function PreparationMapScreen({
   const { t } = useI18n();
   const missions = getMissionsForCity(cityId);
   const [selectedMissionIndex, setSelectedMissionIndex] = useState<number>(0);
+  const [tutorialOpen, setTutorialOpen] = useState(() => !isTutorialComplete(MAP_TUTORIAL_STEPS));
 
   const activeMission = missions[selectedMissionIndex] ?? missions[0];
   const isCompleted = completedMissions.includes(activeMission.id);
@@ -47,6 +51,29 @@ export function PreparationMapScreen({
   });
   const activeOutcome = trainingOutcomes.find((outcome) => outcome.missionId === activeMission.id);
   const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
+  const tutorialSteps = useMemo(() => [
+    {
+      id: MAP_TUTORIAL_STEPS[0],
+      character: 'CHISPA' as const,
+      text: t('tutorial.map.pin'),
+      targetSelector: '.earth-base-facility',
+      placement: 'right' as const,
+    },
+    {
+      id: MAP_TUTORIAL_STEPS[1],
+      character: 'CHISPA' as const,
+      text: t('tutorial.map.tool'),
+      targetSelector: '[data-tutorial="mission-tool"]',
+      placement: 'left' as const,
+    },
+    {
+      id: MAP_TUTORIAL_STEPS[2],
+      character: 'CHISPA' as const,
+      text: t('tutorial.map.counter'),
+      targetSelector: '[data-tutorial="mission-counter"]',
+      placement: 'bottom' as const,
+    },
+  ], [t]);
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
@@ -62,7 +89,7 @@ export function PreparationMapScreen({
             <span>Base: {cityName} ➔ {destName} ({astronautName})</span>
           </div>
 
-          <div style={{
+          <div data-tutorial="mission-counter" style={{
             background: isThreeDone ? '#1b5e20' : '#142539',
             border: `2px solid ${isThreeDone ? '#69f0ae' : '#f6c15b'}`,
             borderRadius: '2rem',
@@ -79,7 +106,10 @@ export function PreparationMapScreen({
           </div>
         </div>
 
-        <LanguageSelector variant="hud" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+          <TutorialHelpButton onClick={() => setTutorialOpen(true)} />
+          <LanguageSelector variant="hud" />
+        </div>
       </header>
 
       <div className="prep-map-layout">
@@ -142,7 +172,7 @@ export function PreparationMapScreen({
             </p>}
 
             <div style={{ display: 'flex', gap: '1.2rem', marginTop: '0.4rem', flexWrap: 'wrap', fontSize: '0.82rem' }}>
-              <span style={{ color: '#69f0ae' }}>
+              <span data-tutorial="mission-tool" style={{ color: '#69f0ae' }}>
                 🎁 <strong>Herramienta:</strong> {activeMission.toolLabel}
               </span>
               <span style={{ color: '#ffb74d' }}>
@@ -194,6 +224,12 @@ export function PreparationMapScreen({
           </div>
         </section>
       </div>
+      <TutorialCoachMark
+        open={tutorialOpen}
+        steps={tutorialSteps}
+        onComplete={() => setTutorialOpen(false)}
+        onSkip={() => setTutorialOpen(false)}
+      />
     </div>
   );
 }

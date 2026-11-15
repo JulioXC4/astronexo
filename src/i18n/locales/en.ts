@@ -30,6 +30,40 @@ export const en = {
     suspended: 'SUSPENDED',
   },
 
+  tutorial: {
+    guideLabel: 'Junior Astronaut guide',
+    next: 'Next',
+    understood: 'Got it',
+    skip: 'Skip',
+    help: 'Help',
+    letsGo: "Let's go!",
+    characters: {
+      alba: 'Alba',
+      chispa: 'Chispa',
+    },
+    welcome: 'Hello, astronaut! Let’s get our space mission ready.',
+    map: {
+      pin: 'There are five missions. Choose three for your backpack!',
+      tool: 'Each mission gives you a different tool for the journey.',
+      counter: 'This shows how many missions you completed. Reach 3/3 to continue.',
+    },
+    guard: {
+      resources: 'Keep an eye on Energy, Oxygen, and Shield.',
+      alerts: 'We have alerts! You can only handle one each turn.',
+      actions: 'Tap Actions, check each repair cost, and choose one.',
+    },
+    intervention: {
+      REPAIR_PANELS: 'Drag the part onto the panel.',
+      CLEAN_PANELS: 'Swipe to clear away the dust.',
+      PATCH_OXYGEN_LEAK: 'Tap each leak point.',
+      RECYCLE_OXYGEN: 'Press and hold the control.',
+      REINFORCE_SHELTER: 'Place the protection blocks.',
+      RUN_RESEARCH: 'Press and hold the terminal to complete the study.',
+      MANAGE_GREENHOUSE: 'Choose whether to maintain or suspend the crops.',
+      CONSULT_EARTH: 'Choose the guidance you want to request from Earth.',
+    },
+  },
+
   welcome: {
     title: 'Junior Astronaut',
     subtitle: 'From your sky to other worlds',

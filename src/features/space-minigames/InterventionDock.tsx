@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { X } from '@phosphor-icons/react';
 import { INTERVENTIONS, getActionCost } from '../../game';
 import type {
@@ -14,6 +14,9 @@ import { OxygenPatchGame } from './OxygenPatchGame';
 import { PanelRepairGame } from './PanelRepairGame';
 import { getInterventionPanelMode } from './interventionState';
 import { useI18n } from '../../i18n';
+import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../tutorial';
+
+const INTERVENTION_TUTORIAL_STEP = 'intervention.first';
 
 interface InterventionDockProps {
   readonly state: MissionState;
@@ -46,6 +49,7 @@ export function InterventionDock({
   const [skipSelected, setSkipSelected] = useState(false);
   const [choiceId, setChoiceId] = useState<ActionChoice | undefined>();
   const [interactionReady, setInteractionReady] = useState(false);
+  const [interventionTutorialOpen, setInterventionTutorialOpen] = useState(false);
   const actionLock = useRef(false);
   const requestLock = useRef(false);
   const panelMode = getInterventionPanelMode(state, selected);
@@ -68,6 +72,13 @@ export function InterventionDock({
   const cost = pendingAction ? getActionCost(state, pendingAction) : {};
   const canPay = state.energy + (cost.energy ?? 0) >= 0
     && state.oxygen + (cost.oxygen ?? 0) >= 0;
+  const interventionTutorialSteps = useMemo(() => selected ? [{
+    id: INTERVENTION_TUTORIAL_STEP,
+    character: 'CHISPA' as const,
+    text: t(`tutorial.intervention.${selected}`),
+    targetSelector: '[data-tutorial="intervention-game"]',
+    placement: 'top' as const,
+  }] : [], [selected, t]);
 
   useEffect(() => {
     if (!groupDecisionPending) requestLock.current = false;
@@ -81,6 +92,14 @@ export function InterventionDock({
     setChoiceId(undefined);
     setInteractionReady(false);
   }, [state.actionTakenThisTurn]);
+
+  useEffect(() => {
+    if (!selected) {
+      setInterventionTutorialOpen(false);
+      return;
+    }
+    if (!isTutorialComplete([INTERVENTION_TUTORIAL_STEP])) setInterventionTutorialOpen(true);
+  }, [selected]);
 
   function unavailableReason(action: InterventionAction) {
     const item = INTERVENTIONS.find((candidate) => candidate.action === action);
@@ -109,6 +128,7 @@ export function InterventionDock({
 
   function closeOverlay() {
     if (groupDecisionPending) return;
+    setInterventionTutorialOpen(false);
     setSelected(null);
     setSkipSelected(false);
     setChoiceId(undefined);
@@ -152,6 +172,7 @@ export function InterventionDock({
   return <section className="intervention-dock" aria-labelledby="intervention-title">
     <button
       type="button"
+      data-tutorial="space-actions"
       className="intervention-menu-trigger pixel-button"
       aria-expanded={menuOpen}
       aria-controls="intervention-menu"
@@ -274,9 +295,12 @@ export function InterventionDock({
             <span>{t('interventions.previewKicker', { id: '' })}</span>
             <h3 id="intervention-dialog-title">{t(`interventions.items.${intervention.id}.label`)}</h3>
           </div>
-          <button type="button" className="intervention-close" onClick={closeOverlay} aria-label={t('common.close')}>
-            <X weight="bold" aria-hidden="true" />
-          </button>
+          <div className="intervention-console__header-actions">
+            <TutorialHelpButton onClick={() => setInterventionTutorialOpen(true)} />
+            <button type="button" className="intervention-close" onClick={closeOverlay} aria-label={t('common.close')}>
+              <X weight="bold" aria-hidden="true" />
+            </button>
+          </div>
         </header>
         <div className="intervention-brief">
           <p>{t(`interventions.items.${intervention.id}.objective`)}</p>
@@ -287,16 +311,18 @@ export function InterventionDock({
           <div><span>{t('interventions.benefit')}</span><strong>{t(`interventions.items.${intervention.id}.benefit`)}</strong></div>
         </div>
         {panelMode === 'SKIPPED' ? <div className="console-placeholder"><p>{t('interventions.skippedDesc')}</p></div> : <>
-          {selected === 'REPAIR_PANELS'
-            ? <PanelRepairGame onReadyChange={setInteractionReady} />
-            : selected === 'PATCH_OXYGEN_LEAK'
-              ? <OxygenPatchGame onReadyChange={setInteractionReady} />
-              : <InterventionGesture
-                  key={selected}
-                  action={selected}
-                  onReadyChange={setInteractionReady}
-                  onChoiceChange={setChoiceId}
-                />}
+          <div data-tutorial="intervention-game">
+            {selected === 'REPAIR_PANELS'
+              ? <PanelRepairGame onReadyChange={setInteractionReady} />
+              : selected === 'PATCH_OXYGEN_LEAK'
+                ? <OxygenPatchGame onReadyChange={setInteractionReady} />
+                : <InterventionGesture
+                    key={selected}
+                    action={selected}
+                    onReadyChange={setInteractionReady}
+                    onChoiceChange={setChoiceId}
+                  />}
+          </div>
           {!canPay && <p className="error-copy">{t('interventions.insufficientResources')}</p>}
           <footer className="intervention-console__actions">
             <button type="button" className="pixel-button" onClick={closeOverlay}>{t('common.back')}</button>
@@ -309,6 +335,12 @@ export function InterventionDock({
           </footer>
         </>}
       </section>
+      <TutorialCoachMark
+        open={interventionTutorialOpen}
+        steps={interventionTutorialSteps}
+        onComplete={() => setInterventionTutorialOpen(false)}
+        onSkip={() => setInterventionTutorialOpen(false)}
+      />
     </div>}
   </section>;
 }
