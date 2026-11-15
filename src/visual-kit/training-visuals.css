@@ -1,0 +1,2 @@
+.training-visual { display: block; width: 100%; height: auto; border-radius: 16px; }
+.training-visual--complete, .training-visual--alert { filter: drop-shadow(0 6px 14px rgba(0,0,0,.24)); }

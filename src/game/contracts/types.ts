@@ -1,22 +1,20 @@
-export type Destination = 'MOON' | 'MARS';
-export type ToolId = 'FOLDING_PANELS' | 'LIFE_SUPPORT' | 'SHELTER_KIT' | 'CROP_KIT';
-export type Backpack = readonly [ToolId, ToolId, ToolId];
+import { isValidSelectedTools } from '../config';
+import type { Destination, SelectedTools, ToolId } from '../types';
+
+export type { Destination, ToolId } from '../types';
+export type { ToolDefinition } from '../config';
+export { TOOL_CATALOG } from '../config';
+
+/** @deprecated Usa `SelectedTools` desde `src/game`. */
+export type Backpack = SelectedTools;
 export type TrainingId = 'SOLAR_DETECTIVE' | 'SOLAR_WATCH';
 export type MissionStatus = 'PLAYING' | 'SUCCESS' | 'FAILED';
 
-export interface ToolDefinition {
-  readonly id: ToolId;
-  readonly label: string;
-}
-
-export const TOOL_CATALOG: readonly ToolDefinition[] = [
-  { id: 'FOLDING_PANELS', label: 'Paneles plegables' },
-  { id: 'LIFE_SUPPORT', label: 'Kit de soporte vital' },
-  { id: 'SHELTER_KIT', label: 'Kit de refugio' },
-  { id: 'CROP_KIT', label: 'Kit de cultivos' },
-] as const;
-
-export interface GameSetup {
+/**
+ * Adaptador temporal del flujo terrestre anterior a v3.0.
+ * La interfaz pública nueva es `GameSetup` desde `src/game`.
+ */
+export interface LegacyGameSetup {
   readonly cityId: string;
   readonly avatarId: string;
   readonly fictionalName: string;
@@ -25,10 +23,13 @@ export interface GameSetup {
   readonly completedTraining: readonly TrainingId[];
 }
 
+/** @deprecated Alias conservado para no romper EarthFlow/App durante la migración. */
+export type GameSetup = LegacyGameSetup;
+
 export interface NasaObservation {
   readonly source: 'POWER' | 'DONKI';
   readonly recordId: string;
-  readonly observedAt: string; // ISO date or datetime from source
+  readonly observedAt: string;
   readonly parameter: string;
   readonly value: number | string;
   readonly unit: string;
@@ -42,48 +43,52 @@ export interface NasaDataset {
   readonly note?: string;
 }
 
-export interface MissionAlert {
+export interface LegacyMissionAlert {
   readonly id: string;
   readonly kind: string;
   readonly summary: string;
   readonly severity: number;
 }
 
-export interface MissionDecision {
+export interface LegacyMissionDecision {
   readonly turn: number;
   readonly alertId: string;
   readonly actionId: string;
   readonly explanation: string;
 }
 
-export interface MissionState {
+/** Estado de salida legacy: `air` se mantiene solo en este borde de integración. */
+export interface LegacyMissionState {
   readonly destination: Destination;
   readonly turn: number;
   readonly maxTurns: number;
   readonly crew: number;
   readonly energy: number;
   readonly air: number;
-  readonly shield: number; // Preparación del refugio; no campo de fuerza.
+  readonly shield: number;
   readonly food: number;
   readonly radiationExposure: number;
   readonly scienceProgress: number;
   readonly communications: number;
   readonly faults: readonly string[];
-  readonly alerts: readonly MissionAlert[];
+  readonly alerts: readonly LegacyMissionAlert[];
   readonly tools: Backpack;
-  readonly history: readonly MissionDecision[];
+  readonly history: readonly LegacyMissionDecision[];
   readonly status: MissionStatus;
 }
 
-export interface MissionResult {
+export interface LegacyMissionResult {
   readonly outcome: 'SUCCESS' | 'FAILED' | 'NOT_PLAYED';
   readonly destination: Destination;
-  readonly finalState: MissionState | null;
+  readonly finalState: LegacyMissionState | null;
   readonly explanation: string;
   readonly evidence: readonly NasaObservation[];
 }
 
+/** @deprecated Usa `MissionResult` desde `src/game` para código nuevo. */
+export type MissionResult = LegacyMissionResult;
+
+/** @deprecated Usa `isValidSelectedTools` desde `src/game`. */
 export function isValidBackpack(tools: readonly ToolId[]): tools is Backpack {
-  const catalogIds = new Set<ToolId>(TOOL_CATALOG.map((tool) => tool.id));
-  return tools.length === 3 && new Set(tools).size === 3 && tools.every((tool) => catalogIds.has(tool));
+  return isValidSelectedTools(tools);
 }

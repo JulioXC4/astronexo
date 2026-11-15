@@ -1,4 +1,5 @@
-import type { GameSetup, MissionResult, NasaDataset } from './types';
+import type { GameSetup as LegacyGameSetup, MissionResult as LegacyMissionResult, NasaDataset } from './types';
+import type { GameSetup } from '../types';
 
 export interface EarthReadyPayload {
   readonly setup: GameSetup;
@@ -9,6 +10,8 @@ export interface EarthFlowProps {
   readonly onReady: (payload: EarthReadyPayload) => void;
 }
 
-export interface SpaceGameProps extends EarthReadyPayload {
-  readonly onFinish: (result: MissionResult) => void;
+export interface SpaceGameProps {
+  readonly setup: LegacyGameSetup;
+  readonly nasaData: NasaDataset;
+  readonly onFinish: (result: LegacyMissionResult) => void;
 }

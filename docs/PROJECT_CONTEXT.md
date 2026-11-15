@@ -210,6 +210,7 @@ Los minijuegos deben modificar estado real del motor; no ser una decoración ni 
 
 - El repositorio remoto `JulioXC4/astronexo` estaba vacío, sin ramas ni archivos. La carpeta local tampoco contenía código ni commits antes de este andamiaje.
 - Este andamiaje contiene Vite, React y TypeScript, contratos compartidos y una prueba temporal de transferencia Tierra → App → Espacio → App. No hay campaña lunar, motor, entrenamientos ni observaciones NASA verificadas implementados.
+- Avance posterior: la bienvenida visual inspirada en la opción 1 ya abre la selección temporal de mochila; «Modo Estación» y «Fuentes científicas» muestran información honesta. Esto no cambia el estado pendiente del motor ni de la campaña lunar.
 - La mochila temporal tiene cuatro opciones y exige tres distintas. La única misión seleccionable en la prueba es Luna; Marte permanece como tipo admitido en el contrato, sin campaña.
 - El paquete de equipo `00-PAQUETE-EQUIPO` no estaba disponible en el repositorio inspeccionado. Confirmar con el equipo si sus decisiones difieren de este documento, especialmente el alcance de Marte, la duración de Tierra y la interfaz final de contratos.
 - La dirección mejorada de la sección 2 se usa como objetivo de MVP, pero no consta como aprobación final del equipo. Resolver diferencias explícitamente antes de ampliar el alcance.
