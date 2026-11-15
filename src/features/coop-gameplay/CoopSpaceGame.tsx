@@ -68,7 +68,7 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
     const completedSetup = { ...setup, selectedModules };
     setMission(createMission(completedSetup));
     setPendingDecision(null);
-    setTransition(t('coop.transitionBuilt') || 'Base construida · Guardia lista');
+    setTransition(t('coop.transitionBuilt'));
   }
 
   function requestDecision(action: GameAction) {
@@ -89,10 +89,13 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
       setActiveGroup((current) => rotateActivePlayer(current));
     }
     setMission(next);
+    const clockLabel = next.destination === 'MOON'
+      ? t('missionControl.lunarDay', { day: next.clockLabel.match(/\d+/)?.[0] ?? next.turn })
+      : next.clockLabel;
     setTransition(
       next.outcome === 'IN_PROGRESS'
-        ? next.clockLabel
-        : t('coop.transitionReport') || 'Informe colectivo de guardia',
+        ? clockLabel
+        : t('coop.transitionReport'),
     );
   }
 

@@ -23,11 +23,12 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
 
   function handleSubmit(e?: React.FormEvent) {
     if (e) e.preventDefault();
-    const finalName = callsign.trim() || 'Comandante Junior';
+    const finalName = callsign.trim() || t('avatars.defaultCallsign');
     onConfirmProfile(selectedAvatar, finalName);
   }
 
   const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
+  const selectedAvatarName = t(`avatars.profiles.${selectedAvatar.id}.name`);
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
@@ -37,7 +38,7 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
           <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
-          <span>{t('avatars.stepIndicator')} ({cityName} ➔ {destName})</span>
+          <span>{t('avatars.stepIndicator', { city: cityName, destination: destName })}</span>
         </div>
         <LanguageSelector variant="hud" />
       </header>
@@ -48,15 +49,15 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
           <span>{t('avatars.title')}</span>
         </h1>
         <p className="earth-card__subtitle">
-          {t('avatars.subtitle')} ({cityName} ➔ {destName})
+          {t('avatars.subtitle', { city: cityName, destination: destName })}
         </p>
 
         <div className="avatar-grid" role="radiogroup" aria-label={t('avatars.title')}>
           {AVATAR_OPTIONS.map((avatar) => {
             const isSelected = avatar.id === selectedAvatarId;
-            const aKey = avatar.id.toLowerCase();
-            const role = t(`avatars.${aKey}.role`) !== `avatars.${aKey}.role` ? t(`avatars.${aKey}.role`) : avatar.roleTitle;
-            const bio = t(`avatars.${aKey}.bio`) !== `avatars.${aKey}.bio` ? t(`avatars.${aKey}.bio`) : avatar.description;
+            const name = t(`avatars.profiles.${avatar.id}.name`);
+            const role = t(`avatars.profiles.${avatar.id}.role`);
+            const bio = t(`avatars.profiles.${avatar.id}.desc`);
             return (
               <div
                 key={avatar.id}
@@ -73,9 +74,9 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
                 }}
               >
                 <div className="avatar-card__art" aria-hidden="true">
-                  <CharacterPortrait identity={avatar.id as PortraitIdentity} selected={isSelected} label={avatar.name} />
+                  <CharacterPortrait identity={avatar.id as PortraitIdentity} selected={isSelected} label={name} />
                 </div>
-                <h2 className="avatar-card__name">{avatar.name}</h2>
+                <h2 className="avatar-card__name">{name}</h2>
                 <span className="avatar-card__role">{role}</span>
                 <p className="avatar-card__desc">{bio}</p>
               </div>
@@ -85,7 +86,7 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
 
         <form onSubmit={handleSubmit} className="callsign-box">
           <label htmlFor="callsign-input-v3" className="callsign-box__label">
-            Indicativo o nombre de misión:
+            {t('avatars.callsignLabel')}
           </label>
           <input
             id="callsign-input-v3"
@@ -94,11 +95,11 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
             maxLength={26}
             value={callsign}
             onChange={(e) => setCallsign(e.target.value)}
-            placeholder="Ejemplo: Comandante Cóndor"
+            placeholder={t('avatars.callsignPlaceholder')}
           />
           <div style={{ marginTop: '0.6rem' }}>
             <span style={{ fontSize: '0.82rem', color: '#97b7d8', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <Sparkle weight="fill" color="#f6c15b" /> Sugerencias de indicativo:
+              <Sparkle weight="fill" color="#f6c15b" /> {t('avatars.callsignSuggestions')}
             </span>
             <div className="callsign-suggestions">
               {SUGGESTED_CALLSIGNS.map((sug) => (
@@ -121,7 +122,7 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
             className="earth-action-btn"
             onClick={() => handleSubmit()}
           >
-            <span>{t('avatars.confirmAvatar', { name: selectedAvatar.name })}</span>
+            <span>{t('avatars.confirmAvatar', { name: selectedAvatarName })}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>

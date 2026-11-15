@@ -29,9 +29,9 @@ describe('entradas públicas H5', () => {
       setup: SOLO_SETUP,
       onFinish: () => undefined,
     }));
-    expect(preBuildHtml).toContain('P10 · HANGAR DE CONSTRUCCIÓN');
-    expect(readyHtml).toContain('CONTROL DE MISIÓN');
-    expect(readyHtml).toContain('Guardia en');
+    expect(preBuildHtml).toContain('P10 · CONSTRUCTION HANGAR');
+    expect(readyHtml).toContain('MISSION CONTROL');
+    expect(readyHtml).toContain('Guard on');
   });
 
   it('rechaza modo o herramientas inválidas sin completar datos silenciosamente', () => {
@@ -44,8 +44,8 @@ describe('entradas públicas H5', () => {
       setup: invalid,
       onFinish: () => undefined,
     }));
-    expect(html).toContain('CONFIGURACIÓN INDIVIDUAL INVÁLIDA');
-    expect(html).not.toContain('CONTROL DE MISIÓN');
+    expect(html).toContain('INVALID SOLO CONFIGURATION');
+    expect(html).not.toContain('MISSION CONTROL');
   });
 
   it('exporta entradas SOLO y LOCAL_COOP con el mismo contrato de resultado', () => {
@@ -58,7 +58,7 @@ describe('entradas públicas H5', () => {
       group: COOP_DEMO_GROUPS.THREE,
       onFinish: () => undefined,
     }));
-    expect(solo).toContain('CONTROL DE MISIÓN');
+    expect(solo).toContain('MISSION CONTROL');
     expect(coop).toContain('E6 · TURNO COOPERATIVO');
   });
 

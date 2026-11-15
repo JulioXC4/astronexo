@@ -12,6 +12,7 @@ import { BaseBuilderView } from '../base-builder';
 import { MissionControlView } from '../mission-control';
 import { MissionResultsView } from '../mission-results';
 import { TurnTransition } from './TurnTransition';
+import { useI18n } from '../../i18n';
 import './space-game.css';
 
 export interface SoloSpaceGameProps {
@@ -20,6 +21,7 @@ export interface SoloSpaceGameProps {
 }
 
 export function SoloSpaceGame({ setup, onFinish }: SoloSpaceGameProps) {
+  const { t } = useI18n();
   const setupModeValid = setup.mode === 'SOLO';
   const setupCanBeCompleted = setupModeValid && isValidPreBuildGameSetup(setup);
   const initialSetupValid = setupModeValid && isValidGameSetup(setup);
@@ -29,16 +31,16 @@ export function SoloSpaceGame({ setup, onFinish }: SoloSpaceGameProps) {
 
   if (!setupCanBeCompleted) {
     return <main className="space-entry-error pixel-panel">
-      <span className="pixel-kicker">CONFIGURACIÓN INDIVIDUAL INVÁLIDA</span>
-      <h1>No se puede iniciar Despegue</h1>
-      <p>Revisa modalidad, ciudad, destino, misiones terrestres, herramientas, escenario y dificultad.</p>
+      <span className="pixel-kicker">{t('spaceGame.invalidKicker')}</span>
+      <h1>{t('spaceGame.invalidTitle')}</h1>
+      <p>{t('spaceGame.invalidDescription')}</p>
     </main>;
   }
 
   function startGuard(selectedModules: readonly ModuleId[]) {
     const completedSetup = { ...setup, selectedModules };
     setMission(createMission(completedSetup));
-    setTransition('Base construida · Guardia lista');
+    setTransition(t('spaceGame.baseBuilt'));
   }
 
   function handleAction(action: GameAction) {
@@ -49,7 +51,10 @@ export function SoloSpaceGame({ setup, onFinish }: SoloSpaceGameProps) {
     if (!mission) return;
     const next = advanceTurn(mission);
     setMission(next);
-    setTransition(next.outcome === 'IN_PROGRESS' ? next.clockLabel : 'Informe final de guardia');
+    const clockLabel = next.destination === 'MOON'
+      ? t('missionControl.lunarDay', { day: next.clockLabel.match(/\d+/)?.[0] ?? next.turn })
+      : next.clockLabel;
+    setTransition(next.outcome === 'IN_PROGRESS' ? clockLabel : t('spaceGame.finalReport'));
   }
 
   function retry() {
