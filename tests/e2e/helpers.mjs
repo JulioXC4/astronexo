@@ -85,10 +85,10 @@ export async function startFromWelcome(page) {
 }
 
 export async function chooseDestination(page, destination) {
-  await page.waitForSelector('.destination-card');
-  if (destination === 'MARS') await page.click('.destination-card:has-text("Marte")');
+  await page.waitForSelector('[data-destination]');
+  if (destination === 'MARS') await page.click('[data-destination="MARS"]');
   await assertScreenHealthy(page, 'destino');
-  await page.click('button.pixel-btn--primary');
+  await page.click('.destination-selection__confirm');
 }
 
 /** Paso 3: construir 3 de 5 módulos ANTES de elegir la ciudad. Devuelve los nombres elegidos. */
@@ -114,15 +114,15 @@ export async function passStationPrep(page) {
 }
 
 export async function chooseCity(page, city) {
-  await page.waitForSelector('.academy-card');
+  await page.waitForSelector('.city-selection__confirm');
   if (city === 'TROMSO') {
-    await page.click('.academy-card--tromso');
+    await page.locator('.city-selection__switcher [role=radio]').nth(1).click();
   }
-  await page.click('button.pixel-btn--primary');
+  await page.click('.city-selection__confirm');
 }
 
 export async function passAvatarAndBriefing(page) {
-  await page.waitForSelector('.avatar-pixel-card');
+  await page.waitForSelector('.asel-char');
   await page.click('button.pixel-btn--primary');
   await page.waitForSelector('.briefing-stage');
   await page.locator('.briefing-dialog-box__controls .pixel-btn--secondary').last().click();
