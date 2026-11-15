@@ -15,7 +15,7 @@ interface SolarDetectiveGameProps {
 export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGameProps) {
   const { t } = useI18n();
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
-  const [tiltAngle, setTiltAngle] = useState<number>(16); // Inclinación en grados (supuesto simulación: óptimo Arequipa ~16° hacia el norte por latitud)
+  const [tiltAngle, setTiltAngle] = useState<number>(5); // Inclinación inicial del desafío; 16° es el objetivo educativo.
   const [reserveRatioPercent, setReserveRatioPercent] = useState<number>(45); // Decisión de reserva energética nocturna: 30% a 60%
   const [isSwitchClosed, setIsSwitchClosed] = useState<boolean>(false);
   const [batteryLevel, setBatteryLevel] = useState<number>(0);
