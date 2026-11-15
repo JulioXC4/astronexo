@@ -41,7 +41,9 @@ export function InterventionDock({
   focusedAlertId,
 }: InterventionDockProps) {
   const { t } = useI18n();
+  const [menuOpen, setMenuOpen] = useState(false);
   const [selected, setSelected] = useState<InterventionAction | null>(null);
+  const [skipSelected, setSkipSelected] = useState(false);
   const [choiceId, setChoiceId] = useState<ActionChoice | undefined>();
   const [interactionReady, setInteractionReady] = useState(false);
   const actionLock = useRef(false);
@@ -49,6 +51,12 @@ export function InterventionDock({
   const panelMode = getInterventionPanelMode(state, selected);
   const intervention = INTERVENTIONS.find((item) => item.action === selected);
   const focusedAlert = state.activeAlerts.find((alert) => alert.id === focusedAlertId);
+  const orderedInterventions = [...INTERVENTIONS].sort((left, right) => {
+    if (!focusedAlert) return 0;
+    const leftRelated = left.resolves.includes(focusedAlert.kind) ? 1 : 0;
+    const rightRelated = right.resolves.includes(focusedAlert.kind) ? 1 : 0;
+    return rightRelated - leftRelated;
+  });
   const matchingAlert = intervention
     ? state.activeAlerts.find((alert) => intervention.resolves.includes(alert.kind))
     : undefined;
@@ -67,7 +75,9 @@ export function InterventionDock({
 
   useEffect(() => {
     if (!state.actionTakenThisTurn) return;
+    setMenuOpen(false);
     setSelected(null);
+    setSkipSelected(false);
     setChoiceId(undefined);
     setInteractionReady(false);
   }, [state.actionTakenThisTurn]);
@@ -90,7 +100,9 @@ export function InterventionDock({
   }
 
   function choose(action: InterventionAction) {
+    setMenuOpen(false);
     setSelected(action);
+    setSkipSelected(false);
     setChoiceId(undefined);
     setInteractionReady(false);
   }
@@ -98,6 +110,7 @@ export function InterventionDock({
   function closeOverlay() {
     if (groupDecisionPending) return;
     setSelected(null);
+    setSkipSelected(false);
     setChoiceId(undefined);
     setInteractionReady(false);
   }
@@ -111,11 +124,20 @@ export function InterventionDock({
     }
     actionLock.current = true;
     onAction(pendingAction);
+    setSelected(null);
+    setMenuOpen(false);
   }
 
-  function skip() {
+  function chooseSkip() {
+    setMenuOpen(false);
+    setSelected(null);
+    setSkipSelected(true);
+    setChoiceId(undefined);
+    setInteractionReady(false);
+  }
+
+  function confirmSkip() {
     if (actionLock.current || requestLock.current) return;
-    closeOverlay();
     if (onRequestConfirmation) {
       requestLock.current = true;
       onRequestConfirmation({ type: 'SKIP_INTERVENTION' });
@@ -123,48 +145,117 @@ export function InterventionDock({
     }
     actionLock.current = true;
     onAction({ type: 'SKIP_INTERVENTION' });
+    setSkipSelected(false);
+    setMenuOpen(false);
   }
 
   return <section className="intervention-dock" aria-labelledby="intervention-title">
-    <div className="intervention-dock__heading">
-      <div>
-        <h2 id="intervention-title">{t('interventions.title')}</h2>
-        <p>{focusedAlert ? t(`alerts.${focusedAlert.kind}.title`) : t('interventions.selectPrompt')}</p>
-      </div>
-      <span className={state.actionTakenThisTurn ? 'status-light' : 'status-light status-light--warning'}>
+    <button
+      type="button"
+      className="intervention-menu-trigger pixel-button"
+      aria-expanded={menuOpen}
+      aria-controls="intervention-menu"
+      disabled={state.actionTakenThisTurn || groupDecisionPending}
+      onClick={() => setMenuOpen((open) => !open)}
+    >
+      <span id="intervention-title">{t('interventions.openMenu')}</span>
+      <small>{focusedAlert ? t(`alerts.${focusedAlert.kind}.title`) : t('interventions.selectPrompt')}</small>
+      <strong className={state.actionTakenThisTurn ? 'status-light' : 'status-light status-light--warning'}>
         {t(state.actionTakenThisTurn ? 'interventions.statusRecorded' : 'interventions.statusPending')}
-      </span>
-    </div>
-    <div className="intervention-list">
-      {INTERVENTIONS.map((item) => {
+      </strong>
+    </button>
+
+    {menuOpen && <>
+      <button
+        type="button"
+        className="intervention-menu-scrim"
+        aria-label={t('common.close')}
+        onClick={() => setMenuOpen(false)}
+      />
+      <div id="intervention-menu" className="intervention-menu" role="dialog" aria-modal="false" aria-label={t('interventions.title')}>
+        <header>
+          <div>
+            <h2>{t('interventions.title')}</h2>
+            <p>{focusedAlert ? t(`alerts.${focusedAlert.kind}.title`) : t('interventions.selectPrompt')}</p>
+          </div>
+          <button type="button" className="intervention-close" onClick={() => setMenuOpen(false)} aria-label={t('common.close')}>
+            <X weight="bold" aria-hidden="true" />
+          </button>
+        </header>
+        <div className="intervention-list">
+      {orderedInterventions.map((item) => {
         const blockedReason = unavailableReason(item.action);
         const asset = interventionAssets[item.id][0];
         const related = focusedAlert ? item.resolves.includes(focusedAlert.kind) : false;
+        const targetId = state.activeAlerts.find((alert) => item.resolves.includes(alert.kind))?.id;
+        const actualCost = getActionCost(state, { type: item.action, targetId });
         return <button
           type="button"
           key={item.id}
           className={`intervention-option ${related ? 'intervention-option--recommended' : ''}`}
           disabled={state.actionTakenThisTurn || groupDecisionPending || blockedReason !== null}
-          aria-label={`${t(`interventions.items.${item.id}.label`)}. ${blockedReason ?? t('interventions.baseCost', { cost: formatCost(item.cost, t) })}`}
-          title={blockedReason ?? t('interventions.baseCost', { cost: formatCost(item.cost, t) })}
+          aria-label={`${t(`interventions.items.${item.id}.label`)}. ${blockedReason ?? t('interventions.baseCost', { cost: formatCost(actualCost, t) })}`}
+          title={blockedReason ?? t('interventions.baseCost', { cost: formatCost(actualCost, t) })}
           onClick={() => choose(item.action)}
         >
           <img src={asset.path} alt="" />
-          <strong>{t(`interventions.items.${item.id}.label`)}</strong>
-          <small>{blockedReason ?? formatCost(item.cost, t)}</small>
+          <span className="intervention-option__label">
+            <strong>{t(`interventions.items.${item.id}.label`)}</strong>
+            {related && <em>{t('interventions.relatedToAlert')}</em>}
+          </span>
+          <small>{formatCost(actualCost, t)}</small>
         </button>;
       })}
       <button
         type="button"
         className="intervention-option intervention-option--skip"
         disabled={state.actionTakenThisTurn || groupDecisionPending}
-        onClick={skip}
+        onClick={chooseSkip}
       >
         <span aria-hidden="true">—</span>
-        <strong>{t('interventions.noIntervention')}</strong>
-        <small>{t('interventions.noInterventionDesc')}</small>
+        <span className="intervention-option__label"><strong>{t('interventions.noIntervention')}</strong></span>
+        <small>{t('interventions.noCost')}</small>
       </button>
-    </div>
+        </div>
+      </div>
+    </>}
+
+    {skipSelected && <div className="intervention-overlay" role="presentation" onMouseDown={(event) => {
+      if (event.target === event.currentTarget) closeOverlay();
+    }}>
+      <section
+        className="intervention-console intervention-console--compact"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="skip-intervention-dialog-title"
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') closeOverlay();
+        }}
+      >
+        <header className="intervention-console__header">
+          <div>
+            <span>{t('interventions.previewKicker', { id: '' })}</span>
+            <h3 id="skip-intervention-dialog-title">{t('interventions.noIntervention')}</h3>
+          </div>
+          <button type="button" className="intervention-close" onClick={closeOverlay} aria-label={t('common.close')}>
+            <X weight="bold" aria-hidden="true" />
+          </button>
+        </header>
+        <div className="intervention-brief intervention-brief--single">
+          <p>{t('interventions.noInterventionDesc')}</p>
+        </div>
+        <div className="cost-preview">
+          <div><span>{t('interventions.realCost')}</span><strong>{t('interventions.noCost')}</strong></div>
+          <div><span>{t('interventions.benefit')}</span><strong>{t('interventions.skippedDesc')}</strong></div>
+        </div>
+        <footer className="intervention-console__actions">
+          <button type="button" className="pixel-button" onClick={closeOverlay}>{t('common.back')}</button>
+          <button type="button" className="pixel-button pixel-button--confirm" disabled={groupDecisionPending} onClick={confirmSkip}>
+            {t(onRequestConfirmation ? 'interventions.requestAgreement' : 'interventions.confirmAction')}
+          </button>
+        </footer>
+      </section>
+    </div>}
 
     {selected && intervention && <div className="intervention-overlay" role="presentation" onMouseDown={(event) => {
       if (event.target === event.currentTarget) closeOverlay();

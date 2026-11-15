@@ -700,6 +700,8 @@ export const es = {
   interventions: {
     kicker: 'UNA ACCIÓN PRINCIPAL',
     title: 'Elige una acción',
+    openMenu: 'Acciones',
+    relatedToAlert: 'PARA ESTA ALERTA',
     statusRecorded: 'REGISTRADA',
     statusPending: 'PENDIENTE',
     noIntervention: 'No intervenir',

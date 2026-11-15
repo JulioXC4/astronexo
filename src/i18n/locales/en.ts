@@ -700,6 +700,8 @@ export const en = {
   interventions: {
     kicker: 'ONE PRIMARY ACTION',
     title: 'Choose an action',
+    openMenu: 'Actions',
+    relatedToAlert: 'MATCHES ALERT',
     statusRecorded: 'RECORDED',
     statusPending: 'PENDING',
     noIntervention: 'Do not intervene',

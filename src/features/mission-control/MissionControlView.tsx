@@ -38,9 +38,12 @@ export function MissionControlView({
     ? t('missionControl.lunarDay', { day: state.clockLabel.match(/\d+/)?.[0] ?? state.turn })
     : state.clockLabel;
   const background = spaceBackgrounds.control[state.destination].path;
+  const hasEarlyWarning = Boolean(
+    state.earlyWarningForecast && state.turn < state.earlyWarningForecast.turn,
+  );
 
   return <main
-    className={`mission-shell mission-shell--${state.destination.toLowerCase()}`}
+    className={`mission-shell mission-shell--${state.destination.toLowerCase()} ${hasEarlyWarning ? 'mission-shell--with-warning' : ''}`}
     style={background ? { backgroundImage: `linear-gradient(rgb(2 8 19 / 20%), rgb(2 8 19 / 46%)), url('${background}')` } : undefined}
   >
     <header className="mission-hud">
@@ -61,7 +64,7 @@ export function MissionControlView({
       <LanguageSelector variant="hud" />
     </header>
 
-    {state.earlyWarningForecast && state.turn < state.earlyWarningForecast.turn && <aside className="early-warning" role="status">
+    {hasEarlyWarning && state.earlyWarningForecast && <aside className="early-warning" role="status">
       <strong>{t('missionControl.earlyWarningTitle')}</strong>
       <span>{t(`alerts.${state.earlyWarningForecast.kind}.title`)}</span>
       <small>{t('missionControl.earlyWarningSub')}</small>
@@ -94,31 +97,32 @@ export function MissionControlView({
       </aside>
     </section>
 
-    <InterventionDock
-      key={state.turn}
-      state={state}
-      onAction={onAction}
-      onRequestConfirmation={onRequestConfirmation}
-      groupDecisionPending={groupDecisionPending}
-      focusedAlertId={selectedAlertId}
-    />
-
     {state.lastFeedback && <aside className={`mission-feedback ${state.lastFeedback.ok ? 'mission-feedback--success' : 'mission-feedback--error'}`} role="status">
       <strong>{t('missionControl.feedbackTitle')}</strong>
       <span>{state.lastFeedback.message}</span>
     </aside>}
 
-    <footer className="turn-controls">
-      <p>{state.actionTakenThisTurn
-        ? t('missionControl.turnControlsReady')
-        : t('missionControl.turnControlsPrompt')}</p>
-      <button
-        className="pixel-button pixel-button--primary"
-        disabled={!state.actionTakenThisTurn}
-        onClick={onAdvance}
-      >
-        {t(state.turn === state.maxTurns ? 'missionControl.closeGuard' : 'missionControl.endTurn')}
-      </button>
-    </footer>
+    <section className="mission-bottom-bar">
+      <InterventionDock
+        key={state.turn}
+        state={state}
+        onAction={onAction}
+        onRequestConfirmation={onRequestConfirmation}
+        groupDecisionPending={groupDecisionPending}
+        focusedAlertId={selectedAlertId}
+      />
+      <footer className="turn-controls">
+        <p>{state.actionTakenThisTurn
+          ? t('missionControl.turnControlsReady')
+          : t('missionControl.turnControlsPrompt')}</p>
+        <button
+          className="pixel-button pixel-button--primary"
+          disabled={!state.actionTakenThisTurn}
+          onClick={onAdvance}
+        >
+          {t(state.turn === state.maxTurns ? 'missionControl.closeGuard' : 'missionControl.endTurn')}
+        </button>
+      </footer>
+    </section>
   </main>;
 }
