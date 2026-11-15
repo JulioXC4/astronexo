@@ -20,7 +20,7 @@ Al inicio de la auditoría, `origin/main` y `origin/develop` compartían el árb
 | Despegue y llegada | Se completaron las tres misiones y se transfirieron sus kits; navegación a órbita y recepción de datos llegó a la base lunar. | [Mapa con tres misiones](qa/vercel-before-08-map-complete.png), [despegue](qa/vercel-before-09-launch.png), [llegada](qa/vercel-before-10-arrival.png) |
 | Constructor | Tres espacios y requisitos eran claros, pero las tarjetas pequeñas no mostraban instalaciones. Añadí vistas interiores lunares y mejoré tamaño de texto y controles. Tras integrar i18n corregí el título del constructor y la etiqueta del botón de guardia. | [Antes](qa/vercel-before-11-builder.png), [Luna](qa/vercel-after-11-builder.png), [Marte 1920×1080](qa/vercel-after-mars-builder-1920x1080.png), [Marte 768×1024](qa/vercel-after-mars-builder-768x1024.png) |
 | Consola y cámaras | El flujo Tromsø → Marte llegó a la consola; se seleccionaron tres módulos y se avanzó por las cinco guardias. Las cámaras marcianas muestran la señal ambiental marciana y las alertas, costos, barras y módulos permanecen legibles. | [Consola a 1920×1080](qa/vercel-after-mars-control-1920.png) |
-| Informe final | Se alcanzó tras cerrar los cinco turnos y se validaron el resultado, recursos, consecuencias y acciones de reintento/entrega. Se dejó avanzar deliberadamente sin intervenir: el informe muestra “Misión incompleta”, 5/5 turnos y 28/100, como corresponde a esa partida de prueba. | [Escritorio 1920×1080](qa/vercel-after-mars-report-1920x1080.png), [tablet 768×1024](qa/vercel-after-mars-report-768x1024.png) |
+| Informe final | Se alcanzó tras cerrar los cinco turnos y se validaron resultado, recursos, consecuencias y acciones de reintento/entrega. La partida manual sin intervenciones muestra “Misión incompleta”, 5/5 turnos y 28/100, como corresponde. La suite E2E también llega aquí en Tromsø → Marte. | [Escritorio 1920×1080](qa/vercel-after-mars-report-1920x1080.png), [tablet 768×1024](qa/vercel-after-mars-report-768x1024.png), [Tromsø → Marte E2E](qa/vercel-after-mars-e2e-report-1280x800.png) |
 
 La consola mostró un error 404 de `/favicon.ico` en local y Vercel, sin errores de React/Vite ni recursos visuales faltantes. Se registró, pero no se cambió el favicon porque no es parte del objetivo visual prioritario.
 
@@ -33,6 +33,7 @@ La consola mostró un error 404 de `/favicon.ico` en local y Vercel, sin errores
 - Aumenté tamaños de lectura para barras, alertas, telemetría, cámaras, costos e informe espacial.
 - Amplié el área visual de las escenas SVG de entrenamiento para aprovechar el panel.
 - Ajusté el invernadero SVG de Tromsø para mantener visible su plataforma. En el constructor, el título usa la plantilla traducida y el botón de guardia ya tiene etiquetas en inglés y español, sin alterar las reglas de selección.
+- Añadí las dos etiquetas que faltaban para el puntaje y el título del informe en inglés y español; el informe ya no muestra claves internas de traducción.
 
 ## Assets reutilizados y pendientes
 
@@ -51,6 +52,7 @@ Verificación final con Playwright local a 768×1024 y 1920×1080. En ambos tama
 - `pnpm typecheck`: pasó.
 - `pnpm test`: pasó, 15 verificaciones de contrato terrestre y 95 pruebas Vitest en 13 archivos.
 - `pnpm build`: pasó.
+- Playwright E2E (cinco rutas): pasó en Arequipa → Luna, Arequipa → Marte, Tromsø → Luna (tablet), Tromsø → Marte y persistencia de idiomas EN/ES/QU/NO.
 - Flujo manual local: entrada → ciudad → Luna → avatar → briefing → minijuegos Solar/Altitud/Veggie → tres recompensas → despegue → llegada → constructor.
 - Navegador local con Playwright: flujo Tromsø → Marte hasta el informe tras 5/5 turnos; se verificaron pantallas a 768×1024 y 1920×1080 sin overflow horizontal. Un error de consola: `/favicon.ico` 404; no se observaron errores de React ni de recursos de pantalla.
 
