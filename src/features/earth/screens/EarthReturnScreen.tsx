@@ -21,12 +21,12 @@ export function EarthReturnScreen({ result, astronautName, onProceedToNextAdvent
       <main className="earth-card" style={{ maxWidth: '48rem', textAlign: 'center' }}>
         <h1 className="earth-card__title" style={{ justifyContent: 'center' }}>
           <GlobeHemisphereWest color="#f6c15b" weight="fill" />
-          <span>{isSuccess ? t('return.title') : 'Regreso a la Tierra: Misión Interrumpida'}</span>
+          <span>{isSuccess ? t('return.successTitle') : t('return.interruptedTitle')}</span>
         </h1>
         <p className="earth-card__subtitle">
           {isSuccess
-            ? t('return.subtitle')
-            : 'La guardia se interrumpió. La tripulación inició el retorno de emergencia a la Tierra.'}
+            ? t('return.successSub')
+            : t('return.interruptedSub')}
         </p>
 
         <div style={{
@@ -39,10 +39,10 @@ export function EarthReturnScreen({ result, astronautName, onProceedToNextAdvent
         }}>
           <div style={{ fontSize: '4.5rem', marginBottom: '0.5rem' }}>🪂 🌊</div>
           <h2 style={{ fontFamily: 'Fredoka', fontSize: '1.8rem', color: '#ffffff', margin: 0 }}>
-            {isSuccess ? t('return.title') : 'Retorno Seguro de Emergencia'}
+            {isSuccess ? t('return.welcomeHome') : t('return.emergencyReturn')}
           </h2>
           <p style={{ color: '#bed5ed', fontSize: '1rem', marginTop: '0.4rem' }}>
-            Tripulante: <strong>{astronautName}</strong>
+            {t('return.crewMember', { name: astronautName })}
           </p>
 
           <div style={{
@@ -55,10 +55,10 @@ export function EarthReturnScreen({ result, astronautName, onProceedToNextAdvent
             textAlign: 'left'
           }}>
             <p style={{ margin: 0, color: '#f6c15b', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>
-              Bitácora de Vuelo Final
+              {t('return.flightLogTitle')}
             </p>
             <p style={{ margin: '0.3rem 0 0 0', color: '#e6f0fa', fontSize: '0.92rem', lineHeight: '1.4' }}>
-              {isSuccess ? 'La guardia completó el objetivo científico.' : result.interruptionCause ?? 'La misión se interrumpió.'}
+              {isSuccess ? t('return.successLog') : (result.interruptionCause ?? t('return.interruptedLog'))}
             </p>
           </div>
         </div>

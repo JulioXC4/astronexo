@@ -89,9 +89,11 @@ describe('Sistema de Internacionalización (i18n) v3.0', () => {
     expect(formatted).toBe('Confirm Base in Arequipa');
   });
 
-  it('incluye la etiqueta del botón de inicio del constructor en los cuatro idiomas', () => {
+  it('incluye las etiquetas usadas por el constructor y el informe en los cuatro idiomas', () => {
     for (const dictionary of [en, es, qu, no]) {
       expect(dictionary.baseBuilder.confirmBaseBtn).toBeTruthy();
+      expect(dictionary.results.scoreLabel).toBeTruthy();
+      expect(dictionary.results.finalReportTitle).toBeTruthy();
     }
   });
 });

@@ -1,40 +1,55 @@
 import { useState } from 'react';
 import { EarthFlow } from '../features/earth';
 import { SoloSpaceGame } from '../features/space';
+import { CoopSpaceGame } from '../features/coop-gameplay/CoopSpaceGame';
+import type { LocalCoopConfig } from '../features/coop-gameplay/coop.types';
 import { EarthReturnScreen } from '../features/earth/screens/EarthReturnScreen';
 import { NextAdventureScreen } from '../features/earth/screens/NextAdventureScreen';
 import { LearnScreen } from '../features/earth/screens/LearnScreen';
 import { StationModeModal } from '../features/earth/screens/StationModeModal';
 import type { EarthReadyPayload } from '../game/contracts';
-import type { MissionResult } from '../game';
+import type { GameSetup, MissionResult } from '../game';
 
 export type SessionPhase =
   | { readonly kind: 'EARTH' }
   | { readonly kind: 'SPACE'; readonly payload: EarthReadyPayload }
-  | { readonly kind: 'RESULT'; readonly result: MissionResult; readonly payload?: EarthReadyPayload };
+  | { readonly kind: 'COOP_SPACE'; readonly setup: GameSetup; readonly group: LocalCoopConfig }
+  | { readonly kind: 'RESULT'; readonly result: MissionResult; readonly payload?: EarthReadyPayload; readonly coopGroup?: LocalCoopConfig };
 
 interface GameRouterProps {
   readonly phase: SessionPhase;
   readonly onReady: (payload: EarthReadyPayload) => void;
-  readonly onFinish: (result: MissionResult) => void;
+  readonly onStartCoop?: (setup: GameSetup, group: LocalCoopConfig) => void;
+  readonly onFinish: (result: MissionResult, coopGroup?: LocalCoopConfig) => void;
   readonly onRestart: () => void;
 }
 
 type ResultViewStep = 'RETURN' | 'NEXT_ADVENTURE' | 'LEARN';
 
-export function GameRouter({ phase, onReady, onFinish, onRestart }: GameRouterProps) {
+export function GameRouter({ phase, onReady, onStartCoop, onFinish, onRestart }: GameRouterProps) {
   const [resultStep, setResultStep] = useState<ResultViewStep>('RETURN');
   const [isStationModalOpen, setIsStationModalOpen] = useState(false);
 
   switch (phase.kind) {
     case 'EARTH':
-      return <EarthFlow onReady={onReady} />;
+      return <EarthFlow onReady={onReady} onStartCoop={onStartCoop} />;
 
     case 'SPACE':
-      return <SoloSpaceGame setup={phase.payload.setup} onFinish={onFinish} />;
+      return <SoloSpaceGame setup={phase.payload.setup} onFinish={(res) => onFinish(res)} />;
+
+    case 'COOP_SPACE':
+      return (
+        <CoopSpaceGame
+          setup={phase.setup}
+          group={phase.group}
+          onFinish={(res) => onFinish(res, phase.group)}
+        />
+      );
 
     case 'RESULT': {
-      const astronautName = phase.payload?.setup.earthProfile?.fictionalName ?? 'Comandante Junior';
+      const astronautName = phase.coopGroup
+        ? `${phase.coopGroup.teamAlias} (${phase.coopGroup.players.map((p) => p.alias).join(', ')})`
+        : phase.payload?.setup.earthProfile?.fictionalName ?? 'Comandante Junior';
 
       if (resultStep === 'LEARN') {
         return (
@@ -76,6 +91,11 @@ export function GameRouter({ phase, onReady, onFinish, onRestart }: GameRouterPr
               setIsStationModalOpen(false);
               setResultStep('RETURN');
               onRestart();
+            }}
+            onStartCoop={(setup, group) => {
+              setIsStationModalOpen(false);
+              setResultStep('RETURN');
+              onStartCoop?.(setup, group);
             }}
           />
         </>
