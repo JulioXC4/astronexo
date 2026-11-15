@@ -33,11 +33,13 @@ const facilitySprites: Partial<Record<MissionType, string>> = {
   SOLAR_WATCH: 'space-weather-observatory.png',
   ECLSS_TRAINING: 'life-support-lab.png',
   VEGGIE_LAB: 'hydroponic-greenhouse.png',
+  CLOUDS_SUNS: 'andean-solar-observatory.png', // provisional: sprite propio pendiente (Julio)
 };
 
 function spriteFor(id: MissionType, arctic: boolean): string | undefined {
   if (arctic) {
     if (id === 'SOLAR_WATCH') return 'arctic-weather-station.png';
+    if (id === 'CLOUDS_SUNS') return 'polar-energy-storage.png';
     if (id === 'ECLSS_TRAINING') return 'polar-life-support-lab.png';
     if (id === 'ARCTIC_GREENHOUSE') return undefined;
   }

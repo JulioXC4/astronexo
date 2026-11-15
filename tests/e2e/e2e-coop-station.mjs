@@ -1,173 +1,116 @@
-import { chromium } from 'playwright';
-import path from 'path';
-import fs from 'fs';
+/**
+ * E2E del Modo Estación (cooperativo local, un solo motor y un solo estado de misión).
+ *  A) «Recorrido completo del grupo»: pasa por destino, constructor 3/5, ciudad, 3 entrenamientos,
+ *     viaje y monitoreo antes de la guardia cooperativa (sin herramientas ficticias).
+ *  B) Demostración rápida docente: guardia directa con constructor propio (sin backend).
+ *
+ * Requiere `pnpm dev` en http://localhost:5173/ (o E2E_BASE_URL) y Chrome instalado.
+ */
+import {
+  launchBrowser, newMonitoredPage, screenshot, assertScreenHealthy, startFromWelcome, chooseDestination,
+  buildStation, passStationPrep, chooseCity, passAvatarAndBriefing, completeTraining, flyAndMonitor,
+  playFiveTurns, readOutcome, returnToWelcome, failOnProblems, BASE_URL,
+} from './helpers.mjs';
 
-const BASE_URL = 'http://localhost:5173/';
-const SCREENSHOT_DIR = path.resolve('tests/e2e/screenshots');
-
-fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
-
-async function takeScreenshot(page, filename) {
-  const filePath = path.join(SCREENSHOT_DIR, filename);
-  await page.screenshot({ path: filePath, fullPage: true });
-  console.log(`[Screenshot] ${filename}`);
+async function openStationModal(page) {
+  await page.goto(BASE_URL);
+  await page.waitForSelector('.welcome__play');
+  await page.locator('button:has-text("Modo Estación"), button:has-text("Station Mode")').first().click();
+  await page.locator('button.welcome__dialog-action').first().click();
+  await page.waitForSelector('.station-modal');
 }
 
-async function runCoopStationE2ETest() {
-  console.log('🚀 [E2E] Starting Local Station Mode (Cooperative) Test...');
-  const browser = await chromium.launch({ channel: 'chrome', headless: true });
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-  await context.addInitScript(() => { localStorage.setItem('astronexo_lang_v3', 'es'); });
-  const page = await context.newPage();
+/** Pestañas 1→3 del modal con un grupo de 4 cadetes (prueba el cambio de tamaño 5→4). */
+async function configureGroup(page, team) {
+  await page.locator('input.callsign-box__input').nth(1).fill(team);
+  await page.locator('button:has-text("Siguiente"), button:has-text("Next")').first().click();
+  await page.locator('button:has-text("5 Cadetes"), button:has-text("5 Cadets")').click();
+  await page.locator('button:has-text("4 Cadetes"), button:has-text("4 Cadets")').click();
+  const roles = await page.locator('.station-modal').innerText();
+  if (!/Comandante|Commander/i.test(roles)) throw new Error('El modal no muestra los roles del grupo.');
+  await page.locator('button:has-text("Siguiente"), button:has-text("Next")').first().click();
+  await assertScreenHealthy(page, 'modal estación');
+}
 
+async function coopGuardAndResults(page, label) {
+  await page.waitForSelector('.coop-role-bar');
+  await assertScreenHealthy(page, `${label}: guardia cooperativa`);
+  const reached = await playFiveTurns(page, { coop: true });
+  await page.waitForSelector('.coop-results-shell');
+  await assertScreenHealthy(page, `${label}: resultados colectivos`);
+  console.log(`  guardia cooperativa: ${reached} turno(s), resultado ${await readOutcome(page)}`);
+  return reached;
+}
+
+async function fullRoute(browser) {
+  console.log('\n>>> A) Recorrido completo del grupo (Tromsø → Marte)');
+  const { context, page, problems } = await newMonitoredPage(browser, { width: 1440, height: 900 }, 'coop-ruta');
   try {
-    // 1. Welcome Screen
-    await page.goto(BASE_URL);
-    await page.waitForLoadState('networkidle');
-    console.log('✓ Reached Welcome Screen');
-    await takeScreenshot(page, 'station_01_welcome.png');
+    await openStationModal(page);
+    await configureGroup(page, 'Equipo Cóndor');
+    await page.click('button:has-text("Recorrido completo del grupo")');
 
-    // 2. Open Station Mode from Welcome Screen
-    const stationBtn = page.locator('button:has-text("Modo Estación"), button:has-text("Station Mode")');
-    await stationBtn.waitFor({ state: 'visible' });
-    await stationBtn.click();
+    await chooseDestination(page, 'MARS');
+    const modules = await buildStation(page, [0, 2, 3]);
+    await passStationPrep(page);
+    await chooseCity(page, 'TROMSO');
+    await passAvatarAndBriefing(page);
+    await completeTraining(page, 0, 'DARK_MONTHS_RESERVE', undefined, false);
+    await completeTraining(page, 1, 'ARCTIC_GREENHOUSE', undefined, false);
+    await completeTraining(page, 4, 'CLOUDS_SUNS', { city: 'TROMSO' }, true);
+    await flyAndMonitor(page, { destination: 'MARS', modules });
 
-    // Click inside dialog to open the Station Mode modal
-    const classroomModalBtn = page.locator('button.welcome__dialog-action').first();
-    await classroomModalBtn.waitFor({ state: 'visible' });
-    await classroomModalBtn.click();
+    await coopGuardAndResults(page, 'ruta completa');
+    await screenshot(page, 'station_full_route_results.png');
 
-    // 3. Station Mode Modal: Tab 1 (Room & Mission)
-    await page.waitForSelector('.station-modal');
-    console.log('✓ Station Mode Modal opened');
-
-    // Set Team name
-    const teamInput = page.locator('input.callsign-box__input').nth(1);
-    await teamInput.fill('Equipo Cóndor');
-
-    // Choose Destination: Mars
-    const marsBtn = page.locator('button:has-text("Marte"), button:has-text("Mars")');
-    await marsBtn.click();
-
-    // Advance to Tab 2: Crew
-    const nextToCrewBtn = page.locator('button:has-text("Siguiente"), button:has-text("Next")');
-    await nextToCrewBtn.click();
-    console.log('✓ Moved to Tab 2: Crew & Roles');
-
-    // 4. Tab 2: Test Cadets count and Aliases
-    // Switch to 5 cadets then back to 4
-    const fiveCadetsBtn = page.locator('button:has-text("5 Cadetes"), button:has-text("5 Cadets")');
-    await fiveCadetsBtn.click();
-    console.log('✓ Switched to 5 cadets');
-
-    const fourCadetsBtn = page.locator('button:has-text("4 Cadetes"), button:has-text("4 Cadets")');
-    await fourCadetsBtn.click();
-    console.log('✓ Switched to 4 cadets');
-
-    // Advance to Tab 3: Launch
-    const nextToLaunchBtn = page.locator('button:has-text("Siguiente"), button:has-text("Next")');
-    await nextToLaunchBtn.click();
-    console.log('✓ Moved to Tab 3: Launch & Guide');
-    await takeScreenshot(page, 'station_02_modal_launch_tab.png');
-
-    // 5. Click "Launch Cooperative Mission"
-    const launchCoopBtn = page.locator('button.earth-action-btn:has-text("Iniciar Misión Cooperativa"), button:has-text("Iniciar Misión Cooperativa")');
-    await launchCoopBtn.waitFor({ state: 'visible' });
-    await launchCoopBtn.click();
-    console.log('✓ Launched Cooperative Mission');
-
-    // 6. Base Builder View (3 modules must be built)
-    await page.waitForSelector('.module-card');
-    console.log('✓ Base Builder View rendered with 5 module blueprints');
-    await page.locator('.module-card').nth(0).locator('button').click();
-    await page.locator('.module-card').nth(1).locator('button').click();
-    await page.locator('.module-card').nth(2).locator('button').click();
-    await takeScreenshot(page, 'station_03_base_builder.png');
-
-    // Click "Confirmar y Construir"
-    await page.click('button.builder-start');
-    console.log('✓ 3 Modules confirmed and built');
-
-    // 7. Handle Turn Transition (Base construida · Guardia lista)
-    await page.waitForSelector('.turn-transition button');
-    await page.click('.turn-transition button');
-
-    // 8. Cooperative Turn 1
+    // Reintento del equipo: mismo estado de preparación, sin constructor
+    await page.click('button:has-text("REINTENTAR")');
     await page.waitForSelector('.coop-role-bar');
-    console.log('✓ Coop Role Bar & Space Mission Control loaded');
-    await takeScreenshot(page, 'station_04_turn_1.png');
+    if (await page.locator('.module-picker__button').count()) throw new Error('El reintento cooperativo volvió a mostrar el constructor.');
+    await coopGuardAndResults(page, 'reintento');
 
-    // Loop through 5 turns
-    for (let turn = 1; turn <= 5; turn++) {
-      console.log(`--- Playing Turn ${turn}/5 ---`);
-
-      // Verify active player header exists
-      await page.waitForSelector('.coop-role-bar');
-
-      // Click "No intervenir" to trigger group deliberation
-      const skipAction = page.locator('button.intervention-option--skip');
-      await skipAction.waitFor({ state: 'visible' });
-      await skipAction.click();
-
-      // Group Decision Dialog appears for collective agreement
-      const confirmDialogBtn = page.locator('.group-decision-dialog button.pixel-button--primary');
-      await confirmDialogBtn.waitFor({ state: 'visible' });
-      if (turn === 1) {
-        await takeScreenshot(page, 'station_05_group_decision_dialog.png');
-      }
-      await confirmDialogBtn.click();
-      console.log(`  ✓ Turn ${turn}: Group decision confirmed`);
-
-      // Advance turn: Click "FINALIZAR TURNO"
-      const advanceBtn = page.locator('footer.turn-controls button');
-      await page.waitForFunction(() => !document.querySelector('footer.turn-controls button')?.hasAttribute('disabled'));
-      await advanceBtn.click();
-      console.log(`  ✓ Turn ${turn}: Advanced`);
-
-      // Handle intermediate turn transition
-      await page.waitForSelector('.turn-transition button');
-      await page.click('.turn-transition button');
-    }
-
-    // 9. Cooperative Results Screen
-    await page.waitForSelector('.coop-results-shell');
-    console.log('✓ Reached Collective Results Screen');
-    await takeScreenshot(page, 'station_06_collective_results.png');
-
-    // Click "ENTREGAR INFORME" to view final Earth return
-    const submitReportBtn = page.locator('button:has-text("ENTREGAR INFORME")');
-    await submitReportBtn.waitFor({ state: 'visible' });
-    await submitReportBtn.click();
-
-    // 10. Earth Return Screen
-    await page.waitForSelector('.earth-screen');
-    console.log('✓ Reached Earth Return Screen');
-    await takeScreenshot(page, 'station_07_earth_return.png');
-
-    // Proceed to Next Adventure Screen
-    const nextAdventureBtn = page.locator('button:has-text("Ver Análisis")');
-    await nextAdventureBtn.waitFor({ state: 'visible' });
-    await nextAdventureBtn.click();
-
-    // 11. Next Adventure Screen
-    await page.waitForSelector('button:has-text("Volver a la Bienvenida")');
-    console.log('✓ Reached Next Adventure Screen');
-    await takeScreenshot(page, 'station_08_next_adventure.png');
-
-    // Return to Welcome Screen
-    const homeBtn = page.locator('button:has-text("Volver a la Bienvenida")');
-    await homeBtn.click();
-    await page.waitForSelector('.welcome');
-    console.log('✓ Successfully returned to Welcome Screen. Full cycle verified!');
-
-    console.log('🎉 [E2E] Local Cooperative Station Mode test PASSED flawlessly!');
-  } catch (err) {
-    console.error('❌ [E2E] Test failed with error:', err);
-    await takeScreenshot(page, 'station_error.png');
-    throw err;
+    await returnToWelcome(page);
+    failOnProblems(problems);
+    console.log('  ✓ recorrido completo cooperativo');
+  } catch (error) {
+    await screenshot(page, 'station_full_route_error.png').catch(() => undefined);
+    throw error;
   } finally {
-    await browser.close();
+    await context.close();
   }
 }
 
-runCoopStationE2ETest();
+async function quickDemo(browser) {
+  console.log('\n>>> B) Demostración rápida docente');
+  const { context, page, problems } = await newMonitoredPage(browser, { width: 1440, height: 900 }, 'coop-demo');
+  try {
+    await openStationModal(page);
+    await configureGroup(page, 'Equipo Halcón');
+    await page.click('button.earth-action-btn:has-text("Iniciar Misión Cooperativa")');
+
+    await page.waitForSelector('.module-picker__button');
+    for (const index of [0, 1, 2]) await page.locator('.module-picker__button').nth(index).click();
+    await page.click('button.builder-start');
+    await page.waitForSelector('.turn-transition button');
+    await page.click('.turn-transition button');
+
+    await coopGuardAndResults(page, 'demo');
+    await returnToWelcome(page);
+    failOnProblems(problems);
+    console.log('  ✓ demostración rápida');
+  } catch (error) {
+    await screenshot(page, 'station_demo_error.png').catch(() => undefined);
+    throw error;
+  } finally {
+    await context.close();
+  }
+}
+
+const browser = await launchBrowser();
+try {
+  await fullRoute(browser);
+  await quickDemo(browser);
+  console.log('\n🎉 E2E Modo Estación OK');
+} finally {
+  await browser.close();
+}

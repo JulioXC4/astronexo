@@ -126,7 +126,7 @@ test('2. Selección de edificios mediante accesibilidad (ratón y teclado)', () 
   assert.ok(PreparationMapScreen, 'PreparationMapScreen debe estar exportado y definido');
   // Comprobación de que todas las misiones en ALL_EARTH_MISSIONS tienen identificadores válidos
   const keys = Object.keys(ALL_EARTH_MISSIONS);
-  assert.equal(keys.length, 7, 'Deben existir exactamente 7 misiones únicas registradas');
+  assert.equal(keys.length, 8, 'Deben existir exactamente 8 misiones únicas registradas (catálogo JD)');
 });
 
 test('3. Exactamente tres misiones completables (no se permite una 4ta)', () => {
@@ -179,38 +179,38 @@ test('5. Exactamente tres recompensas de misiones, sin herramientas regaladas', 
   assert.ok(!finalBackpack.includes('CROP_KIT'), 'No debe regalar cultivos si no fueron ganados');
 });
 
-test('6. Tres misiones comunes entre ciudades (identidad e isCitySpecific: false)', () => {
+test('6. Dos misiones comunes entre ciudades según Prototipo JD (Huerto, Nubes y soles)', () => {
   const arequipaMissions = getMissionsForCity('AREQUIPA');
   const tromsoMissions = getMissionsForCity('TROMSO');
 
   const commonMissionsArequipa = arequipaMissions.filter(m => !m.isCitySpecific);
   const commonMissionsTromso = tromsoMissions.filter(m => !m.isCitySpecific);
 
-  assert.equal(commonMissionsArequipa.length, 3, 'Arequipa debe tener exactamente 3 comunes');
-  assert.equal(commonMissionsTromso.length, 3, 'Tromsø debe tener exactamente 3 comunes');
+  assert.equal(commonMissionsArequipa.length, 2, 'Arequipa debe tener exactamente 2 comunes');
+  assert.equal(commonMissionsTromso.length, 2, 'Tromsø debe tener exactamente 2 comunes');
 
   const commonIdsArequipa = commonMissionsArequipa.map(m => m.id).sort();
   const commonIdsTromso = commonMissionsTromso.map(m => m.id).sort();
 
-  assert.deepEqual(commonIdsArequipa, ['ECLSS_TRAINING', 'SOLAR_WATCH', 'VEGGIE_LAB']);
-  assert.deepEqual(commonIdsTromso, ['ECLSS_TRAINING', 'SOLAR_WATCH', 'VEGGIE_LAB']);
+  assert.deepEqual(commonIdsArequipa, ['CLOUDS_SUNS', 'VEGGIE_LAB']);
+  assert.deepEqual(commonIdsTromso, ['CLOUDS_SUNS', 'VEGGIE_LAB']);
 });
 
-test('7. Dos misiones específicas de cada ciudad (isCitySpecific: true)', () => {
+test('7. Tres misiones específicas de cada ciudad según Prototipo JD (isCitySpecific: true)', () => {
   const arequipaMissions = getMissionsForCity('AREQUIPA');
   const tromsoMissions = getMissionsForCity('TROMSO');
 
   const specificArequipa = arequipaMissions.filter(m => m.isCitySpecific);
   const specificTromso = tromsoMissions.filter(m => m.isCitySpecific);
 
-  assert.equal(specificArequipa.length, 2, 'Arequipa debe tener exactamente 2 misiones específicas');
-  assert.equal(specificTromso.length, 2, 'Tromsø debe tener exactamente 2 misiones específicas');
+  assert.equal(specificArequipa.length, 3, 'Arequipa debe tener exactamente 3 misiones específicas');
+  assert.equal(specificTromso.length, 3, 'Tromsø debe tener exactamente 3 misiones específicas');
 
   const specificIdsArequipa = specificArequipa.map(m => m.id).sort();
-  assert.deepEqual(specificIdsArequipa, ['ALTITUDE_ACCLIMATIZATION', 'SOLAR_DETECTIVE']);
+  assert.deepEqual(specificIdsArequipa, ['ALTITUDE_ACCLIMATIZATION', 'ECLSS_TRAINING', 'SOLAR_DETECTIVE']);
 
   const specificIdsTromso = specificTromso.map(m => m.id).sort();
-  assert.deepEqual(specificIdsTromso, ['ARCTIC_GREENHOUSE', 'DARK_MONTHS_RESERVE']);
+  assert.deepEqual(specificIdsTromso, ['ARCTIC_GREENHOUSE', 'DARK_MONTHS_RESERVE', 'SOLAR_WATCH']);
 });
 
 test('8. Cambio de Arequipa a Tromsø reinicia las misiones completadas', () => {

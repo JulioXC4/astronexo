@@ -32,6 +32,18 @@ describe('catálogo de recursos visuales', () => {
     expect(missing).toEqual([]);
   });
 
+  it('registra los 15 sprites obligatorios y la muestra marciana sin retirar los anteriores', () => {
+    const newFiles = [
+      'circuit-straight.png', 'circuit-corner.png', 'circuit-junction.png', 'solar-battery-bank.png',
+      'solar-cleaner-cartridge.png', 'eclss-water-reservoir.png', 'eclss-power-unit.png', 'eclss-electrolyzer.png',
+      'supply-crate-full.png', 'sample-basalt.png', 'sample-anorthosite.png', 'sample-regolith.png',
+      'instrument-mineral-analyzer.png', 'instrument-magnifier.png', 'instrument-grain-imager.png', 'sample-mars-sedimentary.png',
+    ];
+    const paths = Object.values(interventionAssets).flatMap((assets) => assets.map((asset) => asset.path));
+    for (const file of newFiles) expect(paths).toContain(`/assets/space/objects/${file}`);
+    expect(paths).toHaveLength(39);
+  });
+
   it('registra las ocho cámaras y conserva los cinco interiores lunares', () => {
     expect(Object.values(marsModuleScenes)).toHaveLength(5);
     expect(Object.values(lunarModuleScenes)).toHaveLength(5);

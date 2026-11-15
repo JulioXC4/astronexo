@@ -1,0 +1,43 @@
+{
+  "fetchedAt": "2026-11-15",
+  "cities": {
+    "AREQUIPA": {
+      "days": [
+        {
+          "date": "2024-01-20",
+          "value": 5.6028,
+          "requestUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude=-71.5375&latitude=-16.409&start=20240120&end=20240120&format=JSON"
+        },
+        {
+          "date": "2024-06-15",
+          "value": 5.6455,
+          "requestUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude=-71.5375&latitude=-16.409&start=20240615&end=20240615&format=JSON"
+        },
+        {
+          "date": "2024-02-10",
+          "value": 6.174,
+          "requestUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude=-71.5375&latitude=-16.409&start=20240210&end=20240210&format=JSON"
+        }
+      ]
+    },
+    "TROMSO": {
+      "days": [
+        {
+          "date": "2024-06-21",
+          "value": 3.5702,
+          "requestUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude=18.9553&latitude=69.6492&start=20240621&end=20240621&format=JSON"
+        },
+        {
+          "date": "2024-03-21",
+          "value": 1.7194,
+          "requestUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude=18.9553&latitude=69.6492&start=20240321&end=20240321&format=JSON"
+        },
+        {
+          "date": "2024-12-21",
+          "value": 0,
+          "requestUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude=18.9553&latitude=69.6492&start=20241221&end=20241221&format=JSON"
+        }
+      ]
+    }
+  }
+}

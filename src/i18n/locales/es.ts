@@ -53,14 +53,14 @@ export const es = {
       actions: 'Toca Acciones, mira cuánto cuesta cada arreglo y elige.',
     },
     intervention: {
-      REPAIR_PANELS: 'Arrastra la pieza hasta el panel.',
-      CLEAN_PANELS: 'Desliza para quitar el polvo.',
-      PATCH_OXYGEN_LEAK: 'Toca los puntos de fuga.',
-      RECYCLE_OXYGEN: 'Mantén presionado el control.',
-      REINFORCE_SHELTER: 'Coloca los bloques de protección.',
-      RUN_RESEARCH: 'Mantén presionado el terminal para completar el estudio.',
-      MANAGE_GREENHOUSE: 'Elige si mantienes o suspendes los cultivos.',
-      CONSULT_EARTH: 'Elige la ayuda que quieres pedir a la Tierra.',
+      REPAIR_PANELS: 'Repara y gira las conexiones para llevar energía a la batería.',
+      CLEAN_PANELS: 'Aplica el limpiador donde alcance varias celdas.',
+      PATCH_OXYGEN_LEAK: 'Aísla el compartimento correcto y parchea sus dos daños.',
+      RECYCLE_OXYGEN: 'Conecta agua y electricidad al electrolizador.',
+      REINFORCE_SHELTER: 'Protege las zonas prioritarias con tres materiales.',
+      RUN_RESEARCH: 'Observa y clasifica dos muestras usando evidencia.',
+      MANAGE_GREENHOUSE: 'Distribuye dos luces antes de decidir sobre los cultivos.',
+      CONSULT_EARTH: 'Elige un problema y adjunta dos datos pertinentes.',
     },
   },
 
@@ -91,7 +91,7 @@ export const es = {
   },
 
   cities: {
-    stepIndicator: 'Paso 1 de 6 · Selección de Base Terrestre (Requisitos V3.0)',
+    stepIndicator: 'Paso 3 · Elige tu base terrestre',
     title: 'Elige tu base terrestre',
     subtitle: 'Elige entre las dos bases oficiales del reto: Arequipa (Perú) o Tromsø (Noruega).',
     confirmBase: 'Confirmar Base en {city}',
@@ -127,9 +127,9 @@ export const es = {
   },
 
   destinations: {
-    stepIndicator: 'Paso 2 de 6 · Destino Espacial (Requisitos V3.0)',
+    stepIndicator: 'Paso 1 · Destino espacial',
     title: 'Elige tu Destino Espacial antes de Entrenar',
-    subtitle: 'Tu preparación en la base de {city} se calibrará según los desafíos ambientales de tu destino.',
+    subtitle: 'Primero eliges a dónde irás; después construimos tu estación.',
     confirm: 'Confirmar Destino y Crear Comandante',
     back: 'Cambiar Base ({city})',
     selected: 'Seleccionado para la misión',
@@ -172,7 +172,7 @@ export const es = {
   },
 
   avatars: {
-    stepIndicator: 'Paso 3 de 6 · Perfil del Comandante ({city} ➔ {destination})',
+    stepIndicator: 'Paso 4 · Perfil del Comandante ({city} ➔ {destination})',
     title: 'Elige tu Avatar de Expedición',
     subtitle: 'Selecciona tu comandante para liderar la expedición desde {city} hacia {destination}.',
     callsignLabel: 'Indicativo o nombre de misión:',
@@ -215,7 +215,7 @@ export const es = {
   },
 
   briefing: {
-    stepIndicator: 'Paso 4 de 6 · Enlace de Misión ({city} ➔ {destination})',
+    stepIndicator: 'Paso 5 · Enlace de Misión ({city} ➔ {destination})',
     title: 'Centro de Enlace: {city}',
     albaTitle: 'Comandante Alba:',
     albaMessage: '¡Atención, {name}! Nuestro cohete despegará hacia {destination}. En el mapa encontrarás 5 instalaciones de entrenamiento. Sin embargo, por capacidad de bodega y tiempo de ventana orbital, solo podrás elegir y completar exactamente 3 misiones. Cada misión completada te otorgará una herramienta específica para tu nave.',
@@ -276,9 +276,18 @@ export const es = {
     mapAriaLabel: 'Mapa de la base de {city} con cinco instalaciones de entrenamiento',
     launchPadReady: 'Plataforma de lanzamiento lista',
     facilities: {
+      CLOUDS_SUNS: {
+        shortName: ['NUBES Y', 'SOLES'],
+        name: 'Nubes y soles',
+        facilityName: 'Estación de Nubes y Soles',
+        objective: 'Comparar días soleados y nublados con datos de NASA POWER de tu ciudad y decidir cuánta reserva de energía guardar.',
+        cost: 'Energía reservada para los días sin sol.',
+        effect: 'Mejor reparto de energía cuando los paneles producen poco en la base.',
+        science: 'NASA POWER (ALLSKY_SFC_SW_DWN)',
+      },
       SOLAR_DETECTIVE: {
         shortName: ['OBSERVATORIO', 'SOLAR'],
-        name: 'Detective del Sol (Arequipa)',
+        name: 'Baterías con sol',
         facilityName: 'Observatorio Solar Andino',
         objective: 'Orientar celdas solares hacia el norte a 16° y comparar fechas históricas de NASA POWER en Arequipa.',
         cost: 'Tiempo de calibración y balance de almacenamiento.',
@@ -287,7 +296,7 @@ export const es = {
       },
       ALTITUDE_ACCLIMATIZATION: {
         shortName: ['CÁMARA DE', 'ALTURA'],
-        name: 'Aclimatación de Altura Andina',
+        name: 'Aire de altura',
         facilityName: 'Cámara Hipobárica de Altura',
         objective: 'Entrenar el sellado hermético bajo la baja presión atmosférica de Arequipa (2,325 m s. n. m.).',
         cost: 'Gasto de tanques de gas de calibración.',
@@ -296,7 +305,7 @@ export const es = {
       },
       DARK_MONTHS_RESERVE: {
         shortName: ['BANCO DE', 'BATERÍAS'],
-        name: 'Reserva para los Meses Oscuros',
+        name: 'Noche polar',
         facilityName: 'Banco de Baterías Criogénicas',
         objective: 'Gestionar el almacenamiento de energía para la noche polar ártica de Tromsø (0 kWh/m²/día en la fecha seleccionada), análoga a la noche lunar.',
         cost: 'Racionamiento de energía para calefacción.',
@@ -305,7 +314,7 @@ export const es = {
       },
       ARCTIC_GREENHOUSE: {
         shortName: ['INVERNADERO', 'ÁRTICO'],
-        name: 'Invernadero Ártico Geotérmico',
+        name: 'Frío',
         facilityName: 'Bio-Refugio Ártico',
         objective: 'Mantener cultivos hidropónicos con calor geotérmico y LEDs en el frío ártico extremo.',
         cost: 'Consumo continuo de agua y sales nutritivas.',
@@ -314,7 +323,7 @@ export const es = {
       },
       SOLAR_WATCH: {
         shortName: ['CLIMA', 'ESPACIAL'],
-        name: 'Mirador de Tormentas (DONKI)',
+        name: 'Auroras y alerta',
         facilityName: 'Centro de Clima Espacial',
         objective: 'Detectar eyecciones de masa coronal (CME) históricas y activar el protocolo de blindaje hermético.',
         cost: 'Suspensión temporal de actividades exteriores.',
@@ -323,7 +332,7 @@ export const es = {
       },
       ECLSS_TRAINING: {
         shortName: ['SOPORTE', 'VITAL'],
-        name: 'Módulo de Soporte Vital Regenerativo',
+        name: 'Agua escasa',
         facilityName: 'Hangar de Filtrado ECLSS',
         objective: 'Probar el reciclaje de condensación y electrólisis de agua en oxígeno respirable en circuito cerrado.',
         cost: 'Energía de electrólisis y filtros de prueba.',
@@ -332,7 +341,7 @@ export const es = {
       },
       VEGGIE_LAB: {
         shortName: ['BIO-DOMO', 'VEGGIE'],
-        name: 'Laboratorio de Cultivos Veggie',
+        name: 'Huerto',
         facilityName: 'Bio-Domo Hidropónico',
         objective: 'Calibrar la iluminación LED roja y azul para acelerar la fotosíntesis de plantas espaciales.',
         cost: 'Balance de iluminación vs consumo de batería.',
@@ -343,6 +352,19 @@ export const es = {
   },
 
   minigames: {
+    cloudsSuns: {
+      title: 'Nubes y soles',
+      intro: 'Mira cuánta luz solar recibió {city} en tres días reales (NASA POWER). ¿Cuánta energía guardarías para los días flojos?',
+      chartAria: 'Barras de radiación solar de tres días',
+      reserveLabel: 'Reserva de energía: {value}%',
+      hint: 'Pista: si los días se parecen, guarda poco; si cambian mucho, guarda más.',
+      testBtn: 'Probar la reserva',
+      tryAgain: 'Todavía no alcanza el equilibrio. Los datos piden cerca de {recommended}%.',
+      passed: 'Buen reparto. Los datos pedían cerca de {recommended}%.',
+      benefit: 'Beneficio: paneles plegables para la guardia. Es una regla del juego; los datos POWER describen la Tierra.',
+      confirmBtn: 'Pagar {cost} punto(s) de Energía y recibir el kit',
+      source: 'Dato NASA POWER · {parameter} ({unit}) · estado: {status}',
+    },
     altitudeAcclimatization: { title: 'Aclimatación de altura' },
     arcticGreenhouse: { title: 'Invernadero ártico' },
     eclssTraining: { title: 'Entrenamiento de soporte vital' },
@@ -603,6 +625,61 @@ export const es = {
     },
   },
 
+  nasaSources: {
+    title: 'Fuentes NASA de esta misión',
+    power: 'NASA POWER · registro histórico de {city} · {parameter} · estado: {status} · consultado: {date}.',
+    donki: 'NASA DONKI · registro histórico de CME del {date} a {speed} km/s · estado: {status}.',
+    rule: 'Regla simulada del juego: esa velocidad fijó la dificultad {difficulty}. No es una dosis de radiación.',
+    eclss: 'NASA ECLSS · soporte vital (contenido educativo).',
+    veggie: 'NASA Veggie / CSA · cultivos en el espacio (contenido educativo).',
+    osdr: 'NASA OSDR · ciencia, radiación, Luna y Marte (contenido educativo).',
+    disclaimer: 'Los datos NASA describen la Tierra o el Sol. Costos, protección y consecuencias son reglas simuladas del juego.',
+  },
+
+  nasaStatus: {
+    HISTORICAL: 'histórico (local)',
+    UPDATED: 'actualizado',
+    FALLBACK: 'respaldo',
+  },
+
+  stationPrep: {
+    kicker: 'ESTACIÓN EN CONSTRUCCIÓN',
+    title: 'Preparando tu estación en {destination}',
+    line1: 'Una base lista antes de llegar da aire, energía y refugio desde el primer día.',
+    line2: 'Mientras tú entrenas en la Tierra, el equipo de obra instala tus tres módulos.',
+    continue: 'Elegir mi base de entrenamiento',
+    skip: 'Saltar',
+  },
+
+  construction: {
+    kicker: 'AVANCE DE OBRA',
+    title: 'Pasaron {weeks} semanas',
+    progress: 'Obra {done} de 3: instalamos «{module}».',
+    line: 'Tu estación avanza mientras tú entrenas.',
+    ready: '¡La estación está lista para recibirte!',
+    next: 'Seguir entrenando',
+    last: 'Ir al despegue',
+    skip: 'Saltar',
+  },
+
+  monitor: {
+    kicker: 'REVISIÓN DE SISTEMAS',
+    title: 'Llegamos con reservas limitadas',
+    line: 'Antes de operar, revisemos la estación.',
+    modules: 'Módulos construidos',
+    tools: 'Herramientas ganadas',
+    resources: 'Recursos al llegar',
+    energy: 'Energía',
+    oxygen: 'Oxígeno',
+    food: 'Alimentos',
+    shield: 'Escudo',
+    weatherTitle: 'Clima espacial real · NASA DONKI',
+    weatherEvent: 'CME del {date}: {speed} km/s ({status}).',
+    weatherRule: 'Regla del juego (simulada): esa velocidad fija la dificultad {difficulty}. No es una dosis de radiación.',
+    start: 'Iniciar guardia',
+    difficulty: { CALM: 'Calma', ACTIVE: 'Activa', STORMY: 'Tormentosa' },
+  },
+
   flight: {
     departureTitle: 'Despegue hacia {destination}',
     departureSubtitle: 'Salida desde {city} rumbo a {destination}',
@@ -655,6 +732,7 @@ export const es = {
     kicker: 'HANGAR DE CONSTRUCCIÓN',
     title: 'ARMA TU BASE EN {destination}',
     subtitle: 'Los sistemas esenciales ya están instalados. Elige tres mejoras sin repetir.',
+    confirmStation: 'Construir mi estación',
     confirmBaseBtn: 'Iniciar guardia',
     counter: '{selected}/3 MÓDULOS',
     counterLabel: '/3 MÓDULOS',
@@ -891,49 +969,49 @@ export const es = {
       G1: {
         label: 'Reparar paneles',
         objective: 'Recupera el arreglo solar antes de que baje la energía.',
-        instructions: 'Arrastra la celda al panel o usa la alternativa accesible.',
+        instructions: 'Repara solo las conexiones necesarias y gíralas hasta cerrar el circuito.',
         benefit: 'Repara el panel y recupera eficiencia solar.',
       },
       G2: {
         label: 'Limpiar paneles',
         objective: 'Retira el polvo para recuperar generación solar.',
-        instructions: 'Desliza el control hasta completar la limpieza.',
+        instructions: 'Usa dos aplicaciones sobre las celdas que limpien mayor superficie.',
         benefit: 'Recupera 30 puntos de eficiencia solar.',
       },
       G3: {
         label: 'Parchar fuga',
         objective: 'Sella la fuga del circuito de oxígeno.',
-        instructions: 'Toca los tres puntos de fuga o usa la alternativa accesible.',
+        instructions: 'Aísla el compartimento con fuga y parchea sus dos daños.',
         benefit: 'Detiene la fuga y recupera 4 puntos de oxígeno.',
       },
       G4: {
         label: 'Reciclar oxígeno',
         objective: 'Activa el ciclo de recuperación de la base.',
-        instructions: 'Mantén presionado el control o usa la alternativa accesible.',
+        instructions: 'Conecta agua y electricidad al electrolizador, y su salida al tanque.',
         benefit: 'Recupera 20 puntos de oxígeno.',
       },
       G5: {
         label: 'Reforzar refugio',
         objective: 'Añade regolito para mejorar la preparación protectora.',
-        instructions: 'Arrastra el regolito al refugio o usa la alternativa accesible.',
+        instructions: 'Elige un material y protege tres zonas, incluidas las dos prioritarias.',
         benefit: 'Mejora 20 puntos de Escudo sin borrar exposición acumulada.',
       },
       G6: {
         label: 'Hacer ciencia',
         objective: 'Procesa una muestra para avanzar el objetivo científico.',
-        instructions: 'Mantén presionado el analizador o usa la alternativa accesible.',
+        instructions: 'Observa y clasifica dos muestras con el instrumento adecuado.',
         benefit: 'Añade 25 puntos de progreso científico.',
       },
       G7: {
         label: 'Gestionar invernadero',
         objective: 'Decide si mantienes o suspendes temporalmente los cultivos.',
-        instructions: 'Elige mantener para obtener alimento o suspender para ahorrar energía.',
+        instructions: 'Distribuye dos luces y luego decide mantener o suspender los cultivos.',
         benefit: 'Mantener recupera alimento; suspender ahorra energía pero reduce reservas.',
       },
       G8: {
         label: 'Consultar a Tierra',
         objective: 'Solicita una recomendación simulada al equipo terrestre.',
-        instructions: 'Selecciona una consulta. Solo se permite una por misión.',
+        instructions: 'Elige un problema y adjunta dos datos pertinentes antes de transmitir.',
         benefit: 'Luna responde ahora; Marte responde al inicio del siguiente turno.',
       },
     },
@@ -963,6 +1041,40 @@ export const es = {
       oxygenGameAria: 'Minijuego para parchar una fuga de oxígeno',
       sealPointAria: 'Sellar punto de fuga {point}',
     },
+    puzzles: {
+      retry: 'REINTENTAR PUZLE',
+      g1: {
+        title: 'Reconecta la energía', aria: 'Circuito entre el panel solar y la batería', spares: 'Repuestos locales: {count}', source: 'PANEL', target: 'BATERÍA',
+        repairTile: 'Reparar conexión {number}', rotateTile: 'Girar conexión {number}', noSpares: 'No quedan repuestos. Reinicia y repara solo el camino necesario.', repaired: 'Conexión reparada. Ahora puedes girarla.', rotated: 'Pieza girada. Sigue la línea desde el panel hasta la batería.', success: 'Circuito continuo: la batería vuelve a recibir energía.', hint: 'Toca una pieza averiada para repararla y una pieza sana para girarla.',
+      },
+      g2: {
+        title: 'Rescate solar', cleaner: 'Aplicaciones: {count}', aria: 'Panel solar de seis celdas', cell: 'Celda {number}', capture: 'Captación {value}%', success: 'Captación recuperada: el polvo dejó libres las celdas clave.', retryHint: 'La captación no alcanzó 85 %. Prueba aplicando en el centro.', hint: 'Cada aplicación limpia la celda elegida y sus vecinas.',
+      },
+      g3: {
+        title: 'Emergencia de oxígeno', aria: 'Tres compartimentos conectados por tuberías', pressure: 'Presión {value}%', compartment: 'Compartimento {number}', closed: 'AISLADO', open: 'ABIERTO', correctHatch: 'Buena detección. Ahora parchea los dos puntos dañados.', wrongHatch: 'La presión sigue bajando. Busca la tubería con burbujas.', sealed: 'SELLADO', patchPoint: 'Parchar daño {number}', success: 'Fuga contenida: la presión se estabilizó.', hint: 'Primero toca la escotilla del compartimento que pierde oxígeno.',
+      },
+      g4: {
+        title: 'Reactiva el soporte vital', progress: 'Conexiones {count}/3', water: 'Depósito de agua', power: 'Fuente eléctrica', electrolyzer: 'Electrolizador', tank: 'Tanque de oxígeno', output: 'Elegir salida', waterInput: 'Entrada de agua', powerInput: 'Entrada eléctrica', oxygenOutput: 'Salida de O₂', oxygenInput: 'Entrada de O₂', wrong: 'Esa conexión no corresponde. Revisa los símbolos de cada puerto.', connected: 'Conexión correcta.', success: 'Sistema activo: el tanque recibe oxígeno.', chooseInput: 'Ahora elige el puerto de entrada correcto.', hint: 'Elige una salida y después su entrada correspondiente.', lesson: 'La electrólisis utiliza electricidad para separar oxígeno del agua; no recicla directamente el aire exhalado.',
+      },
+      g5: {
+        title: 'Escudo contra radiación', remaining: 'Materiales disponibles: {count}', chooseMaterial: 'Primero elige el material de protección.', priorityHint: 'Reubica una pieza: las zonas de la tripulación marcadas son prioritarias.', regolith: 'REGOLITO', regolithCost: '−8 Energía · +20 Escudo', supplies: 'SUMINISTROS', suppliesCost: '−5 Energía · −8 Comida · +20 Escudo', zone: 'Zona {number}', success: 'Las zonas de la tripulación quedaron cubiertas.', hint: 'Elige un material y cubre tres zonas, incluidas las dos prioritarias.', suppliesLesson: 'Usar contenedores como protección inmoviliza parte de las reservas de comida.',
+      },
+      g6: {
+        title: 'Misterio del laboratorio', round: 'Muestra {current}/{total}', unknown: 'MUESTRA POR CLASIFICAR', samplesAvailable: 'Muestras disponibles', select: 'SELECCIONAR', classified: 'CLASIFICADA', chooseInstrument: 'Muestra elegida. Ahora selecciona un instrumento.', instruments: 'Instrumentos disponibles', instrumentHint: 'Ese instrumento no muestra la evidencia necesaria. Prueba otro.', classificationHint: 'La evidencia no coincide con esa clasificación. Lee la pista otra vez.', nextRound: 'Clasificación correcta. Elige una muestra distinta.', success: 'Dos muestras clasificadas mediante evidencia.', hint: 'Elige una muestra y el instrumento que mejor revele su estructura.', lesson: 'Ejemplos educativos simulados: el color por sí solo no identifica un mineral; el regolito es material suelto, no una roca equivalente.',
+        samples: { BASALT: 'Basalto', ANORTHOSITE: 'Anortosita', MARS_SEDIMENTARY: 'Material sedimentario marciano', REGOLITH: 'Regolito' },
+        instrument: { ANALYZER: 'Analizador mineral', MAGNIFIER: 'Lupa petrográfica', GRAIN_IMAGER: 'Cámara de granos' },
+        classes: { VOLCANIC_ROCK: 'Roca volcánica de grano fino', HIGHLAND_ROCK: 'Roca clara rica en feldespato', LAYERED_MATERIAL: 'Material con capas sedimentarias', LOOSE_MATERIAL: 'Material suelto fragmentado' },
+        clues: { BASALT: 'La lectura muestra textura fina compatible con enfriamiento de lava.', ANORTHOSITE: 'La ampliación revela abundantes cristales claros de plagioclasa.', MARS_SEDIMENTARY: 'La imagen revela granos ordenados en capas; es una evidencia, no una identificación solo por color.', REGOLITH: 'Se observan fragmentos sueltos de distintos tamaños.' },
+      },
+      g7: {
+        title: 'Huerto espacial', lights: 'Luces disponibles: {count}', tray: 'Bandeja {number}', costPreview: 'La distribución de luz es local. La decisión final usa el costo del motor.', maintain: 'MANTENER · −3 Energía / +Alimento', suspend: 'SUSPENDER · sin costo / sin cosecha', success: 'Plan de cultivos preparado para confirmación.', decide: 'Las dos luces están distribuidas. Elige mantener o suspender.', hint: 'Toca dos bandejas para asignarles iluminación.',
+      },
+      g8: {
+        title: 'Control de Misión', oneConsult: '1 consulta por misión', chooseFacts: 'Elige exactamente dos datos pertinentes', transmit: 'TRANSMITIR MENSAJE', wrongFacts: 'Uno de esos datos no ayuda a resolver el problema. Ajusta el mensaje.', moonSuccess: 'Mensaje pertinente enviado: la Luna recibirá respuesta inmediata al confirmar.', marsSuccess: 'Mensaje pertinente enviado: Marte recibirá respuesta en el siguiente turno.', hint: 'Elige el problema que necesita apoyo y prepara un mensaje breve.',
+        problems: { ENERGY_GUIDANCE: 'Generación de energía inestable', RADIATION_GUIDANCE: 'Riesgo de radiación para la tripulación', LIFE_SUPPORT_GUIDANCE: 'Soporte vital bajo presión' },
+        facts: { ENERGY_LEVEL: 'Energía actual: {energy}', SOLAR_EFFICIENCY: 'Eficiencia solar: {solar}%', CREW_MENU: 'Menú de la tripulación', SHIELD_LEVEL: 'Escudo actual: {shield}', RADIATION_ALERT: 'Exposición simulada: {radiation}', PLANT_HEIGHT: 'Altura de las plantas', OXYGEN_LEVEL: 'Oxígeno actual: {oxygen}', FOOD_LEVEL: 'Alimentos actuales: {food}', ROVER_COLOR: 'Color del rover' },
+      },
+    },
   },
 
   results: {
@@ -983,6 +1095,12 @@ export const es = {
     scoreLabel: 'PUNTUACIÓN',
     reportKicker: 'INFORME',
     finalReportTitle: 'INFORME FINAL',
+    preparationTitle: 'Preparación que llegó a la misión',
+    cityLabel: 'Base terrestre',
+    destinationLabel: 'Destino',
+    trainingsLabel: 'Tres entrenamientos completados',
+    toolsLabel: 'Herramientas obtenidas',
+    duplicateToolNote: '{count} entrenamientos reforzaron el mismo equipo; cada recompensa aplicó su beneficio.',
     finalStateTitle: 'Estado final',
     turns: 'Turnos',
     scoreBreakdownTitle: 'Puntuación',
@@ -1143,6 +1261,7 @@ export const es = {
       localTitle: '100% Local y Privado',
       localDesc: 'Sin internet, cuentas ni telemetría externa. Todo se ejecuta en esta computadora.',
     },
+    fullRouteBtn: 'Recorrido completo del grupo',
     startMissionBtn: '🚀 Iniciar Misión Cooperativa',
     backBtn: 'Atrás',
     nextBtn: 'Siguiente',

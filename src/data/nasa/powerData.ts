@@ -1,4 +1,5 @@
-import type { NasaObservation } from '../../game/contracts';
+import type { NasaDataStatus, NasaObservation } from '../../game/contracts';
+import powerSnapshot from './snapshots/power.json';
 
 export interface SolarDayRecord {
   readonly date: string; // YYYY-MM-DD
@@ -21,7 +22,7 @@ export interface CitySolarDataset {
  * (Latitud: -16.4090, Longitud: -71.5375). Solo irradianceKwhPerM2 es dato POWER.
  * Parámetro: ALLSKY_SFC_SW_DWN (All Sky Surface Shortwave Downward Irradiance) en kW-hr/m²/day.
  */
-export const AREQUIPA_SOLAR_RECORDS: CitySolarDataset = {
+const AREQUIPA_LOCAL_RECORDS: CitySolarDataset = {
   cityId: 'AREQUIPA',
   optimalTiltDegrees: 16,
   orientationCompass: 'NORTH',
@@ -85,7 +86,7 @@ export const AREQUIPA_SOLAR_RECORDS: CitySolarDataset = {
  * (Latitud: 69.6492, Longitud: 18.9553). Solo irradianceKwhPerM2 es dato POWER.
  * Refleja el ciclo polar ártico: Sol de Medianoche en junio vs. Noche Polar en diciembre.
  */
-export const TROMSO_SOLAR_RECORDS: CitySolarDataset = {
+const TROMSO_LOCAL_RECORDS: CitySolarDataset = {
   cityId: 'TROMSO',
   optimalTiltDegrees: 68,
   orientationCompass: 'SOUTH',
@@ -143,6 +144,54 @@ export const TROMSO_SOLAR_RECORDS: CitySolarDataset = {
     },
   ],
 };
+
+interface PowerSnapshotCity {
+  readonly days: readonly { readonly date: string; readonly value: number; readonly requestUrl: string }[];
+}
+interface PowerSnapshotFile {
+  readonly fetchedAt: string | null;
+  readonly cities: Partial<Record<'AREQUIPA' | 'TROMSO', PowerSnapshotCity>>;
+}
+
+function validPowerValue(value: unknown): value is number {
+  // POWER usa -999 como valor faltante; ALLSKY_SFC_SW_DWN diario real está entre 0 y ~12 kWh/m²/día.
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 12;
+}
+
+/**
+ * Combina el respaldo local con el snapshot generado por `scripts/update-nasa-snapshots.mjs`.
+ * Un snapshot solo se acepta si cubre las tres fechas con valores válidos (UPDATED);
+ * si existe pero es inválido se conserva el dato local marcado como FALLBACK.
+ */
+export function applyPowerSnapshot(local: CitySolarDataset, file: PowerSnapshotFile): CitySolarDataset {
+  const snap = file.cities[local.cityId];
+  const tag = (day: SolarDayRecord, status: NasaDataStatus, fetchedAt?: string): SolarDayRecord => ({
+    ...day,
+    observation: { ...day.observation, cityId: local.cityId, status, fetchedAt: fetchedAt ?? '2026-11-15' },
+  });
+  if (!snap || !file.fetchedAt) return { ...local, days: local.days.map((d) => tag(d, 'HISTORICAL')) as unknown as CitySolarDataset['days'] };
+  const byDate = new Map(snap.days.map((d) => [d.date, d] as const));
+  const ok = local.days.every((d) => validPowerValue(byDate.get(d.date)?.value)
+    && /^https:\/\/power\.larc\.nasa\.gov\/api\/temporal\/daily\/point\?/.test(byDate.get(d.date)?.requestUrl ?? ''));
+  if (!ok) return { ...local, days: local.days.map((d) => tag(d, 'FALLBACK')) as unknown as CitySolarDataset['days'] };
+  return {
+    ...local,
+    days: local.days.map((d) => {
+      const { value, requestUrl } = byDate.get(d.date)!;
+      return {
+        ...tag(d, 'UPDATED', file.fetchedAt!),
+        irradianceKwhPerM2: value,
+        observation: {
+          ...d.observation, value, cityId: local.cityId, status: 'UPDATED' as const,
+          fetchedAt: file.fetchedAt!, sourceUrl: requestUrl,
+        },
+      };
+    }) as unknown as CitySolarDataset['days'],
+  };
+}
+
+export const AREQUIPA_SOLAR_RECORDS: CitySolarDataset = applyPowerSnapshot(AREQUIPA_LOCAL_RECORDS, powerSnapshot as PowerSnapshotFile);
+export const TROMSO_SOLAR_RECORDS: CitySolarDataset = applyPowerSnapshot(TROMSO_LOCAL_RECORDS, powerSnapshot as PowerSnapshotFile);
 
 export function getSolarDatasetByCity(cityId: string): CitySolarDataset {
   if (cityId === 'TROMSO') return TROMSO_SOLAR_RECORDS;

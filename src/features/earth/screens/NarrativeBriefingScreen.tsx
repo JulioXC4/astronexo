@@ -103,7 +103,7 @@ export function NarrativeBriefingScreen({
       <main className="earth-card" style={{ maxWidth: '68rem', padding: 0, overflow: 'hidden' }}>
         {/* ESCENARIO DEL CENTRO DE COMUNICACIONES PIXEL ART */}
         <div className="briefing-stage">
-          
+
           {/* ACTORES EN EL ESCENARIO (ASTRONAUTA A LA IZQUIERDA, CHISPA A LA DERECHA) */}
           <div className="briefing-actors-stage">
             {/* Personaje del jugador a la izquierda */}

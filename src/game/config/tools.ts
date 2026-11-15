@@ -94,8 +94,8 @@ export const CITY_M5_TOOL: Readonly<Record<City, ToolId>> = {
 
 /** Posiciones de las cinco instalaciones del mapa v3, en el orden visible por ciudad. */
 export const EARTH_V3_MISSION_TOOLS: Readonly<Record<City, readonly ToolId[]>> = {
-  AREQUIPA: ['FOLDING_PANELS', 'LIFE_SUPPORT', 'SHELTER_KIT', 'LIFE_SUPPORT', 'CROP_KIT'],
-  TROMSO: ['FOLDING_PANELS', 'CROP_KIT', 'SHELTER_KIT', 'LIFE_SUPPORT', 'CROP_KIT'],
+  AREQUIPA: ['FOLDING_PANELS', 'LIFE_SUPPORT', 'LIFE_SUPPORT', 'CROP_KIT', 'FOLDING_PANELS'],
+  TROMSO: ['FOLDING_PANELS', 'CROP_KIT', 'SHELTER_KIT', 'CROP_KIT', 'FOLDING_PANELS'],
 };
 
 const VALID_MODES = ['SOLO', 'LOCAL_COOP'] as const;

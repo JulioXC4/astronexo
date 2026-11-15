@@ -18,10 +18,10 @@ export interface AssetEntry {
 }
 
 export const assetManifest: Record<AssetId, AssetEntry> = {
-  'character.alba': { path: '/assets/characters/alba.png', fallbackLabel: 'Alba', fallbackColor: '#5c7ab3' },
+  'character.alba': { path: '/assets/pixel-art/cadet-alba.png', fallbackLabel: 'Alba', fallbackColor: '#5c7ab3' },
   'character.chispa': { path: '/assets/characters/chispa.png', fallbackLabel: 'Chispa', fallbackColor: '#e0a548' },
-  'character.aurora': { path: '/assets/characters/aurora.png', fallbackLabel: 'Aurora', fallbackColor: '#9a7ac0' },
-  'character.nico': { path: '/assets/characters/nico.png', fallbackLabel: 'Nico', fallbackColor: '#67a995' },
+  'character.aurora': { path: '/assets/pixel-art/officer-aurora.png', fallbackLabel: 'Aurora', fallbackColor: '#9a7ac0' },
+  'character.nico': { path: '/assets/pixel-art/engineer-nico.png', fallbackLabel: 'Nico', fallbackColor: '#67a995' },
   'background.earth': { path: null, fallbackLabel: 'Centro terrestre', fallbackColor: '#38547a' },
   'background.earthWelcome': { path: '/assets/pixel-art/academy-sunset.png', fallbackLabel: 'Centro espacial al amanecer', fallbackColor: '#263b53' },
   'background.moon': { path: '/assets/space/backgrounds/moon-control.png', fallbackLabel: 'Control lunar', fallbackColor: '#626b7d' },

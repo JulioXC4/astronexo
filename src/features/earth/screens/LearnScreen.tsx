@@ -1,5 +1,6 @@
 import { ArrowLeft, BookOpen, Sun, ShieldWarning, Wind, Plant, Globe } from '@phosphor-icons/react';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { NasaSourcesPanel } from '../../nasa/NasaSourcesPanel';
 import './earth.css';
 
 interface LearnScreenProps {
@@ -116,6 +117,8 @@ export function LearnScreen({ onBack }: LearnScreenProps) {
             );
           })}
         </div>
+
+        <NasaSourcesPanel />
 
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
           <button type="button" className="earth-action-btn" onClick={onBack}>

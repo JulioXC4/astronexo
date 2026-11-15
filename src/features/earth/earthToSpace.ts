@@ -1,22 +1,31 @@
 import { getMissionsForCity, type MissionType } from '../../data/missions';
-import { isValidPreBuildGameSetup } from '../../game';
-import type { City, Destination, EarthMissionId, GameSetup, ToolId, TrainingOutcome } from '../../game';
+import { isValidGameSetup, isValidModuleSelection } from '../../game';
+import type { City, Destination, EarthMissionId, GameMode, GameSetup, ModuleId, ToolId, TrainingOutcome } from '../../game';
+import { buildSpaceWeatherContext } from '../nasa/spaceWeather';
 
 /** M1–M5 son las posiciones de las instalaciones, no IDs intercambiables entre ciudades. */
 const MAP_SLOTS: readonly EarthMissionId[] = ['M1', 'M2', 'M3', 'M4', 'M5'];
 
 export interface EarthLaunchSelection {
+  /** SOLO por defecto; LOCAL_COOP cuando el grupo usa el recorrido completo. */
+  readonly mode?: GameMode;
   readonly city: City;
   readonly destination: Destination;
   readonly avatarId: string;
   readonly fictionalName: string;
   readonly completedMissions: readonly MissionType[];
   readonly earnedTools: readonly ToolId[];
+  /** 3 de 5 módulos construidos ANTES de elegir ciudad (P10); se conservan hasta iniciar la guardia. */
+  readonly selectedModules: readonly ModuleId[];
   readonly trainingOutcomes?: readonly TrainingOutcome[];
 }
 
 export function buildEarthV3Setup(selection: EarthLaunchSelection): GameSetup {
   const missions = getMissionsForCity(selection.city);
+  if (!isValidModuleSelection(selection.selectedModules)) {
+    throw new Error('Se requieren tres módulos distintos construidos antes de la guardia.');
+  }
+  const spaceWeather = buildSpaceWeatherContext();
   if (selection.completedMissions.length !== 3 || new Set(selection.completedMissions).size !== 3) {
     throw new Error('Se requieren tres entrenamientos terrestres distintos.');
   }
@@ -45,14 +54,15 @@ export function buildEarthV3Setup(selection: EarthLaunchSelection): GameSetup {
     throw new Error('Las herramientas no corresponden a las misiones completadas.');
   }
   const setup: GameSetup = {
-    mode: 'SOLO',
+    mode: selection.mode ?? 'SOLO',
     city: selection.city,
     destination: selection.destination,
     completedEarthMissions: trainings.map(({ slot }) => slot),
     selectedTools: [expectedTools[0], expectedTools[1], expectedTools[2]],
-    selectedModules: [],
+    selectedModules: [...selection.selectedModules],
     scenarioId: `EARTH_V3_${selection.city}_${selection.destination}_${trainings.map(({ slot }) => slot).join('_')}`,
-    difficulty: 'ACTIVE',
+    difficulty: spaceWeather.rule.difficulty,
+    spaceWeather,
     earthProfile: {
       avatarId: selection.avatarId,
       fictionalName: selection.fictionalName,
@@ -65,6 +75,6 @@ export function buildEarthV3Setup(selection: EarthLaunchSelection): GameSetup {
       })),
     },
   };
-  if (!isValidPreBuildGameSetup(setup)) throw new Error('La preparación terrestre no cumple el contrato espacial.');
+  if (!isValidGameSetup(setup)) throw new Error('La preparación terrestre no cumple el contrato espacial.');
   return setup;
 }
