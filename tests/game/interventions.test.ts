@@ -60,10 +60,26 @@ describe('G1–G8', () => {
 
   it('G5 refuerza Escudo sin reducir exposición', () => {
     const initial = { ...withAlert('RADIATION_RISK'), shield: 50, radiationExposure: 22 };
-    const next = applyAction(initial, { type: 'REINFORCE_SHELTER' });
+    const next = applyAction(initial, { type: 'REINFORCE_SHELTER', choiceId: 'REGOLITH_SHIELDING' });
     expect(next.energy).toBe(initial.energy - 8);
     expect(next.shield).toBe(70);
     expect(next.radiationExposure).toBe(22);
+  });
+
+  it('G5 permite inmovilizar suministros con costo real alternativo', () => {
+    const initial = { ...withAlert('RADIATION_RISK'), shield: 50, foodSupply: 40 };
+    const action = { type: 'REINFORCE_SHELTER', choiceId: 'SUPPLY_SHIELDING' } as const;
+    expect(getActionCost(initial, action)).toEqual({ energy: -5, foodSupply: -8 });
+    const next = applyAction(initial, action);
+    expect(next.energy).toBe(initial.energy - 5);
+    expect(next.foodSupply).toBe(32);
+    expect(next.shield).toBe(70);
+  });
+
+  it('G5 bloquea una opción sin elección o sin comida suficiente', () => {
+    const initial = { ...withAlert('RADIATION_RISK'), shield: 50, foodSupply: 7 };
+    expect(applyAction(initial, { type: 'REINFORCE_SHELTER' })).toBe(initial);
+    expect(applyAction(initial, { type: 'REINFORCE_SHELTER', choiceId: 'SUPPLY_SHIELDING' })).toBe(initial);
   });
 
   it('G6 hace ciencia con costo 10 Energía y 4 Oxígeno', () => {

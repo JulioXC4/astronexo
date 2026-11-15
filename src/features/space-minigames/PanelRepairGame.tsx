@@ -1,42 +1,56 @@
 import { useState } from 'react';
 import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
+import { PANEL_CIRCUIT_START, isPanelCircuitComplete, type CircuitTileState } from './puzzleRules';
 
-interface PanelRepairGameProps {
-  readonly onReadyChange: (ready: boolean) => void;
-}
+interface PanelRepairGameProps { readonly onReadyChange: (ready: boolean) => void; }
+
+const ROLE_BY_SHAPE = { STRAIGHT: 'circuitStraight', CORNER: 'circuitCorner', JUNCTION: 'circuitJunction' } as const;
 
 export function PanelRepairGame({ onReadyChange }: PanelRepairGameProps) {
   const { t } = useI18n();
-  const [ready, setReady] = useState(false);
+  const [tiles, setTiles] = useState<readonly CircuitTileState[]>(PANEL_CIRCUIT_START);
+  const [spares, setSpares] = useState(2);
+  const [hint, setHint] = useState('');
+  const ready = isPanelCircuitComplete(tiles);
+  const asset = (role: string) => interventionAssets.G1.find((item) => item.role === role)!.path;
 
-  function complete() {
+  function operate(index: number) {
     if (ready) return;
-    setReady(true);
-    onReadyChange(true);
+    const tile = tiles[index];
+    if (tile.damaged) {
+      if (spares === 0) { setHint(t('interventions.puzzles.g1.noSpares')); return; }
+      const next = tiles.map((item, position) => position === index ? { ...item, damaged: false } : item);
+      setTiles(next);
+      setSpares((value) => value - 1);
+      setHint(t('interventions.puzzles.g1.repaired'));
+      if (isPanelCircuitComplete(next)) onReadyChange(true);
+      return;
+    }
+    const next = tiles.map((item, position) => position === index ? { ...item, rotation: (item.rotation + 1) % 4 } : item);
+    setTiles(next);
+    setHint(t('interventions.puzzles.g1.rotated'));
+    if (isPanelCircuitComplete(next)) onReadyChange(true);
   }
 
-  const damaged = interventionAssets.G1.find((asset) => asset.role === 'damaged')!;
-  const part = interventionAssets.G1.find((asset) => asset.role === 'repairPart')!;
-  const repaired = interventionAssets.G1.find((asset) => asset.role === 'repaired')!;
+  function reset() {
+    setTiles(PANEL_CIRCUIT_START); setSpares(2); setHint(''); onReadyChange(false);
+  }
 
-  return <div className="mini-game mini-game--visual" aria-label={t('interventions.gestures.panelGameAria')}>
-    <img className="mini-game__scene" src={ready ? repaired.path : damaged.path} alt="" />
-    <div
-      className={`panel-cell ${ready ? 'panel-cell--placed' : ''}`}
-      draggable={!ready}
-      onDragStart={(event) => event.dataTransfer.setData('text/plain', 'panel-cell')}
-    ><img src={part.path} alt="" /><span>{t('interventions.gestures.panelCell')}</span></div>
-    <div
-      className={`panel-slot ${ready ? 'panel-slot--ready' : ''}`}
-      onDragOver={(event) => event.preventDefault()}
-      onDrop={(event) => {
-        event.preventDefault();
-        if (event.dataTransfer.getData('text/plain') === 'panel-cell') complete();
-      }}
-    >{t(ready ? 'interventions.gestures.panelConnected' : 'interventions.gestures.panelSlot')}</div>
-    <button type="button" className="text-button" disabled={ready} onClick={complete}>
-      {t('interventions.gestures.panelAlt')}
-    </button>
+  return <div className={`puzzle puzzle--circuit ${ready ? 'puzzle--success' : ''}`} aria-label={t('interventions.puzzles.g1.aria')}>
+    <div className="puzzle__status"><strong>{t('interventions.puzzles.g1.title')}</strong><span>{t('interventions.puzzles.g1.spares', { count: spares })}</span></div>
+    <div className="circuit-board">
+      <div className="circuit-source"><img src={asset('damaged')} alt="" /><span>{t('interventions.puzzles.g1.source')}</span></div>
+      <div className="circuit-grid">
+        {tiles.map((tile, index) => <button type="button" key={index} className={`circuit-tile ${tile.damaged ? 'circuit-tile--damaged' : ''}`} aria-label={t(tile.damaged ? 'interventions.puzzles.g1.repairTile' : 'interventions.puzzles.g1.rotateTile', { number: index + 1 })} onClick={() => operate(index)}>
+          <img src={asset(ROLE_BY_SHAPE[tile.shape])} alt="" style={{ transform: `rotate(${tile.rotation * 90}deg)` }} />
+          {tile.damaged && <span aria-hidden="true">!</span>}
+        </button>)}
+      </div>
+      <div className="circuit-target"><img src={asset('batteryBank')} alt="" /><span>{t('interventions.puzzles.g1.target')}</span></div>
+      <div className={`circuit-current ${ready ? 'circuit-current--live' : ''}`} aria-hidden="true" />
+    </div>
+    <p className="puzzle__hint" aria-live="polite">{ready ? t('interventions.puzzles.g1.success') : hint || t('interventions.puzzles.g1.hint')}</p>
+    {!ready && spares === 0 && <button type="button" className="puzzle-reset" onClick={reset}>{t('interventions.puzzles.retry')}</button>}
   </div>;
 }

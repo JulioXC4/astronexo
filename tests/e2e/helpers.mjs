@@ -225,6 +225,70 @@ export async function skipIntervention(page) {
   await page.click('button.pixel-button--confirm');
 }
 
+/** Ejecuta una intervención real desde el menú compacto usando su alternativa accesible. */
+export async function performIntervention(page, labels) {
+  await page.click('.intervention-menu-trigger');
+  for (const label of labels) {
+    const option = page.locator(`button.intervention-option:not([disabled]):has-text("${label}")`).first();
+    if (await option.count()) {
+      await option.click();
+      await solveInterventionPuzzle(page, label);
+      const confirm = page.locator('.intervention-console button.pixel-button--confirm');
+      await confirm.waitFor({ state: 'visible' });
+      await confirm.click();
+      return label;
+    }
+  }
+  await page.click('.intervention-menu-scrim');
+  throw new Error(`Ninguna intervención estaba disponible: ${labels.join(', ')}`);
+}
+
+async function solveInterventionPuzzle(page, label) {
+  if (label === 'Reparar paneles') {
+    const tiles = page.locator('.circuit-tile');
+    await tiles.nth(0).click(); await tiles.nth(3).click();
+    await tiles.nth(0).click(); await tiles.nth(1).click(); await tiles.nth(1).click();
+  } else if (label === 'Limpiar paneles') {
+    const cells = page.locator('.solar-cell'); await cells.nth(1).click(); await cells.nth(4).click();
+  } else if (label === 'Parchar fuga') {
+    await page.locator('.compartment').nth(1).click();
+    await page.locator('.damage-point').nth(0).click(); await page.locator('.damage-point').nth(1).click();
+  } else if (label === 'Reciclar oxígeno') {
+    await page.locator('.eclss-board article').nth(0).locator('.port').click(); await page.click('.eclss-machine .port:has-text("Entrada de agua")');
+    await page.locator('.eclss-board article').nth(1).locator('.port').click(); await page.click('.eclss-machine .port:has-text("Entrada eléctrica")');
+    await page.click('.eclss-machine .port:has-text("Salida de O₂")'); await page.click('.eclss-board article:nth-child(4) .port');
+  } else if (label === 'Reforzar refugio') {
+    await page.locator('.material-card').first().click();
+    const zones = page.locator('.shelter-zone'); await zones.nth(0).click(); await zones.nth(1).click(); await zones.nth(2).click();
+  } else if (label === 'Hacer ciencia') {
+    await page.locator('.sample-rack .science-sample').nth(0).click();
+    await page.locator('.instrument').nth(0).click(); await page.locator('.classification-grid button').nth(0).click();
+    await page.locator('.sample-rack .science-sample').nth(1).click();
+    const sample = await page.locator('.science-sample--active').innerText();
+    await page.locator('.instrument').nth(/Anortosita/i.test(sample) ? 1 : 2).click();
+    await page.locator('.classification-grid button').nth(/Anortosita/i.test(sample) ? 1 : 2).click();
+  } else if (label === 'Gestionar invernadero') {
+    const trays = page.locator('.plant-tray'); await trays.nth(0).click(); await trays.nth(1).click();
+    await page.click('.greenhouse-decision button:has-text("MANTENER")');
+  } else if (label === 'Consultar a Tierra') {
+    await page.locator('.problem-grid button').first().click();
+    const facts = page.locator('.message-builder>div button'); await facts.nth(0).click(); await facts.nth(1).click();
+    await page.click('.transmit-button');
+  } else {
+    throw new Error(`No existe solucionador E2E para ${label}`);
+  }
+}
+
+export async function performScienceIntervention(page) {
+  return performIntervention(page, ['Hacer ciencia']);
+}
+
+export async function performSurvivalIntervention(page) {
+  return performIntervention(page, [
+    'Reparar paneles', 'Limpiar paneles', 'Parchar fuga', 'Reciclar oxígeno', 'Reforzar refugio', 'Gestionar invernadero',
+  ]);
+}
+
 /** Cinco turnos. `act` opcional permite una acción en el turno; por defecto «No intervenir». */
 export async function playFiveTurns(page, { coop = false, actOnTurn } = {}) {
   for (let turn = 1; turn <= 5; turn++) {

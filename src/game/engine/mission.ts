@@ -216,6 +216,10 @@ export function getActionCost(state: MissionState, action: GameAction): Resource
   const intervention = getIntervention(action.type);
   if (!intervention) return {};
   if (action.type === 'MANAGE_GREENHOUSE' && action.choiceId === 'SUSPEND_CROPS') return {};
+  if (action.type === 'REINFORCE_SHELTER') {
+    if (action.choiceId === 'SUPPLY_SHIELDING') return intervention.choiceCosts?.SUPPLY_SHIELDING ?? intervention.cost;
+    return intervention.choiceCosts?.REGOLITH_SHIELDING ?? intervention.cost;
+  }
   if (action.type === 'REPAIR_PANELS' && state.sparePartsCharges > 0) {
     return { ...intervention.cost, energy: H2_TOOL_RULES.SPARE_PARTS_KIT.repairEnergyCost };
   }
@@ -277,6 +281,9 @@ function actionAllowed(state: MissionState, action: GameAction) {
   if (intervention.requiresAlert && !matchingAlert) return false;
   if (action.type === 'RECYCLE_OXYGEN' && state.oxygen >= 100) return false;
   if (action.type === 'REINFORCE_SHELTER' && state.shield >= 100) return false;
+  if (action.type === 'REINFORCE_SHELTER'
+    && action.choiceId !== 'REGOLITH_SHIELDING'
+    && action.choiceId !== 'SUPPLY_SHIELDING') return false;
   if (action.type === 'RUN_RESEARCH' && state.scienceProgress >= 100) return false;
   if (action.type === 'MANAGE_GREENHOUSE'
     && action.choiceId !== 'MAINTAIN_CROPS'
@@ -289,6 +296,12 @@ function actionAllowed(state: MissionState, action: GameAction) {
 }
 
 function actionSummary(action: GameAction, alert: MissionAlert | undefined, response?: string) {
+  if (action.type === 'REINFORCE_SHELTER') {
+    const material = action.choiceId === 'SUPPLY_SHIELDING'
+      ? 'contenedores de suministros; parte de las reservas quedó inmovilizada como protección'
+      : 'regolito local';
+    return `Refugio reforzado con ${material}${alert ? `: ${alert.title} atendida.` : '.'}`;
+  }
   if (action.type === 'MANAGE_GREENHOUSE') {
     return action.choiceId === 'SUSPEND_CROPS'
       ? 'Invernadero suspendido: no produce alimento ni consume energía en los siguientes turnos.'

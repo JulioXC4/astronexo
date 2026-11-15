@@ -24,7 +24,7 @@ export function resolvePriorityAlert(state: MissionState) {
     || alert.kind === 'ENERGY_SHORTAGE');
   if (dust) return applyAction(state, { type: 'CLEAN_PANELS', targetId: dust.id });
   const radiation = state.activeAlerts.find((alert) => alert.kind === 'RADIATION_RISK');
-  if (radiation) return applyAction(state, { type: 'REINFORCE_SHELTER', targetId: radiation.id });
+  if (radiation) return applyAction(state, { type: 'REINFORCE_SHELTER', targetId: radiation.id, choiceId: 'REGOLITH_SHIELDING' });
   return applyAction(state, { type: 'RECYCLE_OXYGEN' });
 }
 

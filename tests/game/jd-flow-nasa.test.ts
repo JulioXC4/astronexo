@@ -239,7 +239,8 @@ describe('Traducciones del flujo JD', () => {
     ...MODULE_CATALOG.map((m) => `baseBuilder.modules.${m.id}.name`),
     ...Object.keys(ALL_EARTH_MISSIONS).flatMap((id) => [`map.facilities.${id}.name`, `map.facilities.${id}.objective`]),
     'stationPrep.title', 'construction.progress', 'monitor.weatherRule', 'nasaSources.power', 'nasaSources.donki', 'station.fullRouteBtn',
-    'baseBuilder.confirmStation', 'minigames.cloudsSuns.title',
+    'baseBuilder.confirmStation', 'minigames.cloudsSuns.title', 'minigames.veggieLab.title',
+    'minigames.arcticGreenhouse.title', 'minigames.eclssTraining.title',
   ];
   it.each(['es', 'en', 'no', 'qu'] as const)('%s resuelve todas las claves con fallback y sin placeholders visibles', (language) => {
     const params = { destination: 'Luna', weeks: 3, done: 1, module: 'X', date: '2024-05-10', speed: 1018, status: 'ok', difficulty: 'Activa', city: 'Arequipa', parameter: 'P', recommended: 10, cost: 1, value: 5, unit: 'u' };

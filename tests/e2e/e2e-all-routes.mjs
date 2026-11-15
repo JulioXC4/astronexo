@@ -9,12 +9,13 @@ import {
   launchBrowser, newMonitoredPage, screenshot, assertScreenHealthy, startFromWelcome, chooseDestination,
   buildStation, passStationPrep, chooseCity, passAvatarAndBriefing, completeTraining, flyAndMonitor,
   playFiveTurns, readOutcome, returnToWelcome, failOnProblems, recommendedCloudsReserve,
+  performScienceIntervention, performSurvivalIntervention,
 } from './helpers.mjs';
 
 const ROUTES = [
   {
     id: 'r1', city: 'AREQUIPA', destination: 'MOON', viewport: { width: 1366, height: 768 },
-    modules: [0, 1, 2], retry: true,
+    modules: [0, 2, 4], victory: true,
     trainings: [[0, 'SOLAR_DETECTIVE', { reserve: 55 }], [2, 'ALTITUDE_ACCLIMATIZATION', { pressure: 72 }], [4, 'CLOUDS_SUNS', { city: 'AREQUIPA' }]],
   },
   {
@@ -59,7 +60,14 @@ async function runRoute(browser, route) {
     await flyAndMonitor(page, { destination: route.destination, modules: builtNames });
     await screenshot(page, `${route.id}_02_guard_start.png`);
 
-    let reached = await playFiveTurns(page);
+    const realActions = route.victory ? {
+      1: performSurvivalIntervention,
+      2: performScienceIntervention,
+      3: performScienceIntervention,
+      4: performSurvivalIntervention,
+      5: performSurvivalIntervention,
+    } : undefined;
+    const reached = await playFiveTurns(page, { actOnTurn: realActions });
     await page.waitForSelector('.results-hero');
     await assertScreenHealthy(page, 'informe');
     const first = await readOutcome(page);
@@ -68,16 +76,20 @@ async function runRoute(browser, route) {
     await page.click('.results-details summary');
     const report = await page.locator('.results-details').innerText();
     if (!report.includes('NASA DONKI') || !report.includes('NASA POWER')) throw new Error('El informe no cita las fuentes NASA.');
-    await screenshot(page, `${route.id}_03_results.png`);
-
-    if (route.retry) {
-      await page.click('button:has-text("REINTENTAR")');
-      await page.waitForSelector('.mission-clock');
-      if (await page.locator('.module-picker__button').count()) throw new Error('El reintento volvió a mostrar el constructor.');
-      reached = await playFiveTurns(page);
-      await page.waitForSelector('.results-hero');
-      console.log(`  reintento: ${reached} turno(s), resultado ${await readOutcome(page)}`);
+    if (!/históric/i.test(report) || !/simulad/i.test(report)) throw new Error('El informe no diferencia datos históricos de reglas simuladas.');
+    const preparation = page.locator('.preparation-report');
+    if (await preparation.getAttribute('data-city') !== route.city) throw new Error('El informe no conservó la ciudad.');
+    if (await preparation.getAttribute('data-destination') !== route.destination) throw new Error('El informe no conservó el destino.');
+    if (await preparation.locator('[data-training-id]').count() !== 3) throw new Error('El informe no conservó los tres entrenamientos.');
+    if (await page.locator('.module-report [data-module-id]').count() !== 3) throw new Error('El informe no conservó los tres módulos.');
+    const toolCount = await preparation.locator('[data-tool-id]').evaluateAll((items) => items.reduce((sum, item) => sum + Number(item.getAttribute('data-tool-count')), 0));
+    if (toolCount !== 3) throw new Error('El informe no conservó las tres herramientas.');
+    if (await preparation.locator('[data-tool-count="2"]').count() && !report.includes('cada recompensa aplicó su beneficio')) {
+      throw new Error('La recompensa duplicada no tiene explicación visual.');
     }
+    if (route.victory && first !== 'COMPLETADA') throw new Error(`La ruta con acciones reales no logró la victoria: ${first}.`);
+    if (route.victory && report.includes('No se realizaron intervenciones')) throw new Error('La victoria no registró intervenciones reales.');
+    await screenshot(page, `${route.id}_03_results.png`);
 
     await returnToWelcome(page);
     failOnProblems(problems);
@@ -96,7 +108,8 @@ try {
   const outcomes = [];
   for (const route of ROUTES) outcomes.push(await runRoute(browser, route));
   // «No intervenir» durante cinco turnos nunca debe dar una misión completada: informe parcial o interrupción.
-  if (outcomes.includes('COMPLETADA')) throw new Error(`Una guardia pasiva no debería completar la misión: ${outcomes.join(', ')}`);
+  const passiveOutcomes = outcomes.filter((_, index) => !ROUTES[index].victory);
+  if (passiveOutcomes.includes('COMPLETADA')) throw new Error(`Una guardia pasiva no debería completar la misión: ${passiveOutcomes.join(', ')}`);
   console.log('\n🎉 E2E rutas JD OK:', outcomes.join(', '));
 } finally {
   await browser.close();

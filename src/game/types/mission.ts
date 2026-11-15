@@ -40,6 +40,8 @@ export type ActionType = InterventionAction | 'SKIP_INTERVENTION';
 export type ActionChoice =
   | 'MAINTAIN_CROPS'
   | 'SUSPEND_CROPS'
+  | 'REGOLITH_SHIELDING'
+  | 'SUPPLY_SHIELDING'
   | 'ENERGY_GUIDANCE'
   | 'RADIATION_GUIDANCE'
   | 'LIFE_SUPPORT_GUIDANCE';
