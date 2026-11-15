@@ -88,6 +88,19 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
 
   return <main className="welcome" style={{ backgroundColor: scene.fallbackColor }}>
     {!sceneFailed && scene.path && <img className="welcome__scene" src={scene.path} alt="" onError={() => setSceneFailed(true)} />}
+
+    {/* Luces y animaciones ambientales pixel art discretas */}
+    <div className="welcome__ambient-lights" aria-hidden="true">
+      <div className="welcome__light welcome__light--tower" title="Observatorio" />
+      <div className="welcome__light welcome__light--lab" title="Laboratorio" />
+      <div className="welcome__light welcome__light--rocket" title="Plataforma de despegue" />
+    </div>
+
+    {/* Barra superior de idioma estilo HUD */}
+    <div className="welcome__top-bar">
+      <LanguageSelector variant="welcome" />
+    </div>
+
     <div className="welcome__content">
       <div className="welcome__identity">
         <h1 className={!logoFailed && wordmark.path ? 'welcome__sr-only' : undefined}>{t('welcome.title')}</h1>
@@ -95,8 +108,6 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
           ? <img className="welcome__wordmark" src={wordmark.path} alt={t('welcome.title')} onError={() => setLogoFailed(true)} />
           : <p>{t('welcome.subtitle')}</p>}
       </div>
-
-      <LanguageSelector variant="welcome" />
 
       <div className="welcome__actions">
         <button className="welcome__play" type="button" onClick={beginSolo}>

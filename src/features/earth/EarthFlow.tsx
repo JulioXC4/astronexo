@@ -184,6 +184,7 @@ export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
           cityName={city.name}
           destination={destination}
           astronautName={fictionalName}
+          avatarId={avatar.id}
           onProceedToMap={() => navigateTo('MAP')}
           onBack={() => navigateTo('AVATAR')}
         />
