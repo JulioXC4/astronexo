@@ -138,11 +138,17 @@ async function confirmTraining(page) {
 
 export const TRAININGS = {
   // Arequipa
-  SOLAR_DETECTIVE: async (page, { reserve = 55 } = {}) => {
+  // Rompecabezas de energía: orientar a 16°, cerrar el circuito, repartir (Comunicaciones 4 + Refugio 5) y pasar la noche.
+  // La reserva nocturna la calcula el juego (≈58 % → costo 1), por lo que `reserve` ya no se controla desde fuera.
+  SOLAR_DETECTIVE: async (page) => {
     await setSliderValue(page, '#tilt-angle-slider', 16);
-    await setSliderValue(page, '#solar-reserve-slider', reserve);
-    await page.click('button:has-text("Cerrar Interruptor")');
-    await confirmTraining(page);
+    await page.click('[data-sd="close"]');
+    const add = (system, times) => page.locator(`[data-system="${system}"] .sd-system__steps button:nth-child(2)`).click({ clickCount: times, delay: 40 });
+    await add('communications', 4);
+    await add('shelter', 5);
+    await page.click('[data-sd="night"]');
+    await page.waitForSelector('[data-sd="claim"]', { timeout: 20000 });
+    await page.click('[data-sd="claim"]');
   },
   ALTITUDE_ACCLIMATIZATION: async (page, { pressure = 72 } = {}) => {
     await setSliderValue(page, '#pressure-slider', pressure);
@@ -167,16 +173,22 @@ export const TRAININGS = {
     await page.click('button:has-text("Verificar Ciclo Ártico")');
     await confirmTraining(page);
   },
+  // Operación Refugio: alarma → tripulación por la ruta libre → energía de respaldo → compuerta → antena → llegada.
   SOLAR_WATCH: async (page, { event = 0 } = {}) => {
-    await page.waitForSelector('.callsign-chip');
-    await page.locator('.callsign-chip').nth(event).click();
-    await page.click('button:has-text("1. Sonar Alarma de Evacuación")');
-    await page.waitForSelector('button:has-text("2. Cerrar Compuerta Blindada"):not([disabled])');
-    await page.click('button:has-text("2. Cerrar Compuerta Blindada")');
-    await page.waitForSelector('button:has-text("3. Blindar Telemetría"):not([disabled])');
-    await page.click('button:has-text("3. Blindar Telemetría")');
-    await page.click('button:has-text("Simular Llegada de la Tormenta Solar")');
-    await confirmTraining(page);
+    await page.waitForSelector('.storm-brief');
+    await page.locator('.storm-brief .mg-choice').nth(1).locator('button').nth(event).click();
+    await page.click('.storm-start');
+    await page.click('[data-station="alarm"]');
+    for (const crew of ['A', 'B']) {
+      await page.click(`[data-crew="${crew}"]`);
+      await page.locator(`[data-crew="${crew}"] ~ .storm-routes [data-route="free"]`).click();
+    }
+    await page.click('[data-station="backup"]');
+    await page.click('[data-station="hatch"]');
+    await page.click('[data-station="telemetry"]');
+    await page.click('.storm-impact');
+    await page.waitForSelector('.storm-finish', { timeout: 15000 });
+    await page.click('.storm-finish');
   },
   // Común: usa los valores POWER de la ciudad (power.json) para decidir la reserva
   CLOUDS_SUNS: async (page, { city, reserve } = {}) => {
