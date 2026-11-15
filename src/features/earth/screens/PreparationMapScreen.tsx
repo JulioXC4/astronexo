@@ -5,6 +5,7 @@ import type { ToolId } from '../../../game/contracts';
 import type { TrainingOutcome } from '../../../game';
 import { trainingResourceLabel } from '../trainingOutcome';
 import { EarthBaseScene } from '../../../visual-kit/EarthBaseScene';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface PreparationMapScreenProps {
@@ -30,6 +31,7 @@ export function PreparationMapScreen({
   onProceedToLaunch,
   onBack,
 }: PreparationMapScreenProps) {
+  const { t } = useI18n();
   const missions = getMissionsForCity(cityId);
   const [selectedMissionIndex, setSelectedMissionIndex] = useState<number>(0);
 
@@ -44,19 +46,20 @@ export function PreparationMapScreen({
     return found ? [found.targetTool] : [];
   });
   const activeOutcome = trainingOutcomes.find((outcome) => outcome.missionId === activeMission.id);
+  const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Briefing</span>
+          <span>{t('common.back')}</span>
         </button>
 
         <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <div className="earth-screen__progress-pill">
             <Compass weight="fill" color="#f6c15b" />
-            <span>Base: {cityName} ➔ {destination === 'MOON' ? 'Luna' : 'Marte'} ({astronautName})</span>
+            <span>Base: {cityName} ➔ {destName} ({astronautName})</span>
           </div>
 
           <div style={{
@@ -72,9 +75,11 @@ export function PreparationMapScreen({
             gap: '0.4rem'
           }}>
             {isThreeDone ? <CheckCircle weight="fill" /> : <Sparkle weight="fill" />}
-            <span>Misiones: {countCompleted} de 3 Elegidas {isThreeDone ? '(¡Bodega Completa!)' : ''}</span>
+            <span>{t('map.facilitiesCompleted', { completed: countCompleted, total: 3 })}</span>
           </div>
         </div>
+
+        <LanguageSelector variant="hud" />
       </header>
 
       <div className="prep-map-layout">
@@ -121,7 +126,7 @@ export function PreparationMapScreen({
                 background: isCompleted ? '#2e7d32' : (isThreeDone ? '#455a64' : '#f6c15b'),
                 color: isCompleted || isThreeDone ? '#ffffff' : '#102033'
               }}>
-                {isCompleted ? '✓ COMPLETADA (HERRAMIENTA ASIGNADA)' : (isThreeDone ? '🔒 BODEGA LLENA (3/3)' : 'DISPONIBLE')}
+                {isCompleted ? `✓ ${t('common.completed')}` : (isThreeDone ? `🔒 ${t('common.locked')}` : t('common.available'))}
               </span>
 
               <span style={{ fontSize: '0.8rem', color: '#4cc3d9', fontWeight: 700 }}>
@@ -159,7 +164,7 @@ export function PreparationMapScreen({
                 onClick={() => onOpenMission(activeMission)}
               >
                 <Play weight="fill" />
-                <span>Ejecutar Misión</span>
+                <span>{t('map.executeMission')}</span>
               </button>
             )}
 
@@ -183,7 +188,7 @@ export function PreparationMapScreen({
                 onClick={() => onProceedToLaunch(derivedTools)}
               >
                 <RocketLaunch weight="fill" />
-                <span>¡Proceder al Despegue ({countCompleted}/3 Kits)!</span>
+                <span>{t('map.proceedToLaunch', { count: countCompleted })}</span>
               </button>
             )}
           </div>

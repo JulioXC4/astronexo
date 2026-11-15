@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, ShieldCheck, Siren, LockKey, Broadcast, Sparkle, CheckCircle, ArrowCounterClockwise } from '@phosphor-icons/react';
 import { DONKI_HISTORICAL_EVENTS, type DonkiEventRecord } from '../../../data/nasa/donkiData';
 import { StormShelterVisual } from '../../../visual-kit/TrainingVisuals';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import '../screens/earth.css';
 
 interface SolarWatchGameProps {
@@ -12,6 +13,7 @@ interface SolarWatchGameProps {
 }
 
 export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
+  const { t } = useI18n();
   const [eventIndex, setEventIndex] = useState<number>(0);
   const [isAlarmActive, setIsAlarmActive] = useState<boolean>(false);
   const [isCrewEvacuated, setIsCrewEvacuated] = useState<boolean>(false);
@@ -46,15 +48,16 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Mapa de la Base</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <ShieldCheck weight="fill" color="#ba68c8" />
-          <span>Defensa de Clima Espacial · NASA DONKI</span>
+          <span>{t('minigames.solarWatch.title')} · NASA DONKI</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>

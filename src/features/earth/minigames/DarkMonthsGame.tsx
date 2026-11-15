@@ -3,6 +3,7 @@ import type { TrainingOutcome } from '../../../game';
 import { useState } from 'react';
 import { ArrowLeft, Snowflake, BatteryCharging, CheckCircle, Sparkle, ArrowCounterClockwise, Info } from '@phosphor-icons/react';
 import { TROMSO_SOLAR_RECORDS } from '../../../data/nasa/powerData';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import '../screens/earth.css';
 
 interface DarkMonthsGameProps {
@@ -11,6 +12,7 @@ interface DarkMonthsGameProps {
 }
 
 export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
+  const { t } = useI18n();
   // Distribución de energía en porcentaje (total debe ser 100%)
   const [thermalHeat, setThermalHeat] = useState<number>(55);
   const [bioLighting, setBioLighting] = useState<number>(30);
@@ -42,15 +44,16 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Mapa de Tromsø</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <Snowflake weight="fill" color="#80d8ff" />
-          <span>Reserva para los Meses Oscuros · NASA POWER (Tromsø, 69.6° N)</span>
+          <span>{t('minigames.darkMonths.title')} · NASA POWER (Tromsø)</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>

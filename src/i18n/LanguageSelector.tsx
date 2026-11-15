@@ -1,0 +1,113 @@
+import { useI18n } from './I18nContext';
+import { SUPPORTED_LANGUAGES, type SupportedLanguage } from './types';
+import './language-selector.css';
+
+export interface LanguageSelectorProps {
+  readonly variant?: 'welcome' | 'hud' | 'compact';
+  readonly className?: string;
+  readonly showDraftNotice?: boolean;
+}
+
+export function LanguageSelector({
+  variant = 'hud',
+  className = '',
+  showDraftNotice = true,
+}: LanguageSelectorProps) {
+  const { language, setLanguage, languageInfo, t } = useI18n();
+
+  const handleSelect = (code: SupportedLanguage) => {
+    setLanguage(code);
+  };
+
+  if (variant === 'welcome') {
+    return (
+      <div
+        className={`lang-selector-welcome ${className}`}
+        role="region"
+        aria-label={t('languageSelector.selectAriaLabel')}
+      >
+        <span className="lang-selector-label" id="lang-select-welcome-label">
+          🌐 {t('languageSelector.label')}
+        </span>
+        <div
+          className="lang-options-grid"
+          role="radiogroup"
+          aria-labelledby="lang-select-welcome-label"
+        >
+          {SUPPORTED_LANGUAGES.map((lang) => {
+            const isSelected = lang.code === language;
+            return (
+              <button
+                key={lang.code}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                tabIndex={0}
+                className={`lang-option-card ${isSelected ? 'selected' : ''}`}
+                onClick={() => handleSelect(lang.code)}
+              >
+                <span className="lang-flag" aria-hidden="true">
+                  {lang.flag}
+                </span>
+                <span className="lang-names">
+                  <strong className="lang-native">{lang.nativeName}</strong>
+                  <span className="lang-english">{lang.name}</span>
+                </span>
+                {lang.isDraft && (
+                  <span className="lang-draft-badge" title={lang.draftNotice}>
+                    Draft
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {showDraftNotice && languageInfo.isDraft && languageInfo.draftNotice && (
+          <p className="lang-draft-banner" role="status">
+            ⚠️ {languageInfo.draftNotice}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // HUD / Compact variant
+  return (
+    <div
+      className={`lang-selector-hud ${className}`}
+      role="region"
+      aria-label={t('languageSelector.selectAriaLabel')}
+    >
+      <div className="lang-hud-pill-group" role="group">
+        {SUPPORTED_LANGUAGES.map((lang) => {
+          const isSelected = lang.code === language;
+          return (
+            <button
+              key={lang.code}
+              type="button"
+              className={`lang-hud-pill ${isSelected ? 'active' : ''}`}
+              aria-pressed={isSelected}
+              title={`${lang.nativeName} (${lang.name})${lang.isDraft ? ' - ' + lang.draftNotice : ''}`}
+              onClick={() => handleSelect(lang.code)}
+            >
+              <span className="lang-hud-flag" aria-hidden="true">
+                {lang.flag}
+              </span>
+              <span className="lang-hud-code">{lang.code.toUpperCase()}</span>
+            </button>
+          );
+        })}
+      </div>
+      {showDraftNotice && languageInfo.isDraft && (
+        <span
+          className="lang-hud-draft-dot"
+          title={languageInfo.draftNotice}
+          aria-label={languageInfo.draftNotice}
+        >
+          ⚠️ Draft
+        </span>
+      )}
+    </div>
+  );
+}

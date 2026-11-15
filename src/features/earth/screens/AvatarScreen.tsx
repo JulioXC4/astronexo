@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, ArrowRight, UserCircle, Sparkle } from '@phosphor-icons/react';
 import { AVATAR_OPTIONS, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../../data/avatars';
 import { CharacterPortrait, type PortraitIdentity } from '../../../visual-kit/CharacterPortrait';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface AvatarScreenProps {
@@ -14,6 +15,7 @@ interface AvatarScreenProps {
 }
 
 export function AvatarScreen({ cityName, destination, initialAvatarId, initialFictionalName, onConfirmProfile, onBack }: AvatarScreenProps) {
+  const { t } = useI18n();
   const [selectedAvatarId, setSelectedAvatarId] = useState(initialAvatarId || AVATAR_OPTIONS[0].id);
   const [callsign, setCallsign] = useState(initialFictionalName || SUGGESTED_CALLSIGNS[0]);
 
@@ -25,30 +27,36 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
     onConfirmProfile(selectedAvatar, finalName);
   }
 
+  const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
+
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Cambiar Destino</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
-          <span>Paso 3 de 6 · Perfil del Comandante ({cityName} ➔ {destination === 'MOON' ? 'Luna' : 'Marte'})</span>
+          <span>{t('avatars.stepIndicator')} ({cityName} ➔ {destName})</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '60rem', padding: '1.2rem' }}>
         <h1 className="earth-card__title" style={{ fontSize: '1.5rem' }}>
           <UserCircle color="#f6c15b" weight="fill" />
-          <span>Elige tu Avatar de Expedición</span>
+          <span>{t('avatars.title')}</span>
         </h1>
         <p className="earth-card__subtitle">
-          Selecciona tu comandante para liderar la expedición desde <strong>{cityName}</strong> hacia <strong>{destination === 'MOON' ? 'la Luna' : 'Marte'}</strong>.
+          {t('avatars.subtitle')} ({cityName} ➔ {destName})
         </p>
 
-        <div className="avatar-grid" role="radiogroup" aria-label="Selecciona tu avatar de astronauta">
+        <div className="avatar-grid" role="radiogroup" aria-label={t('avatars.title')}>
           {AVATAR_OPTIONS.map((avatar) => {
             const isSelected = avatar.id === selectedAvatarId;
+            const aKey = avatar.id.toLowerCase();
+            const role = t(`avatars.${aKey}.role`) !== `avatars.${aKey}.role` ? t(`avatars.${aKey}.role`) : avatar.roleTitle;
+            const bio = t(`avatars.${aKey}.bio`) !== `avatars.${aKey}.bio` ? t(`avatars.${aKey}.bio`) : avatar.description;
             return (
               <div
                 key={avatar.id}
@@ -68,8 +76,8 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
                   <CharacterPortrait identity={avatar.id as PortraitIdentity} selected={isSelected} label={avatar.name} />
                 </div>
                 <h2 className="avatar-card__name">{avatar.name}</h2>
-                <span className="avatar-card__role">{avatar.roleTitle}</span>
-                <p className="avatar-card__desc">{avatar.description}</p>
+                <span className="avatar-card__role">{role}</span>
+                <p className="avatar-card__desc">{bio}</p>
               </div>
             );
           })}
@@ -113,7 +121,7 @@ export function AvatarScreen({ cityName, destination, initialAvatarId, initialFi
             className="earth-action-btn"
             onClick={() => handleSubmit()}
           >
-            <span>Continuar al Briefing de Misión</span>
+            <span>{t('avatars.confirmAvatar', { name: selectedAvatar.name })}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>

@@ -1,5 +1,6 @@
 import { ArrowRight, Planet, ShieldWarning, Sparkle } from '@phosphor-icons/react';
 import { TOOL_CATALOG, type Backpack, type Destination, type NasaDataset } from '../../../game/contracts';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface ArrivalScreenProps {
@@ -12,17 +13,22 @@ interface ArrivalScreenProps {
 }
 
 export function ArrivalScreen({ destination, astronautName, cityName, backpack, nasaData, onEnterBase }: ArrivalScreenProps) {
+  const { t } = useI18n();
   const tools = backpack.map((id) => TOOL_CATALOG.find((t) => t.id === id)?.label ?? id);
+  const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
 
   return (
     <div className="earth-screen">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', maxWidth: '52rem', marginBottom: '0.6rem' }}>
+        <LanguageSelector variant="hud" />
+      </div>
       <main className="earth-card" style={{ maxWidth: '52rem' }}>
         <h1 className="earth-card__title">
           <Planet color="#f6c15b" weight="fill" />
-          <span>{destination === 'MOON' ? '¡Alunizaje Exitoso! Bienvenido a la Base Lunar' : '¡Llegada a Marte! Bienvenido a la Base Marciana'}</span>
+          <span>{t('flight.arrivalTitle', { destination: destName })}</span>
         </h1>
         <p className="earth-card__subtitle">
-          Cápsula <em>Astronexo I</em> posada {destination === 'MOON' ? 'en el sector del Polo Sur lunar (Cráter Shackleton).' : 'en la superficie de Marte.'}
+          {t('flight.arrivalSubtitle')} ({destName})
         </p>
 
         <div style={{
@@ -37,7 +43,7 @@ export function ArrivalScreen({ destination, astronautName, cityName, backpack, 
         }}>
           <div style={{ fontSize: '4.5rem', marginBottom: '0.5rem' }}>{destination === 'MOON' ? '🌕' : '🔴'}</div>
           <h2 style={{ fontFamily: 'Fredoka', fontSize: '1.8rem', color: '#ffffff', margin: 0 }}>
-            {destination === 'MOON' ? 'Luna · Base Primera Luz' : 'Marte · Base Horizonte Rojo'}
+            {destination === 'MOON' ? `${t('destinations.moon.name')} · Base Primera Luz` : `${t('destinations.mars.name')} · Base Horizonte Rojo`}
           </h2>
           <p style={{ color: '#bed4eb', fontSize: '0.95rem', margin: '0.4rem 0 1rem 0' }}>
             Comandante al frente: <strong>{astronautName}</strong> (Entrenado en {cityName})

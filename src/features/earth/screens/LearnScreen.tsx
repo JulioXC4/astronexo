@@ -1,4 +1,5 @@
 import { ArrowLeft, BookOpen, Sun, ShieldWarning, Wind, Plant, Globe } from '@phosphor-icons/react';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface LearnScreenProps {
@@ -37,26 +38,28 @@ const LEARN_TOPICS = [
 ] as const;
 
 export function LearnScreen({ onBack }: LearnScreenProps) {
+  const { t } = useI18n();
   return (
     <div className="earth-screen">
-      <header className="earth-screen__header">
+      <header className="earth-screen__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Volver al Juego</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <BookOpen weight="fill" color="#f6c15b" />
-          <span>Enciclopedia Científica · Aprende con la NASA</span>
+          <span>{t('learn.title')}</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '56rem' }}>
         <h1 className="earth-card__title">
           <BookOpen color="#f6c15b" weight="fill" />
-          <span>La Ciencia Detrás de Astronauta Junior</span>
+          <span>{t('learn.title')}</span>
         </h1>
         <p className="earth-card__subtitle">
-          Todo lo que viviste en el juego está respaldado por investigaciones científicas reales y misiones activas de la NASA.
+          {t('learn.subtitle')}
         </p>
 
         <div style={{ display: 'grid', gap: '1.2rem', margin: '1.5rem 0' }}>
@@ -119,7 +122,7 @@ export function LearnScreen({ onBack }: LearnScreenProps) {
 
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
           <button type="button" className="earth-action-btn" onClick={onBack}>
-            <span>Regresar a la Misión</span>
+            <span>{t('learn.closeBtn')}</span>
           </button>
         </div>
       </main>

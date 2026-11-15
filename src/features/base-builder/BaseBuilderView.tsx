@@ -10,6 +10,7 @@ import {
   selectedModulesFromSlots,
 } from './selection';
 import type { ModuleSlots } from './selection';
+import { useI18n, LanguageSelector } from '../../i18n';
 import './base-builder.css';
 
 interface BaseBuilderViewProps {
@@ -18,6 +19,7 @@ interface BaseBuilderViewProps {
 }
 
 export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) {
+  const { t } = useI18n();
   const [slots, setSlots] = useState<ModuleSlots>(EMPTY_MODULE_SLOTS);
   const [armedModule, setArmedModule] = useState<ModuleId | null>(null);
   const selected = selectedModulesFromSlots(slots);
@@ -43,12 +45,17 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
     setArmedModule(null);
   }
 
+  const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
+
   return <main className={`builder-shell builder-shell--${destination.toLowerCase()}`}>
+    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginBottom: '0.6rem' }}>
+      <LanguageSelector variant="hud" />
+    </div>
     <header className="builder-header pixel-panel">
       <div>
         <span className="pixel-kicker">P10 · HANGAR DE CONSTRUCCIÓN</span>
-        <h1>ARMA TU BASE EN {destination === 'MOON' ? 'LA LUNA' : 'MARTE'}</h1>
-        <p>Los sistemas esenciales ya están instalados. Elige tres mejoras sin repetir.</p>
+        <h1>{t('baseBuilder.title', { destination: destName.toUpperCase() })}</h1>
+        <p>{t('baseBuilder.subtitle')}</p>
       </div>
       <div className="builder-counter" aria-live="polite"><strong>{selected.length}</strong><span>/3 MÓDULOS</span></div>
     </header>
@@ -110,7 +117,7 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
           className="pixel-button pixel-button--primary builder-start"
           disabled={!complete}
           onClick={() => onStart(selected)}
-        >INICIAR GUARDIA</button>
+        >{t('baseBuilder.confirmBaseBtn')}</button>
       </aside>
     </section>
 

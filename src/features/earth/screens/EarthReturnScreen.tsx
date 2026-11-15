@@ -1,5 +1,6 @@
 import { ArrowRight, GlobeHemisphereWest, Sparkle } from '@phosphor-icons/react';
 import type { MissionResult } from '../../../game';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface EarthReturnScreenProps {
@@ -9,18 +10,22 @@ interface EarthReturnScreenProps {
 }
 
 export function EarthReturnScreen({ result, astronautName, onProceedToNextAdventure }: EarthReturnScreenProps) {
+  const { t } = useI18n();
   const isSuccess = result.outcome === 'COMPLETED';
 
   return (
     <div className="earth-screen">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', maxWidth: '48rem', marginBottom: '0.6rem' }}>
+        <LanguageSelector variant="hud" />
+      </div>
       <main className="earth-card" style={{ maxWidth: '48rem', textAlign: 'center' }}>
         <h1 className="earth-card__title" style={{ justifyContent: 'center' }}>
           <GlobeHemisphereWest color="#f6c15b" weight="fill" />
-          <span>{isSuccess ? '¡Regreso a la Tierra: Misión Cumplida!' : 'Regreso a la Tierra: Misión Interrumpida'}</span>
+          <span>{isSuccess ? t('return.title') : 'Regreso a la Tierra: Misión Interrumpida'}</span>
         </h1>
         <p className="earth-card__subtitle">
           {isSuccess
-            ? 'La cápsula regresa a la Tierra tras completar la guardia espacial.'
+            ? t('return.subtitle')
             : 'La guardia se interrumpió. La tripulación inició el retorno de emergencia a la Tierra.'}
         </p>
 
@@ -34,7 +39,7 @@ export function EarthReturnScreen({ result, astronautName, onProceedToNextAdvent
         }}>
           <div style={{ fontSize: '4.5rem', marginBottom: '0.5rem' }}>🪂 🌊</div>
           <h2 style={{ fontFamily: 'Fredoka', fontSize: '1.8rem', color: '#ffffff', margin: 0 }}>
-            {isSuccess ? '¡Bienvenido a Casa, Comandante!' : 'Retorno Seguro de Emergencia'}
+            {isSuccess ? t('return.title') : 'Retorno Seguro de Emergencia'}
           </h2>
           <p style={{ color: '#bed5ed', fontSize: '1rem', marginTop: '0.4rem' }}>
             Tripulante: <strong>{astronautName}</strong>
@@ -65,7 +70,7 @@ export function EarthReturnScreen({ result, astronautName, onProceedToNextAdvent
             onClick={onProceedToNextAdventure}
           >
             <Sparkle weight="fill" />
-            <span>Ver Análisis y Próxima Aventura</span>
+            <span>{t('return.viewAnalysis')}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>

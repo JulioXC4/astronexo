@@ -1,5 +1,6 @@
 import { ALL_TOOL_CATALOG, MODULE_CATALOG } from '../../game';
 import type { MissionResult } from '../../game';
+import { useI18n, LanguageSelector } from '../../i18n';
 
 interface MissionResultsViewProps {
   readonly result: MissionResult;
@@ -8,6 +9,7 @@ interface MissionResultsViewProps {
 }
 
 export function MissionResultsView({ result, onRetry, onFinish }: MissionResultsViewProps) {
+  const { t } = useI18n();
   const completed = result.outcome === 'COMPLETED';
   const scientificIncomplete = !completed
     && result.turnsReached === result.finalState.maxTurns
@@ -16,34 +18,37 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
   const toolLabels = result.relevantTools.map((toolId) =>
     ALL_TOOL_CATALOG.find((tool) => tool.id === toolId)?.label ?? toolId);
   return <main className="results-shell">
+    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginBottom: '0.6rem' }}>
+      <LanguageSelector variant="hud" />
+    </div>
     <section className={`results-banner pixel-panel ${completed ? 'results-banner--success' : 'results-banner--failed'}`}>
       <span className="pixel-kicker">P13 · FIN DE GUARDIA</span>
       {result.finalState.setup.earthProfile && <p>{result.finalState.setup.earthProfile.fictionalName}</p>}
-      <h1>{completed ? 'MISIÓN COMPLETADA' : scientificIncomplete ? 'MISIÓN INCOMPLETA' : 'MISIÓN INTERRUMPIDA'}</h1>
+      <h1>{completed ? t('results.victoryTitle') : scientificIncomplete ? 'MISIÓN INCOMPLETA' : t('results.partialTitle')}</h1>
       <p>{completed
         ? 'La tripulación sostuvo la base y alcanzó el objetivo científico.'
         : result.interruptionCause}</p>
-      <div className="score-total"><span>PUNTUACIÓN</span><strong>{score.total}</strong><small>/100</small></div>
+      <div className="score-total"><span>{t('results.scoreLabel')}</span><strong>{score.total}</strong><small>/100</small></div>
     </section>
 
     <div className="results-grid">
       <section className="pixel-panel">
-        <span className="pixel-kicker">P14 · INFORME</span>
+        <span className="pixel-kicker">P14 · {t('results.finalReportTitle').toUpperCase()}</span>
         <h2>Estado final</h2>
         <dl className="report-stats">
           <div><dt>Turnos</dt><dd>{result.turnsReached}/{finalState.maxTurns}</dd></div>
-          <div><dt>Energía</dt><dd>{finalState.energy}</dd></div>
-          <div><dt>Oxígeno</dt><dd>{finalState.oxygen}</dd></div>
-          <div><dt>Escudo</dt><dd>{finalState.shield}</dd></div>
-          <div><dt>Alimentos</dt><dd>{finalState.foodSupply}</dd></div>
-          <div><dt>Exposición</dt><dd>{finalState.radiationExposure}</dd></div>
-          <div><dt>Ciencia</dt><dd>{finalState.scienceProgress}</dd></div>
-          <div><dt>Eficiencia solar</dt><dd>{finalState.solarEfficiency}</dd></div>
+          <div><dt>{t('common.energy')}</dt><dd>{finalState.energy}</dd></div>
+          <div><dt>{t('common.oxygen')}</dt><dd>{finalState.oxygen}</dd></div>
+          <div><dt>{t('common.shield')}</dt><dd>{finalState.shield}</dd></div>
+          <div><dt>{t('common.food')}</dt><dd>{finalState.foodSupply}</dd></div>
+          <div><dt>{t('common.radiation')}</dt><dd>{finalState.radiationExposure}</dd></div>
+          <div><dt>{t('common.science')}</dt><dd>{finalState.scienceProgress}</dd></div>
+          <div><dt>{t('common.solarEfficiency')}</dt><dd>{finalState.solarEfficiency}</dd></div>
         </dl>
       </section>
       <section className="pixel-panel">
         <span className="pixel-kicker">DESGLOSE DE JUEGO</span>
-        <h2>Puntuación</h2>
+        <h2>{t('results.scoreLabel')}</h2>
         <ul className="score-list">
           <li><span>Seguridad de la tripulación</span><strong>{score.crewSafety}</strong></li>
           <li><span>Recursos finales</span><strong>{score.finalResources}</strong></li>
@@ -126,8 +131,8 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
     </section>
 
     <footer className="results-actions">
-      <button className="pixel-button" onClick={onRetry}>REINTENTAR MISIÓN</button>
-      <button className="pixel-button pixel-button--primary" onClick={onFinish}>ENTREGAR INFORME</button>
+      <button className="pixel-button" onClick={onRetry}>{t('results.retry')}</button>
+      <button className="pixel-button pixel-button--primary" onClick={onFinish}>{t('results.submitReport')}</button>
     </footer>
   </main>;
 }
