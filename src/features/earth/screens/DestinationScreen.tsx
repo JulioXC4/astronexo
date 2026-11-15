@@ -5,13 +5,12 @@ import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface DestinationScreenProps {
-  readonly cityName: string;
   readonly initialDestination: Destination;
   readonly onSelectDestination: (dest: Destination) => void;
   readonly onBack: () => void;
 }
 
-export function DestinationScreen({ cityName, initialDestination, onSelectDestination, onBack }: DestinationScreenProps) {
+export function DestinationScreen({ initialDestination, onSelectDestination, onBack }: DestinationScreenProps) {
   const { t } = useI18n();
   const [selectedDest, setSelectedDest] = useState<Destination>(initialDestination || 'MOON');
   const [showFlightSpecs, setShowFlightSpecs] = useState(false);
@@ -24,7 +23,7 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
       <header className="earth-screen__header">
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>{t('destinations.back', { city: cityName })}</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <Planet weight="fill" color="#f6c15b" />
@@ -40,7 +39,7 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
             <span>{t('destinations.title')}</span>
           </h1>
           <p style={{ margin: '0.3rem 0 0 0', color: '#9bc0e4', fontSize: '0.95rem' }}>
-            {t('destinations.subtitle', { city: cityName })}
+            {t('destinations.subtitle')}
           </p>
         </div>
 
@@ -48,13 +47,13 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
         {/* TARJETAS PANORÁMICAS: MISIÓN LUNAR & MISIÓN MARCIANA         */}
         {/* ------------------------------------------------------------- */}
         <div className="destination-pixel-grid" role="radiogroup" aria-label={t('destinations.title')}>
-          
+
           {/* DESTINO 1: MISIÓN LUNAR */}
           <div
             role="radio"
             aria-checked={moonSelected}
             tabIndex={0}
-            className={`destination-pixel-card destination-pixel-card--moon ${moonSelected ? 'destination-pixel-card--selected' : ''}`}
+            className={`destination-card destination-pixel-card destination-pixel-card--moon ${moonSelected ? 'destination-pixel-card--selected' : ''}`}
             onClick={() => setSelectedDest('MOON')}
             onKeyDown={(e) => {
               if (e.key === ' ' || e.key === 'Enter') {
@@ -114,7 +113,7 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
             role="radio"
             aria-checked={marsSelected}
             tabIndex={0}
-            className={`destination-pixel-card destination-pixel-card--mars ${marsSelected ? 'destination-pixel-card--selected' : ''}`}
+            className={`destination-card destination-pixel-card destination-pixel-card--mars ${marsSelected ? 'destination-pixel-card--selected' : ''}`}
             onClick={() => setSelectedDest('MARS')}
             onKeyDown={(e) => {
               if (e.key === ' ' || e.key === 'Enter') {

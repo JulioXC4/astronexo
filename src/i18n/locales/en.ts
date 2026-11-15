@@ -53,14 +53,14 @@ export const en = {
       actions: 'Tap Actions, check each repair cost, and choose one.',
     },
     intervention: {
-      REPAIR_PANELS: 'Drag the part onto the panel.',
-      CLEAN_PANELS: 'Swipe to clear away the dust.',
-      PATCH_OXYGEN_LEAK: 'Tap each leak point.',
-      RECYCLE_OXYGEN: 'Press and hold the control.',
-      REINFORCE_SHELTER: 'Place the protection blocks.',
-      RUN_RESEARCH: 'Press and hold the terminal to complete the study.',
-      MANAGE_GREENHOUSE: 'Choose whether to maintain or suspend the crops.',
-      CONSULT_EARTH: 'Choose the guidance you want to request from Earth.',
+      REPAIR_PANELS: 'Repair and rotate connections to carry power to the battery.',
+      CLEAN_PANELS: 'Apply cleaner where it reaches several cells.',
+      PATCH_OXYGEN_LEAK: 'Isolate the correct compartment and patch both damaged points.',
+      RECYCLE_OXYGEN: 'Connect water and electricity to the electrolyzer.',
+      REINFORCE_SHELTER: 'Protect the priority zones with three materials.',
+      RUN_RESEARCH: 'Observe and classify two samples using evidence.',
+      MANAGE_GREENHOUSE: 'Distribute two lights before deciding about the crops.',
+      CONSULT_EARTH: 'Choose a problem and attach two relevant facts.',
     },
   },
 
@@ -91,7 +91,7 @@ export const en = {
   },
 
   cities: {
-    stepIndicator: 'Step 1 of 6 · Earth Base Selection (V3.0 Requirements)',
+    stepIndicator: 'Step 3 · Choose your Earth base',
     title: 'Choose your Earth base',
     subtitle: 'Choose between the two official challenge bases: Arequipa (Peru) or Tromsø (Norway).',
     confirmBase: 'Confirm Base in {city}',
@@ -127,9 +127,9 @@ export const en = {
   },
 
   destinations: {
-    stepIndicator: 'Step 2 of 6 · Space Destination (V3.0 Requirements)',
+    stepIndicator: 'Step 1 · Space destination',
     title: 'Choose your Space Destination before Training',
-    subtitle: 'Your preparation at {city} base will calibrate to your destination’s environmental challenges.',
+    subtitle: 'First you choose where you are going; then we build your station.',
     confirm: 'Confirm Destination & Create Commander',
     back: 'Change Base ({city})',
     selected: 'Selected for the mission',
@@ -172,7 +172,7 @@ export const en = {
   },
 
   avatars: {
-    stepIndicator: 'Step 3 of 6 · Commander Profile ({city} ➔ {destination})',
+    stepIndicator: 'Step 4 · Commander Profile ({city} ➔ {destination})',
     title: 'Choose your Expedition Avatar',
     subtitle: 'Select your commander to lead the expedition from {city} to {destination}.',
     callsignLabel: 'Mission callsign or commander handle:',
@@ -215,7 +215,7 @@ export const en = {
   },
 
   briefing: {
-    stepIndicator: 'Step 4 of 6 · Mission Relay ({city} ➔ {destination})',
+    stepIndicator: 'Step 5 · Mission Relay ({city} ➔ {destination})',
     title: 'Relay Center: {city}',
     albaTitle: 'Commander Alba:',
     albaMessage: 'Attention, {name}! Our spacecraft will launch towards {destination}. On the map you will find 5 training facilities. However, due to cargo bay limits and orbital launch windows, you can only choose and complete exactly 3 missions. Each completed mission awards a specific tool kit for your spaceship.',
@@ -276,9 +276,18 @@ export const en = {
     mapAriaLabel: 'Base map of {city} with five training facilities',
     launchPadReady: 'Launch pad ready',
     facilities: {
+      CLOUDS_SUNS: {
+        shortName: ['CLOUDS &', 'SUNS'],
+        name: 'Clouds and Suns',
+        facilityName: 'Clouds and Suns Station',
+        objective: 'Compare sunny and cloudy days using NASA POWER data for your city and decide how much energy reserve to keep.',
+        cost: 'Energy set aside for days without sun.',
+        effect: 'Better energy sharing when the panels produce little at the base.',
+        science: 'NASA POWER (ALLSKY_SFC_SW_DWN)',
+      },
       SOLAR_DETECTIVE: {
         shortName: ['SOLAR', 'OBSERVATORY'],
-        name: 'Sun Detective (Arequipa)',
+        name: 'Solar Batteries',
         facilityName: 'Andean Solar Observatory',
         objective: 'Orient solar cells 16° North and analyze historical NASA POWER dates in Arequipa.',
         cost: 'Calibration time and storage balance.',
@@ -287,7 +296,7 @@ export const en = {
       },
       ALTITUDE_ACCLIMATIZATION: {
         shortName: ['ALTITUDE', 'CHAMBER'],
-        name: 'Andean Altitude Acclimatization',
+        name: 'High-Altitude Air',
         facilityName: 'Hypobaric Altitude Chamber',
         objective: 'Train hermetic seal integrity under thin mountain pressure (2,325 m elevation).',
         cost: 'Test gas tank consumption.',
@@ -296,7 +305,7 @@ export const en = {
       },
       DARK_MONTHS_RESERVE: {
         shortName: ['BATTERY', 'BANK'],
-        name: 'Dark Months Reserve',
+        name: 'Polar Night',
         facilityName: 'Cryogenic Battery Bank',
         objective: 'Manage power distribution for Tromsø polar night (0 kWh/m²/day), analogous to lunar night.',
         cost: 'Power rationing for thermal heating.',
@@ -305,7 +314,7 @@ export const en = {
       },
       ARCTIC_GREENHOUSE: {
         shortName: ['ARCTIC', 'GREENHOUSE'],
-        name: 'Geothermal Arctic Greenhouse',
+        name: 'Cold',
         facilityName: 'Arctic Bio-Shelter',
         objective: 'Maintain hydroponic crops with geothermal heat and LEDs in extreme Arctic cold.',
         cost: 'Continuous water and nutrient consumption.',
@@ -314,7 +323,7 @@ export const en = {
       },
       SOLAR_WATCH: {
         shortName: ['SPACE', 'WEATHER'],
-        name: 'Storm Watch (NASA DONKI)',
+        name: 'Auroras and Alert',
         facilityName: 'Space Weather Center',
         objective: 'Detect Coronal Mass Ejections (CMEs) and activate emergency shelter protocols.',
         cost: 'Temporary suspension of outdoor operations.',
@@ -323,7 +332,7 @@ export const en = {
       },
       ECLSS_TRAINING: {
         shortName: ['LIFE', 'SUPPORT'],
-        name: 'Regenerative Life Support Module',
+        name: 'Scarce Water',
         facilityName: 'ECLSS Filtration Hangar',
         objective: 'Test closed-loop condensation recycling and water electrolysis into breathable O₂.',
         cost: 'Electrolysis power and test filter wear.',
@@ -332,7 +341,7 @@ export const en = {
       },
       VEGGIE_LAB: {
         shortName: ['VEGGIE', 'BIO-DOME'],
-        name: 'Veggie Plant Growth Lab',
+        name: 'Garden',
         facilityName: 'Hydroponic Bio-Dome',
         objective: 'Calibrate red and blue LED spectrums to accelerate space plant photosynthesis.',
         cost: 'Lighting spectrum vs battery budget balance.',
@@ -343,6 +352,19 @@ export const en = {
   },
 
   minigames: {
+    cloudsSuns: {
+      title: 'Clouds and Suns',
+      intro: 'See how much sunlight {city} received on three real days (NASA POWER). How much energy would you save for the weak days?',
+      chartAria: 'Solar radiation bars for three days',
+      reserveLabel: 'Energy reserve: {value}%',
+      hint: 'Hint: if the days look alike, save a little; if they change a lot, save more.',
+      testBtn: 'Test the reserve',
+      tryAgain: 'Not balanced yet. The data asks for about {recommended}%.',
+      passed: 'Good split. The data asked for about {recommended}%.',
+      benefit: 'Reward: folding panels for the watch. This is a game rule; POWER data describes Earth.',
+      confirmBtn: 'Pay {cost} Energy point(s) and get the kit',
+      source: 'NASA POWER data · {parameter} ({unit}) · status: {status}',
+    },
     altitudeAcclimatization: { title: 'Altitude acclimatization' },
     arcticGreenhouse: { title: 'Arctic greenhouse' },
     eclssTraining: { title: 'Life-support training' },
@@ -603,6 +625,61 @@ export const en = {
     },
   },
 
+  nasaSources: {
+    title: 'NASA sources for this mission',
+    power: 'NASA POWER · historical record for {city} · {parameter} · status: {status} · fetched: {date}.',
+    donki: 'NASA DONKI · historical CME record from {date} at {speed} km/s · status: {status}.',
+    rule: 'Simulated game rule: that speed set the {difficulty} difficulty. It is not a radiation dose.',
+    eclss: 'NASA ECLSS · life support (educational content).',
+    veggie: 'NASA Veggie / CSA · growing plants in space (educational content).',
+    osdr: 'NASA OSDR · science, radiation, Moon and Mars (educational content).',
+    disclaimer: 'NASA data describes Earth or the Sun. Costs, protection and consequences are simulated game rules.',
+  },
+
+  nasaStatus: {
+    HISTORICAL: 'historical (local)',
+    UPDATED: 'updated',
+    FALLBACK: 'fallback',
+  },
+
+  stationPrep: {
+    kicker: 'STATION UNDER CONSTRUCTION',
+    title: 'Preparing your station on {destination}',
+    line1: 'A base that is ready before you arrive gives air, power and shelter from day one.',
+    line2: 'While you train on Earth, the build crew installs your three modules.',
+    continue: 'Choose my training base',
+    skip: 'Skip',
+  },
+
+  construction: {
+    kicker: 'BUILD PROGRESS',
+    title: '{weeks} weeks went by',
+    progress: 'Build {done} of 3: we installed "{module}".',
+    line: 'Your station keeps growing while you train.',
+    ready: 'The station is ready to welcome you!',
+    next: 'Keep training',
+    last: 'Go to liftoff',
+    skip: 'Skip',
+  },
+
+  monitor: {
+    kicker: 'SYSTEMS CHECK',
+    title: 'We arrived with limited reserves',
+    line: 'Before operating, let us check the station.',
+    modules: 'Modules built',
+    tools: 'Tools earned',
+    resources: 'Resources on arrival',
+    energy: 'Energy',
+    oxygen: 'Oxygen',
+    food: 'Food',
+    shield: 'Shield',
+    weatherTitle: 'Real space weather · NASA DONKI',
+    weatherEvent: 'CME on {date}: {speed} km/s ({status}).',
+    weatherRule: 'Game rule (simulated): that speed sets the {difficulty} difficulty. It is not a radiation dose.',
+    start: 'Start the watch',
+    difficulty: { CALM: 'Calm', ACTIVE: 'Active', STORMY: 'Stormy' },
+  },
+
   flight: {
     departureTitle: 'Liftoff to {destination}',
     departureSubtitle: 'Departure from {city} towards {destination}',
@@ -655,6 +732,7 @@ export const en = {
     kicker: 'CONSTRUCTION HANGAR',
     title: 'BUILD YOUR BASE ON {destination}',
     subtitle: 'Essential life, power, and comms systems are already installed. Choose three distinct upgrades.',
+    confirmStation: 'Build my station',
     confirmBaseBtn: 'Start guard',
     counter: '{selected}/3 MODULES',
     counterLabel: '/3 MODULES',
@@ -891,49 +969,49 @@ export const en = {
       G1: {
         label: 'Repair panels',
         objective: 'Recovers the solar array before energy drops.',
-        instructions: 'Drag the cell to the panel or use the accessible alternative.',
+        instructions: 'Repair only the needed connections and rotate them to close the circuit.',
         benefit: 'Repairs panel and recovers solar efficiency.',
       },
       G2: {
         label: 'Clean panels',
         objective: 'Clears dust to restore solar power generation.',
-        instructions: 'Slide control to complete cleaning.',
+        instructions: 'Use two applications on cells that clean the largest area.',
         benefit: 'Restores 30 solar efficiency points.',
       },
       G3: {
         label: 'Patch oxygen leak',
         objective: 'Seals the oxygen circuit leak.',
-        instructions: 'Tap the three leak points or use the accessible alternative.',
+        instructions: 'Isolate the leaking compartment and patch its two damaged points.',
         benefit: 'Stops leak and restores 4 oxygen points.',
       },
       G4: {
         label: 'Recycle oxygen',
         objective: 'Activates the base closed-loop recovery cycle.',
-        instructions: 'Hold control or use accessible alternative.',
+        instructions: 'Connect water and power to the electrolyzer, then its output to the tank.',
         benefit: 'Restores 20 oxygen points.',
       },
       G5: {
         label: 'Reinforce shelter',
         objective: 'Adds regolith to improve protective readiness.',
-        instructions: 'Drag regolith to shelter or use accessible alternative.',
+        instructions: 'Choose a material and protect three zones, including both priorities.',
         benefit: 'Improves Shield by 20 without resetting accumulated exposure.',
       },
       G6: {
         label: 'Conduct research',
         objective: 'Processes a sample to advance scientific objective.',
-        instructions: 'Hold analyzer or use accessible alternative.',
+        instructions: 'Observe and classify two samples with the appropriate instrument.',
         benefit: 'Adds 25 scientific progress points.',
       },
       G7: {
         label: 'Manage greenhouse',
         objective: 'Decide whether to maintain or temporarily suspend crops.',
-        instructions: 'Choose maintain for food or suspend to save power.',
+        instructions: 'Distribute two lights, then choose to maintain or suspend crops.',
         benefit: 'Maintaining restores food; suspending saves power but reduces reserves.',
       },
       G8: {
         label: 'Consult Earth',
         objective: 'Request a simulated recommendation from ground team.',
-        instructions: 'Select one inquiry. Only one permitted per mission.',
+        instructions: 'Choose a problem and attach two relevant facts before transmitting.',
         benefit: 'Moon responds now; Mars responds at start of next turn.',
       },
     },
@@ -963,6 +1041,40 @@ export const en = {
       oxygenGameAria: 'Oxygen leak patching mini-game',
       sealPointAria: 'Seal leak point {point}',
     },
+    puzzles: {
+      retry: 'RETRY PUZZLE',
+      g1: {
+        title: 'Reconnect the power', aria: 'Circuit between solar panel and battery', spares: 'Local spares: {count}', source: 'PANEL', target: 'BATTERY',
+        repairTile: 'Repair connection {number}', rotateTile: 'Rotate connection {number}', noSpares: 'No spares remain. Reset and repair only the required path.', repaired: 'Connection repaired. You can rotate it now.', rotated: 'Piece rotated. Follow the line from panel to battery.', success: 'Continuous circuit: the battery is receiving power again.', hint: 'Tap a damaged piece to repair it and a healthy piece to rotate it.',
+      },
+      g2: {
+        title: 'Solar rescue', cleaner: 'Applications: {count}', aria: 'Six-cell solar panel', cell: 'Cell {number}', capture: 'Capture {value}%', success: 'Capture restored: dust is clear from the key cells.', retryHint: 'Capture did not reach 85%. Try applying cleaner near the center.', hint: 'Each application cleans the chosen cell and adjacent cells.',
+      },
+      g3: {
+        title: 'Oxygen emergency', aria: 'Three compartments connected by pipes', pressure: 'Pressure {value}%', compartment: 'Compartment {number}', closed: 'ISOLATED', open: 'OPEN', correctHatch: 'Good detection. Now patch both damaged points.', wrongHatch: 'Pressure is still falling. Look for the pipe with bubbles.', sealed: 'SEALED', patchPoint: 'Patch damage {number}', success: 'Leak contained: pressure has stabilized.', hint: 'First tap the hatch of the compartment losing oxygen.',
+      },
+      g4: {
+        title: 'Reactivate life support', progress: 'Connections {count}/3', water: 'Water reservoir', power: 'Power source', electrolyzer: 'Electrolyzer', tank: 'Oxygen tank', output: 'Choose output', waterInput: 'Water input', powerInput: 'Power input', oxygenOutput: 'O₂ output', oxygenInput: 'O₂ input', wrong: 'That connection does not match. Check each port symbol.', connected: 'Correct connection.', success: 'System active: oxygen is flowing into the tank.', chooseInput: 'Now choose the correct input port.', hint: 'Choose an output, then its matching input.', lesson: 'Electrolysis uses electricity to separate oxygen from water; it does not directly recycle exhaled air.',
+      },
+      g5: {
+        title: 'Radiation shield', remaining: 'Materials available: {count}', chooseMaterial: 'Choose the protection material first.', priorityHint: 'Move one piece: the marked crew zones are priorities.', regolith: 'REGOLITH', regolithCost: '−8 Energy · +20 Shield', supplies: 'SUPPLIES', suppliesCost: '−5 Energy · −8 Food · +20 Shield', zone: 'Zone {number}', success: 'The crew zones are properly covered.', hint: 'Choose one material and cover three zones, including both priorities.', suppliesLesson: 'Using supply containers as shielding makes part of the food reserve unavailable.',
+      },
+      g6: {
+        title: 'Laboratory mystery', round: 'Sample {current}/{total}', unknown: 'SAMPLE TO CLASSIFY', samplesAvailable: 'Available samples', select: 'SELECT', classified: 'CLASSIFIED', chooseInstrument: 'Sample selected. Now choose an instrument.', instruments: 'Available instruments', instrumentHint: 'That instrument does not reveal the needed evidence. Try another.', classificationHint: 'The evidence does not match that classification. Read the clue again.', nextRound: 'Correct classification. Choose a different sample.', success: 'Two samples classified from evidence.', hint: 'Choose a sample and the instrument that best reveals its structure.', lesson: 'Simulated educational examples: color alone cannot identify a mineral; regolith is loose material, not an equivalent rock.',
+        samples: { BASALT: 'Basalt', ANORTHOSITE: 'Anorthosite', MARS_SEDIMENTARY: 'Martian sedimentary material', REGOLITH: 'Regolith' },
+        instrument: { ANALYZER: 'Mineral analyzer', MAGNIFIER: 'Petrographic magnifier', GRAIN_IMAGER: 'Grain imager' },
+        classes: { VOLCANIC_ROCK: 'Fine-grained volcanic rock', HIGHLAND_ROCK: 'Light feldspar-rich rock', LAYERED_MATERIAL: 'Layered sedimentary material', LOOSE_MATERIAL: 'Loose fragmented material' },
+        clues: { BASALT: 'The reading shows a fine texture consistent with cooled lava.', ANORTHOSITE: 'Magnification reveals abundant light plagioclase crystals.', MARS_SEDIMENTARY: 'The image shows grains arranged in layers; this is evidence, not identification by color alone.', REGOLITH: 'Loose fragments of different sizes are visible.' },
+      },
+      g7: {
+        title: 'Space garden', lights: 'Lights available: {count}', tray: 'Tray {number}', costPreview: 'Lighting placement is local. The final decision uses the engine cost.', maintain: 'MAINTAIN · −3 Energy / +Food', suspend: 'SUSPEND · no cost / no harvest', success: 'Crop plan prepared for confirmation.', decide: 'Both lights are distributed. Choose maintain or suspend.', hint: 'Tap two trays to assign lighting.',
+      },
+      g8: {
+        title: 'Mission Control', oneConsult: '1 inquiry per mission', chooseFacts: 'Choose exactly two relevant facts', transmit: 'TRANSMIT MESSAGE', wrongFacts: 'One fact does not help solve the problem. Adjust the message.', moonSuccess: 'Relevant message sent: the Moon will receive an immediate response when confirmed.', marsSuccess: 'Relevant message sent: Mars will receive a response next turn.', hint: 'Choose the problem that needs support and prepare a concise message.',
+        problems: { ENERGY_GUIDANCE: 'Unstable power generation', RADIATION_GUIDANCE: 'Radiation risk for the crew', LIFE_SUPPORT_GUIDANCE: 'Life support under pressure' },
+        facts: { ENERGY_LEVEL: 'Current Energy: {energy}', SOLAR_EFFICIENCY: 'Solar efficiency: {solar}%', CREW_MENU: 'Crew meal menu', SHIELD_LEVEL: 'Current Shield: {shield}', RADIATION_ALERT: 'Simulated exposure: {radiation}', PLANT_HEIGHT: 'Plant height', OXYGEN_LEVEL: 'Current Oxygen: {oxygen}', FOOD_LEVEL: 'Current Food: {food}', ROVER_COLOR: 'Rover color' },
+      },
+    },
   },
 
   results: {
@@ -983,6 +1095,12 @@ export const en = {
     scoreLabel: 'SCORE',
     reportKicker: 'REPORT',
     finalReportTitle: 'FINAL REPORT',
+    preparationTitle: 'Preparation carried into the mission',
+    cityLabel: 'Earth base',
+    destinationLabel: 'Destination',
+    trainingsLabel: 'Three completed training missions',
+    toolsLabel: 'Tools earned',
+    duplicateToolNote: '{count} training missions reinforced the same equipment; each reward applied its benefit.',
     finalStateTitle: 'Final state',
     turns: 'Turns',
     scoreBreakdownTitle: 'Score',
@@ -1143,6 +1261,7 @@ export const en = {
       localTitle: '100% Local & Private',
       localDesc: 'No internet, accounts, or telemetry. Everything runs on this single computer.',
     },
+    fullRouteBtn: 'Full group route',
     startMissionBtn: '🚀 Launch Cooperative Mission',
     backBtn: 'Back',
     nextBtn: 'Next',

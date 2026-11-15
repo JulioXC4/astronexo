@@ -40,6 +40,8 @@ export type ActionType = InterventionAction | 'SKIP_INTERVENTION';
 export type ActionChoice =
   | 'MAINTAIN_CROPS'
   | 'SUSPEND_CROPS'
+  | 'REGOLITH_SHIELDING'
+  | 'SUPPLY_SHIELDING'
   | 'ENERGY_GUIDANCE'
   | 'RADIATION_GUIDANCE'
   | 'LIFE_SUPPORT_GUIDANCE';
@@ -50,6 +52,29 @@ export type ModuleId =
   | 'GREENHOUSE'
   | 'SCIENCE_LAB';
 
+/**
+ * Contexto de clima espacial. `event` es el dato NASA original (DONKI);
+ * `rule` es la regla SIMULADA del juego que lo traduce a dificultad educativa.
+ * No es una dosis de radiación ni una predicción.
+ */
+export interface SpaceWeatherContext {
+  readonly event: {
+    readonly eventId: string;
+    readonly eventType: 'CME';
+    readonly observedAt: string;
+    readonly value: number;
+    readonly unit: 'km/s';
+    readonly sourceUrl: string;
+    readonly status: 'HISTORICAL' | 'UPDATED' | 'FALLBACK';
+  };
+  readonly rule: {
+    readonly ruleId: 'CME_SPEED_BANDS_V1';
+    readonly difficulty: Difficulty;
+    /** Velocidad (km/s) que activa la banda aplicada. */
+    readonly bandFromKmS: number;
+  };
+}
+
 export interface GameSetup {
   readonly mode: GameMode;
   readonly city: City;
@@ -59,6 +84,8 @@ export interface GameSetup {
   readonly selectedModules: readonly ModuleId[];
   readonly scenarioId: string;
   readonly difficulty: Difficulty;
+  /** Evento NASA DONKI que contextualiza la guardia y regla simulada derivada. */
+  readonly spaceWeather?: SpaceWeatherContext;
   /** Identidad y decisiones del entrenamiento v3; se conservan en la bitácora espacial. */
   readonly earthProfile?: {
     readonly avatarId: string;

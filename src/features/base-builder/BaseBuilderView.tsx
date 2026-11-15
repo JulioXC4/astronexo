@@ -17,11 +17,19 @@ import './base-builder.css';
 interface BaseBuilderViewProps {
   readonly destination: Destination;
   readonly onStart: (modules: readonly ModuleId[]) => void;
+  /** Texto del botón de confirmación; por defecto «Iniciar guardia». */
+  readonly confirmLabel?: string;
+  /** Módulos ya elegidos (p. ej. al volver desde pantallas posteriores). */
+  readonly initialModules?: readonly ModuleId[];
+  /** Si se indica, muestra un botón para regresar a la pantalla anterior. */
+  readonly onBack?: () => void;
 }
 
-export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) {
+export function BaseBuilderView({ destination, onStart, confirmLabel, initialModules, onBack }: BaseBuilderViewProps) {
   const { t } = useI18n();
-  const [slots, setSlots] = useState<ModuleSlots>(EMPTY_MODULE_SLOTS);
+  const [slots, setSlots] = useState<ModuleSlots>(() => initialModules && initialModules.length === 3
+    ? [initialModules[0], initialModules[1], initialModules[2]]
+    : EMPTY_MODULE_SLOTS);
   const [armedModule, setArmedModule] = useState<ModuleId | null>(null);
   const [focusedModule, setFocusedModule] = useState<ModuleId>('SOLAR_STORAGE');
   const selected = selectedModulesFromSlots(slots);
@@ -56,6 +64,7 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
   return <main className={`builder-shell builder-shell--${destination.toLowerCase()}`}>
     <header className="builder-header">
       <div>
+        {onBack && <button type="button" className="pixel-button" onClick={onBack}>{t('common.back')}</button>}
         <span>{t('baseBuilder.kicker')}</span>
         <h1>{t('baseBuilder.title', { destination: destinationName.toUpperCase() })}</h1>
       </div>
@@ -140,7 +149,7 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
         className="pixel-button pixel-button--primary builder-start"
         disabled={!complete}
         onClick={() => onStart(selected)}
-      >{t('baseBuilder.confirmBaseBtn')}</button>
+      >{confirmLabel ?? t('baseBuilder.confirmBaseBtn')}</button>
     </section>
   </main>;
 }

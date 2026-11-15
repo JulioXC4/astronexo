@@ -12,6 +12,7 @@ function setup(city: City, destination: Destination, indexes: readonly number[])
     city, destination, avatarId: 'ALBA', fictionalName: 'Cóndor',
     completedMissions: indexes.map((index) => missions[index].id),
     earnedTools: indexes.map((index) => missions[index].targetTool),
+    selectedModules: modules,
   });
 }
 
@@ -29,9 +30,9 @@ describe('Integración Tierra → SoloSpaceGame', () => {
 
   it('conserva dos recompensas iguales y acumula sus efectos iniciales', () => {
     const result = setup('AREQUIPA', 'MOON', [1, 2, 3]);
-    expect(result.selectedTools).toEqual(['LIFE_SUPPORT', 'SHELTER_KIT', 'LIFE_SUPPORT']);
-    const mission = createMission({ ...result, selectedModules: modules });
-    expect(mission.oxygen).toBeGreaterThan(createMission({ ...setup('AREQUIPA', 'MOON', [0, 1, 2]), selectedModules: modules }).oxygen);
+    expect(result.selectedTools).toEqual(['LIFE_SUPPORT', 'LIFE_SUPPORT', 'CROP_KIT']);
+    const mission = createMission(result);
+    expect(mission.oxygen).toBeGreaterThan(createMission(setup('AREQUIPA', 'MOON', [0, 3, 4])).oxygen);
     expect(mission.setup.earthProfile?.trainings).toHaveLength(3);
   });
 
@@ -43,6 +44,13 @@ describe('Integración Tierra → SoloSpaceGame', () => {
       city: 'TROMSO', destination: 'MARS', avatarId: 'ALBA', fictionalName: 'Cóndor',
       completedMissions: ['VEGGIE_LAB', 'VEGGIE_LAB', 'SOLAR_WATCH'],
       earnedTools: ['CROP_KIT', 'CROP_KIT', 'SHELTER_KIT'],
+      selectedModules: modules,
+    })).toThrow();
+    expect(() => buildEarthV3Setup({
+      city: 'TROMSO', destination: 'MARS', avatarId: 'ALBA', fictionalName: 'Cóndor',
+      completedMissions: ['DARK_MONTHS_RESERVE', 'ARCTIC_GREENHOUSE', 'SOLAR_WATCH'],
+      earnedTools: ['FOLDING_PANELS', 'CROP_KIT', 'SHELTER_KIT'],
+      selectedModules: ['SOLAR_STORAGE', 'SOLAR_STORAGE', 'STORM_SHELTER'],
     })).toThrow();
   });
 
@@ -80,27 +88,29 @@ describe('Integración Tierra → SoloSpaceGame', () => {
   });
 
   it('los kits ganados alteran recursos y operaciones espaciales sin depender de NASA POWER', () => {
-    const withPanels = createMission({ ...setup('AREQUIPA', 'MOON', [0, 1, 2]), selectedModules: modules });
-    const withoutPanels = createMission({ ...setup('AREQUIPA', 'MOON', [1, 2, 4]), selectedModules: modules });
+    // Arequipa (JD): M1 paneles, M2/M3 soporte vital, M4 cultivos, M5 paneles.
+    const withPanels = createMission({ ...setup('AREQUIPA', 'MOON', [0, 1, 3]), selectedModules: modules });
+    const withoutPanels = createMission({ ...setup('AREQUIPA', 'MOON', [1, 2, 3]), selectedModules: modules });
     expect(withPanels.energy).toBe(withoutPanels.energy + 8);
     const panelTurn = advanceTurn(applyAction({ ...withPanels, activeAlerts: [], energy: 60 }, { type: 'SKIP_INTERVENTION' }));
     const plainTurn = advanceTurn(applyAction({ ...withoutPanels, activeAlerts: [], energy: 60 }, { type: 'SKIP_INTERVENTION' }));
     expect(panelTurn.energy).toBeGreaterThan(plainTurn.energy);
 
-    const doubleLife = createMission({ ...setup('AREQUIPA', 'MOON', [1, 2, 3]), selectedModules: modules });
+    const doubleLife = createMission({ ...setup('AREQUIPA', 'MOON', [1, 2, 3]), selectedModules: modules }); // dos kits de soporte vital
     const lifeTurn = advanceTurn(applyAction({ ...withPanels, activeAlerts: [], oxygen: 60 }, { type: 'SKIP_INTERVENTION' }));
     const doubleLifeTurn = advanceTurn(applyAction({ ...doubleLife, activeAlerts: [], oxygen: 60 }, { type: 'SKIP_INTERVENTION' }));
     expect(doubleLifeTurn.oxygen).toBeGreaterThan(lifeTurn.oxygen);
 
     const otherModules = ['SOLAR_STORAGE', 'REINFORCED_LIFE_SUPPORT', 'SCIENCE_LAB'] as const;
-    const withShelter = createMission({ ...setup('AREQUIPA', 'MOON', [0, 1, 2]), selectedModules: otherModules });
-    const withoutShelter = createMission({ ...setup('AREQUIPA', 'MOON', [0, 1, 4]), selectedModules: otherModules });
+    // Tromsø M3 (Auroras y alerta) entrega el kit de refugio.
+    const withShelter = createMission({ ...setup('TROMSO', 'MOON', [0, 2, 3]), selectedModules: otherModules });
+    const withoutShelter = createMission({ ...setup('TROMSO', 'MOON', [0, 1, 3]), selectedModules: otherModules });
     const shelteredTurn = advanceTurn(applyAction({ ...withShelter, activeAlerts: [], shield: 60 }, { type: 'SKIP_INTERVENTION' }));
     const exposedTurn = advanceTurn(applyAction({ ...withoutShelter, activeAlerts: [], shield: 60 }, { type: 'SKIP_INTERVENTION' }));
     expect(shelteredTurn.radiationExposure).toBeLessThan(exposedTurn.radiationExposure);
 
-    const withCrop = createMission({ ...setup('TROMSO', 'MARS', [1, 2, 4]), selectedModules: modules });
-    const withoutCrop = createMission({ ...setup('TROMSO', 'MARS', [0, 2, 3]), selectedModules: modules });
+    const withCrop = createMission({ ...setup('TROMSO', 'MARS', [1, 2, 3]), selectedModules: modules });
+    const withoutCrop = createMission({ ...setup('TROMSO', 'MARS', [0, 2, 4]), selectedModules: modules });
     expect(withCrop.foodSupply).toBe(withoutCrop.foodSupply + 16);
     const cropHarvest = applyAction({ ...withCrop, foodSupply: 50 }, { type: 'MANAGE_GREENHOUSE', choiceId: 'MAINTAIN_CROPS' });
     const plainHarvest = applyAction({ ...withoutCrop, foodSupply: 50 }, { type: 'MANAGE_GREENHOUSE', choiceId: 'MAINTAIN_CROPS' });

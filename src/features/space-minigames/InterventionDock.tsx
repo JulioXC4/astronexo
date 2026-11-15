@@ -9,9 +9,14 @@ import type {
   ResourceDelta,
 } from '../../game';
 import { interventionAssets } from '../../assets/interventionAssets';
-import { InterventionGesture } from './InterventionGesture';
+import { EarthCommunicationGame } from './EarthCommunicationGame';
+import { GreenhouseGame } from './GreenhouseGame';
 import { OxygenPatchGame } from './OxygenPatchGame';
+import { OxygenRecycleGame } from './OxygenRecycleGame';
+import { PanelCleaningGame } from './PanelCleaningGame';
 import { PanelRepairGame } from './PanelRepairGame';
+import { ScienceResearchGame } from './ScienceResearchGame';
+import { ShelterProtectionGame } from './ShelterProtectionGame';
 import { getInterventionPanelMode } from './interventionState';
 import { useI18n } from '../../i18n';
 import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../tutorial';
@@ -71,7 +76,8 @@ export function InterventionDock({
   } : null;
   const cost = pendingAction ? getActionCost(state, pendingAction) : {};
   const canPay = state.energy + (cost.energy ?? 0) >= 0
-    && state.oxygen + (cost.oxygen ?? 0) >= 0;
+    && state.oxygen + (cost.oxygen ?? 0) >= 0
+    && state.foodSupply + (cost.foodSupply ?? 0) >= 0;
   const interventionTutorialSteps = useMemo(() => selected ? [{
     id: INTERVENTION_TUTORIAL_STEP,
     character: 'CHISPA' as const,
@@ -314,14 +320,19 @@ export function InterventionDock({
           <div data-tutorial="intervention-game">
             {selected === 'REPAIR_PANELS'
               ? <PanelRepairGame onReadyChange={setInteractionReady} />
+              : selected === 'CLEAN_PANELS'
+                ? <PanelCleaningGame onReadyChange={setInteractionReady} />
               : selected === 'PATCH_OXYGEN_LEAK'
                 ? <OxygenPatchGame onReadyChange={setInteractionReady} />
-                : <InterventionGesture
-                    key={selected}
-                    action={selected}
-                    onReadyChange={setInteractionReady}
-                    onChoiceChange={setChoiceId}
-                  />}
+                : selected === 'RECYCLE_OXYGEN'
+                  ? <OxygenRecycleGame onReadyChange={setInteractionReady} />
+                  : selected === 'REINFORCE_SHELTER'
+                    ? <ShelterProtectionGame onReadyChange={setInteractionReady} onChoiceChange={setChoiceId} />
+                    : selected === 'RUN_RESEARCH'
+                      ? <ScienceResearchGame destination={state.destination} onReadyChange={setInteractionReady} />
+                      : selected === 'MANAGE_GREENHOUSE'
+                        ? <GreenhouseGame onReadyChange={setInteractionReady} onChoiceChange={setChoiceId} />
+                        : <EarthCommunicationGame state={state} onReadyChange={setInteractionReady} onChoiceChange={setChoiceId} />}
           </div>
           {!canPay && <p className="error-copy">{t('interventions.insufficientResources')}</p>}
           <footer className="intervention-console__actions">

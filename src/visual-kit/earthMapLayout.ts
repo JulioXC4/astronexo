@@ -71,4 +71,3 @@ export const FACILITY_POSITIONS = [
 
 /** Centro de la plataforma de lanzamiento dibujada en ambos fondos. */
 export const LAUNCH_PAD = { x: 892, y: 254 } as const;
-

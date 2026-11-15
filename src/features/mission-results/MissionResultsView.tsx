@@ -5,6 +5,7 @@ import { spaceBackgrounds } from '../../assets/manifest';
 import { CharacterPortrait } from '../../visual-kit/CharacterPortrait';
 import { ResourceBar } from '../mission-control/ResourceBar';
 import { useI18n, LanguageSelector } from '../../i18n';
+import { NasaSourcesPanel } from '../nasa/NasaSourcesPanel';
 
 interface MissionResultsViewProps {
   readonly result: MissionResult;
@@ -19,7 +20,13 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
     && result.turnsReached === result.finalState.maxTurns
     && !result.scientificObjectiveAchieved;
   const { finalState, score } = result;
-  const toolLabels = result.relevantTools.map((toolId) => t(`tools.${toolId}.label`));
+  const toolCounts = result.relevantTools.reduce((counts, toolId) => {
+    counts.set(toolId, (counts.get(toolId) ?? 0) + 1);
+    return counts;
+  }, new Map<(typeof result.relevantTools)[number], number>());
+  const trainings = finalState.setup.earthProfile?.trainings ?? [];
+  const cityName = t(`cities.${finalState.setup.city.toLowerCase()}.name`);
+  const destinationName = t(`destinations.${finalState.destination.toLowerCase()}.name`);
   const resultDescription = completed
     ? t('results.completedDesc')
     : scientificIncomplete
@@ -68,6 +75,28 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
     <details className="results-details">
       <summary>{t('results.openFullReport')}</summary>
       <div className="results-details__content">
+        <section
+          className="preparation-report"
+          data-city={finalState.setup.city}
+          data-destination={finalState.setup.destination}
+        >
+          <h2>{t('results.preparationTitle')}</h2>
+          <dl className="report-stats">
+            <div><dt>{t('results.cityLabel')}</dt><dd>{cityName}</dd></div>
+            <div><dt>{t('results.destinationLabel')}</dt><dd>{destinationName}</dd></div>
+          </dl>
+          <h3>{t('results.trainingsLabel')}</h3>
+          <ul>
+            {trainings.map((training) => <li key={training.id} data-training-id={training.id}>{training.name}</li>)}
+          </ul>
+          <h3>{t('results.toolsLabel')}</h3>
+          <ul>
+            {[...toolCounts.entries()].map(([toolId, count]) => <li key={toolId} data-tool-id={toolId} data-tool-count={count}>
+              {t(`tools.${toolId}.label`)}{count > 1 ? ` ×${count}` : ''}
+              {count > 1 && <small> — {t('results.duplicateToolNote', { count })}</small>}
+            </li>)}
+          </ul>
+        </section>
         <section>
           <h2>{t('results.finalStateTitle')}</h2>
           <dl className="report-stats">
@@ -104,7 +133,7 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
                 entry.resourcesConsumed.oxygen ? `${Math.abs(entry.resourcesConsumed.oxygen)} ${t('hud.oxygen')}` : '',
                 entry.resourcesConsumed.foodSupply ? `${Math.abs(entry.resourcesConsumed.foodSupply)} ${t('hud.food')}` : '',
               ].filter(Boolean);
-              return <article key={entry.moduleId}>
+              return <article key={entry.moduleId} data-module-id={entry.moduleId}>
                 <img src={moduleScenes[finalState.destination][entry.moduleId]} alt="" />
                 <h3>{t(`baseBuilder.modules.${entry.moduleId}.name`)}</h3>
                 <p><strong>{t('results.actualConsumption')}:</strong> {costs.length ? costs.join(' · ') : t('results.noOperationalConsumption')}</p>
@@ -122,9 +151,11 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
           {result.causeAndEffect.length ? <ul>{result.causeAndEffect.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul> : <p>{t('results.noAdditionalRelations')}</p>}
           <p>{t('results.scientificObjStatus', { status: t(result.scientificObjectiveAchieved ? 'results.achieved' : 'results.pending') })}</p>
           <p>{finalState.communicationResponse ?? t('results.noConsultationReceived')}</p>
-          <p>{t('results.toolsUsed', { tools: toolLabels.join(' · ') })}</p>
           <p>{t('results.educationalNoteDesc')}</p>
         </section>
+        {finalState.setup.spaceWeather && (
+          <NasaSourcesPanel cityId={finalState.setup.city} spaceWeather={finalState.setup.spaceWeather} />
+        )}
       </div>
     </details>
 

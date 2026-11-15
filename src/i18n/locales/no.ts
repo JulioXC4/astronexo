@@ -65,7 +65,6 @@ export const no = {
   },
 
   cities: {
-    stepIndicator: 'Trinn 1 av 6 · Valg av jordbase (V3.0-krav)',
     title: 'Velg jordbasen din',
     subtitle: 'Velg mellom de to offisielle basene: Arequipa (Peru) eller Tromsø (Norge).',
     confirmBase: 'Bekreft base i {city}',
@@ -96,7 +95,6 @@ export const no = {
   },
 
   destinations: {
-    stepIndicator: 'Trinn 2 av 6 · Valg av romdestinasjon',
     title: 'Hvor skal du reise?',
     subtitle: 'Velg mellom Månen eller Mars for romekspedisjonen.',
     travelTime: 'Reisetid',
@@ -123,7 +121,6 @@ export const no = {
   },
 
   avatars: {
-    stepIndicator: 'Trinn 3 av 6 · Velg astronaut',
     title: 'Hvem er du?',
     subtitle: 'Velg astronauten som skal lede ekspedisjonen.',
     confirmAvatar: 'Bekreft valg av {name}',
@@ -156,7 +153,6 @@ export const no = {
   },
 
   briefing: {
-    stepIndicator: 'Trinn 4 av 6 · Oppdragsbriefing',
     title: 'Oppdragsbriefing',
     subtitle: 'Før oppskytning må du fullføre tre treningsøkter på jordbasen.',
     rulesTitle: 'Oppdragsregler (RF-69)',
@@ -170,7 +166,6 @@ export const no = {
   },
 
   map: {
-    stepIndicator: 'Trinn 5 av 6 · Jordbasetrening',
     title: 'Jordbasekart',
     subtitle: 'Velg tre treningsøkter for å forberede deg til romferden.',
     facilitiesCompleted: '{completed} / {total} Fasiliteter fullført',

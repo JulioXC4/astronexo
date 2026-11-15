@@ -32,7 +32,7 @@ function priorityAction(state: MissionState): GameAction {
     || alert.kind === 'ENERGY_SHORTAGE');
   if (dust) return { type: 'CLEAN_PANELS', targetId: dust.id };
   const radiation = state.activeAlerts.find((alert) => alert.kind === 'RADIATION_RISK');
-  if (radiation) return { type: 'REINFORCE_SHELTER', targetId: radiation.id };
+  if (radiation) return { type: 'REINFORCE_SHELTER', targetId: radiation.id, choiceId: 'REGOLITH_SHIELDING' };
   const greenhouse = state.activeAlerts.find((alert) => alert.kind === 'GREENHOUSE_STRAIN');
   if (greenhouse) return { type: 'MANAGE_GREENHOUSE', targetId: greenhouse.id, choiceId: 'MAINTAIN_CROPS' };
   return { type: 'MANAGE_GREENHOUSE', choiceId: 'SUSPEND_CROPS' };

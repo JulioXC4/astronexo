@@ -3,9 +3,11 @@ import type { EarthFlowProps, ToolId, Destination, Backpack } from '../../game/c
 import { DEFAULT_CITY, type CityData } from '../../data/nasa/cities';
 import { DEFAULT_AVATAR, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../data/avatars';
 import { buildVerifiedNasaDataset } from '../nasa/adapters';
-import type { MissionType, EarthMissionDefinition } from '../../data/missions';
+import { getMissionsForCity, type MissionType, type EarthMissionDefinition } from '../../data/missions';
 import { buildEarthV3Setup } from './earthToSpace';
-import type { TrainingOutcome } from '../../game';
+import type { GameSetup, ModuleId, TrainingOutcome } from '../../game';
+import type { LocalCoopConfig } from '../coop-gameplay/coop.types';
+import { useI18n } from '../../i18n';
 
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CitySelectionScreen } from './screens/CitySelectionScreen';
@@ -13,6 +15,9 @@ import { DestinationScreen } from './screens/DestinationScreen';
 import { AvatarScreen } from './screens/AvatarScreen';
 import { NarrativeBriefingScreen } from './screens/NarrativeBriefingScreen';
 import { PreparationMapScreen } from './screens/PreparationMapScreen';
+import { BaseBuilderView } from '../base-builder';
+import { StationPrepScreen, ConstructionProgressScreen } from './screens/FlowNarrativeScreens';
+import { SystemsMonitorScreen } from './screens/SystemsMonitorScreen';
 import { SolarDetectiveGame } from './minigames/SolarDetectiveGame';
 import { SolarWatchGame } from './minigames/SolarWatchGame';
 import { DarkMonthsGame } from './minigames/DarkMonthsGame';
@@ -20,15 +25,23 @@ import { AltitudeAcclimatizationGame } from './minigames/AltitudeAcclimatization
 import { EclssTrainingGame } from './minigames/EclssTrainingGame';
 import { VeggieLabGame } from './minigames/VeggieLabGame';
 import { ArcticGreenhouseGame } from './minigames/ArcticGreenhouseGame';
+import { CloudsSunsGame } from './minigames/CloudsSunsGame';
 import { DepartureScreen } from './screens/DepartureScreen';
 import { ArrivalScreen } from './screens/ArrivalScreen';
 import { LearnScreen } from './screens/LearnScreen';
 import { StationModeModal } from './screens/StationModeModal';
 
+/**
+ * Orden narrativo final (Prototipo JD):
+ * Inicio → destino → constructor 3/5 → estación en preparación → ciudad → avatar → briefing →
+ * 3/5 entrenamientos (con avance de obra) → despegue → llegada → monitoreo → guardia.
+ */
 export type EarthScreenState =
   | 'WELCOME'
-  | 'CITY'
   | 'DESTINATION'
+  | 'BUILDER'
+  | 'STATION_PREP'
+  | 'CITY'
   | 'AVATAR'
   | 'BRIEFING'
   | 'MAP'
@@ -39,18 +52,40 @@ export type EarthScreenState =
   | 'TRAINING_ECLSS'
   | 'TRAINING_VEGGIE'
   | 'TRAINING_ARCTIC'
+  | 'TRAINING_CLOUDS'
+  | 'CONSTRUCTION'
   | 'LIFTOFF'
   | 'ARRIVAL'
+  | 'MONITOR'
   | 'LEARN';
 
-export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
+const TRAINING_SCREENS: Readonly<Record<MissionType, EarthScreenState>> = {
+  SOLAR_DETECTIVE: 'TRAINING_SOLAR',
+  SOLAR_WATCH: 'TRAINING_DONKI',
+  DARK_MONTHS_RESERVE: 'TRAINING_DARK_MONTHS',
+  ALTITUDE_ACCLIMATIZATION: 'TRAINING_ALTITUDE',
+  ECLSS_TRAINING: 'TRAINING_ECLSS',
+  VEGGIE_LAB: 'TRAINING_VEGGIE',
+  ARCTIC_GREENHOUSE: 'TRAINING_ARCTIC',
+  CLOUDS_SUNS: 'TRAINING_CLOUDS',
+};
+
+interface EarthFlowFullProps extends EarthFlowProps {
+  /** Grupo cooperativo local que ya aceptó el recorrido completo (opcional). */
+  readonly coopGroup?: LocalCoopConfig;
+}
+
+export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }: EarthFlowFullProps) {
+  const { t } = useI18n();
   const [screen, setScreen] = useState<EarthScreenState>('WELCOME');
   const [previousScreen, setPreviousScreen] = useState<EarthScreenState>('WELCOME');
   const [isStationModalOpen, setIsStationModalOpen] = useState<boolean>(false);
+  const [coopGroup, setCoopGroup] = useState<LocalCoopConfig | undefined>(initialCoopGroup);
 
-  // Estado global de preparación V3.0
+  // Estado de preparación: se conserva completo hasta iniciar la guardia.
+  const [destination, setDestination] = useState<Destination>('MOON');
+  const [selectedModules, setSelectedModules] = useState<readonly ModuleId[]>([]);
   const [city, setCity] = useState<CityData>(DEFAULT_CITY); // AREQUIPA o TROMSO
-  const [destination, setDestination] = useState<Destination>('MOON'); // Elegido antes de entrenar
   const [avatar, setAvatar] = useState<AvatarOption>(DEFAULT_AVATAR);
   const [fictionalName, setFictionalName] = useState<string>(SUGGESTED_CALLSIGNS[0]);
   const [completedMissions, setCompletedMissions] = useState<MissionType[]>([]);
@@ -60,63 +95,84 @@ export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
   const [justCompletedMission, setJustCompletedMission] = useState<MissionType | null>(null);
 
   function navigateTo(nextScreen: EarthScreenState) {
-    if (nextScreen !== 'MAP') setJustCompletedMission(null);
+    // Mantiene la celebración al pasar por el avance de obra y la limpia
+    // cuando el jugador abandona realmente el mapa para otra actividad.
+    if (nextScreen !== 'MAP' && nextScreen !== 'CONSTRUCTION') setJustCompletedMission(null);
     setPreviousScreen(screen);
     setScreen(nextScreen);
   }
 
-  // Completa una misión tras satisfacer sus condiciones interactivas (RF-69)
-  // Regla estricta: máximo 3 misiones elegidas
+  // Una misión se acredita solo tras una decisión real con costo; máximo 3.
   function handleCompleteMission(outcome: TrainingOutcome) {
     const missionId = outcome.missionId as MissionType;
-    if (completedMissions.length >= 3) {
+    if (completedMissions.length >= 3 || completedMissions.includes(missionId)) {
       navigateTo('MAP');
       return;
     }
-    if (!completedMissions.includes(missionId)) {
-      setJustCompletedMission(missionId);
-      setTrainingOutcomes((prev) => prev.some((item) => item.missionId === missionId) ? prev : [...prev, outcome]);
-      setCompletedMissions((prev) => {
-        if (prev.length >= 3) return prev;
-        return [...prev, missionId];
-      });
-    }
-    navigateTo('MAP');
+    setJustCompletedMission(missionId);
+    setTrainingOutcomes((prev) => (prev.some((item) => item.missionId === missionId) ? prev : [...prev, outcome]));
+    setCompletedMissions((prev) => (prev.length >= 3 || prev.includes(missionId) ? prev : [...prev, missionId]));
+    navigateTo('CONSTRUCTION'); // transición breve: avance de obra
   }
 
-  // Al completar exactamente 3 misiones, se asignan EXACTAMENTE las 3 herramientas ganadas
-  // NO se regalan ni rellenan herramientas arbitrarias del catálogo (RF-09, RF-10)
+  // Exactamente las 3 herramientas ganadas; no se rellenan ni se regalan.
   function handleProceedToLaunch(derivedTools: readonly ToolId[]) {
     if (derivedTools.length !== 3 || trainingOutcomes.length !== 3) return;
-
-    const earnedBackpack: Backpack = [derivedTools[0], derivedTools[1], derivedTools[2]];
-    setBackpack(earnedBackpack);
+    setBackpack([derivedTools[0], derivedTools[1], derivedTools[2]]);
     navigateTo('LIFTOFF');
   }
 
-  function handleLaunchMission() {
-    if (completedMissions.length !== 3 || trainingOutcomes.length !== 3) return;
-    if (!backpack) return;
-
-    const verifiedNasaDataset = buildVerifiedNasaDataset(city.id);
-
-    onReady({
-      setup: buildEarthV3Setup({
-        city: city.id, destination, avatarId: avatar.id, fictionalName,
-        completedMissions, earnedTools: backpack, trainingOutcomes,
-      }),
-      nasaData: verifiedNasaDataset,
+  function toolsFromCompleted(): readonly ToolId[] {
+    const missions = getMissionsForCity(city.id);
+    return completedMissions.flatMap((id) => {
+      const found = missions.find((mission) => mission.id === id);
+      return found ? [found.targetTool] : [];
     });
   }
 
-  // RENDER SEGÚN EL FLUJO OBLIGATORIO V3.0
+  /** Construye el GameSetup completo; devuelve null si la preparación aún no es válida. */
+  function buildSetup(): GameSetup | null {
+    if (!backpack || completedMissions.length !== 3 || trainingOutcomes.length !== 3 || selectedModules.length !== 3) return null;
+    try {
+      return buildEarthV3Setup({
+        mode: coopGroup ? 'LOCAL_COOP' : 'SOLO',
+        city: city.id, destination, avatarId: avatar.id, fictionalName,
+        completedMissions, earnedTools: backpack, selectedModules, trainingOutcomes,
+      });
+    } catch {
+      return null;
+    }
+  }
+
+  function handleLaunchMission() {
+    const setup = buildSetup();
+    if (!setup) {
+      navigateTo('MAP');
+      return;
+    }
+    if (coopGroup && onStartCoop) {
+      onStartCoop(setup, coopGroup);
+      return;
+    }
+    onReady({ setup, nasaData: buildVerifiedNasaDataset(city.id) });
+  }
+
+  function resetPreparationForCity(selectedCity: CityData) {
+    if (selectedCity.id !== city.id) {
+      setCity(selectedCity);
+      setCompletedMissions([]); // otra ciudad ofrece otros entrenamientos
+      setTrainingOutcomes([]);
+      setBackpack(null);
+    }
+  }
+
   switch (screen) {
-    // 1. Bienvenida
+    // 1. Inicio: Despegue o Estación
     case 'WELCOME':
       return (
         <>
           <WelcomeScreen
-            onPlay={() => navigateTo('CITY')}
+            onPlay={() => navigateTo('DESTINATION')}
             onOpenStation={() => setIsStationModalOpen(true)}
             onOpenLearn={() => navigateTo('LEARN')}
           />
@@ -125,46 +181,63 @@ export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
             onClose={() => setIsStationModalOpen(false)}
             onLaunchDemoSolo={() => {
               setIsStationModalOpen(false);
-              navigateTo('CITY');
+              navigateTo('DESTINATION');
             }}
             onStartCoop={onStartCoop}
+            onStartCoopFullRoute={(group) => {
+              setCoopGroup(group);
+              navigateTo('DESTINATION');
+            }}
           />
         </>
       );
 
-    // 2. Selección de Ciudad (Arequipa o Tromsø)
-    case 'CITY':
+    // 2. Luna o Marte
+    case 'DESTINATION':
       return (
-        <CitySelectionScreen
-          initialCityId={city.id}
-          onSelectCity={(selectedCity) => {
-            if (selectedCity.id !== city.id) {
-              setCity(selectedCity);
-              setCompletedMissions([]); // Reiniciar misiones si cambia de ciudad
-              setTrainingOutcomes([]);
-              setBackpack(null);
-            }
-            navigateTo('DESTINATION');
+        <DestinationScreen
+          initialDestination={destination}
+          onSelectDestination={(dest) => {
+            setDestination(dest);
+            navigateTo('BUILDER');
           }}
           onBack={() => navigateTo('WELCOME')}
         />
       );
 
-    // 3. Selección de Destino (Luna o Marte ANTES de preparar)
-    case 'DESTINATION':
+    // 3. Construir estación: 3 de 5 módulos (P10), antes de elegir ciudad
+    case 'BUILDER':
       return (
-        <DestinationScreen
-          cityName={city.name}
-          initialDestination={destination}
-          onSelectDestination={(dest) => {
-            setDestination(dest);
-            navigateTo('AVATAR');
+        <BaseBuilderView
+          destination={destination}
+          confirmLabel={t('baseBuilder.confirmStation')}
+          initialModules={selectedModules}
+          onBack={() => navigateTo('DESTINATION')}
+          onStart={(modules) => {
+            setSelectedModules(modules);
+            navigateTo('STATION_PREP');
           }}
-          onBack={() => navigateTo('CITY')}
         />
       );
 
-    // 4. Avatar y Perfil
+    // 4. La estación se está preparando
+    case 'STATION_PREP':
+      return <StationPrepScreen destination={destination} onContinue={() => navigateTo('CITY')} />;
+
+    // 5. Arequipa o Tromsø
+    case 'CITY':
+      return (
+        <CitySelectionScreen
+          initialCityId={city.id}
+          onSelectCity={(selectedCity) => {
+            resetPreparationForCity(selectedCity);
+            navigateTo('AVATAR');
+          }}
+          onBack={() => navigateTo('BUILDER')}
+        />
+      );
+
+    // Avatar breve, sin interrumpir el flujo
     case 'AVATAR':
       return (
         <AvatarScreen
@@ -177,11 +250,10 @@ export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
             setFictionalName(name);
             navigateTo('BRIEFING');
           }}
-          onBack={() => navigateTo('DESTINATION')}
+          onBack={() => navigateTo('CITY')}
         />
       );
 
-    // 5. Briefing Narrativo Ágil
     case 'BRIEFING':
       return (
         <NarrativeBriefingScreen
@@ -194,7 +266,7 @@ export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
         />
       );
 
-    // 6. Mapa 2D de 5 Misiones (Elegir exactamente 3)
+    // 6. Mapa de 5 entrenamientos (elegir exactamente 3)
     case 'MAP':
       return (
         <>
@@ -206,17 +278,7 @@ export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
             completedMissions={completedMissions}
             trainingOutcomes={trainingOutcomes}
             justCompletedId={justCompletedMission}
-            onOpenMission={(mission: EarthMissionDefinition) => {
-              // Cada misión abre una actividad interactiva real con decisión y costo (RF-69)
-              // Ninguna misión se acredita directamente por presionar Ejecutar
-              if (mission.id === 'SOLAR_DETECTIVE') navigateTo('TRAINING_SOLAR');
-              else if (mission.id === 'SOLAR_WATCH') navigateTo('TRAINING_DONKI');
-              else if (mission.id === 'DARK_MONTHS_RESERVE') navigateTo('TRAINING_DARK_MONTHS');
-              else if (mission.id === 'ALTITUDE_ACCLIMATIZATION') navigateTo('TRAINING_ALTITUDE');
-              else if (mission.id === 'ECLSS_TRAINING') navigateTo('TRAINING_ECLSS');
-              else if (mission.id === 'VEGGIE_LAB') navigateTo('TRAINING_VEGGIE');
-              else if (mission.id === 'ARCTIC_GREENHOUSE') navigateTo('TRAINING_ARCTIC');
-            }}
+            onOpenMission={(mission: EarthMissionDefinition) => navigateTo(TRAINING_SCREENS[mission.id])}
             onProceedToLaunch={handleProceedToLaunch}
             onBack={() => navigateTo('BRIEFING')}
           />
@@ -229,70 +291,38 @@ export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
         </>
       );
 
-    // 7. Detective del Sol (Arequipa - NASA POWER)
     case 'TRAINING_SOLAR':
-      return (
-        <SolarDetectiveGame
-          onComplete={handleCompleteMission}
-          onBack={() => navigateTo('MAP')}
-        />
-      );
-
-    // 8. Vigilante del Sol / Mirador de Tormentas (Común - NASA DONKI)
+      return <SolarDetectiveGame onComplete={handleCompleteMission} onBack={() => navigateTo('MAP')} />;
     case 'TRAINING_DONKI':
-      return (
-        <SolarWatchGame
-          onComplete={handleCompleteMission}
-          onBack={() => navigateTo('MAP')}
-        />
-      );
-
-    // 9. Reserva para los Meses Oscuros (Tromsø - NASA POWER)
+      return <SolarWatchGame onComplete={handleCompleteMission} onBack={() => navigateTo('MAP')} />;
     case 'TRAINING_DARK_MONTHS':
-      return (
-        <DarkMonthsGame
-          onComplete={handleCompleteMission}
-          onBack={() => navigateTo('MAP')}
-        />
-      );
-
-    // 10. Aclimatación de Altura Andina (Arequipa - NASA ECLSS & Medicina de Altura)
+      return <DarkMonthsGame onComplete={handleCompleteMission} onBack={() => navigateTo('MAP')} />;
     case 'TRAINING_ALTITUDE':
-      return (
-        <AltitudeAcclimatizationGame
-          onComplete={handleCompleteMission}
-          onBack={() => navigateTo('MAP')}
-        />
-      );
-
-    // 11. Módulo de Soporte Vital Regenerativo (Común - NASA ECLSS)
+      return <AltitudeAcclimatizationGame onComplete={handleCompleteMission} onBack={() => navigateTo('MAP')} />;
     case 'TRAINING_ECLSS':
-      return (
-        <EclssTrainingGame
-          onComplete={handleCompleteMission}
-          onBack={() => navigateTo('MAP')}
-        />
-      );
-
-    // 12. Laboratorio de Cultivos Veggie (Común - NASA Veggie & APH)
+      return <EclssTrainingGame onComplete={handleCompleteMission} onBack={() => navigateTo('MAP')} />;
     case 'TRAINING_VEGGIE':
-      return (
-        <VeggieLabGame
-          onComplete={handleCompleteMission}
-          onBack={() => navigateTo('MAP')}
-        />
-      );
-
-    // 13. Invernadero Ártico Geotérmico (Tromsø - Bio-refugio polar)
+      return <VeggieLabGame onComplete={handleCompleteMission} onBack={() => navigateTo('MAP')} />;
     case 'TRAINING_ARCTIC':
+      return <ArcticGreenhouseGame onComplete={handleCompleteMission} onBack={() => navigateTo('MAP')} />;
+    case 'TRAINING_CLOUDS':
+      return <CloudsSunsGame cityId={city.id} onComplete={handleCompleteMission} onBack={() => navigateTo('MAP')} />;
+
+    // 7. Avance de obra tras cada entrenamiento (breve y saltable)
+    case 'CONSTRUCTION':
       return (
-        <ArcticGreenhouseGame
-          onComplete={handleCompleteMission}
-          onBack={() => navigateTo('MAP')}
+        <ConstructionProgressScreen
+          destination={destination}
+          selectedModules={selectedModules}
+          done={completedMissions.length}
+          onContinue={() => {
+            if (completedMissions.length >= 3) handleProceedToLaunch(toolsFromCompleted());
+            else navigateTo('MAP');
+          }}
         />
       );
 
-    // 14. Despegue Animado 2D
+    // 8. Despegue y viaje
     case 'LIFTOFF':
       if (!backpack) return null;
       return (
@@ -305,7 +335,7 @@ export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
         />
       );
 
-    // 15. Llegada y Alunizaje / Llegada a Destino
+    // 9a. Llegada
     case 'ARRIVAL':
       if (!backpack) return null;
       return (
@@ -315,16 +345,18 @@ export function EarthFlow({ onReady, onStartCoop }: EarthFlowProps) {
           cityName={city.name}
           backpack={backpack}
           nasaData={buildVerifiedNasaDataset(city.id)}
-          onEnterBase={handleLaunchMission}
+          onEnterBase={() => navigateTo('MONITOR')}
         />
       );
 
-    // Pantalla Aprende
+    // 9b. Monitoreo inicial de módulos, recursos y herramientas
+    case 'MONITOR': {
+      const setup = buildSetup();
+      if (!setup) return null;
+      return <SystemsMonitorScreen setup={setup} onStart={handleLaunchMission} />;
+    }
+
     case 'LEARN':
-      return (
-        <LearnScreen
-          onBack={() => navigateTo(previousScreen || 'WELCOME')}
-        />
-      );
+      return <LearnScreen onBack={() => navigateTo(previousScreen || 'WELCOME')} />;
   }
 }

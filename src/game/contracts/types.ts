@@ -35,7 +35,14 @@ export interface NasaObservation {
   readonly unit: string;
   readonly sourceUrl: string;
   readonly coordinates?: { readonly latitude: number; readonly longitude: number };
+  /** Trazabilidad: ciudad consultada, fecha de obtención y estado del dato. */
+  readonly cityId?: 'AREQUIPA' | 'TROMSO';
+  readonly fetchedAt?: string;
+  /** HISTORICAL: registro local verificado; UPDATED: snapshot obtenido por script; FALLBACK: snapshot inválido, se usó el local. */
+  readonly status?: NasaDataStatus;
 }
+
+export type NasaDataStatus = 'HISTORICAL' | 'UPDATED' | 'FALLBACK';
 
 export interface NasaDataset {
   readonly validation: 'PENDING' | 'VERIFIED';
