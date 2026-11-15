@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Crosshair, Sun, Snowflake, GlobeHemisphereWest } from '@phosphor-icons/react';
 import { SUPPORTED_CITIES, type CityData } from '../../../data/nasa/cities';
 import { CityLandscape } from '../../../visual-kit/CityLandscape';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface CitySelectionScreenProps {
@@ -19,24 +20,27 @@ const CITY_MAP_POSITIONS: Record<string, { x: number; y: number }> = {
 };
 
 export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: CitySelectionScreenProps) {
+  const { t } = useI18n();
   const [selectedCityId, setSelectedCityId] = useState<'AREQUIPA' | 'TROMSO'>(
     initialCityId === 'TROMSO' ? 'TROMSO' : 'AREQUIPA'
   );
 
   const selectedCity = SUPPORTED_CITIES.find((c) => c.id === selectedCityId) ?? SUPPORTED_CITIES[0];
   const activePos = CITY_MAP_POSITIONS[selectedCity.id] ?? { x: 195, y: 245 };
+  const cityKey = selectedCity.id === 'AREQUIPA' ? 'arequipa' : 'tromso';
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Volver al Inicio</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <GlobeHemisphereWest weight="fill" color="#f6c15b" />
-          <span>Paso 1 de 6 · Selección de Base Terrestre (Requisitos V3.0)</span>
+          <span>{t('cities.stepIndicator')}</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>
@@ -44,10 +48,10 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
           <div>
             <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
               <Crosshair color="#f6c15b" weight="bold" />
-              <span>Mapa Satelital Global NASA POWER</span>
+              <span>{t('cities.title')}</span>
             </h1>
             <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              Elige entre las dos bases oficiales del reto: Arequipa (Perú) o Tromsø (Noruega).
+              {t('cities.subtitle')}
             </p>
           </div>
 
@@ -55,6 +59,9 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
           <div style={{ display: 'flex', gap: '0.6rem' }}>
             {SUPPORTED_CITIES.map((city) => {
               const isSelected = city.id === selectedCityId;
+              const isArequipa = city.id === 'AREQUIPA';
+              const localizedName = isArequipa ? t('cities.arequipa.name') : t('cities.tromso.name');
+              const localizedCountry = isArequipa ? t('cities.arequipa.country') : t('cities.tromso.country');
               return (
                 <button
                   key={city.id}
@@ -74,7 +81,7 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
                   onClick={() => setSelectedCityId(city.id)}
                 >
                   {city.id === 'AREQUIPA' ? <Sun weight="fill" size={16} /> : <Snowflake weight="fill" size={16} />}
-                  <span>{city.name} ({city.country})</span>
+                  <span>{localizedName} ({localizedCountry})</span>
                 </button>
               );
             })}
@@ -82,6 +89,7 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
         </div>
 
         <CityLandscape cityId={selectedCityId} />
+        <p className="city-illustration-note">Escenario ilustrado · Los datos solares del panel provienen de NASA POWER.</p>
 
         {/* CONTENEDOR DIVIDIDO: MAPA GLOBAL SVG (IZQ) Y HUD CIENTÍFICO (DER) */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))', gap: '1.2rem', alignItems: 'center' }}>
@@ -244,7 +252,7 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.8rem', color: selectedCity.id === 'AREQUIPA' ? '#f6c15b' : '#80d8ff', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                  Base Oficial de Preparación
+                  {t('cities.' + cityKey + '.badge')}
                 </span>
                 <span style={{
                   background: selectedCity.id === 'AREQUIPA' ? '#f6c15b' : '#80d8ff',
@@ -254,16 +262,17 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
                   padding: '0.2rem 0.5rem',
                   borderRadius: '0.4rem'
                 }}>
-                  {selectedCity.id === 'AREQUIPA' ? 'Gran Altitud Andina' : 'Ártico Polar'}
+                  {t('cities.' + cityKey + '.specialty')}
                 </span>
               </div>
 
               <h2 style={{ fontFamily: 'Fredoka', fontSize: '1.8rem', color: '#ffffff', margin: '0.3rem 0 0.1rem 0' }}>
-                {selectedCity.name}, {selectedCity.country}
+                {t('cities.' + cityKey + '.name')}, {t('cities.' + cityKey + '.country')}
               </h2>
-              <div style={{ fontFamily: 'monospace', color: '#7cb5c8', fontSize: '0.85rem', marginBottom: '0.8rem' }}>
-                LAT: {selectedCity.latitude}° | LON: {selectedCity.longitude}° | ALTITUD: {selectedCity.altitudeMeters} m
-              </div>
+              <details className="city-coordinates">
+                <summary>Ver ubicación geográfica</summary>
+                <span>Latitud: {selectedCity.latitude}° · Longitud: {selectedCity.longitude}° · Altitud: {selectedCity.altitudeMeters} m</span>
+              </details>
 
               {/* Medidor de radiación solar de NASA POWER */}
               <div style={{
@@ -296,19 +305,19 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
                 </div>
                 <div>
                   <span style={{ fontSize: '0.78rem', color: '#8fb1d4', textTransform: 'uppercase', fontWeight: 700 }}>
-                    Fechas históricas seleccionadas · NASA POWER
+                    {t('cities.historicalDates')}
                   </span>
                   <div style={{ fontFamily: 'Fredoka', fontSize: '1.25rem', color: '#ffffff' }}>
-                    {selectedCity.id === 'AREQUIPA' ? '5.6028 a 6.174 kWh/m²/día' : 'Ciclo Polar (0 a 3.5702)'}
+                    {t('cities.' + cityKey + '.irradianceRange')}
                   </div>
                   <span style={{ fontSize: '0.75rem', color: '#5ec284' }}>
-                    Tres días de 2024, no promedio anual
+                    {t('cities.threeDaysNote')}
                   </span>
                 </div>
               </div>
 
               <p style={{ margin: '0.4rem 0 0 0', color: '#b2cce6', fontSize: '0.88rem', lineHeight: '1.35' }}>
-                {selectedCity.description}
+                {t('cities.' + cityKey + '.description')}
               </p>
             </div>
 
@@ -318,7 +327,7 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
               style={{ width: '100%', marginTop: '1rem' }}
               onClick={() => onSelectCity(selectedCity)}
             >
-              <span>Confirmar Base en {selectedCity.name}</span>
+              <span>{t('cities.confirmBase', { city: t('cities.' + cityKey + '.name') })}</span>
               <ArrowRight weight="bold" />
             </button>
           </div>

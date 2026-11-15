@@ -1,13 +1,12 @@
 .earth-base-scene {
   width: 100%;
-  aspect-ratio: 1000 / 563;
   overflow: hidden;
   border-radius: 18px;
   box-shadow: 0 14px 36px rgba(4, 17, 28, .38);
   background: #476e7b;
 }
 
-.earth-base-scene svg { display: block; width: 100%; height: 100%; }
+.earth-base-scene svg { display: block; width: 100%; aspect-ratio: 1000 / 563; }
 .earth-base-facility { cursor: pointer; outline: none; }
 .earth-base-facility image { image-rendering: pixelated; }
 .earth-base-facility:hover image,
@@ -18,6 +17,12 @@
 .earth-base-facility__name { fill: #fff6da; font: 700 15px 'Fredoka', sans-serif; letter-spacing: .01em; pointer-events: none; }
 .earth-base-facility__badge { fill: #fff; font: 700 17px 'Fredoka', sans-serif; pointer-events: none; }
 .earth-base-facility--selected .earth-base-facility__badge { fill: #172a3e; }
+.earth-base-legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 0; padding: 6px; list-style: none; background: #102a3b; }
+.earth-base-legend li { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 6px 4px; color: #f3f8ed; font: 700 13px 'Fredoka', sans-serif; line-height: 1.1; }
+.earth-base-legend li span { display: grid; flex: none; width: 24px; height: 24px; place-items: center; border: 2px solid #b8d6dc; border-radius: 50%; color: #fff; }
+.earth-base-legend__selected { background: #385473; outline: 2px solid #ffd36b; }
+.earth-base-legend__completed span { background: #2a795b; }
+.earth-base-legend__locked { opacity: .65; }
 
 .prep-map-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(310px, 360px); gap: 16px; align-items: start; width: 100%; max-width: 1600px; margin: 0 auto; }
 .prep-map-layout .prep-map-mission-panel { margin: 0; max-width: none; width: 100%; align-content: start; }
@@ -27,6 +32,7 @@
   .prep-map-layout { grid-template-columns: 1fr; }
   .prep-map-layout .prep-map-mission-panel { max-width: none; }
 }
+@media (max-width: 700px) { .earth-base-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); } .earth-base-legend li { font-size: 12px; } }
 
 @media (prefers-reduced-motion: no-preference) {
   .earth-base-facility { transition: opacity .2s ease; }

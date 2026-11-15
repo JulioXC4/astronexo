@@ -1,4 +1,5 @@
 import type { EarthMissionDefinition, MissionType } from '../data/missions';
+import { useI18n } from '../i18n';
 import './earth-base-scene.css';
 
 export type FacilityState = 'available' | 'selected' | 'completed' | 'locked';
@@ -48,6 +49,7 @@ function FacilityArtwork({ id }: { id: MissionType }) {
 }
 
 export function EarthBaseScene({ cityId, missions, selectedMissionId, completedMissions, missionLimitReached, onSelectMission, onOpenMission }: EarthBaseSceneProps) {
+  const { t } = useI18n();
   const arctic = cityId === 'TROMSO';
   return <div className={`earth-base-scene ${arctic ? 'earth-base-scene--arctic' : 'earth-base-scene--andes'}`}>
     <svg viewBox="0 0 1000 563" preserveAspectRatio="xMidYMid meet" role="group" aria-label={`Mapa de la base de ${arctic ? 'Tromsø' : 'Arequipa'} con cinco instalaciones`}>
@@ -58,10 +60,9 @@ export function EarthBaseScene({ cityId, missions, selectedMissionId, completedM
         const completed = completedMissions.includes(mission.id);
         const locked = missionLimitReached && !completed;
         const state: FacilityState = completed ? 'completed' : locked ? 'locked' : selected ? 'selected' : 'available';
-        const label = shortNames[mission.id];
         return <g key={mission.id} transform={`translate(${x} ${y})`} className={`earth-base-facility earth-base-facility--${state}`}
           role="button" tabIndex={0} aria-pressed={selected}
-          aria-label={`${mission.facilityName}. ${mission.name}. Herramienta: ${mission.toolLabel}. Efecto: ${mission.effectOnSpaceMission} ${completed ? 'Completada' : locked ? 'Bloqueada' : selected ? 'Seleccionada' : 'Disponible'}`}
+          aria-label={`${mission.facilityName}. ${mission.name}. Herramienta: ${mission.toolLabel}. Efecto: ${mission.effectOnSpaceMission} ${completed ? t('common.completed') : locked ? t('common.locked') : selected ? t('common.selected') : t('common.available')}`}
           onClick={() => onSelectMission(mission.id)} onFocus={() => onSelectMission(mission.id)}
           onDoubleClick={() => { if (!completed && !locked) onOpenMission(mission); }}
           onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (selected && !completed && !locked) onOpenMission(mission); else onSelectMission(mission.id); } }}>
@@ -76,15 +77,22 @@ export function EarthBaseScene({ cityId, missions, selectedMissionId, completedM
               : facilitySprites[mission.id];
             return sprite
               ? <image href={`/assets/pixel-art/${sprite}`} x="-75" y="-100" width="150" height="135" preserveAspectRatio="xMidYMid meet" />
-              : <FacilityArtwork id={mission.id}/>;
+              : <g transform={arctic && mission.id === 'ARCTIC_GREENHOUSE' ? 'scale(.68)' : undefined}><FacilityArtwork id={mission.id}/></g>;
           })()}
-          <rect x="-75" y="56" width="150" height="47" rx="9" fill="#102b3b" stroke={completed ? '#7adca6' : selected ? '#ffd36b' : '#c3d6cb'} strokeWidth="2"/>
-          <text textAnchor="middle" y="74" className="earth-base-facility__name"><tspan x="0">{label[0]}</tspan><tspan x="0" dy="16">{label[1]}</tspan></text>
           <circle cx="63" cy="-52" r="17" fill={completed ? '#2a795b' : locked ? '#455a64' : selected ? '#f6c15b' : '#2d6f8b'} stroke="#eaf4e9" strokeWidth="3"/>
           <text x="63" y="-46" textAnchor="middle" className="earth-base-facility__badge">{completed ? '✓' : locked ? '×' : index + 1}</text>
           <title>{`${mission.facilityName} · ${mission.toolLabel}`}</title>
         </g>;
       })}
     </svg>
+    <ol className="earth-base-legend" aria-label="Instalaciones del mapa">
+      {missions.map((mission, index) => {
+        const completed = completedMissions.includes(mission.id);
+        const locked = missionLimitReached && !completed;
+        return <li key={mission.id} className={mission.id === selectedMissionId ? 'earth-base-legend__selected' : completed ? 'earth-base-legend__completed' : locked ? 'earth-base-legend__locked' : ''}>
+          <span>{completed ? '✓' : locked ? '×' : index + 1}</span>{shortNames[mission.id].join(' ')}
+        </li>;
+      })}
+    </ol>
   </div>;
 }

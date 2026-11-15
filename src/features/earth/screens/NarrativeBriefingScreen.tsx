@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, RocketLaunch } from '@phosphor-icons/react';
 import { CharacterPortrait } from '../../../visual-kit/CharacterPortrait';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface NarrativeBriefingScreenProps {
@@ -11,24 +12,26 @@ interface NarrativeBriefingScreenProps {
 }
 
 export function NarrativeBriefingScreen({ cityName, destination, astronautName, onProceedToMap, onBack }: NarrativeBriefingScreenProps) {
-  const destLabel = destination === 'MOON' ? 'la Luna' : 'Marte';
+  const { t } = useI18n();
+  const destLabel = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
 
   return (
     <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem' }}>
+      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>Cambiar Avatar</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <RocketLaunch weight="fill" color="#f6c15b" />
-          <span>Paso 4 de 6 · Enlace de Misión ({cityName} ➔ {destLabel})</span>
+          <span>{t('briefing.stepIndicator')} ({cityName} ➔ {destLabel})</span>
         </div>
+        <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card earth-card--briefing" style={{ maxWidth: '48rem', textAlign: 'center', padding: '1.4rem' }}>
         <h1 className="earth-card__title" style={{ justifyContent: 'center', marginBottom: '1rem', fontSize: '1.6rem' }}>
-          <span>Centro de Enlace: {cityName}</span>
+          <span>{t('briefing.title')}: {cityName}</span>
         </h1>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left', margin: '1rem 0' }}>
@@ -44,10 +47,10 @@ export function NarrativeBriefingScreen({ cityName, destination, astronautName, 
               flex: 1
             }}>
               <strong style={{ color: '#f6c15b', fontFamily: 'Fredoka', fontSize: '1.1rem', display: 'block', marginBottom: '0.2rem' }}>
-                Comandante Alba:
+                {t('avatars.alba.name')} ({t('avatars.alba.role')}):
               </strong>
               <p style={{ margin: 0, color: '#e3effb', fontSize: '1rem', lineHeight: '1.45' }}>
-                «¡Atención, <strong>{astronautName}</strong>! Nuestro cohete despegará hacia <strong>{destLabel}</strong>. En el mapa encontrarás <strong>5 instalaciones de entrenamiento</strong>. Sin embargo, por capacidad de bodega y tiempo de ventana orbital, <strong>solo podrás elegir y completar exactamente 3 misiones</strong>. Cada misión completada te otorgará una herramienta específica para tu nave.»
+                «¡Atención, <strong>{astronautName}</strong>! Nuestro cohete despegará hacia <strong>{destLabel}</strong>. {t('briefing.rules.limit')} {t('briefing.rules.rewards')}»
               </p>
             </div>
           </div>
@@ -64,10 +67,10 @@ export function NarrativeBriefingScreen({ cityName, destination, astronautName, 
               flex: 1
             }}>
               <strong style={{ color: '#ffd54f', fontFamily: 'Fredoka', fontSize: '1.1rem', display: 'block', marginBottom: '0.2rem' }}>
-                Chispa (IA de Soporte):
+                {t('avatars.chispa.name')} ({t('avatars.chispa.role')}):
               </strong>
               <p style={{ margin: 0, color: '#e3effb', fontSize: '1rem', lineHeight: '1.45' }}>
-                «¡Elige con sabiduría, Comandante! Cada instalación tiene un costo de decisión y un efecto directo sobre nuestra supervivencia en el espacio. ¡Vamos al mapa!»
+                «{t('briefing.rules.cost')} {t('briefing.rules.flight')}»
               </p>
             </div>
           </div>
@@ -80,7 +83,7 @@ export function NarrativeBriefingScreen({ cityName, destination, astronautName, 
             style={{ fontSize: '1.15rem', padding: '0.9rem 2.2rem' }}
             onClick={onProceedToMap}
           >
-            <span>¡Entrar al Mapa y Elegir las 3 Misiones!</span>
+            <span>{t('briefing.startMapBtn')}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>

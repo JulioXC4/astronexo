@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, UsersThree, ChalkboardTeacher, IdentificationCard, ShieldCheck, Play } from '@phosphor-icons/react';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface StationModeModalProps {
@@ -11,6 +12,7 @@ interface StationModeModalProps {
 type StationTab = 'TEACHER_ENTRY' | 'TEACHER_ROOM' | 'PARTICIPANTS' | 'ROLES' | 'COOP_BRIEFING';
 
 export function StationModeModal({ isOpen, onClose, onLaunchDemoSolo }: StationModeModalProps) {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<StationTab>('TEACHER_ENTRY');
   const [classCode, setClassCode] = useState('NASA-2026');
   const [gradeLevel, setGradeLevel] = useState('5to Grado de Primaria (10-11 años)');
@@ -26,20 +28,23 @@ export function StationModeModal({ isOpen, onClose, onLaunchDemoSolo }: StationM
   return (
     <div className="station-modal-veil" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="station-modal" role="dialog" aria-modal="true" aria-labelledby="station-modal-title">
-        <button type="button" className="station-modal__close" onClick={onClose} aria-label="Cerrar maqueta">
+        <button type="button" className="station-modal__close" onClick={onClose} aria-label={t('common.close')}>
           <X size={20} weight="bold" />
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
-          <UsersThree size={32} color="#f6c15b" weight="fill" />
-          <div>
-            <h2 id="station-modal-title" style={{ fontFamily: 'Fredoka', fontSize: '1.6rem', color: '#ffffff', margin: 0 }}>
-              Modo Estación (Maqueta Escolar)
-            </h2>
-            <span style={{ fontSize: '0.85rem', color: '#7cb5c8', fontWeight: 700 }}>
-              Diseño para trabajo cooperativo en aulas escolares y equipos de 4 cadetes
-            </span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.6rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <UsersThree size={32} color="#f6c15b" weight="fill" />
+            <div>
+              <h2 id="station-modal-title" style={{ fontFamily: 'Fredoka', fontSize: '1.6rem', color: '#ffffff', margin: 0 }}>
+                {t('station.modalTitle')}
+              </h2>
+              <span style={{ fontSize: '0.85rem', color: '#7cb5c8', fontWeight: 700 }}>
+                Diseño para trabajo cooperativo en aulas escolares y equipos de 4 cadetes
+              </span>
+            </div>
           </div>
+          <LanguageSelector variant="hud" />
         </div>
 
         {/* Pestañas de navegación de la maqueta */}

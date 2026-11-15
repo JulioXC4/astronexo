@@ -4,6 +4,7 @@ import { InterventionDock } from '../space-minigames';
 import { AlertCard } from './AlertCard';
 import { ResourceBar } from './ResourceBar';
 import { ModuleCameras } from './ModuleCameras';
+import { useI18n, LanguageSelector } from '../../i18n';
 
 interface MissionControlViewProps {
   readonly state: MissionState;
@@ -22,22 +23,26 @@ export function MissionControlView({
   groupDecisionPending = false,
   showFoodAsPrimary = false,
 }: MissionControlViewProps) {
-  const destinationLabel = state.destination === 'MOON' ? 'LUNA' : 'MARTE';
+  const { t } = useI18n();
+  const destinationLabel = state.destination === 'MOON' ? t('destinations.moon.name').toUpperCase() : t('destinations.mars.name').toUpperCase();
   const communicationLabel = state.pendingCommunication
     ? 'RESPUESTA EN TRÁNSITO'
     : state.communicationResponse
       ? 'RESPUESTA RECIBIDA'
       : state.consultationUsed
         ? 'CONSULTA USADA'
-        : 'LISTO';
+        : t('common.online');
   return <main className="mission-shell">
+    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginBottom: '0.6rem' }}>
+      <LanguageSelector variant="hud" />
+    </div>
     <header className="mission-header pixel-panel">
       <div>
         <span className="pixel-kicker">CONTROL DE MISIÓN · SIMULACIÓN EDUCATIVA</span>
         <h1>Guardia en {destinationLabel}</h1>
       </div>
       <div className="mission-clock" aria-label={`Turno ${state.turn} de ${state.maxTurns}`}>
-        <span>TURNO {state.turn}/{state.maxTurns}</span>
+        <span>{t('missionControl.turnIndicator', { current: state.turn, total: state.maxTurns })}</span>
         <strong>{state.clockLabel}</strong>
       </div>
     </header>
@@ -62,7 +67,7 @@ export function MissionControlView({
             <span className="pixel-kicker">CÁMARA 01</span>
             <h2 id="base-title">Base espacial</h2>
           </div>
-          <span className="status-light">EN LÍNEA</span>
+          <span className="status-light">{t('common.online')}</span>
         </div>
         <div className={`base-scene base-scene--${state.destination.toLowerCase()}`}>
           <span className="base-scene__stars" aria-hidden="true">· + · + ·</span>
@@ -74,11 +79,11 @@ export function MissionControlView({
           <small>BASE {destinationLabel} · {state.selectedModules.length} MÓDULOS OPERATIVOS</small>
         </div>
         <dl className="telemetry-grid">
-          <div><dt>Exposición</dt><dd>{state.radiationExposure}/100</dd></div>
-          <div><dt>Ciencia</dt><dd>{state.scienceProgress}/100</dd></div>
-          {!showFoodAsPrimary && <div><dt>Alimentos</dt><dd>{state.foodSupply}/100</dd></div>}
-          <div><dt>Solar</dt><dd>{state.solarEfficiency}/100</dd></div>
-          <div><dt>Invernadero</dt><dd>{state.greenhouseActive ? 'ACTIVO' : 'SUSPENDIDO'}</dd></div>
+          <div><dt>{t('common.radiation')}</dt><dd>{state.radiationExposure}/100</dd></div>
+          <div><dt>{t('common.science')}</dt><dd>{state.scienceProgress}/100</dd></div>
+          {!showFoodAsPrimary && <div><dt>{t('common.food')}</dt><dd>{state.foodSupply}/100</dd></div>}
+          <div><dt>{t('common.solarEfficiency')}</dt><dd>{state.solarEfficiency}/100</dd></div>
+          <div><dt>Invernadero</dt><dd>{state.greenhouseActive ? t('common.active') : t('common.suspended')}</dd></div>
           <div><dt>Enlace Tierra</dt><dd>{communicationLabel}</dd></div>
         </dl>
       </section>
@@ -106,7 +111,7 @@ export function MissionControlView({
       <ul>{state.selectedTools.map((toolId, index) => <li key={`${toolId}-${index}`}>
         <strong>{ALL_TOOL_CATALOG.find((tool) => tool.id === toolId)?.label ?? toolId}</strong>
         <span>{getToolBenefit(toolId)}</span>
-        {toolId === 'SPARE_PARTS_KIT' && <em>{state.sparePartsCharges > 0 ? 'Disponible' : 'Consumido'}</em>}
+        {toolId === 'SPARE_PARTS_KIT' && <em>{state.sparePartsCharges > 0 ? t('common.available') : 'Consumido'}</em>}
       </li>)}</ul>
     </details>
 

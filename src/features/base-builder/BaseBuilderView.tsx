@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MODULE_CATALOG } from '../../game';
 import type { Destination, ModuleId } from '../../game';
+import { lunarModuleScenes } from '../../assets/moduleScenes';
 import {
   EMPTY_MODULE_SLOTS,
   isCompleteBase,
@@ -9,6 +10,7 @@ import {
   selectedModulesFromSlots,
 } from './selection';
 import type { ModuleSlots } from './selection';
+import { useI18n, LanguageSelector } from '../../i18n';
 import './base-builder.css';
 
 interface BaseBuilderViewProps {
@@ -17,6 +19,7 @@ interface BaseBuilderViewProps {
 }
 
 export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) {
+  const { t } = useI18n();
   const [slots, setSlots] = useState<ModuleSlots>(EMPTY_MODULE_SLOTS);
   const [armedModule, setArmedModule] = useState<ModuleId | null>(null);
   const selected = selectedModulesFromSlots(slots);
@@ -42,12 +45,17 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
     setArmedModule(null);
   }
 
+  const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
+
   return <main className={`builder-shell builder-shell--${destination.toLowerCase()}`}>
+    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginBottom: '0.6rem' }}>
+      <LanguageSelector variant="hud" />
+    </div>
     <header className="builder-header pixel-panel">
       <div>
         <span className="pixel-kicker">P10 · HANGAR DE CONSTRUCCIÓN</span>
-        <h1>ARMA TU BASE EN {destination === 'MOON' ? 'LA LUNA' : 'MARTE'}</h1>
-        <p>Los sistemas esenciales ya están instalados. Elige tres mejoras sin repetir.</p>
+        <h1>{t('baseBuilder.title', { destination: destName.toUpperCase() })}</h1>
+        <p>{t('baseBuilder.subtitle')}</p>
       </div>
       <div className="builder-counter" aria-live="polite"><strong>{selected.length}</strong><span>/3 MÓDULOS</span></div>
     </header>
@@ -65,6 +73,7 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
               const module = moduleId ? MODULE_CATALOG.find((item) => item.id === moduleId) : undefined;
               return <div
                 className={`module-slot ${module ? 'module-slot--filled' : ''}`}
+                style={module && destination === 'MOON' ? { backgroundImage: `linear-gradient(#071426b8, #071426d9), url('${lunarModuleScenes[module.id]}')` } : undefined}
                 key={index}
                 onDragOver={(event) => event.preventDefault()}
                 onDrop={(event) => place(index, event.dataTransfer.getData('text/module-id') as ModuleId)}
@@ -108,7 +117,7 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
           className="pixel-button pixel-button--primary builder-start"
           disabled={!complete}
           onClick={() => onStart(selected)}
-        >INICIAR GUARDIA</button>
+        >{t('baseBuilder.confirmBaseBtn')}</button>
       </aside>
     </section>
 
@@ -126,6 +135,7 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
           >
             <div className="module-card__icon" aria-hidden="true">{module.icon}</div>
             <div><span>{installed ? 'INSTALADO' : armed ? 'LISTO PARA REEMPLAZAR' : 'DISPONIBLE'}</span><h3>{module.name}</h3></div>
+            {destination === 'MOON' && <img className="module-card__preview" src={lunarModuleScenes[module.id]} alt="" loading="lazy" />}
             <p>{module.description}</p>
             <dl><div><dt>BENEFICIO</dt><dd>{module.benefit}</dd></div><div><dt>COSTO</dt><dd>{module.costLabel}</dd></div></dl>
             <button type="button" className="pixel-button" onClick={() => chooseModule(module.id)}>
