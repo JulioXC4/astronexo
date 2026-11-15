@@ -18,6 +18,7 @@ const { getMissionsForCity, ALL_EARTH_MISSIONS } = await viteServer.ssrLoadModul
 
 // Cargar componentes de minijuegos para comprobar su existencia funcional
 const { SolarDetectiveGame } = await viteServer.ssrLoadModule('./src/features/earth/minigames/SolarDetectiveGame.tsx');
+const solarEnergy = await viteServer.ssrLoadModule('./src/features/earth/minigames/solarEnergy.ts');
 const { SolarWatchGame } = await viteServer.ssrLoadModule('./src/features/earth/minigames/SolarWatchGame.tsx');
 const { DarkMonthsGame } = await viteServer.ssrLoadModule('./src/features/earth/minigames/DarkMonthsGame.tsx');
 const { AltitudeAcclimatizationGame } = await viteServer.ssrLoadModule('./src/features/earth/minigames/AltitudeAcclimatizationGame.tsx');
@@ -295,4 +296,49 @@ test('12. Responsive en escritorio y tablet (Aspect ratio y dimensiones)', () =>
 
 test.after(async () => {
   await viteServer.close();
+});
+
+
+test('Detective del Sol - captación NASA y orientación cambian el presupuesto', () => {
+  const low = solarEnergy.captureEnergy(AREQUIPA_SOLAR_RECORDS.days[0].irradianceKwhPerM2, 16);
+  const high = solarEnergy.captureEnergy(AREQUIPA_SOLAR_RECORDS.days[2].irradianceKwhPerM2, 16);
+  const tilted = solarEnergy.captureEnergy(AREQUIPA_SOLAR_RECORDS.days[0].irradianceKwhPerM2, 50);
+  assert.ok(high.units > low.units);
+  assert.ok(low.units > tilted.units);
+  assert.ok(low.kwh > tilted.kwh);
+});
+
+test('Detective del Sol - asignación, recuperación y resultados distintos', () => {
+  const { allocate, evaluate, EMPTY_ALLOCATION, assignedUnits, remainingNightEnergy } = solarEnergy;
+  let allocation = EMPTY_ALLOCATION;
+  allocation = allocate(allocation, 'communications', 4, 12);
+  allocation = allocate(allocation, 'shelter', 5, 12);
+  assert.equal(assignedUnits(allocation), 9);
+  assert.equal(evaluate(allocation, 12, true).passed, true);
+  assert.equal(evaluate(allocation, 12, false).passed, false);
+  assert.equal(remainingNightEnergy(allocation, 0), 7);
+  assert.equal(remainingNightEnergy(allocation, 7), 0);
+  allocation = allocate(allocation, 'shelter', -2, 12);
+  assert.equal(evaluate(allocation, 12, true).passed, false);
+  allocation = allocate(allocation, 'shelter', 2, 12);
+  allocation = allocate(allocation, 'laboratory', 3, 12);
+  assert.equal(evaluate(allocation, 12, true).passed, true);
+  assert.equal(evaluate(allocation, 12, true).grade, 'excellent');
+  assert.equal(allocate(allocation, 'laboratory', 1, 12).laboratory, 3);
+});
+
+test('Detective del Sol - laboratorio opcional y varias estrategias válidas', () => {
+  const { evaluate } = solarEnergy;
+  assert.equal(evaluate({ communications: 4, shelter: 5, laboratory: 0 }, 12, true).grade, 'passed');
+  assert.equal(evaluate({ communications: 4, shelter: 5, laboratory: 4 }, 13, true).grade, 'perfect');
+  assert.equal(evaluate({ communications: 4, shelter: 4, laboratory: 4 }, 12, true).passed, false);
+});
+
+test('Detective del Sol - los tres días tienen solución y excelencia posible', () => {
+  for (const day of AREQUIPA_SOLAR_RECORDS.days) {
+    const budget = solarEnergy.captureEnergy(day.irradianceKwhPerM2, 16).units;
+    assert.ok(budget >= 9);
+    assert.equal(solarEnergy.evaluate({ communications: 4, shelter: 5, laboratory: 0 }, budget, true).passed, true);
+  }
+  assert.equal(solarEnergy.evaluate({ communications: 4, shelter: 5, laboratory: 3 }, 12, true).grade, 'excellent');
 });
