@@ -1,327 +1,176 @@
-import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, ArrowCounterClockwise, CheckCircle, Info, Sun, Warning } from '@phosphor-icons/react';
 import type { TrainingOutcome } from '../../../game';
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Sun, Lightning, CheckCircle, Sparkle, ArrowCounterClockwise, Info, Warning } from '@phosphor-icons/react';
 import { AREQUIPA_SOLAR_RECORDS, type SolarDayRecord } from '../../../data/nasa/powerData';
-import { SolarCircuitVisual } from '../../../visual-kit/TrainingVisuals';
 import { useI18n, LanguageSelector } from '../../../i18n';
-import '../screens/earth.css';
+import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
+import './solar-detective.css';
 
 interface SolarDetectiveGameProps {
   readonly onComplete: (outcome: TrainingOutcome) => void;
   readonly onBack: () => void;
 }
 
+const ASSET_ROOT = '/assets/minigames/solar/';
+const PANEL_ANGLES = [0, 16, 35, 50] as const;
+
+function panelSprite(angle: number): string {
+  if (angle < 8) return 'panel-flat.png';
+  if (angle < 25) return 'panel-tilted.png';
+  if (angle < 43) return 'panel-raised.png';
+  return 'panel-steep.png';
+}
+
 export function SolarDetectiveGame({ onComplete, onBack }: SolarDetectiveGameProps) {
   const { t } = useI18n();
-  const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
-  const [tiltAngle, setTiltAngle] = useState<number>(16); // Inclinación en grados (supuesto simulación: óptimo Arequipa ~16° hacia el norte por latitud)
-  const [reserveRatioPercent, setReserveRatioPercent] = useState<number>(45); // Decisión de reserva energética nocturna: 30% a 60%
-  const [isSwitchClosed, setIsSwitchClosed] = useState<boolean>(false);
-  const [batteryLevel, setBatteryLevel] = useState<number>(0);
+  const tr = (key: string, params?: Record<string, string | number>) => t(`minigames.solarDetective.${key}`, params);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const [tiltAngle, setTiltAngle] = useState(0);
+  const [reserveRatioPercent, setReserveRatioPercent] = useState(45);
+  const [isSwitchClosed, setIsSwitchClosed] = useState(false);
+  const [batteryLevel, setBatteryLevel] = useState(0);
+  const [nightMode, setNightMode] = useState(false);
+  const [switchMoving, setSwitchMoving] = useState(false);
 
   const currentDay: SolarDayRecord = AREQUIPA_SOLAR_RECORDS.days[selectedDayIndex] ?? AREQUIPA_SOLAR_RECORDS.days[0];
-
-  // Cálculo físico-educativo para Arequipa (Latitud -16.4° Sur):
-  // Radiación histórica NASA POWER ALLSKY_SFC_SW_DWN en kW-hr/m²/día
-  // Supuestos del modelo de ingeniería:
-  // - Ángulo óptimo: 16° hacia el norte (basado en latitud)
-  // - Eficiencia del panel fotovoltaico espacial: 22% (modelo de silicio monocristalino)
-  // - Superficie: 10 m²
+  // NASA POWER supplies irradiance. Tilt, panel efficiency and area are educational model parameters.
   const angleError = Math.abs(tiltAngle - 16);
   const orientationFactor = Math.max(0.60, Math.cos((angleError * Math.PI) / 180));
-  const panelEfficiency = 0.22;
-  const areaM2 = 10;
-  const totalDailyEnergyKwh = Number((currentDay.irradianceKwhPerM2 * orientationFactor * panelEfficiency * areaM2).toFixed(2));
-  const maxPossibleKwh = Number((currentDay.irradianceKwhPerM2 * 1.0 * panelEfficiency * areaM2).toFixed(2));
+  const totalDailyEnergyKwh = Number((currentDay.irradianceKwhPerM2 * orientationFactor * 0.22 * 10).toFixed(2));
+  const maxPossibleKwh = Number((currentDay.irradianceKwhPerM2 * 0.22 * 10).toFixed(2));
   const efficiencyPercent = Math.round((totalDailyEnergyKwh / maxPossibleKwh) * 100);
-
-  // Decisión de balance: Cuánta energía va a consumo diurno y cuánta a reserva de baterías para la noche
-  const isReserveOptimal = reserveRatioPercent >= 30 && reserveRatioPercent <= 60;
-  const isReserveTooLow = reserveRatioPercent < 30;
-  const isReserveTooHigh = reserveRatioPercent > 60;
-  const storedEnergyKwh = Number((totalDailyEnergyKwh * (reserveRatioPercent / 100)).toFixed(2));
+  const storedEnergyKwh = Number((totalDailyEnergyKwh * reserveRatioPercent / 100).toFixed(2));
   const daytimeAvailableKwh = Number((totalDailyEnergyKwh - storedEnergyKwh).toFixed(2));
+  const targetBatteryPercent = Math.min(100, Math.round(efficiencyPercent * reserveRatioPercent / 50));
+  const isOrientationGood = angleError <= 5;
+  const isReserveOptimal = reserveRatioPercent >= 30 && reserveRatioPercent <= 60;
+  const isTestPassed = isSwitchClosed && isOrientationGood && isReserveOptimal && batteryLevel >= 60;
+  const isCharging = isSwitchClosed && batteryLevel < targetBatteryPercent;
+  const canInspectNight = isSwitchClosed && !isCharging;
 
-  // Animación de carga al cerrar el interruptor
   useEffect(() => {
-    if (isSwitchClosed) {
+    if (!isSwitchClosed) {
       setBatteryLevel(0);
-      const targetPercent = Math.min(100, Math.round((efficiencyPercent * (reserveRatioPercent / 50))));
-      const interval = setInterval(() => {
-        setBatteryLevel((prev) => {
-          if (prev >= targetPercent) {
-            clearInterval(interval);
-            return targetPercent;
-          }
-          return Math.min(prev + 10, targetPercent);
-        });
-      }, 70);
-      return () => clearInterval(interval);
-    } else {
-      setBatteryLevel(0);
+      return;
     }
-  }, [isSwitchClosed, efficiencyPercent, reserveRatioPercent]);
+    setBatteryLevel(0);
+    const interval = window.setInterval(() => {
+      setBatteryLevel((level) => Math.min(level + 5, targetBatteryPercent));
+    }, 45);
+    return () => window.clearInterval(interval);
+  }, [isSwitchClosed, targetBatteryPercent]);
 
-  function handleReset() {
+  useEffect(() => {
+    if (!switchMoving) return;
+    const timeout = window.setTimeout(() => setSwitchMoving(false), 180);
+    return () => window.clearTimeout(timeout);
+  }, [switchMoving]);
+
+  function resetCircuit() {
     setIsSwitchClosed(false);
     setBatteryLevel(0);
+    setNightMode(false);
   }
 
-  const isOrientationGood = angleError <= 5;
-  const isTestPassed = isSwitchClosed && isOrientationGood && isReserveOptimal && batteryLevel >= 60;
+  function changeTilt(angle: number) {
+    setTiltAngle(angle);
+    if (isSwitchClosed) resetCircuit();
+  }
+
+  function changeReserve(percent: number) {
+    setReserveRatioPercent(percent);
+    if (isSwitchClosed) resetCircuit();
+  }
+
+  function toggleSwitch() {
+    setSwitchMoving(true);
+    setIsSwitchClosed((closed) => !closed);
+    setNightMode(false);
+  }
+
+  const batterySprite = batteryLevel === 0 ? 'battery-empty.png' : !isCharging && isSwitchClosed ? 'battery-charged.png' : 'battery-charging.png';
+  const failure = isSwitchClosed && !isCharging && !isTestPassed;
 
   return (
-    <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button type="button" className="earth-screen__back-btn" onClick={onBack}>
-          <ArrowLeft weight="bold" />
-          <span>{t('common.back')}</span>
-        </button>
-        <div className="earth-screen__progress-pill">
-          <Sun weight="fill" color="#f6c15b" />
-          <span>{t('minigames.solarDetective.title')} · NASA POWER (Arequipa)</span>
-        </div>
+    <div className="earth-screen solar-game">
+      <header className="earth-screen__header solar-game__header">
+        <button type="button" className="earth-screen__back-btn" onClick={onBack}><ArrowLeft weight="bold" />{tr('back')}</button>
+        <span className="earth-screen__progress-pill">{tr('pill')}</span>
         <LanguageSelector variant="hud" />
       </header>
 
-      <main className="earth-card" style={{ maxWidth: '64rem', padding: '1.2rem' }}>
-        {/* Cabecera compacta con selector de días históricos reales de Arequipa */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem', marginBottom: '0.8rem' }}>
+      <main className="solar-game__main">
+        <div className="solar-game__intro">
           <div>
-            <h1 className="earth-card__title" style={{ fontSize: '1.5rem', margin: 0 }}>
-              <Sun color="#f6c15b" weight="fill" />
-              <span>Detective del Sol: Orientación y Reserva de Baterías</span>
-            </h1>
-            <p style={{ margin: 0, color: '#9bc0e4', fontSize: '0.88rem' }}>
-              Elige un día histórico, orienta los paneles hacia el Norte (óptimo 16°) y decide cuánta energía almacenar para la noche andina.
-            </p>
+            <h1>{tr('title')}</h1>
+            <p>{tr('missionPrompt')}</p>
           </div>
-
-          {/* Diales de los 3 días históricos de Arequipa */}
-          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-            {AREQUIPA_SOLAR_RECORDS.days.map((day, idx) => (
-              <button
-                key={day.date}
-                type="button"
-                className={`callsign-chip ${selectedDayIndex === idx ? 'callsign-chip--active' : ''}`}
-                style={{
-                  background: selectedDayIndex === idx ? '#f6c15b' : '#1c334d',
-                  color: selectedDayIndex === idx ? '#101d2d' : '#d1e4f6',
-                  fontWeight: 700,
-                  padding: '0.4rem 0.8rem',
-                  fontSize: '0.85rem'
-                }}
-                onClick={() => {
-                  setSelectedDayIndex(idx);
-                  handleReset();
-                }}
-              >
-                {day.seasonLabel.split(' ')[0]} ({day.irradianceKwhPerM2} kWh/m²)
+          <div className="solar-game__days" role="group" aria-label={tr('chooseDay')}>
+            {AREQUIPA_SOLAR_RECORDS.days.map((day, index) => (
+              <button key={day.date} type="button" className={selectedDayIndex === index ? 'is-selected' : ''}
+                aria-pressed={selectedDayIndex === index}
+                onClick={() => { setSelectedDayIndex(index); resetCircuit(); }}>
+                <span>{day.date}</span><strong>{day.irradianceKwhPerM2} kWh/m²</strong>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="training-scene">
-          <SolarCircuitVisual
-            panelActive={isOrientationGood}
-            switchOn={isSwitchClosed}
-            charge={batteryLevel}
-            circuitComplete={isTestPassed}
-            tiltAngle={tiltAngle}
-          />
-          <dl className="training-readouts">
-            <div><dt>NASA POWER · Día elegido</dt><dd>{currentDay.irradianceKwhPerM2} kWh/m²/día</dd></div>
-            <div><dt>Orientación del panel</dt><dd>{tiltAngle}° · {isOrientationGood ? 'Captación óptima' : 'Ajustar a 16°'}</dd></div>
-            <div><dt>Reserva nocturna</dt><dd>{reserveRatioPercent}% · {storedEnergyKwh} kWh</dd></div>
-            <div><dt>Batería</dt><dd>{batteryLevel}% · {isSwitchClosed ? 'Circuito cerrado' : 'Interruptor abierto'}</dd></div>
-          </dl>
-        </div>
-
-        {/* CONTROLES DEL JUGADOR: ORIENTACIÓN Y RESERVA */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))',
-          gap: '1rem',
-          marginTop: '1rem',
-          background: '#132338',
-          border: '1px solid #325884',
-          borderRadius: '0.8rem',
-          padding: '1rem'
-        }}>
-          {/* Slider de Orientación */}
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#ffffff', marginBottom: '0.3rem' }}>
-              <span>Orientación Panel:</span>
-              <span style={{ color: isOrientationGood ? '#69f0ae' : '#ffb74d', fontFamily: 'Fredoka', fontSize: '1.15rem' }}>
-                {tiltAngle}° hacia el Norte {isOrientationGood ? '(Óptimo)' : ''}
-              </span>
+        <section className={`solar-game__scene ${nightMode ? 'is-night' : ''} ${isTestPassed && nightMode ? 'is-success' : ''}`} aria-label={tr('circuitScene')}>
+          <div className="solar-game__sky"><span className="solar-game__sun" aria-hidden="true" /> <span>{nightMode ? tr('night') : tr('day')}</span></div>
+          <div className="solar-game__equipment">
+            <div className="solar-game__device solar-game__source">
+              <Sun className="solar-game__source-art" weight="fill" aria-hidden="true" />
+              <strong>{tr('sun')}</strong>
+              <small>NASA POWER · {currentDay.irradianceKwhPerM2} kWh/m²</small>
             </div>
-            <input
-              id="tilt-angle-slider"
-              type="range"
-              min="0"
-              max="50"
-              value={tiltAngle}
-              aria-label="Orientación Panel"
-              onChange={(e) => {
-                setTiltAngle(Number(e.target.value));
-                if (isSwitchClosed) handleReset();
-              }}
-              style={{ width: '100%', accentColor: isOrientationGood ? '#69f0ae' : '#ffb74d', cursor: 'pointer' }}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9', marginTop: '0.2rem' }}>
-              <span>0° (Horizontal)</span>
-              <button
-                type="button"
-                className="callsign-chip"
-                style={{ background: '#25446c', color: '#8ec5fc', padding: '0.15rem 0.5rem', fontSize: '0.75rem' }}
-                onClick={() => {
-                  setTiltAngle(16);
-                  if (isSwitchClosed) handleReset();
-                }}
-              >
-                16° (Óptimo Arequipa)
+            <div className={`solar-game__flow ${!nightMode && isSwitchClosed ? 'is-active' : ''}`} aria-hidden="true" />
+            <div className={`solar-game__device solar-game__panel ${isOrientationGood ? 'is-aligned' : 'is-misaligned'}`}>
+              <button type="button" className="solar-game__sprite-button" onClick={() => changeTilt(PANEL_ANGLES[(PANEL_ANGLES.indexOf(tiltAngle as typeof PANEL_ANGLES[number]) + 1) % PANEL_ANGLES.length])}
+                aria-label={tr('rotatePanel')} title={tr('rotatePanel')}>
+                <img key={panelSprite(tiltAngle)} src={`${ASSET_ROOT}${panelSprite(tiltAngle)}`} alt="" draggable="false" />
               </button>
-              <span>50° (Inclinado)</span>
+              <strong>{tr('panel')}</strong><small>{tiltAngle}° · {efficiencyPercent}% {tr('capture')}</small>
             </div>
-          </div>
-
-          {/* Slider de Decisión de Reserva para Baterías */}
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#ffffff', marginBottom: '0.3rem' }}>
-              <span>Reserva Baterías Nocturnas:</span>
-              <span style={{ color: isReserveOptimal ? '#69f0ae' : '#ffb74d', fontFamily: 'Fredoka', fontSize: '1.15rem' }}>
-                {reserveRatioPercent}% ({storedEnergyKwh} kWh)
-              </span>
+            <div className={`solar-game__flow ${isSwitchClosed && !nightMode ? 'is-active' : ''}`} aria-hidden="true" />
+            <div className="solar-game__device solar-game__switch">
+              <button type="button" className="solar-game__sprite-button" onClick={toggleSwitch} aria-pressed={isSwitchClosed}
+                aria-label={isSwitchClosed ? tr('openCircuit') : tr('closeCircuit')} title={isSwitchClosed ? tr('openCircuit') : tr('closeCircuit')}>
+                <img src={`${ASSET_ROOT}${switchMoving ? 'switch-transition.png' : isSwitchClosed ? 'switch-closed.png' : 'switch-open.png'}`} alt="" draggable="false" />
+              </button>
+              <strong>{tr('switch')}</strong><small>{isSwitchClosed ? tr('closed') : tr('open')}</small>
             </div>
-            <input
-              id="solar-reserve-slider"
-              type="range"
-              min="15"
-              max="85"
-              step="5"
-              value={reserveRatioPercent}
-              aria-label="Reserva Baterías Nocturnas"
-              onChange={(e) => {
-                setReserveRatioPercent(Number(e.target.value));
-                if (isSwitchClosed) handleReset();
-              }}
-              style={{ width: '100%', accentColor: isReserveOptimal ? '#69f0ae' : '#ffb74d', cursor: 'pointer' }}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9', marginTop: '0.2rem' }}>
-              <span>15% (Poco guardado)</span>
-              <span style={{ color: '#ffd54f' }}>30% a 60% (Recomendado)</span>
-              <span>85% (Exceso reserva)</span>
-            </div>
-          </div>
-        </div>
-
-        {/* DECISIÓN Y ACCIONES */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          marginTop: '1rem'
-        }}>
-          <div style={{ fontSize: '0.88rem', color: '#c5cae9', display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-            <span>☀️ Diurno disponible: <strong>{daytimeAvailableKwh} kWh</strong></span>
-            <span>🔋 Reserva nocturna: <strong style={{ color: isReserveOptimal ? '#69f0ae' : '#ffb74d' }}>{storedEnergyKwh} kWh</strong></span>
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.8rem' }}>
-            <button
-              type="button"
-              className="facility-card__btn"
-              style={{ background: isSwitchClosed ? '#37474f' : '#f6c15b', color: isSwitchClosed ? '#ffffff' : '#102033' }}
-              onClick={() => setIsSwitchClosed(!isSwitchClosed)}
-            >
-              <Lightning weight="fill" />
-              <span>{isSwitchClosed ? 'Abrir Circuito' : 'Cerrar Interruptor'}</span>
-            </button>
-            <button
-              type="button"
-              className="earth-screen__back-btn"
-              onClick={handleReset}
-              title="Reiniciar prueba"
-            >
-              <ArrowCounterClockwise weight="bold" />
-            </button>
-          </div>
-        </div>
-
-        {/* FEEDBACK Y ADVERTENCIAS */}
-        {isSwitchClosed && !isTestPassed && (
-          <div style={{
-            background: '#331c1c',
-            border: '2px solid #ef5350',
-            borderRadius: '0.8rem',
-            padding: '1rem',
-            marginTop: '0.8rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.8rem',
-            color: '#ffcdd2',
-            fontSize: '0.88rem'
-          }}>
-            <Warning size={28} color="#ef5350" weight="fill" />
-            <div>
-              <strong>¡Circuito subóptimo!</strong>
-              <div style={{ marginTop: '0.2rem' }}>
-                {!isOrientationGood && ` El panel está a ${tiltAngle}°; oriéntalo a 16° al Norte para captar la radiación de Arequipa.`}
-                {isReserveTooLow && ' Reserva nocturna insuficiente (< 30%). La base se quedaría sin energía durante la noche andina.'}
-                {isReserveTooHigh && ' Exceso de reserva (> 60%). La base diurna no tiene suficiente energía operativa.'}
-                {' Ajusta los controles y reconecta el circuito.'}
+            <div className={`solar-game__flow ${isSwitchClosed && !nightMode ? 'is-active' : ''}`} aria-hidden="true" />
+            <div className={`solar-game__device solar-game__battery ${isCharging ? 'is-charging' : ''}`}>
+              <div className="solar-game__battery-art">
+                <img src={`${ASSET_ROOT}${batterySprite}`} alt="" draggable="false" />
+                <div className="solar-game__battery-display" role="progressbar" aria-label={tr('battery')} aria-valuemin={0} aria-valuemax={100} aria-valuenow={batteryLevel}>
+                  <div className="solar-game__battery-fill" style={{ width: `${batteryLevel}%` }} />
+                  <span>{batteryLevel}%</span>
+                </div>
               </div>
+              <strong>{tr('battery')}</strong><small>{storedEnergyKwh} kWh {isSwitchClosed ? tr('reserved') : tr('potentialReserve')}</small>
             </div>
           </div>
-        )}
+          <p className="solar-game__scene-feedback" aria-live="polite">{nightMode ? (isTestPassed ? tr('nightSuccess') : tr('nightFailure')) : isCharging ? tr('charging') : isSwitchClosed ? tr('readyForNight') : tr('connectPrompt')}</p>
+        </section>
 
-        {isTestPassed && (
-          <div style={{
-            background: '#122e23',
-            border: '2px solid #5bbd78',
-            borderRadius: '0.8rem',
-            padding: '1rem',
-            marginTop: '0.8rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '1rem'
-          }}>
-            <div>
-              <strong style={{ color: '#69f0ae', fontFamily: 'Fredoka', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <CheckCircle weight="fill" size={22} /> ¡Calibración Fotovoltaica en Arequipa Superada!
-              </strong>
-              <p style={{ margin: '0.2rem 0 0 0', color: '#c8e6c9', fontSize: '0.88rem' }}>
-                Con el panel a {tiltAngle}° y una reserva equilibrada del {reserveRatioPercent}%, generaste <strong>{totalDailyEnergyKwh} kWh</strong> ({efficiencyPercent}% de rendimiento) con <strong>{storedEnergyKwh} kWh</strong> almacenados para la noche. Has asegurado los <strong>Paneles plegables</strong>.
-              </p>
-            </div>
-            <button
-              type="button"
-              className="earth-action-btn"
-              style={{ padding: '0.75rem 1.6rem' }}
-              onClick={() => onComplete(createTrainingOutcome('SOLAR_DETECTIVE', `Reserva ${reserveRatioPercent}%`, 'energy', calculateTrainingCost('SOLAR_DETECTIVE', reserveRatioPercent), 'La prueba solar consumió parte de la reserva.'))}
-            >
-              <Sparkle weight="fill" />
-              <span>Confirmar costo de {(calculateTrainingCost('SOLAR_DETECTIVE', reserveRatioPercent))} punto(s) de Energía y obtener el kit</span>
-            </button>
+        <section className="solar-game__controls" aria-label={tr('controls')}>
+          <label htmlFor="tilt-angle-slider"><span>{tr('tiltLabel')}</span><strong>{tiltAngle}°</strong></label>
+          <input id="tilt-angle-slider" type="range" min="0" max="50" value={tiltAngle} onChange={(event) => changeTilt(Number(event.target.value))} />
+          <p>{isOrientationGood ? tr('aligned') : tr('aimFor16')}</p>
+          <label htmlFor="solar-reserve-slider"><span>{tr('reserveLabel')}</span><strong>{reserveRatioPercent}%</strong></label>
+          <input id="solar-reserve-slider" type="range" min="15" max="85" step="5" value={reserveRatioPercent} onChange={(event) => changeReserve(Number(event.target.value))} />
+          <p>{tr('daytimeAvailable', { kwh: daytimeAvailableKwh })} · {tr('nightReserve', { kwh: storedEnergyKwh })}</p>
+          <div className="solar-game__actions">
+            <button type="button" className="solar-game__primary" onClick={() => setNightMode((mode) => !mode)} disabled={!canInspectNight}>{nightMode ? tr('returnToDay') : tr('inspectNight')}</button>
+            <button type="button" className="solar-game__reset" onClick={resetCircuit} aria-label={tr('reset')} title={tr('reset')}><ArrowCounterClockwise weight="bold" /></button>
           </div>
-        )}
+        </section>
 
-        <div style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', color: '#9bc0e4', fontSize: '0.80rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Info size={16} color="#f6c15b" />
-            <span><strong>Dato NASA POWER verificado:</strong> Radiación global incidente (ALLSKY_SFC_SW_DWN) en Arequipa (-16.4090° S, -71.5375° O): {currentDay.irradianceKwhPerM2} kW-hr/m²/día en {currentDay.seasonLabel}.</span>
-          </div>
-          <div style={{ color: '#81d4fa', paddingLeft: '1.4rem' }}>
-            <span><strong>Supuestos de la simulación educativa:</strong> La inclinación óptima de 16° (derivada de la latitud geográfica) y la eficiencia del panel al 22% son supuestos de ingeniería para calcular la conversión eléctrica en la base.</span>
-          </div>
-        </div>
+        {failure && <div className="solar-game__result is-error" role="status"><Warning weight="fill" size={26} /><div><strong>{tr('suboptimalWarning')}</strong><p>{!isOrientationGood ? tr('tiltWarning', { angle: tiltAngle }) : reserveRatioPercent < 30 ? tr('lowReserveWarning') : tr('highReserveWarning')} {tr('retryPrompt')}</p></div></div>}
+        {isTestPassed && nightMode && <div className="solar-game__result is-success" role="status"><CheckCircle weight="fill" size={28} /><div><strong>{tr('passedTitle')}</strong><p>{tr('passedDesc', { angle: tiltAngle, reserve: reserveRatioPercent, kwh: totalDailyEnergyKwh, efficiency: efficiencyPercent, stored: storedEnergyKwh })}</p></div><button type="button" className="solar-game__primary" onClick={() => onComplete(createTrainingOutcome('SOLAR_DETECTIVE', `Reserva ${reserveRatioPercent}%`, 'energy', calculateTrainingCost('SOLAR_DETECTIVE', reserveRatioPercent), 'La prueba solar consumió parte de la reserva.'))}>{tr('confirmCost', { cost: calculateTrainingCost('SOLAR_DETECTIVE', reserveRatioPercent) })}</button></div>}
+        <div className="solar-game__science"><Info size={18} /><span>{tr('scientificNote', { irradiance: currentDay.irradianceKwhPerM2 })} {tr('educationalNote')}</span></div>
       </main>
     </div>
   );
