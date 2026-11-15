@@ -5,6 +5,7 @@ import { spaceBackgrounds } from '../../assets/manifest';
 import { CharacterPortrait } from '../../visual-kit/CharacterPortrait';
 import { ResourceBar } from '../mission-control/ResourceBar';
 import { useI18n, LanguageSelector } from '../../i18n';
+import { NasaSourcesPanel } from '../nasa/NasaSourcesPanel';
 
 interface MissionResultsViewProps {
   readonly result: MissionResult;
@@ -125,6 +126,9 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
           <p>{t('results.toolsUsed', { tools: toolLabels.join(' · ') })}</p>
           <p>{t('results.educationalNoteDesc')}</p>
         </section>
+        {finalState.setup.spaceWeather && (
+          <NasaSourcesPanel cityId={finalState.setup.city} spaceWeather={finalState.setup.spaceWeather} />
+        )}
       </div>
     </details>
 

@@ -91,7 +91,7 @@ export const en = {
   },
 
   cities: {
-    stepIndicator: 'Step 1 of 6 · Earth Base Selection (V3.0 Requirements)',
+    stepIndicator: 'Step 3 · Choose your Earth base',
     title: 'Choose your Earth base',
     subtitle: 'Choose between the two official challenge bases: Arequipa (Peru) or Tromsø (Norway).',
     confirmBase: 'Confirm Base in {city}',
@@ -112,9 +112,9 @@ export const en = {
   },
 
   destinations: {
-    stepIndicator: 'Step 2 of 6 · Space Destination (V3.0 Requirements)',
+    stepIndicator: 'Step 1 · Space destination',
     title: 'Choose your Space Destination before Training',
-    subtitle: 'Your preparation at {city} base will calibrate to your destination’s environmental challenges.',
+    subtitle: 'First you choose where you are going; then we build your station.',
     confirm: 'Confirm Destination & Create Commander',
     back: 'Change Base ({city})',
     selected: 'Selected for the mission',
@@ -154,7 +154,7 @@ export const en = {
   },
 
   avatars: {
-    stepIndicator: 'Step 3 of 6 · Commander Profile ({city} ➔ {destination})',
+    stepIndicator: 'Step 4 · Commander Profile ({city} ➔ {destination})',
     title: 'Choose your Expedition Avatar',
     subtitle: 'Select your commander to lead the expedition from {city} to {destination}.',
     callsignLabel: 'Mission callsign or commander handle:',
@@ -197,7 +197,7 @@ export const en = {
   },
 
   briefing: {
-    stepIndicator: 'Step 4 of 6 · Mission Relay ({city} ➔ {destination})',
+    stepIndicator: 'Step 5 · Mission Relay ({city} ➔ {destination})',
     title: 'Relay Center: {city}',
     albaTitle: 'Commander Alba:',
     albaMessage: 'Attention, {name}! Our spacecraft will launch towards {destination}. On the map you will find 5 training facilities. However, due to cargo bay limits and orbital launch windows, you can only choose and complete exactly 3 missions. Each completed mission awards a specific tool kit for your spaceship.',
@@ -235,9 +235,18 @@ export const en = {
     proceedToLaunch: 'Proceed to Liftoff ({count}/3 Kits)!',
     facilitiesCompleted: '{completed}/{total} missions completed',
     facilities: {
+      CLOUDS_SUNS: {
+        shortName: ['CLOUDS &', 'SUNS'],
+        name: 'Clouds and Suns',
+        facilityName: 'Clouds and Suns Station',
+        objective: 'Compare sunny and cloudy days using NASA POWER data for your city and decide how much energy reserve to keep.',
+        cost: 'Energy set aside for days without sun.',
+        effect: 'Better energy sharing when the panels produce little at the base.',
+        science: 'NASA POWER (ALLSKY_SFC_SW_DWN)',
+      },
       SOLAR_DETECTIVE: {
         shortName: ['SOLAR', 'OBSERVATORY'],
-        name: 'Sun Detective (Arequipa)',
+        name: 'Solar Batteries',
         facilityName: 'Andean Solar Observatory',
         objective: 'Orient solar cells 16° North and analyze historical NASA POWER dates in Arequipa.',
         cost: 'Calibration time and storage balance.',
@@ -246,7 +255,7 @@ export const en = {
       },
       ALTITUDE_ACCLIMATIZATION: {
         shortName: ['ALTITUDE', 'CHAMBER'],
-        name: 'Andean Altitude Acclimatization',
+        name: 'High-Altitude Air',
         facilityName: 'Hypobaric Altitude Chamber',
         objective: 'Train hermetic seal integrity under thin mountain pressure (2,325 m elevation).',
         cost: 'Test gas tank consumption.',
@@ -255,7 +264,7 @@ export const en = {
       },
       DARK_MONTHS_RESERVE: {
         shortName: ['BATTERY', 'BANK'],
-        name: 'Dark Months Reserve',
+        name: 'Polar Night',
         facilityName: 'Cryogenic Battery Bank',
         objective: 'Manage power distribution for Tromsø polar night (0 kWh/m²/day), analogous to lunar night.',
         cost: 'Power rationing for thermal heating.',
@@ -264,7 +273,7 @@ export const en = {
       },
       ARCTIC_GREENHOUSE: {
         shortName: ['ARCTIC', 'GREENHOUSE'],
-        name: 'Geothermal Arctic Greenhouse',
+        name: 'Cold',
         facilityName: 'Arctic Bio-Shelter',
         objective: 'Maintain hydroponic crops with geothermal heat and LEDs in extreme Arctic cold.',
         cost: 'Continuous water and nutrient consumption.',
@@ -273,7 +282,7 @@ export const en = {
       },
       SOLAR_WATCH: {
         shortName: ['SPACE', 'WEATHER'],
-        name: 'Storm Watch (NASA DONKI)',
+        name: 'Auroras and Alert',
         facilityName: 'Space Weather Center',
         objective: 'Detect Coronal Mass Ejections (CMEs) and activate emergency shelter protocols.',
         cost: 'Temporary suspension of outdoor operations.',
@@ -282,7 +291,7 @@ export const en = {
       },
       ECLSS_TRAINING: {
         shortName: ['LIFE', 'SUPPORT'],
-        name: 'Regenerative Life Support Module',
+        name: 'Scarce Water',
         facilityName: 'ECLSS Filtration Hangar',
         objective: 'Test closed-loop condensation recycling and water electrolysis into breathable O₂.',
         cost: 'Electrolysis power and test filter wear.',
@@ -291,7 +300,7 @@ export const en = {
       },
       VEGGIE_LAB: {
         shortName: ['VEGGIE', 'BIO-DOME'],
-        name: 'Veggie Plant Growth Lab',
+        name: 'Garden',
         facilityName: 'Hydroponic Bio-Dome',
         objective: 'Calibrate red and blue LED spectrums to accelerate space plant photosynthesis.',
         cost: 'Lighting spectrum vs battery budget balance.',
@@ -302,6 +311,19 @@ export const en = {
   },
 
   minigames: {
+    cloudsSuns: {
+      title: 'Clouds and Suns',
+      intro: 'See how much sunlight {city} received on three real days (NASA POWER). How much energy would you save for the weak days?',
+      chartAria: 'Solar radiation bars for three days',
+      reserveLabel: 'Energy reserve: {value}%',
+      hint: 'Hint: if the days look alike, save a little; if they change a lot, save more.',
+      testBtn: 'Test the reserve',
+      tryAgain: 'Not balanced yet. The data asks for about {recommended}%.',
+      passed: 'Good split. The data asked for about {recommended}%.',
+      benefit: 'Reward: folding panels for the watch. This is a game rule; POWER data describes Earth.',
+      confirmBtn: 'Pay {cost} Energy point(s) and get the kit',
+      source: 'NASA POWER data · {parameter} ({unit}) · status: {status}',
+    },
     altitudeAcclimatization: { title: 'Altitude acclimatization' },
     arcticGreenhouse: { title: 'Arctic greenhouse' },
     eclssTraining: { title: 'Life-support training' },
@@ -481,6 +503,61 @@ export const en = {
     },
   },
 
+  nasaSources: {
+    title: 'NASA sources for this mission',
+    power: 'NASA POWER · {city} · {parameter} · status: {status} · fetched: {date}.',
+    donki: 'NASA DONKI · CME on {date} at {speed} km/s · status: {status}.',
+    rule: 'Simulated game rule: that speed set the {difficulty} difficulty. It is not a radiation dose.',
+    eclss: 'NASA ECLSS · life support (educational content).',
+    veggie: 'NASA Veggie / CSA · growing plants in space (educational content).',
+    osdr: 'NASA OSDR · science, radiation, Moon and Mars (educational content).',
+    disclaimer: 'NASA data describes Earth or the Sun. Costs, protection and consequences are simulated game rules.',
+  },
+
+  nasaStatus: {
+    HISTORICAL: 'historical (local)',
+    UPDATED: 'updated',
+    FALLBACK: 'fallback',
+  },
+
+  stationPrep: {
+    kicker: 'STATION UNDER CONSTRUCTION',
+    title: 'Preparing your station on {destination}',
+    line1: 'A base that is ready before you arrive gives air, power and shelter from day one.',
+    line2: 'While you train on Earth, the build crew installs your three modules.',
+    continue: 'Choose my training base',
+    skip: 'Skip',
+  },
+
+  construction: {
+    kicker: 'BUILD PROGRESS',
+    title: '{weeks} weeks went by',
+    progress: 'Build {done} of 3: we installed "{module}".',
+    line: 'Your station keeps growing while you train.',
+    ready: 'The station is ready to welcome you!',
+    next: 'Keep training',
+    last: 'Go to liftoff',
+    skip: 'Skip',
+  },
+
+  monitor: {
+    kicker: 'SYSTEMS CHECK',
+    title: 'We arrived with limited reserves',
+    line: 'Before operating, let us check the station.',
+    modules: 'Modules built',
+    tools: 'Tools earned',
+    resources: 'Resources on arrival',
+    energy: 'Energy',
+    oxygen: 'Oxygen',
+    food: 'Food',
+    shield: 'Shield',
+    weatherTitle: 'Real space weather · NASA DONKI',
+    weatherEvent: 'CME on {date}: {speed} km/s ({status}).',
+    weatherRule: 'Game rule (simulated): that speed sets the {difficulty} difficulty. It is not a radiation dose.',
+    start: 'Start the watch',
+    difficulty: { CALM: 'Calm', ACTIVE: 'Active', STORMY: 'Stormy' },
+  },
+
   flight: {
     departureTitle: 'Liftoff to {destination}',
     departureSubtitle: 'Departure from {city} towards {destination}',
@@ -533,6 +610,7 @@ export const en = {
     kicker: 'CONSTRUCTION HANGAR',
     title: 'BUILD YOUR BASE ON {destination}',
     subtitle: 'Essential life, power, and comms systems are already installed. Choose three distinct upgrades.',
+    confirmStation: 'Build my station',
     confirmBaseBtn: 'Start guard',
     counter: '{selected}/3 MODULES',
     counterLabel: '/3 MODULES',
@@ -1021,6 +1099,7 @@ export const en = {
       localTitle: '100% Local & Private',
       localDesc: 'No internet, accounts, or telemetry. Everything runs on this single computer.',
     },
+    fullRouteBtn: 'Full group route',
     startMissionBtn: '🚀 Launch Cooperative Mission',
     backBtn: 'Back',
     nextBtn: 'Next',

@@ -17,6 +17,7 @@ export function calculateTrainingCost(missionId: MissionType, metric: number): n
     case 'SOLAR_WATCH': return metric === 0 ? 2 : 1; // protocolo para la CME de mayor o menor velocidad
     case 'ECLSS_TRAINING': return metric <= 420 ? 1 : 2; // W consumidos
     case 'VEGGIE_LAB': return metric >= 70 ? 1 : 2; // % luz roja
+    case 'CLOUDS_SUNS': return metric <= 10 ? 1 : 2; // puntos % de diferencia con la reserva que piden los datos POWER
     case 'ARCTIC_GREENHOUSE': return metric <= 52 ? 1 : 2; // % flujo geotérmico
   }
 }

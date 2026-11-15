@@ -176,7 +176,7 @@ export function TutorialCoachMark({ open, steps, onComplete, onSkip }: TutorialC
       </button>
       <img
         className="tutorial-coach__portrait"
-        src={`/assets/characters/${step.character.toLowerCase()}.png`}
+        src={step.character === 'ALBA' ? '/assets/pixel-art/cadet-alba.png' : '/assets/characters/chispa.png'}
         alt={t(`tutorial.characters.${step.character.toLowerCase()}`)}
       />
       <div className="tutorial-coach__copy">

@@ -9,8 +9,9 @@ const cases = [
   ['SOLAR_DETECTIVE', 45, 55], ['DARK_MONTHS_RESERVE', 55, 60],
   ['ALTITUDE_ACCLIMATIZATION', 42, 50], ['SOLAR_WATCH', 0, 1],
   ['ECLSS_TRAINING', 410, 430], ['VEGGIE_LAB', 72, 68],
-  ['ARCTIC_GREENHOUSE', 50, 55],
+  ['ARCTIC_GREENHOUSE', 50, 55], ['CLOUDS_SUNS', 8, 30],
 ] as const;
+const MODULES = ['SOLAR_STORAGE', 'STORM_SHELTER', 'SCIENCE_LAB'] as const;
 
 function configured(city: City, destination: Destination, costs: readonly number[]) {
   const missions = getMissionsForCity(city).slice(0, 3);
@@ -21,24 +22,24 @@ function configured(city: City, destination: Destination, costs: readonly number
   const setup = buildEarthV3Setup({
     city, destination, avatarId: 'ALBA', fictionalName: 'Prueba',
     completedMissions: missions.map((mission) => mission.id),
-    earnedTools: missions.map((mission) => mission.targetTool), trainingOutcomes: outcomes,
+    earnedTools: missions.map((mission) => mission.targetTool), selectedModules: MODULES, trainingOutcomes: outcomes,
   });
-  return { setup: { ...setup, selectedModules: ['SOLAR_STORAGE', 'STORM_SHELTER', 'SCIENCE_LAB'] as const }, outcomes };
+  return { setup, outcomes };
 }
 
 describe('RF-69: decisiones terrestres con costo', () => {
   it('ofrece cinco instalaciones correctas en cada ciudad y conserva la recompensa de cada una', () => {
     expect(getMissionsForCity('AREQUIPA').map(({ id }) => id)).toEqual([
-      'SOLAR_DETECTIVE', 'ALTITUDE_ACCLIMATIZATION', 'SOLAR_WATCH', 'ECLSS_TRAINING', 'VEGGIE_LAB',
+      'SOLAR_DETECTIVE', 'ECLSS_TRAINING', 'ALTITUDE_ACCLIMATIZATION', 'VEGGIE_LAB', 'CLOUDS_SUNS',
     ]);
     expect(getMissionsForCity('TROMSO').map(({ id }) => id)).toEqual([
-      'DARK_MONTHS_RESERVE', 'ARCTIC_GREENHOUSE', 'SOLAR_WATCH', 'ECLSS_TRAINING', 'VEGGIE_LAB',
+      'DARK_MONTHS_RESERVE', 'ARCTIC_GREENHOUSE', 'SOLAR_WATCH', 'VEGGIE_LAB', 'CLOUDS_SUNS',
     ]);
     for (const city of ['AREQUIPA', 'TROMSO'] as const) {
       expect(getMissionsForCity(city).map(({ targetTool }) => targetTool)).toEqual(
         city === 'AREQUIPA'
-          ? ['FOLDING_PANELS', 'LIFE_SUPPORT', 'SHELTER_KIT', 'LIFE_SUPPORT', 'CROP_KIT']
-          : ['FOLDING_PANELS', 'CROP_KIT', 'SHELTER_KIT', 'LIFE_SUPPORT', 'CROP_KIT'],
+          ? ['FOLDING_PANELS', 'LIFE_SUPPORT', 'LIFE_SUPPORT', 'CROP_KIT', 'FOLDING_PANELS']
+          : ['FOLDING_PANELS', 'CROP_KIT', 'SHELTER_KIT', 'CROP_KIT', 'FOLDING_PANELS'],
       );
     }
   });
@@ -76,7 +77,7 @@ describe('RF-69: decisiones terrestres con costo', () => {
     expect(() => buildEarthV3Setup({
       city: 'AREQUIPA', destination: 'MOON', avatarId: 'ALBA', fictionalName: 'Prueba',
       completedMissions: getMissionsForCity('AREQUIPA').slice(0, 3).map((mission) => mission.id),
-      earnedTools: ['CROP_KIT', 'LIFE_SUPPORT', 'SHELTER_KIT'], trainingOutcomes: outcomes,
+      earnedTools: ['CROP_KIT', 'LIFE_SUPPORT', 'SHELTER_KIT'], selectedModules: MODULES, trainingOutcomes: outcomes,
     })).toThrow();
     const corrupted: TrainingOutcome = { ...outcomes[0], spaceDelta: { energy: 5 } };
     expect(isValidGameSetup({ ...setup, earthProfile: { ...setup.earthProfile!, outcomes: [corrupted, ...outcomes.slice(1)] } })).toBe(false);
@@ -84,15 +85,17 @@ describe('RF-69: decisiones terrestres con costo', () => {
 
   it('permite una victoria de cinco turnos con costos terrestres aplicados', () => {
     const missions = [0, 2, 3].map((index) => getMissionsForCity('AREQUIPA')[index]);
+    const expectedBuilt = MODULES;
     const outcomes = missions.map((mission) => createTrainingOutcome(
       mission.id, 'Preparación eficiente', 'energy', 1, 'Reserva consumida durante la prueba.',
     ));
     const setup = buildEarthV3Setup({
       city: 'AREQUIPA', destination: 'MOON', avatarId: 'ALBA', fictionalName: 'Prueba',
       completedMissions: missions.map((mission) => mission.id),
-      earnedTools: missions.map((mission) => mission.targetTool), trainingOutcomes: outcomes,
+      earnedTools: missions.map((mission) => mission.targetTool), selectedModules: expectedBuilt, trainingOutcomes: outcomes,
     });
-    let state = createMission({ ...setup, selectedModules: ['SOLAR_STORAGE', 'STORM_SHELTER', 'SCIENCE_LAB'] });
+    expect(setup.selectedModules).toEqual(expectedBuilt);
+    let state = createMission(setup);
     while (state.outcome === 'IN_PROGRESS') {
       const panel = state.activeAlerts.find((alert) => alert.kind === 'PANEL_DAMAGE');
       const dust = state.activeAlerts.find((alert) => alert.kind === 'DUSTY_PANELS');

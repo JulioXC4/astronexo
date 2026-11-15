@@ -27,6 +27,8 @@ export interface StationModeModalProps {
   readonly onClose: () => void;
   readonly onLaunchDemoSolo?: () => void;
   readonly onStartCoop?: (setup: GameSetup, group: LocalCoopConfig) => void;
+  /** Recorrido completo: el grupo pasa por destino, estación, entrenamientos y viaje antes de la guardia. */
+  readonly onStartCoopFullRoute?: (group: LocalCoopConfig) => void;
 }
 
 type StationTab = 'MISSION' | 'CREW' | 'LAUNCH';
@@ -71,6 +73,7 @@ export function StationModeModal({
   onClose,
   onLaunchDemoSolo,
   onStartCoop,
+  onStartCoopFullRoute,
 }: StationModeModalProps) {
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<StationTab>('MISSION');
@@ -138,6 +141,12 @@ export function StationModeModal({
 
     const group = createLocalCoopConfig(cleanTeam, cleanAliases);
     onStartCoop(setup, group);
+    onClose();
+  }
+
+  function handleFullRoute() {
+    if (!isValid || !onStartCoopFullRoute) return;
+    onStartCoopFullRoute(createLocalCoopConfig(cleanTeam, cleanAliases));
     onClose();
   }
 
@@ -648,6 +657,18 @@ export function StationModeModal({
                 )}
               </div>
 
+              {onStartCoopFullRoute && (
+                <button
+                  type="button"
+                  className="earth-action-btn"
+                  disabled={!isValid}
+                  style={{ opacity: isValid ? 1 : 0.5, cursor: isValid ? 'pointer' : 'not-allowed' }}
+                  onClick={handleFullRoute}
+                >
+                  <Sparkle weight="fill" />
+                  <span>{t('station.fullRouteBtn')}</span>
+                </button>
+              )}
               <button
                 type="button"
                 className="earth-action-btn"

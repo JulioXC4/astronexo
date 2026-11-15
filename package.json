@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "test": "node --test tests/earth/run-tests.mjs && vitest run",
     "test:e2e": "node tests/e2e/e2e-all-routes.mjs",
+    "nasa:update": "node scripts/update-nasa-snapshots.mjs",
     "typecheck": "tsc -b",
     "preview": "vite preview"
   },

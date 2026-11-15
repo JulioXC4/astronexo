@@ -26,6 +26,7 @@ const facilitySprites: Partial<Record<MissionType, string>> = {
   SOLAR_WATCH: 'space-weather-observatory.png',
   ECLSS_TRAINING: 'life-support-lab.png',
   VEGGIE_LAB: 'hydroponic-greenhouse.png',
+  CLOUDS_SUNS: 'andean-solar-observatory.png', // provisional: sprite propio pendiente (Julio)
 };
 
 const shortNames: Record<MissionType, readonly [string, string]> = {
@@ -36,6 +37,7 @@ const shortNames: Record<MissionType, readonly [string, string]> = {
   SOLAR_WATCH: ['CLIMA', 'ESPACIAL'],
   ECLSS_TRAINING: ['SOPORTE', 'VITAL'],
   VEGGIE_LAB: ['BIO-DOMO', 'VEGGIE'],
+  CLOUDS_SUNS: ['NUBES Y', 'SOLES'],
 };
 
 function FacilityArtwork({ id }: { id: MissionType }) {
@@ -71,6 +73,7 @@ export function EarthBaseScene({ cityId, missions, selectedMissionId, completedM
           {(() => {
             const sprite = arctic
               ? mission.id === 'SOLAR_WATCH' ? 'arctic-weather-station.png'
+                : mission.id === 'CLOUDS_SUNS' ? 'polar-energy-storage.png'
                 : mission.id === 'ECLSS_TRAINING' ? 'polar-life-support-lab.png'
                 : mission.id === 'ARCTIC_GREENHOUSE' ? undefined
                 : facilitySprites[mission.id]

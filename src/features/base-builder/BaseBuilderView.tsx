@@ -17,9 +17,11 @@ import './base-builder.css';
 interface BaseBuilderViewProps {
   readonly destination: Destination;
   readonly onStart: (modules: readonly ModuleId[]) => void;
+  /** Texto del botón de confirmación; por defecto «Iniciar guardia». */
+  readonly confirmLabel?: string;
 }
 
-export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) {
+export function BaseBuilderView({ destination, onStart, confirmLabel }: BaseBuilderViewProps) {
   const { t } = useI18n();
   const [slots, setSlots] = useState<ModuleSlots>(EMPTY_MODULE_SLOTS);
   const [armedModule, setArmedModule] = useState<ModuleId | null>(null);
@@ -140,7 +142,7 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
         className="pixel-button pixel-button--primary builder-start"
         disabled={!complete}
         onClick={() => onStart(selected)}
-      >{t('baseBuilder.confirmBaseBtn')}</button>
+      >{confirmLabel ?? t('baseBuilder.confirmBaseBtn')}</button>
     </section>
   </main>;
 }

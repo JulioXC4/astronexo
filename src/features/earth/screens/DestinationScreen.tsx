@@ -5,13 +5,12 @@ import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
 interface DestinationScreenProps {
-  readonly cityName: string;
   readonly initialDestination: Destination;
   readonly onSelectDestination: (dest: Destination) => void;
   readonly onBack: () => void;
 }
 
-export function DestinationScreen({ cityName, initialDestination, onSelectDestination, onBack }: DestinationScreenProps) {
+export function DestinationScreen({ initialDestination, onSelectDestination, onBack }: DestinationScreenProps) {
   const { t } = useI18n();
   const [selectedDest, setSelectedDest] = useState<Destination>(initialDestination || 'MOON');
 
@@ -20,7 +19,7 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
       <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>{t('destinations.back', { city: cityName })}</span>
+          <span>{t('common.back')}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <Planet weight="fill" color="#f6c15b" />
@@ -35,7 +34,7 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
           <span>{t('destinations.title')}</span>
         </h1>
         <p className="earth-card__subtitle">
-          {t('destinations.subtitle', { city: cityName })}
+          {t('destinations.subtitle')}
         </p>
 
         <div className="destination-grid" role="radiogroup">
