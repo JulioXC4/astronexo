@@ -228,6 +228,10 @@
 
 .briefing-portrait { width: clamp(4rem, 8vw, 6rem); flex: none; }
 .briefing-portrait .character-portrait { display: block; width: 100%; height: auto; }
+.character-portrait--pixel { aspect-ratio: 1; overflow: hidden; border-radius: 50%; background: #17364f; border: 3px solid #a8d1d6; }
+.character-portrait--selected { border-color: #f6c15b; box-shadow: 0 0 0 3px #634c2a; }
+.character-portrait--pixel img { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.earth-card--briefing { background-image: linear-gradient(#081a31d9, #081a31eb), url('/assets/pixel-art/academy-briefing-room.png'); background-size: cover; background-position: center; }
 .tool-sprite { display: block; width: 2.8rem; height: 2.8rem; flex: none; }
 
 .training-scene { overflow: hidden; border-radius: 1rem; background: #244a5f; }

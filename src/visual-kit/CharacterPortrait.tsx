@@ -12,11 +12,22 @@ const accents: Record<PortraitIdentity, string> = {
   ALBA: '#76b7bd', LEO: '#70bd87', AURORA: '#bd92d0', NICO: '#e7a872', CHISPA: '#f6c15b',
 };
 
+const pixelPortraits: Partial<Record<PortraitIdentity, string>> = {
+  ALBA: '/assets/pixel-art/cadet-alba.png',
+  LEO: '/assets/pixel-art/commander-leo.png',
+  AURORA: '/assets/pixel-art/officer-aurora.png',
+  NICO: '/assets/pixel-art/engineer-nico.png',
+};
+
 /** Original SVG stand-in; these are not portraits extracted from the design PDF. */
 export function CharacterPortrait({ identity, kind = 'cadet', selected = false, mood = 'normal', label }: CharacterPortraitProps) {
   const robot = kind === 'robot' || identity === 'CHISPA';
   const accent = accents[identity ?? (robot ? 'CHISPA' : 'ALBA')];
   const accessibleLabel = label ?? (robot ? 'Robot acompañante' : 'Cadete astronauta');
+  const pixelPortrait = identity && pixelPortraits[identity];
+  if (pixelPortrait) return <span className={`character-portrait character-portrait--pixel${selected ? ' character-portrait--selected' : ''}`} role="img" aria-label={`${accessibleLabel}, ${mood === 'alert' ? 'alerta' : mood === 'celebrate' ? 'celebración' : 'normal'}${selected ? ', seleccionado' : ''}`}>
+    <img src={pixelPortrait} alt="" />
+  </span>;
   return <svg className="character-portrait" viewBox="0 0 240 240" role="img" aria-label={`${accessibleLabel}, ${mood === 'alert' ? 'alerta' : mood === 'celebrate' ? 'celebración' : 'normal'}${selected ? ', seleccionado' : ''}`}>
     <circle cx="120" cy="120" r="112" fill={selected ? '#f6c15b' : '#527d8d'}/>
     <circle cx="120" cy="120" r="104" fill="#1e3c54"/>

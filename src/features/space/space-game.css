@@ -133,6 +133,10 @@
   background: #27394b;
 }
 .base-scene--mars { background: #6a2e23; }
+.base-scene--moon { background: #172c3e url('/assets/pixel-art/lunar-control-room.png') center / cover no-repeat; image-rendering: pixelated; }
+.base-scene--moon::after,
+.base-scene--moon .base-scene__stars,
+.base-scene--moon .pixel-base { display: none; }
 .base-scene::after { content: ""; position: absolute; inset: auto 0 0; height: 35%; background: #66717c; border-top: 4px solid #aab2b7; }
 .base-scene--mars::after { background: #a64f2f; border-color: #df8a4e; }
 .base-scene__stars { position: absolute; inset: 1rem; color: white; word-spacing: 4rem; font-size: 1.6rem; }
@@ -157,8 +161,11 @@
 .module-camera-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:.65rem; }
 .module-camera { min-width:0; padding:.55rem; border:3px solid var(--space-green); background:#091a2b; }
 .module-camera__feed { position:relative; display:grid; min-height:4.4rem; place-items:center; overflow:hidden; border:3px solid #315b73; background:repeating-linear-gradient(0deg,#102a43 0 5px,#0b2033 5px 7px); }
+.module-camera__feed { background-position: center; background-size: cover; image-rendering: pixelated; }
+.module-camera--apagado .module-camera__feed { filter: grayscale(1) brightness(.6); }
 .module-camera__feed span { color:var(--space-yellow); font-size:2rem; }.module-camera__feed i{position:absolute;right:3px;bottom:2px;color:var(--space-muted);font-size:.55rem;font-style:normal}
 .module-camera h3{min-height:2.2rem;margin:.45rem 0 .25rem;font-size:.7rem;text-transform:uppercase}.module-camera>strong{display:block;color:var(--space-green);font-size:.65rem}.module-camera>small{display:block;margin-top:.25rem;color:var(--space-muted);font-size:.6rem;line-height:1.3}
+.module-camera__feed i { padding: 2px 4px; background: #061321e0; color: #fff; }
 .module-camera--apagado{border-color:#4a5a67;filter:grayscale(1);opacity:.62}.module-camera--apagado .module-camera__feed span{opacity:.18}.module-camera--apagado>strong{color:#a4adb4}
 .module-camera--advertencia{border-color:var(--space-red);background:#301b28}.module-camera--advertencia>strong{color:#ff9b8f}.module-camera--advertencia .module-camera__feed::after{content:"!";position:absolute;left:4px;top:3px;display:grid;width:1.2rem;height:1.2rem;place-items:center;color:#220809;background:var(--space-red);font-weight:900}
 .module-camera--suspendido{border-color:var(--space-yellow)}.module-camera--suspendido>strong{color:var(--space-yellow)}
