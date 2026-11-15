@@ -138,3 +138,72 @@
 .solar-game__scene--game.is-dawn { background: linear-gradient(180deg, #56446b 0 15%, #b56b67 15% 67%, #37445a 67%); transition: background 700ms ease; }
 .solar-game__scene--game.is-dawn .solar-game__window { filter: sepia(0.3) brightness(1.15); }
 .solar-game__scene--game.is-dawn .solar-game__ceiling-lamp { background: #8af0dd; box-shadow: 0 8px 24px #73e8d7a8; }
+
+/* Energy puzzle: one workshop, one circuit, one visible pool of power. */
+.solar-game--puzzle { padding-bottom: 1.2rem; }
+.solar-game--puzzle .solar-game__header { margin-bottom: 0.35rem; }
+.solar-game--puzzle .solar-game__intro { margin-bottom: 0.45rem; }
+.solar-game--puzzle .solar-game__intro h1 { line-height: 1.05; }
+.solar-game--puzzle .solar-game__scene--game { min-height: 625px; }
+.solar-game--puzzle .solar-game__scene--game .solar-game__equipment { inset: 13% 2% 38%; }
+.solar-game--puzzle .solar-game__scene--game .solar-game__workbench { bottom: 34%; }
+.solar-game--puzzle .solar-game__scene--game .solar-game__power-conduit { top: 51%; }
+.solar-game--puzzle .solar-game__sunbeam { position: absolute; z-index: 2; top: 5%; left: 9%; width: 29%; height: 38%; background: linear-gradient(130deg, transparent 26%,#ffe7a940 48%,transparent 65%); pointer-events: none; opacity: .85; }
+.solar-game--puzzle .is-night .solar-game__sunbeam { opacity: 0; }
+.solar-game--puzzle .solar-game__device { gap: 2px; }
+.solar-game--puzzle .solar-game__device strong { font-size: .85rem; }
+.solar-game--puzzle .solar-game__device small { min-height: 1.2rem; font-variant-numeric: tabular-nums; }
+.solar-game--puzzle .solar-game__sprite-button img,.solar-game--puzzle .solar-game__battery-art img { image-rendering: pixelated; }
+.solar-game--puzzle .solar-game__sprite-button:disabled { cursor: default; }
+.solar-game--puzzle .solar-game__capture-track { width: 58%; height: 8px; margin-top: 3px; background: #111e31; border: 2px solid #f5bf65; }
+.solar-game--puzzle .solar-game__capture-track > span { display: block; height: 100%; background: #ffe29d; box-shadow: 0 0 10px #ffcf60; transition: width .2s; }
+.solar-game--puzzle .solar-game__game-hud { inset: auto 3% 2%; height: 30%; gap: .45rem; }
+.solar-game--puzzle .solar-game__scene--capture .solar-game__game-hud { height: 28%; }
+.solar-game--puzzle .solar-game__scene-feedback { min-height: 1.1rem; font-size: .92rem; padding: .18rem .45rem; background: #0c1b2de8; border: 1px solid #405b72; box-sizing: border-box; }
+.solar-game__capture-summary { display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap; margin: 1.2rem auto; color: #17283d; font: 700 1.2rem Fredoka,sans-serif; }
+.solar-game__capture-summary span { background: #f6d39a; border: 3px solid #30435d; padding: .5rem .8rem; box-shadow: 0 5px #0b1728; }
+.solar-game__distribution-board { display: grid; grid-template-columns: minmax(180px, .9fr) minmax(0, 2.3fr); gap: .8rem; flex: 1; min-height: 0; }
+.solar-game__energy-bank { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: .38rem; border: 3px solid #ad8962; background: #243a50; box-shadow: inset 0 0 0 4px #14253a; padding: .45rem; text-align: center; }
+.solar-game__energy-bank strong { color: #ffe5a3; font: 700 1rem Fredoka,sans-serif; }
+.solar-game__energy-bank small { color: #bce8e8; font-size: .7rem; }
+.solar-game__energy-cells { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: .23rem; width: 100%; }
+.solar-game__energy-cells button { aspect-ratio: 1; min-width: 0; border: 2px solid #6b7985; background: #1c2d42; box-shadow: inset 0 2px #0e1a2d; padding: 0; }
+.solar-game__energy-cells button.is-full { background: #ffd16c; border-color: #ffe6a1; box-shadow: 0 0 9px #ffcb66; cursor: pointer; }
+.solar-game__energy-cells button.is-full:hover { background: #fff1bb; transform: translateY(-2px); }
+.solar-game--puzzle .solar-game__systems { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .45rem; }
+.solar-game--puzzle .solar-game__system { display: flex; flex-direction: column; justify-content: center; align-items: stretch; min-height: 0; padding: .35rem; border: 3px solid #788da2; background: #1a3048; gap: .25rem; box-shadow: inset 0 0 0 3px #0d1e31; }
+.solar-game--puzzle .solar-game__system.is-selected { border-color: #ffbf65; }
+.solar-game--puzzle .solar-game__system.is-powered { border-color: #67ead6; box-shadow: inset 0 0 0 3px #0d1e31,0 0 12px #44d6cc; }
+.solar-game--puzzle .solar-game__system.is-unpowered { opacity: .7; }
+.solar-game__system-main { display: grid; grid-template-columns: 13px minmax(0,1fr) auto; align-items: center; gap: .25rem; width: 100%; min-height: 36px; text-align: left; color: #f4e7cc; background: transparent; border: 0; cursor: pointer; padding: 0; }
+.solar-game__system-main:disabled { cursor: default; }
+.solar-game__system-main strong { font: 700 clamp(.65rem,1.15vw,.9rem) Fredoka,sans-serif; }
+.solar-game__system-main > span:last-child { font: 700 .74rem Fredoka,sans-serif; }
+.solar-game__system-cells { display: flex; gap: 3px; justify-content: center; }
+.solar-game__system-cells span { height: 18px; flex: 1; max-width: 30px; background: #101e31; border: 2px solid #526477; }
+.solar-game__system-cells span.is-full { background: #74e9de; border-color: #c6fff4; box-shadow: 0 0 7px #74e9de; }
+.solar-game__system-remove { align-self: end; width: 27px; height: 22px; border: 2px solid #c49c71; color: #ffebc8; background: #344c65; cursor: pointer; line-height: 12px; }
+.solar-game__system-remove:disabled { opacity: .4; cursor: default; }
+.solar-game__night-progress { display: flex; align-items: center; gap: .55rem; flex: 0 0 18px; height: auto; border: 0; background: transparent; color: #ffe5a3; font: 700 .72rem Fredoka,sans-serif; }
+.solar-game__night-timeline { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; flex: 1; height: 10px; }
+.solar-game__night-timeline > span { border: 1px solid #91b8c5; background: #17283d; transition: background .25s; }
+.solar-game__night-timeline > span.is-past { background: #faad65; border-color: #ffd6a8; }
+.solar-game__night-timeline > span.is-current { background: #75e9df; box-shadow: 0 0 8px #75e9df; }
+.solar-game--puzzle .solar-game__game-actions { min-height: 50px; }
+.solar-game--puzzle .solar-game__game-actions > span { font-weight: 700; }
+.solar-game--puzzle .solar-game__explanation { border: 2px solid #c57b5f; background: #3c2e37; }
+.solar-game--puzzle .solar-game__explanation.is-success { border-color: #69d5c3; background: #1a4142; }
+.solar-game--puzzle .solar-game__science { margin-top: .3rem; }
+.solar-game--puzzle .solar-game__science a { color: #8fe9f0; }
+.solar-game--puzzle .solar-game__scene--midnight.is-night .solar-game__window { filter: brightness(.12) saturate(.5); }
+.solar-game--puzzle .solar-game__scene--predawn.is-night .solar-game__window { filter: brightness(.33) saturate(.8); }
+.solar-game--puzzle .solar-game__scene--night .solar-game__battery-art { filter: drop-shadow(0 0 12px #61eee8); }
+.solar-game--puzzle .solar-game__scene--night .solar-game__energy-bank,
+.solar-game--puzzle .solar-game__scene--night .solar-game__system { padding: .16rem; }
+.solar-game--puzzle .solar-game__scene--night .solar-game__system-main { min-height: 26px; }
+.solar-game--puzzle .solar-game__scene--night .solar-game__system-cells span { height: 14px; }
+.solar-game--puzzle .solar-game__scene--night .solar-game__system.is-powered .solar-game__system-light { animation: solar-pulse 1.4s ease-in-out infinite; }
+@keyframes solar-pulse { 50% { box-shadow: 0 0 13px #72f5e3; } }
+@media(max-width:800px){.solar-game--puzzle .solar-game__intro{align-items:stretch;flex-direction:column}.solar-game--puzzle .solar-game__scene--game{min-height:645px}.solar-game--puzzle .solar-game__scene--game .solar-game__equipment{inset:17% 1% 43%}.solar-game--puzzle .solar-game__scene--game .solar-game__workbench{bottom:40%}.solar-game--puzzle .solar-game__game-hud{height:37%;inset:auto 2% 2%}.solar-game__distribution-board{grid-template-columns:1fr;grid-template-rows:auto 1fr;gap:.35rem}.solar-game__energy-bank{padding:.25rem}.solar-game__energy-cells{grid-template-columns:repeat(13,minmax(0,1fr))}.solar-game__energy-cells button{max-height:18px}.solar-game__energy-bank small{display:none}.solar-game--puzzle .solar-game__system{padding:.2rem}.solar-game__capture-summary{font-size:1rem}}
+@media(max-width:520px){.solar-game--puzzle .solar-game__header{gap:.4rem}.solar-game--puzzle .solar-game__header .earth-screen__progress-pill{font-size:.65rem}.solar-game--puzzle .solar-game__scene--game{min-height:900px}.solar-game--puzzle .solar-game__scene--capture{min-height:590px}.solar-game--puzzle .solar-game__scene--game .solar-game__equipment{inset:15% 1% 62%}.solar-game--puzzle .solar-game__scene--capture .solar-game__equipment{inset:23% 1% 42%}.solar-game--puzzle .solar-game__scene--game .solar-game__workbench{bottom:60%}.solar-game--puzzle .solar-game__scene--capture .solar-game__workbench{bottom:40%}.solar-game--puzzle .solar-game__game-hud{height:58%}.solar-game--puzzle .solar-game__scene--capture .solar-game__game-hud{height:36%}.solar-game--puzzle .solar-game__device strong{font-size:.72rem}.solar-game--puzzle .solar-game__device small{font-size:.66rem}.solar-game__distribution-board{grid-template-rows:auto 1fr}.solar-game__energy-cells{grid-template-columns:repeat(7,minmax(34px,1fr));max-width:310px}.solar-game__energy-cells button{max-height:none;min-height:34px}.solar-game--puzzle .solar-game__systems{grid-template-columns:1fr}.solar-game--puzzle .solar-game__system{min-height:74px;padding:.35rem}.solar-game__system-main{grid-template-columns:13px 1fr auto;gap:.25rem;min-height:30px}.solar-game__system-main > span:last-child{grid-column:auto}.solar-game__system-main strong{font-size:.72rem}.solar-game__system-light{width:10px;height:10px}.solar-game__system-cells span{height:18px}.solar-game__capture-summary{gap:.3rem}.solar-game__capture-summary span{font-size:.82rem;padding:.3rem}.solar-game--puzzle .solar-game__scene-feedback{font-size:.8rem}}
+@media(prefers-reduced-motion:reduce){.solar-game--puzzle .solar-game__scene--night .solar-game__system.is-powered .solar-game__system-light{animation:none}}

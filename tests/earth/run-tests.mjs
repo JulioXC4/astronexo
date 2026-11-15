@@ -384,3 +384,19 @@ test('Onboarding V3.0 - i18n sin claves faltantes ni "Text unavailable"', () => 
     }
   }
 });
+
+test('Detective del Sol - las celdas nocturnas se consumen sin crear energía', () => {
+  const allocation = { communications: 4, shelter: 5, laboratory: 3 };
+  const start = solarEnergy.nightSystemEnergy(allocation, 0);
+  const midnight = solarEnergy.nightSystemEnergy(allocation, 4);
+  const dawn = solarEnergy.nightSystemEnergy(allocation, 7);
+  assert.deepEqual(start, { communications: 2, shelter: 5 });
+  assert.deepEqual(midnight, { communications: 0, shelter: 3 });
+  assert.deepEqual(dawn, { communications: 0, shelter: 0 });
+  assert.ok(solarEnergy.remainingNightEnergy(allocation, 0) >= solarEnergy.remainingNightEnergy(allocation, 4));
+  assert.ok(solarEnergy.remainingNightEnergy(allocation, 4) >= solarEnergy.remainingNightEnergy(allocation, 7));
+});
+
+test.after(async () => {
+  await viteServer.close();
+});
