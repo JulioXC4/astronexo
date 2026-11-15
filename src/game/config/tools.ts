@@ -5,7 +5,7 @@ import type {
   SelectedTools,
   ToolId,
 } from '../types';
-import { isValidModuleSelection } from './modules';
+import { isValidModuleSelection, MODULE_CATALOG } from './modules';
 
 export interface ToolDefinition {
   readonly id: ToolId;
@@ -123,6 +123,14 @@ export function isValidGameSetup(setup: GameSetup) {
     && expectedTools.every((tool) => setup.selectedTools.includes(tool))
     && setup.selectedTools.every((tool) => expectedTools.includes(tool))
     && isValidModuleSelection(setup.selectedModules);
+}
+
+/** Valida el contrato canónico anterior a P10 sin relajar `createMission()`. */
+export function isValidPreBuildGameSetup(setup: GameSetup) {
+  return isValidGameSetup({
+    ...setup,
+    selectedModules: MODULE_CATALOG.slice(0, 3).map((module) => module.id),
+  });
 }
 
 export function isLegacyToolSelection(tools: readonly ToolId[]): tools is SelectedTools {

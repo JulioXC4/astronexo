@@ -61,6 +61,18 @@ describe('H4 · cooperación local', () => {
     expect(rolesForPlayerCount(4)).toEqual(['ENERGY', 'OXYGEN', 'PROTECTION', 'COMMANDER']);
     expect(rolesForPlayerCount(5)).toEqual(['ENERGY', 'OXYGEN', 'PROTECTION', 'COMMANDER', 'CROPS']);
     expect(COOP_DEMO_GROUPS.FIVE.players.flatMap((player) => player.roles)).toEqual(rolesForPlayerCount(5));
+    expect(COOP_DEMO_GROUPS.FIVE.players.map((player) => player.roles[0])).toEqual([
+      'ENERGY', 'OXYGEN', 'PROTECTION', 'COMMANDER', 'CROPS',
+    ]);
+    const swapped = {
+      ...COOP_DEMO_GROUPS.THREE,
+      players: [
+        { ...COOP_DEMO_GROUPS.THREE.players[0], roles: ['OXYGEN'] as const },
+        { ...COOP_DEMO_GROUPS.THREE.players[1], roles: ['ENERGY'] as const },
+        COOP_DEMO_GROUPS.THREE.players[2],
+      ],
+    };
+    expect(validateLocalCoopConfig(swapped)).toContain('Los roles no corresponden al tamaño del grupo.');
   });
 
   it('rota al participante activo después de cada turno y vuelve al inicio', () => {
@@ -175,5 +187,31 @@ describe('H4 · cooperación local', () => {
     expect(retried).toEqual(initial);
     expect(retried.decisions).toHaveLength(0);
     expect(retried.completedTurns).toBe(0);
+  });
+
+  it.each([
+    COOP_DEMO_GROUPS.THREE,
+    COOP_DEMO_GROUPS.FOUR,
+    COOP_DEMO_GROUPS.FIVE,
+  ])('completa una guardia funcional con $players.length participantes', (initialGroup) => {
+    let group: LocalCoopConfig = initialGroup;
+    let state = createMission(COOP_DEMO_SETUP);
+    while (state.outcome === 'IN_PROGRESS') {
+      const desired: GameAction = state.scienceProgress < 50
+        ? { type: 'RUN_RESEARCH' }
+        : { type: 'SKIP_INTERVENTION' };
+      const pending = stageGroupDecision(state, group, desired);
+      let acted = pending ? confirmGroupDecision(state, pending) : state;
+      if (acted === state) {
+        acted = confirmGroupDecision(state, stageGroupDecision(
+          state, group, { type: 'SKIP_INTERVENTION' },
+        )!);
+      }
+      const next = advanceTurn(acted);
+      if (next.completedTurns > state.completedTurns) group = rotateActivePlayer(group);
+      state = next;
+    }
+    expect(getMissionResult(state)).not.toBeNull();
+    expect(group.activePlayerIndex).toBe(state.completedTurns % group.players.length);
   });
 });

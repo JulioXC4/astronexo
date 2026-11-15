@@ -56,19 +56,21 @@ export function InterventionDock({
     if (!groupDecisionPending) requestLock.current = false;
   }, [groupDecisionPending]);
 
-  function isAvailable(action: InterventionAction) {
+  function unavailableReason(action: InterventionAction) {
     const item = INTERVENTIONS.find((candidate) => candidate.action === action);
-    if (!item) return false;
-    if (item.requiresAlert && !state.activeAlerts.some((alert) => item.resolves.includes(alert.kind))) return false;
-    if (action === 'CONSULT_EARTH') {
-      return !state.consultationUsed
-        && state.communicationAvailable
-        && !(state.destination === 'MARS' && state.turn === state.maxTurns);
+    if (!item) return 'Intervención no disponible.';
+    if (item.requiresAlert && !state.activeAlerts.some((alert) => item.resolves.includes(alert.kind))) {
+      return 'Necesita una alerta compatible.';
     }
-    if (action === 'RECYCLE_OXYGEN') return state.oxygen < 100;
-    if (action === 'REINFORCE_SHELTER') return state.shield < 100;
-    if (action === 'RUN_RESEARCH') return state.scienceProgress < 100;
-    return true;
+    if (action === 'CONSULT_EARTH') {
+      if (state.consultationUsed) return 'La consulta ya fue utilizada.';
+      if (!state.communicationAvailable) return 'El enlace con la Tierra no está disponible.';
+      if (state.destination === 'MARS' && state.turn === state.maxTurns) return 'La respuesta llegaría después de la guardia.';
+    }
+    if (action === 'RECYCLE_OXYGEN' && state.oxygen >= 100) return 'El Oxígeno ya está completo.';
+    if (action === 'REINFORCE_SHELTER' && state.shield >= 100) return 'El Escudo ya está completo.';
+    if (action === 'RUN_RESEARCH' && state.scienceProgress >= 100) return 'El progreso científico ya está completo.';
+    return null;
   }
 
   function choose(action: InterventionAction) {
@@ -115,17 +117,20 @@ export function InterventionDock({
 
     <div className="intervention-layout">
       <div className="intervention-list">
-        {INTERVENTIONS.map((item) => <button
-          type="button"
-          key={item.id}
-          className={`intervention-option ${selected === item.action ? 'intervention-option--selected' : ''}`}
-          disabled={state.actionTakenThisTurn || groupDecisionPending || !isAvailable(item.action)}
-          onClick={() => choose(item.action)}
-        >
-          <span>{item.id}</span>
-          <strong>{item.label}</strong>
-          <small>Costo base: {formatCost(item.cost)}</small>
-        </button>)}
+        {INTERVENTIONS.map((item) => {
+          const blockedReason = unavailableReason(item.action);
+          return <button
+            type="button"
+            key={item.id}
+            className={`intervention-option ${selected === item.action ? 'intervention-option--selected' : ''}`}
+            disabled={state.actionTakenThisTurn || groupDecisionPending || blockedReason !== null}
+            onClick={() => choose(item.action)}
+          >
+            <span>{item.id}</span>
+            <strong>{item.label}</strong>
+            <small>{blockedReason ?? `Costo base: ${formatCost(item.cost)}`}</small>
+          </button>;
+        })}
         <button
           type="button"
           className="intervention-option intervention-option--skip"

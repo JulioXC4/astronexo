@@ -73,6 +73,8 @@ export function validateLocalCoopConfig(group: LocalCoopConfig): readonly string
     assignedRoles.length !== expectedRoles.length
     || expectedRoles.some((role) => assignedRoles.filter((assigned) => assigned === role).length !== 1)
     || assignedRoles.some((role) => !expectedRoles.includes(role))
+    || group.players.some((player, index) =>
+      player.roles.length !== 1 || player.roles[0] !== expectedRoles[index])
   )) {
     errors.push('Los roles no corresponden al tamaño del grupo.');
   }

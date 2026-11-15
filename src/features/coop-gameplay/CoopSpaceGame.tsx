@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import {
-  MODULE_CATALOG,
   advanceTurn,
   createMission,
   getMissionResult,
   isValidGameSetup,
-  isValidModuleSelection,
+  isValidPreBuildGameSetup,
 } from '../../game';
 import type { GameAction, GameSetup, MissionResult, MissionState, ModuleId } from '../../game';
 import { BaseBuilderView } from '../base-builder';
@@ -18,6 +17,7 @@ import {
   validateLocalCoopConfig,
 } from './coop.types';
 import type { LocalCoopConfig, PendingGroupDecision } from './coop.types';
+import { TurnTransition } from '../space/TurnTransition';
 import '../space/space-game.css';
 import './coop.css';
 
@@ -36,16 +36,13 @@ function cloneGroup(group: LocalCoopConfig): LocalCoopConfig {
 
 export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
   const groupErrors = validateLocalCoopConfig(group);
-  const setupWithPlaceholderModules: GameSetup = {
-    ...setup,
-    selectedModules: MODULE_CATALOG.slice(0, 3).map((module) => module.id),
-  };
-  const setupCanBeCompleted = isValidGameSetup(setupWithPlaceholderModules);
+  const setupCanBeCompleted = isValidPreBuildGameSetup(setup);
   const initialSetupValid = setup.mode === 'LOCAL_COOP' && isValidGameSetup(setup);
   const [activeGroup, setActiveGroup] = useState<LocalCoopConfig>(() => cloneGroup(group));
   const [mission, setMission] = useState<MissionState | null>(() =>
     groupErrors.length === 0 && initialSetupValid ? createMission(setup) : null);
   const [pendingDecision, setPendingDecision] = useState<PendingGroupDecision | null>(null);
+  const [transition, setTransition] = useState<string | null>(null);
 
   const setupErrors = [
     ...(setup.mode === 'LOCAL_COOP' ? [] : ['GameSetup debe usar mode: LOCAL_COOP.']),
@@ -63,6 +60,7 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
     const completedSetup = { ...setup, selectedModules };
     setMission(createMission(completedSetup));
     setPendingDecision(null);
+    setTransition('Base construida · Guardia lista');
   }
 
   function requestDecision(action: GameAction) {
@@ -83,6 +81,7 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
       setActiveGroup((current) => rotateActivePlayer(current));
     }
     setMission(next);
+    setTransition(next.outcome === 'IN_PROGRESS' ? next.clockLabel : 'Informe colectivo de guardia');
   }
 
   function retryAsTeam() {
@@ -90,10 +89,15 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
     setMission(createMission(mission.setup));
     setActiveGroup(cloneGroup(group));
     setPendingDecision(null);
+    setTransition(null);
   }
 
   if (!mission) {
     return <BaseBuilderView destination={setup.destination} onStart={startGuard} />;
+  }
+
+  if (transition) {
+    return <TurnTransition label={transition} onContinue={() => setTransition(null)} />;
   }
 
   const result = getMissionResult(mission);
@@ -115,8 +119,4 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
     onCancelDecision={() => setPendingDecision(null)}
     onAdvance={advanceCoopTurn}
   />;
-}
-
-export function setupNeedsBaseBuilder(setup: GameSetup) {
-  return !isValidModuleSelection(setup.selectedModules);
 }

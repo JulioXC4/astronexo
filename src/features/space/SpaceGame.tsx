@@ -17,6 +17,7 @@ import type {
 import { BaseBuilderView } from '../base-builder';
 import { MissionControlView } from '../mission-control';
 import { MissionResultsView } from '../mission-results';
+import { TurnTransition } from './TurnTransition';
 import './space-game.css';
 
 function adaptSetup(setup: SpaceGameProps['setup']): MissionSetup {
@@ -108,14 +109,7 @@ export function SpaceGame({ setup, nasaData, onFinish }: SpaceGameProps) {
   }
 
   if (transition) {
-    return <main className="turn-transition" role="dialog" aria-modal="true" aria-label="Cambio de turno">
-      <span>TRANSMISIÓN DE CONTROL</span>
-      <strong>{transition}</strong>
-      <div className="turn-transition__line" aria-hidden="true" />
-      <button className="pixel-button pixel-button--primary" onClick={() => setTransition(null)}>
-        CONTINUAR
-      </button>
-    </main>;
+    return <TurnTransition label={transition} onContinue={() => setTransition(null)} />;
   }
 
   const result = getMissionResult(mission);

@@ -33,7 +33,13 @@ export function GroupDecisionDialog({
   const cost = getActionCost(state, pending.action);
   const target = state.activeAlerts.find((alert) => alert.id === pending.action.targetId);
   return <div className="coop-dialog-backdrop" role="presentation">
-    <section className="group-decision-dialog pixel-panel" role="dialog" aria-modal="true" aria-labelledby="group-decision-title">
+    <section
+      className="group-decision-dialog pixel-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="group-decision-title"
+      onKeyDown={(event) => { if (event.key === 'Escape') onCancel(); }}
+    >
       <span className="pixel-kicker">ACUERDO DEL GRUPO · SIN TEMPORIZADOR</span>
       <h2 id="group-decision-title">{skip ? '¿Cerrar sin intervenir?' : `¿Ejecutar ${intervention?.label}?`}</h2>
       <p><strong>{activePlayer.alias}</strong> dirige la intervención. {coordinator
@@ -48,7 +54,7 @@ export function GroupDecisionDialog({
       </dl>
       <p className="group-decision-dialog__notice">Todavía no se consumió ningún recurso ni se registró una acción.</p>
       <footer>
-        <button type="button" className="pixel-button" onClick={onCancel}>VOLVER A CONVERSAR</button>
+        <button type="button" className="pixel-button" autoFocus onClick={onCancel}>VOLVER A CONVERSAR</button>
         <button type="button" className="pixel-button pixel-button--primary" onClick={onConfirm}>CONFIRMAR ACUERDO</button>
       </footer>
     </section>

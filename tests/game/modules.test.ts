@@ -63,6 +63,11 @@ describe('constructor P10 y módulos H3', () => {
     const lowLightOperation = lowLight.moduleOperations.find((operation) =>
       operation.moduleId === 'SOLAR_STORAGE' && operation.phase === 'TURN');
     expect(lowLightOperation?.benefit.energy).toBe(0);
+
+    const noLight = closeQuietTurn(commonModules, { solarEfficiency: 0 });
+    const noLightOperation = noLight.moduleOperations.find((operation) =>
+      operation.moduleId === 'SOLAR_STORAGE' && operation.phase === 'TURN');
+    expect(noLightOperation?.benefit.energy).toBe(0);
   });
 
   it('Soporte vital mejora oxígeno y cobra una vez por turno', () => {

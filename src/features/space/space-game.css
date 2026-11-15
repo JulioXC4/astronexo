@@ -224,6 +224,7 @@
 .turn-transition span { color: var(--space-muted); letter-spacing: 0.15em; }
 .turn-transition strong { color: var(--space-yellow); font-size: clamp(1.8rem, 8vw, 4rem); text-transform: uppercase; }
 .turn-transition__line { width: min(34rem, 80vw); height: 0.8rem; border: 3px solid var(--space-line); background: repeating-linear-gradient(90deg, var(--space-line) 0 2rem, transparent 2rem 2.5rem); }
+.space-entry-error { width:min(42rem,calc(100% - 2rem));margin:3rem auto;padding:1.2rem;color:var(--space-paper);font-family:"Courier New",monospace }
 
 .results-banner { position: relative; padding: 1.5rem; text-align: center; border-color: var(--space-green); }
 .results-banner--failed { border-color: var(--space-red); }
