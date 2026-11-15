@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { MODULE_CATALOG } from '../../game';
 import type { Destination, ModuleId } from '../../game';
-import { lunarModuleScenes } from '../../assets/moduleScenes';
+import { moduleScenes } from '../../assets/moduleScenes';
+import { spaceBackgrounds } from '../../assets/manifest';
 import {
   EMPTY_MODULE_SLOTS,
   isCompleteBase,
@@ -22,10 +23,12 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
   const { t } = useI18n();
   const [slots, setSlots] = useState<ModuleSlots>(EMPTY_MODULE_SLOTS);
   const [armedModule, setArmedModule] = useState<ModuleId | null>(null);
+  const [focusedModule, setFocusedModule] = useState<ModuleId>('SOLAR_STORAGE');
   const selected = selectedModulesFromSlots(slots);
   const complete = isCompleteBase(slots);
 
   function chooseModule(moduleId: ModuleId) {
+    setFocusedModule(moduleId);
     const emptyIndex = slots.findIndex((slot) => slot === null);
     if (selected.includes(moduleId)) {
       setArmedModule(moduleId);
@@ -42,108 +45,102 @@ export function BaseBuilderView({ destination, onStart }: BaseBuilderViewProps) 
   function place(slotIndex: number, moduleId: ModuleId | null = armedModule) {
     if (!moduleId) return;
     setSlots((current) => placeModuleInSlot(current, slotIndex, moduleId));
+    setFocusedModule(moduleId);
     setArmedModule(null);
   }
 
-  const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
+  const destinationName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
+  const focused = MODULE_CATALOG.find((module) => module.id === focusedModule)!;
+  const builderBackground = spaceBackgrounds.builder[destination].path!;
 
   return <main className={`builder-shell builder-shell--${destination.toLowerCase()}`}>
-    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginBottom: '0.6rem' }}>
-      <LanguageSelector variant="hud" />
-    </div>
-    <header className="builder-header pixel-panel">
+    <header className="builder-header">
       <div>
-        <span className="pixel-kicker">P10 · HANGAR DE CONSTRUCCIÓN</span>
-        <h1>{t('baseBuilder.title', { destination: destName.toUpperCase() })}</h1>
-        <p>{t('baseBuilder.subtitle')}</p>
+        <span>{t('baseBuilder.kicker')}</span>
+        <h1>{t('baseBuilder.title', { destination: destinationName.toUpperCase() })}</h1>
       </div>
-      <div className="builder-counter" aria-live="polite"><strong>{selected.length}</strong><span>/3 MÓDULOS</span></div>
+      <div className="builder-progress" aria-live="polite">
+        <strong>{selected.length}/3</strong>
+        <span>{t('baseBuilder.counterLabel').replace('/3 ', '')}</span>
+      </div>
+      <LanguageSelector variant="hud" />
     </header>
 
-    <section className="builder-layout">
-      <div className="builder-workbench pixel-panel">
-        <div className="section-heading">
-          <div><span className="pixel-kicker">CUADRÍCULA 2D</span><h2>Plataforma de base</h2></div>
-          <span className="status-light">SISTEMAS ESENCIALES LISTOS</span>
-        </div>
-        <div className="base-platform" aria-label="Tres espacios para módulos">
-          <div className="base-platform__core">NÚCLEO<br /><small>VIDA · ENERGÍA · ENLACE</small></div>
-          <div className="module-slot-grid">
-            {slots.map((moduleId, index) => {
-              const module = moduleId ? MODULE_CATALOG.find((item) => item.id === moduleId) : undefined;
-              return <div
-                className={`module-slot ${module ? 'module-slot--filled' : ''}`}
-                style={module && destination === 'MOON' ? { backgroundImage: `linear-gradient(#071426b8, #071426d9), url('${lunarModuleScenes[module.id]}')` } : undefined}
-                key={index}
-                onDragOver={(event) => event.preventDefault()}
-                onDrop={(event) => place(index, event.dataTransfer.getData('text/module-id') as ModuleId)}
-              >
-                <button
-                  type="button"
-                  className="module-slot__target"
-                  onClick={() => place(index)}
-                  aria-label={module
-                    ? `Espacio ${index + 1}: ${module.name}. ${armedModule ? 'Reemplazar con módulo elegido' : 'Seleccionado'}`
-                    : `Espacio ${index + 1} vacío. Colocar módulo elegido`}
-                >
-                  <span>{module?.icon ?? '+'}</span>
-                  <strong>{module?.name ?? `ESPACIO ${index + 1}`}</strong>
-                  <small>{module ? module.costLabel : 'TOCA UNA TARJETA O ARRASTRA AQUÍ'}</small>
-                </button>
-                {module && <button
-                  type="button"
-                  className="module-slot__remove"
-                  onClick={() => setSlots((current) => removeModuleFromSlot(current, index))}
-                >RETIRAR</button>}
-              </div>;
-            })}
-          </div>
-        </div>
-        {armedModule && <p className="builder-prompt" role="status">
-          Módulo preparado. Toca el espacio que deseas reemplazar.
-        </p>}
-      </div>
-
-      <aside className="builder-requirements pixel-panel">
-        <span className="pixel-kicker">LISTA DE DESPEGUE</span>
-        <h2>Requisitos</h2>
-        <ul>
-          <li className="requirement--done">✓ Sistemas esenciales disponibles</li>
-          <li className={selected.length === 3 ? 'requirement--done' : ''}>{selected.length === 3 ? '✓' : '□'} Tres módulos colocados</li>
-          <li className={new Set(selected).size === selected.length ? 'requirement--done' : ''}>✓ Sin módulos duplicados</li>
-          <li className={complete ? 'requirement--done' : ''}>{complete ? '✓' : '□'} Configuración validada</li>
-        </ul>
-        <button
-          className="pixel-button pixel-button--primary builder-start"
-          disabled={!complete}
-          onClick={() => onStart(selected)}
-        >{t('baseBuilder.confirmBaseBtn')}</button>
-      </aside>
+    <section
+      className="builder-scene"
+      style={{ backgroundImage: `linear-gradient(rgb(2 8 19 / 5%), rgb(2 8 19 / 15%)), url('${builderBackground}')` }}
+      aria-label={t('baseBuilder.platformAria')}
+    >
+      <p className="builder-scene__instruction">{armedModule ? t('baseBuilder.armedPrompt') : t('baseBuilder.subtitle')}</p>
+      {slots.map((moduleId, index) => {
+        const module = moduleId ? MODULE_CATALOG.find((item) => item.id === moduleId) : undefined;
+        return <div
+          className={`module-slot module-slot--${index + 1} ${module ? 'module-slot--filled' : ''} ${armedModule ? 'module-slot--ready' : ''}`}
+          key={index}
+          onDragOver={(event) => event.preventDefault()}
+          onDrop={(event) => place(index, event.dataTransfer.getData('text/module-id') as ModuleId)}
+        >
+          <button
+            type="button"
+            className="module-slot__target"
+            onClick={() => place(index)}
+            aria-label={module
+              ? t('baseBuilder.slotFilled', {
+                  slot: index + 1,
+                  name: t(`baseBuilder.modules.${module.id}.name`),
+                  action: t(armedModule ? 'baseBuilder.slotReplace' : 'baseBuilder.slotSelected'),
+                })
+              : t('baseBuilder.slotEmpty', { slot: index + 1 })}
+          >
+            {module
+              ? <img src={moduleScenes[destination][module.id]} alt="" />
+              : <span>{index + 1}</span>}
+            <strong>{module ? t(`baseBuilder.modules.${module.id}.name`) : t('baseBuilder.slotLabel', { slot: index + 1 })}</strong>
+          </button>
+          {module && <button
+            type="button"
+            className="module-slot__remove"
+            onClick={() => setSlots((current) => removeModuleFromSlot(current, index))}
+          >{t('baseBuilder.remove')}</button>}
+        </div>;
+      })}
     </section>
 
-    <section className="module-catalog" aria-labelledby="catalog-title">
-      <div className="module-catalog__heading"><span className="pixel-kicker">INVENTARIO 3 DE 5</span><h2 id="catalog-title">Módulos disponibles</h2></div>
-      <div className="module-card-grid">
+    <section className="builder-console" aria-labelledby="catalog-title">
+      <div className="builder-console__detail">
+        <img src={moduleScenes[destination][focused.id]} alt="" />
+        <div>
+          <h2 id="catalog-title">{t(`baseBuilder.modules.${focused.id}.name`)}</h2>
+          <p>{t(`baseBuilder.modules.${focused.id}.benefit`)}</p>
+          <small>{t('baseBuilder.costLabel')}: {t(`baseBuilder.modules.${focused.id}.cost`)}</small>
+        </div>
+      </div>
+      <div className="module-picker" aria-label={t('baseBuilder.catalogTitle')}>
         {MODULE_CATALOG.map((module) => {
           const installed = selected.includes(module.id);
           const armed = armedModule === module.id;
-          return <article
-            className={`module-card pixel-panel ${installed ? 'module-card--installed' : ''} ${armed ? 'module-card--armed' : ''}`}
+          return <button
+            type="button"
+            className={`module-picker__button ${installed ? 'module-picker__button--installed' : ''} ${armed ? 'module-picker__button--armed' : ''}`}
             key={module.id}
             draggable
+            aria-pressed={installed || armed}
+            onFocus={() => setFocusedModule(module.id)}
+            onMouseEnter={() => setFocusedModule(module.id)}
             onDragStart={(event) => event.dataTransfer.setData('text/module-id', module.id)}
+            onClick={() => chooseModule(module.id)}
           >
-            <div className="module-card__icon" aria-hidden="true">{module.icon}</div>
-            <div><span>{installed ? 'INSTALADO' : armed ? 'LISTO PARA REEMPLAZAR' : 'DISPONIBLE'}</span><h3>{module.name}</h3></div>
-            {destination === 'MOON' && <img className="module-card__preview" src={lunarModuleScenes[module.id]} alt="" loading="lazy" />}
-            <p>{module.description}</p>
-            <dl><div><dt>BENEFICIO</dt><dd>{module.benefit}</dd></div><div><dt>COSTO</dt><dd>{module.costLabel}</dd></div></dl>
-            <button type="button" className="pixel-button" onClick={() => chooseModule(module.id)}>
-              {installed ? 'MOVER / REEMPLAZAR' : selected.length < 3 ? 'COLOCAR' : 'ELEGIR PARA REEMPLAZAR'}
-            </button>
-          </article>;
+            <img src={moduleScenes[destination][module.id]} alt="" />
+            <span>{t(`baseBuilder.modules.${module.id}.name`)}</span>
+            <small>{t(installed ? 'baseBuilder.installed' : armed ? 'baseBuilder.armed' : 'baseBuilder.place')}</small>
+          </button>;
         })}
       </div>
+      <button
+        className="pixel-button pixel-button--primary builder-start"
+        disabled={!complete}
+        onClick={() => onStart(selected)}
+      >{t('baseBuilder.confirmBaseBtn')}</button>
     </section>
   </main>;
 }

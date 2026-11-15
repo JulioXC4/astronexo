@@ -20,7 +20,7 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
       <header className="earth-screen__header" style={{ marginBottom: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
-          <span>{t('common.back')} ({cityName})</span>
+          <span>{t('destinations.back', { city: cityName })}</span>
         </button>
         <div className="earth-screen__progress-pill">
           <Planet weight="fill" color="#f6c15b" />
@@ -35,7 +35,7 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
           <span>{t('destinations.title')}</span>
         </h1>
         <p className="earth-card__subtitle">
-          {t('destinations.subtitle')} ({cityName})
+          {t('destinations.subtitle', { city: cityName })}
         </p>
 
         <div className="destination-grid" role="radiogroup">
@@ -63,9 +63,9 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
                 {t('destinations.moon.missionObjective')}
               </span>
               <ul style={{ margin: '0.8rem 0', paddingLeft: '1.2rem', color: '#c3d8ee', fontSize: '0.85rem', lineHeight: '1.5' }}>
-                <li><strong>Gravedad:</strong> {t('destinations.moon.gravity')}</li>
-                <li><strong>Atmósfera:</strong> {t('destinations.moon.atmosphere')}</li>
-                <li><strong>Desafío:</strong> {t('destinations.moon.challenge')}</li>
+                <li><strong>{t('destinations.gravityLabel')}:</strong> {t('destinations.moon.gravity')}</li>
+                <li><strong>{t('destinations.atmosphereLabel')}:</strong> {t('destinations.moon.atmosphere')}</li>
+                <li><strong>{t('destinations.challengeLabel')}:</strong> {t('destinations.moon.challenge')}</li>
                 <li><strong>{t('destinations.travelTime')}:</strong> {t('destinations.moon.travelDuration')} ({t('destinations.moon.distance')})</li>
               </ul>
             </div>
@@ -100,9 +100,9 @@ export function DestinationScreen({ cityName, initialDestination, onSelectDestin
                 {t('destinations.mars.missionObjective')}
               </span>
               <ul style={{ margin: '0.8rem 0', paddingLeft: '1.2rem', color: '#c3d8ee', fontSize: '0.85rem', lineHeight: '1.5' }}>
-                <li><strong>Gravedad:</strong> {t('destinations.mars.gravity')}</li>
-                <li><strong>Atmósfera:</strong> {t('destinations.mars.atmosphere')}</li>
-                <li><strong>Desafío:</strong> {t('destinations.mars.challenge')}</li>
+                <li><strong>{t('destinations.gravityLabel')}:</strong> {t('destinations.mars.gravity')}</li>
+                <li><strong>{t('destinations.atmosphereLabel')}:</strong> {t('destinations.mars.atmosphere')}</li>
+                <li><strong>{t('destinations.challengeLabel')}:</strong> {t('destinations.mars.challenge')}</li>
                 <li><strong>{t('destinations.travelTime')}:</strong> {t('destinations.mars.travelDuration')} ({t('destinations.mars.distance')})</li>
               </ul>
             </div>

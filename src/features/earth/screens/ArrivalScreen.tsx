@@ -1,5 +1,5 @@
 import { ArrowRight, Planet, ShieldWarning, Sparkle } from '@phosphor-icons/react';
-import { TOOL_CATALOG, type Backpack, type Destination, type NasaDataset } from '../../../game/contracts';
+import type { Backpack, Destination, NasaDataset } from '../../../game/contracts';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import './earth.css';
 
@@ -14,7 +14,7 @@ interface ArrivalScreenProps {
 
 export function ArrivalScreen({ destination, astronautName, cityName, backpack, nasaData, onEnterBase }: ArrivalScreenProps) {
   const { t } = useI18n();
-  const tools = backpack.map((id) => TOOL_CATALOG.find((t) => t.id === id)?.label ?? id);
+  const tools = backpack.map((id) => t(`tools.${id}.label`));
   const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
 
   return (
@@ -28,7 +28,7 @@ export function ArrivalScreen({ destination, astronautName, cityName, backpack, 
           <span>{t('flight.arrivalTitle', { destination: destName })}</span>
         </h1>
         <p className="earth-card__subtitle">
-          {t('flight.arrivalSubtitle')} ({destName})
+          {t('flight.arrivalSubtitle', { destination: destName })}
         </p>
 
         <div style={{
@@ -43,10 +43,10 @@ export function ArrivalScreen({ destination, astronautName, cityName, backpack, 
         }}>
           <div style={{ fontSize: '4.5rem', marginBottom: '0.5rem' }}>{destination === 'MOON' ? '🌕' : '🔴'}</div>
           <h2 style={{ fontFamily: 'Fredoka', fontSize: '1.8rem', color: '#ffffff', margin: 0 }}>
-            {destination === 'MOON' ? `${t('destinations.moon.name')} · Base Primera Luz` : `${t('destinations.mars.name')} · Base Horizonte Rojo`}
+            {t(destination === 'MOON' ? 'flight.baseMoonName' : 'flight.baseMarsName')}
           </h2>
           <p style={{ color: '#bed4eb', fontSize: '0.95rem', margin: '0.4rem 0 1rem 0' }}>
-            Comandante al frente: <strong>{astronautName}</strong> (Entrenado en {cityName})
+            {t('flight.commanderTrained', { name: astronautName, city: cityName })}
           </p>
 
           <div style={{
@@ -57,16 +57,16 @@ export function ArrivalScreen({ destination, astronautName, cityName, backpack, 
             marginTop: '1.2rem'
           }}>
             <div style={{ background: '#101a26', padding: '0.8rem 1rem', borderRadius: '0.8rem', border: '1px solid #2d4562' }}>
-              <span style={{ fontSize: '0.8rem', color: '#7cb5c8', fontWeight: 700 }}>Temperatura Exterior</span>
-              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#ffb74d' }}>{destination === 'MOON' ? '-130°C a +120°C' : 'Variable'}</div>
+              <span style={{ fontSize: '0.8rem', color: '#7cb5c8', fontWeight: 700 }}>{t('flight.externalTemp')}</span>
+              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#ffb74d' }}>{t(destination === 'MOON' ? 'flight.tempMoonVal' : 'flight.tempMarsVal')}</div>
             </div>
             <div style={{ background: '#101a26', padding: '0.8rem 1rem', borderRadius: '0.8rem', border: '1px solid #2d4562' }}>
-              <span style={{ fontSize: '0.8rem', color: '#7cb5c8', fontWeight: 700 }}>Atmósfera</span>
-              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#64b5f6' }}>{destination === 'MOON' ? '0% (Vacío total)' : 'Muy tenue, 95% CO₂'}</div>
+              <span style={{ fontSize: '0.8rem', color: '#7cb5c8', fontWeight: 700 }}>{t('flight.atmosphere')}</span>
+              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#64b5f6' }}>{t(destination === 'MOON' ? 'flight.atmoMoonVal' : 'flight.atmoMarsVal')}</div>
             </div>
             <div style={{ background: '#101a26', padding: '0.8rem 1rem', borderRadius: '0.8rem', border: '1px solid #2d4562' }}>
-              <span style={{ fontSize: '0.8rem', color: '#7cb5c8', fontWeight: 700 }}>Gravedad</span>
-              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#81c784' }}>{destination === 'MOON' ? '0.16 g (Baja)' : '0.38 g'}</div>
+              <span style={{ fontSize: '0.8rem', color: '#7cb5c8', fontWeight: 700 }}>{t('flight.gravity')}</span>
+              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#81c784' }}>{t(destination === 'MOON' ? 'flight.gravityMoonVal' : 'flight.gravityMarsVal')}</div>
             </div>
           </div>
         </div>
@@ -81,19 +81,22 @@ export function ArrivalScreen({ destination, astronautName, cityName, backpack, 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
             <ShieldWarning color="#f6c15b" weight="fill" size={22} />
             <h3 style={{ margin: 0, fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#ffffff' }}>
-              Estado Inicial de Sistemas y Ciencia
+              {t('flight.initialStateTitle')}
             </h3>
           </div>
           <p style={{ margin: '0 0 0.5rem 0', color: '#bed4ea', fontSize: '0.92rem' }}>
-            <strong>Equipamiento disponible en la base:</strong> {tools.join(' · ')}
+            {t('flight.availableTools', { tools: tools.join(' · ') })}
           </p>
           <p style={{ margin: 0, color: '#90caf9', fontSize: '0.88rem' }}>
-            <strong>Referencia científica NASA:</strong> {nasaData.observations.length} registros históricos de respaldo ({nasaData.validation === 'VERIFIED' ? 'contrastados con la fuente' : 'pendientes'}). Las barras espaciales son simuladas.
+            {t('flight.nasaRef', {
+              count: nasaData.observations.length,
+              status: t(nasaData.validation === 'VERIFIED' ? 'flight.verifiedStatus' : 'flight.pendingStatus'),
+            })}
           </p>
           <ul style={{ margin: '0.75rem 0 0', paddingLeft: '1.25rem', color: '#bed4ea', fontSize: '0.82rem' }}>
             {nasaData.observations.map((observation) => <li key={observation.recordId}>
               {observation.source} · {observation.observedAt} · {observation.parameter}: {observation.value} {observation.unit} ·{' '}
-              <a href={observation.sourceUrl} target="_blank" rel="noreferrer">registro original</a>
+              <a href={observation.sourceUrl} target="_blank" rel="noreferrer">{t('flight.originalRecord')}</a>
             </li>)}
           </ul>
         </section>
@@ -105,7 +108,7 @@ export function ArrivalScreen({ destination, astronautName, cityName, backpack, 
             onClick={onEnterBase}
           >
             <Sparkle weight="fill" />
-            <span>Tomar el Mando de la Base {destination === 'MOON' ? 'Lunar' : 'Marciana'}</span>
+            <span>{t(destination === 'MOON' ? 'flight.takeCommandMoon' : 'flight.takeCommandMars')}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>

@@ -24,14 +24,14 @@ export function NarrativeBriefingScreen({ cityName, destination, astronautName, 
         </button>
         <div className="earth-screen__progress-pill">
           <RocketLaunch weight="fill" color="#f6c15b" />
-          <span>{t('briefing.stepIndicator')} ({cityName} ➔ {destLabel})</span>
+          <span>{t('briefing.stepIndicator', { city: cityName, destination: destLabel })}</span>
         </div>
         <LanguageSelector variant="hud" />
       </header>
 
       <main className="earth-card earth-card--briefing" style={{ maxWidth: '48rem', textAlign: 'center', padding: '1.4rem' }}>
         <h1 className="earth-card__title" style={{ justifyContent: 'center', marginBottom: '1rem', fontSize: '1.6rem' }}>
-          <span>{t('briefing.title')}: {cityName}</span>
+          <span>{t('briefing.title', { city: cityName })}</span>
         </h1>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left', margin: '1rem 0' }}>
@@ -50,7 +50,7 @@ export function NarrativeBriefingScreen({ cityName, destination, astronautName, 
                 {t('avatars.alba.name')} ({t('avatars.alba.role')}):
               </strong>
               <p style={{ margin: 0, color: '#e3effb', fontSize: '1rem', lineHeight: '1.45' }}>
-                «¡Atención, <strong>{astronautName}</strong>! Nuestro cohete despegará hacia <strong>{destLabel}</strong>. {t('briefing.rules.limit')} {t('briefing.rules.rewards')}»
+                «{t('briefing.rules.intro', { name: astronautName, destination: destLabel })} {t('briefing.rules.limit')} {t('briefing.rules.rewards')}»
               </p>
             </div>
           </div>

@@ -1,131 +1,364 @@
 import { useState } from 'react';
-import { X, UsersThree, ChalkboardTeacher, IdentificationCard, ShieldCheck, Play } from '@phosphor-icons/react';
+import {
+  X,
+  UsersThree,
+  ShieldCheck,
+  RocketLaunch,
+  Compass,
+  ArrowRight,
+  ArrowLeft,
+  Sparkle,
+} from '@phosphor-icons/react';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import type { Destination } from '../../../game/contracts';
+import type { City, GameSetup } from '../../../game';
+import { MISSION_TOOL, CITY_M5_TOOL } from '../../../game/config/tools';
+import {
+  createLocalCoopConfig,
+  rolesForPlayerCount,
+  ROLE_LABELS,
+  type LocalCoopConfig,
+  type PlayerRole,
+} from '../../coop-gameplay/coop.types';
 import './earth.css';
 
-interface StationModeModalProps {
+export interface StationModeModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
-  readonly onLaunchDemoSolo: () => void;
+  readonly onLaunchDemoSolo?: () => void;
+  readonly onStartCoop?: (setup: GameSetup, group: LocalCoopConfig) => void;
 }
 
-type StationTab = 'TEACHER_ENTRY' | 'TEACHER_ROOM' | 'PARTICIPANTS' | 'ROLES' | 'COOP_BRIEFING';
+type StationTab = 'MISSION' | 'CREW' | 'LAUNCH';
 
-export function StationModeModal({ isOpen, onClose, onLaunchDemoSolo }: StationModeModalProps) {
+const SUGGESTED_TEAMS = [
+  'Equipo Orión',
+  'Base Cóndor',
+  'Halcón Solar',
+  'Tripulación Apolo',
+  'Constelación Sur',
+  'Aurora Boreal',
+];
+
+const SUGGESTED_ALIASES = [
+  'Nova',
+  'Rayo',
+  'Luna',
+  'Astro',
+  'Brote',
+  'Cosmo',
+  'Chispa',
+  'Alba',
+  'Nico',
+  'Aurora',
+  'Leo',
+  'Sombra',
+  'Pulsar',
+  'Cometa',
+  'Órbita',
+];
+
+const ROLE_ICONS: Readonly<Record<PlayerRole, string>> = {
+  COMMANDER: '👩‍🚀',
+  ENERGY: '⚡',
+  OXYGEN: '🫧',
+  PROTECTION: '🛡️',
+  CROPS: '🌱',
+};
+
+export function StationModeModal({
+  isOpen,
+  onClose,
+  onLaunchDemoSolo,
+  onStartCoop,
+}: StationModeModalProps) {
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState<StationTab>('TEACHER_ENTRY');
-  const [classCode, setClassCode] = useState('NASA-2026');
-  const [gradeLevel, setGradeLevel] = useState('5to Grado de Primaria (10-11 años)');
-  const [students, setStudents] = useState<[string, string, string, string]>([
-    'Camila R.',
-    'Mateo S.',
-    'Valeria T.',
-    'Joaquín P.',
-  ]);
+  const [activeTab, setActiveTab] = useState<StationTab>('MISSION');
+
+  // Configuración de Misión
+  const [roomCode, setRoomCode] = useState('NASA-2026');
+  const [teamAlias, setTeamAlias] = useState('Equipo Orión');
+  const [destination, setDestination] = useState<Destination>('MOON');
+  const [city, setCity] = useState<City>('AREQUIPA');
+
+  // Configuración de Tripulación
+  const [cadetCount, setCadetCount] = useState<3 | 4 | 5>(4);
+  const [aliases, setAliases] = useState<string[]>(['Nova', 'Rayo', 'Luna', 'Astro']);
 
   if (!isOpen) return null;
 
+  function handleCadetCountChange(count: 3 | 4 | 5) {
+    setCadetCount(count);
+    if (aliases.length >= count) {
+      setAliases(aliases.slice(0, count));
+    } else {
+      const next = [...aliases];
+      for (let i = aliases.length; i < count; i++) {
+        const candidate = SUGGESTED_ALIASES.find((a) => !next.includes(a)) ?? `Cadete-${i + 1}`;
+        next.push(candidate);
+      }
+      setAliases(next);
+    }
+  }
+
+  function handleAliasChange(index: number, value: string) {
+    const next = [...aliases];
+    next[index] = value;
+    setAliases(next);
+  }
+
+  // Roles calculados según tamaño del grupo (3, 4 o 5)
+  const assignedRoles = rolesForPlayerCount(cadetCount);
+
+  // Validación
+  const cleanTeam = teamAlias.trim();
+  const cleanAliases = aliases.map((a) => a.trim());
+  const hasEmptyAlias = cleanAliases.some((a) => a.length === 0);
+  const hasDuplicateAlias = new Set(cleanAliases.map((a) => a.toLowerCase())).size !== cleanAliases.length;
+  const isTeamValid = cleanTeam.length > 0;
+  const isValid = isTeamValid && !hasEmptyAlias && !hasDuplicateAlias;
+
+  function handleLaunchCoop() {
+    if (!isValid || !onStartCoop) return;
+
+    const setup: GameSetup = {
+      mode: 'LOCAL_COOP',
+      city,
+      destination,
+      completedEarthMissions: ['M1', 'M4', 'M5'],
+      selectedTools: [
+        MISSION_TOOL.M1,
+        MISSION_TOOL.M4,
+        CITY_M5_TOOL[city],
+      ],
+      selectedModules: [], // Permite que CoopSpaceGame inicie con BaseBuilderView para construir 3 módulos
+      scenarioId: `STATION_COOP_${roomCode.trim().replace(/[^a-zA-Z0-9_-]/g, '_') || 'LOCAL'}`,
+      difficulty: 'CALM',
+    };
+
+    const group = createLocalCoopConfig(cleanTeam, cleanAliases);
+    onStartCoop(setup, group);
+    onClose();
+  }
+
   return (
-    <div className="station-modal-veil" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div
+      className="station-modal-veil"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="station-modal" role="dialog" aria-modal="true" aria-labelledby="station-modal-title">
         <button type="button" className="station-modal__close" onClick={onClose} aria-label={t('common.close')}>
           <X size={20} weight="bold" />
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.6rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem', flexWrap: 'wrap', gap: '0.6rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <UsersThree size={32} color="#f6c15b" weight="fill" />
+            <UsersThree size={34} color="#f6c15b" weight="fill" />
             <div>
               <h2 id="station-modal-title" style={{ fontFamily: 'Fredoka', fontSize: '1.6rem', color: '#ffffff', margin: 0 }}>
                 {t('station.modalTitle')}
               </h2>
-              <span style={{ fontSize: '0.85rem', color: '#7cb5c8', fontWeight: 700 }}>
-                Diseño para trabajo cooperativo en aulas escolares y equipos de 4 cadetes
+              <span style={{ fontSize: '0.86rem', color: '#7cb5c8', fontWeight: 700 }}>
+                {t('station.modalSubtitle')}
               </span>
             </div>
           </div>
           <LanguageSelector variant="hud" />
         </div>
 
-        {/* Pestañas de navegación de la maqueta */}
+        {/* Pestañas principales */}
         <div className="station-tabs" role="tablist">
           <button
             type="button"
-            className={`station-tab-btn ${activeTab === 'TEACHER_ENTRY' ? 'station-tab-btn--active' : ''}`}
-            onClick={() => setActiveTab('TEACHER_ENTRY')}
+            className={`station-tab-btn ${activeTab === 'MISSION' ? 'station-tab-btn--active' : ''}`}
+            onClick={() => setActiveTab('MISSION')}
           >
-            E1. Entrada Docente
+            {t('station.tabs.mission')}
           </button>
           <button
             type="button"
-            className={`station-tab-btn ${activeTab === 'TEACHER_ROOM' ? 'station-tab-btn--active' : ''}`}
-            onClick={() => setActiveTab('TEACHER_ROOM')}
+            className={`station-tab-btn ${activeTab === 'CREW' ? 'station-tab-btn--active' : ''}`}
+            onClick={() => setActiveTab('CREW')}
           >
-            E2. Sala de Control
+            {t('station.tabs.crew')}
           </button>
           <button
             type="button"
-            className={`station-tab-btn ${activeTab === 'PARTICIPANTS' ? 'station-tab-btn--active' : ''}`}
-            onClick={() => setActiveTab('PARTICIPANTS')}
+            className={`station-tab-btn ${activeTab === 'LAUNCH' ? 'station-tab-btn--active' : ''}`}
+            onClick={() => setActiveTab('LAUNCH')}
           >
-            E3. Participantes
-          </button>
-          <button
-            type="button"
-            className={`station-tab-btn ${activeTab === 'ROLES' ? 'station-tab-btn--active' : ''}`}
-            onClick={() => setActiveTab('ROLES')}
-          >
-            E4. Roles de Misión
-          </button>
-          <button
-            type="button"
-            className={`station-tab-btn ${activeTab === 'COOP_BRIEFING' ? 'station-tab-btn--active' : ''}`}
-            onClick={() => setActiveTab('COOP_BRIEFING')}
-          >
-            E5. Inicio de Misión
+            {t('station.tabs.launch')}
           </button>
         </div>
 
-        {/* Contenido de cada pestaña */}
-        {activeTab === 'TEACHER_ENTRY' && (
+        {/* PESTAÑA 1: SALA Y MISIÓN */}
+        {activeTab === 'MISSION' && (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#f6c15b', marginBottom: '0.5rem' }}>
-              <ChalkboardTeacher size={24} weight="fill" />
-              <strong style={{ fontFamily: 'Fredoka', fontSize: '1.15rem' }}>E1 · Acceso de Docentes y Facilitadores</strong>
-            </div>
-            <p style={{ color: '#bed4ea', fontSize: '0.92rem' }}>
-              El docente configura una sesión local para proyectar en pizarra interactiva o trabajar en estaciones de aprendizaje compartidas.
-            </p>
-
-            <div style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
-              <div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))', gap: '1.2rem' }}>
+              {/* Código de Sala */}
+              <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '1rem' }}>
                 <label style={{ display: 'block', color: '#ffffff', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.3rem' }}>
-                  Código de Aula / Misión:
+                  {t('station.roomCodeLabel')}
                 </label>
                 <input
                   type="text"
-                  value={classCode}
-                  onChange={(e) => setClassCode(e.target.value)}
+                  value={roomCode}
+                  onChange={(e) => setRoomCode(e.target.value)}
                   className="callsign-box__input"
-                  style={{ maxWidth: '16rem' }}
+                  maxLength={16}
                 />
+                <span style={{ fontSize: '0.78rem', color: '#7cb5c8', display: 'block', marginTop: '0.4rem' }}>
+                  {t('station.roomCodeHelp')}
+                </span>
               </div>
 
-              <div>
+              {/* Nombre Ficticio del Equipo */}
+              <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '1rem' }}>
                 <label style={{ display: 'block', color: '#ffffff', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.3rem' }}>
-                  Nivel Educativo:
+                  {t('station.teamNameLabel')}
                 </label>
-                <select
-                  value={gradeLevel}
-                  onChange={(e) => setGradeLevel(e.target.value)}
+                <input
+                  type="text"
+                  value={teamAlias}
+                  onChange={(e) => setTeamAlias(e.target.value)}
+                  placeholder={t('station.teamNamePlaceholder')}
                   className="callsign-box__input"
-                  style={{ maxWidth: '24rem' }}
+                  maxLength={24}
+                />
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#7cb5c8' }}>{t('station.suggestedTeams')}</span>
+                  {SUGGESTED_TEAMS.slice(0, 3).map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      style={{
+                        background: '#1b3554',
+                        border: '1px solid #4a75a7',
+                        color: '#d4e7f8',
+                        borderRadius: '0.4rem',
+                        padding: '0.15rem 0.5rem',
+                        fontSize: '0.76rem',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => setTeamAlias(name)}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Selección de Destino */}
+            <div style={{ marginTop: '1.2rem' }}>
+              <label style={{ display: 'block', color: '#ffffff', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.5rem' }}>
+                {t('station.destinationLabel')}
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(14rem, 1fr))', gap: '0.8rem' }}>
+                <button
+                  type="button"
+                  style={{
+                    background: destination === 'MOON' ? '#1f3c60' : '#132338',
+                    border: destination === 'MOON' ? '2px solid #f6c15b' : '1px solid #33557d',
+                    borderRadius: '0.8rem',
+                    padding: '0.9rem',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    color: '#ffffff',
+                  }}
+                  onClick={() => setDestination('MOON')}
                 >
-                  <option>3er y 4to Grado de Primaria (8-9 años)</option>
-                  <option>5to Grado de Primaria (10-11 años)</option>
-                  <option>6to Grado de Primaria (11-12 años)</option>
-                  <option>Club de Ciencias / Taller de Robótica</option>
-                </select>
+                  <div style={{ fontSize: '1.6rem', marginBottom: '0.3rem' }}>🌕</div>
+                  <strong style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: destination === 'MOON' ? '#f6c15b' : '#ffffff' }}>
+                    {t('station.moon')}
+                  </strong>
+                </button>
+                <button
+                  type="button"
+                  style={{
+                    background: destination === 'MARS' ? '#1f3c60' : '#132338',
+                    border: destination === 'MARS' ? '2px solid #f6c15b' : '1px solid #33557d',
+                    borderRadius: '0.8rem',
+                    padding: '0.9rem',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    color: '#ffffff',
+                  }}
+                  onClick={() => setDestination('MARS')}
+                >
+                  <div style={{ fontSize: '1.6rem', marginBottom: '0.3rem' }}>🔴</div>
+                  <strong style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: destination === 'MARS' ? '#f6c15b' : '#ffffff' }}>
+                    {t('station.mars')}
+                  </strong>
+                </button>
+              </div>
+            </div>
+
+            {/* Centro de Entrenamiento Terrestre */}
+            <div style={{ marginTop: '1.2rem' }}>
+              <label style={{ display: 'block', color: '#ffffff', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.5rem' }}>
+                {t('station.originCityLabel')}
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(14rem, 1fr))', gap: '0.8rem' }}>
+                <button
+                  type="button"
+                  style={{
+                    background: city === 'AREQUIPA' ? '#1f3c60' : '#132338',
+                    border: city === 'AREQUIPA' ? '2px solid #f6c15b' : '1px solid #33557d',
+                    borderRadius: '0.8rem',
+                    padding: '0.9rem',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    color: '#ffffff',
+                  }}
+                  onClick={() => setCity('AREQUIPA')}
+                >
+                  <div style={{ fontSize: '1.4rem' }}>🏔️ ☀️</div>
+                  <strong style={{ fontFamily: 'Fredoka', fontSize: '1rem', color: city === 'AREQUIPA' ? '#f6c15b' : '#ffffff' }}>
+                    {t('station.arequipa')}
+                  </strong>
+                </button>
+                <button
+                  type="button"
+                  style={{
+                    background: city === 'TROMSO' ? '#1f3c60' : '#132338',
+                    border: city === 'TROMSO' ? '2px solid #f6c15b' : '1px solid #33557d',
+                    borderRadius: '0.8rem',
+                    padding: '0.9rem',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    color: '#ffffff',
+                  }}
+                  onClick={() => setCity('TROMSO')}
+                >
+                  <div style={{ fontSize: '1.4rem' }}>❄️ 🌌</div>
+                  <strong style={{ fontFamily: 'Fredoka', fontSize: '1rem', color: city === 'TROMSO' ? '#f6c15b' : '#ffffff' }}>
+                    {t('station.tromso')}
+                  </strong>
+                </button>
+              </div>
+            </div>
+
+            {/* Paquete Terrestre Canónico */}
+            <div style={{ background: '#0e1c2e', border: '1px solid #284465', borderRadius: '0.8rem', padding: '0.9rem', marginTop: '1.2rem' }}>
+              <span style={{ color: '#f6c15b', fontWeight: 700, fontSize: '0.86rem' }}>
+                📦 {t('station.groundPackageLabel')}
+              </span>
+              <p style={{ margin: '0.3rem 0 0.5rem 0', color: '#bed5ea', fontSize: '0.85rem' }}>
+                {t('station.groundPackageDesc')}
+              </p>
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <span style={{ background: '#1c3450', border: '1px solid #385f8c', borderRadius: '0.5rem', padding: '0.3rem 0.6rem', color: '#e8f2fc', fontSize: '0.82rem' }}>
+                  🔧 Kit de Repuestos (M1)
+                </span>
+                <span style={{ background: '#1c3450', border: '1px solid #385f8c', borderRadius: '0.5rem', padding: '0.3rem 0.6rem', color: '#e8f2fc', fontSize: '0.82rem' }}>
+                  🔋 Batería Adicional (M4)
+                </span>
+                <span style={{ background: '#1c3450', border: '1px solid #385f8c', borderRadius: '0.5rem', padding: '0.3rem 0.6rem', color: '#e8f2fc', fontSize: '0.82rem' }}>
+                  {city === 'AREQUIPA' ? '💧 Reciclador de Agua (M5)' : '❄️ Aislamiento Térmico (M5)'}
+                </span>
               </div>
             </div>
 
@@ -133,192 +366,301 @@ export function StationModeModal({ isOpen, onClose, onLaunchDemoSolo }: StationM
               <button
                 type="button"
                 className="facility-card__btn facility-card__btn--gold"
-                onClick={() => setActiveTab('TEACHER_ROOM')}
+                onClick={() => setActiveTab('CREW')}
               >
-                <span>Avanzar a Sala Docente (E2)</span>
+                <span>{t('station.nextBtn')}</span>
+                <ArrowRight weight="bold" />
               </button>
             </div>
           </div>
         )}
 
-        {activeTab === 'TEACHER_ROOM' && (
+        {/* PESTAÑA 2: TRIPULACIÓN Y ROLES */}
+        {activeTab === 'CREW' && (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#f6c15b', marginBottom: '0.5rem' }}>
-              <ChalkboardTeacher size={24} weight="fill" />
-              <strong style={{ fontFamily: 'Fredoka', fontSize: '1.15rem' }}>E2 · Panel de Control Docente</strong>
-            </div>
-            <p style={{ color: '#bed4ea', fontSize: '0.92rem' }}>
-              Configuración de objetivos pedagógicos STEM para la sesión de grupo.
-            </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(13rem, 1fr))', gap: '1rem', marginTop: '1rem' }}>
-              <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '1rem' }}>
-                <strong style={{ color: '#ffffff' }}>Competencia STEM 1:</strong>
-                <p style={{ margin: '0.4rem 0 0 0', color: '#bed4ea', fontSize: '0.85rem' }}>
-                  Comprensión de la energía solar incidente y el aprovechamiento de recursos locales con NASA POWER.
-                </p>
+            {/* Selector de tamaño de equipo */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.8rem', marginBottom: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', color: '#ffffff', fontWeight: 700, fontSize: '0.95rem' }}>
+                  {t('station.groupSizeLabel')}
+                </label>
+                <span style={{ fontSize: '0.82rem', color: '#7cb5c8' }}>
+                  {t('station.rolesSummaryTitle', { count: cadetCount })}
+                </span>
               </div>
-              <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '1rem' }}>
-                <strong style={{ color: '#ffffff' }}>Competencia STEM 2:</strong>
-                <p style={{ margin: '0.4rem 0 0 0', color: '#bed4ea', fontSize: '0.85rem' }}>
-                  Pensamiento crítico en emergencias espaciales y mitigación de clima solar con NASA DONKI.
-                </p>
-              </div>
-              <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '1rem' }}>
-                <strong style={{ color: '#ffffff' }}>Competencia STEM 3:</strong>
-                <p style={{ margin: '0.4rem 0 0 0', color: '#bed4ea', fontSize: '0.85rem' }}>
-                  Colaboración y distribución de roles complementarios bajo recursos finitos.
-                </p>
-              </div>
-            </div>
-
-            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '0.8rem' }}>
-              <button type="button" className="earth-screen__back-btn" onClick={() => setActiveTab('TEACHER_ENTRY')}>Atrás</button>
-              <button
-                type="button"
-                className="facility-card__btn facility-card__btn--gold"
-                onClick={() => setActiveTab('PARTICIPANTS')}
-              >
-                <span>Avanzar a Participantes (E3)</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'PARTICIPANTS' && (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#f6c15b', marginBottom: '0.5rem' }}>
-              <IdentificationCard size={24} weight="fill" />
-              <strong style={{ fontFamily: 'Fredoka', fontSize: '1.15rem' }}>E3 · Registro de Cadetes del Equipo</strong>
-            </div>
-            <p style={{ color: '#bed4ea', fontSize: '0.92rem' }}>
-              Ingresa los nombres de los 4 estudiantes que compartirán la misión desde este dispositivo:
-            </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(12rem, 1fr))', gap: '1rem', marginTop: '1rem' }}>
-              {students.map((student, idx) => (
-                <div key={idx} style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '1rem' }}>
-                  <label style={{ display: 'block', color: '#f6c15b', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.3rem' }}>
-                    Cadete {idx + 1}:
-                  </label>
-                  <input
-                    type="text"
-                    value={student}
-                    onChange={(e) => {
-                      const next = [...students] as [string, string, string, string];
-                      next[idx] = e.target.value;
-                      setStudents(next);
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {([3, 4, 5] as const).map((count) => (
+                  <button
+                    key={count}
+                    type="button"
+                    style={{
+                      background: cadetCount === count ? '#f6c15b' : '#132338',
+                      color: cadetCount === count ? '#132338' : '#ffffff',
+                      border: cadetCount === count ? '2px solid #f6c15b' : '1px solid #33557d',
+                      borderRadius: '0.6rem',
+                      padding: '0.45rem 0.9rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
                     }}
-                    className="callsign-box__input"
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '0.8rem' }}>
-              <button type="button" className="earth-screen__back-btn" onClick={() => setActiveTab('TEACHER_ROOM')}>Atrás</button>
-              <button
-                type="button"
-                className="facility-card__btn facility-card__btn--gold"
-                onClick={() => setActiveTab('ROLES')}
-              >
-                <span>Asignar Roles (E4)</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'ROLES' && (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#f6c15b', marginBottom: '0.5rem' }}>
-              <ShieldCheck size={24} weight="fill" />
-              <strong style={{ fontFamily: 'Fredoka', fontSize: '1.15rem' }}>E4 · Asignación de Roles Cooperativos</strong>
-            </div>
-            <p style={{ color: '#bed4ea', fontSize: '0.92rem' }}>
-              Cada participante asume una responsabilidad especializada durante las alertas de misión:
-            </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(13rem, 1fr))', gap: '1rem', marginTop: '1rem' }}>
-              <div style={{ background: '#1b324d', border: '1px solid #4d72b0', borderRadius: '0.8rem', padding: '1rem' }}>
-                <span style={{ fontSize: '1.8rem' }}>👩‍🚀</span>
-                <h4 style={{ margin: '0.3rem 0', color: '#ffffff', fontFamily: 'Fredoka' }}>Alba · Comandante</h4>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: '#7cb5c8', fontWeight: 700 }}>Asignado a: {students[0]}</p>
-                <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.82rem', color: '#bed4ea' }}>Toma la decisión final de turno y arbitra empates de opinión.</p>
-              </div>
-
-              <div style={{ background: '#1b324d', border: '1px solid #e0a548', borderRadius: '0.8rem', padding: '1rem' }}>
-                <span style={{ fontSize: '1.8rem' }}>🤖</span>
-                <h4 style={{ margin: '0.3rem 0', color: '#ffffff', fontFamily: 'Fredoka' }}>Chispa · Oficial de Energía</h4>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: '#f6c15b', fontWeight: 700 }}>Asignado a: {students[1]}</p>
-                <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.82rem', color: '#bed4ea' }}>Monitorea el nivel de baterías y optimiza la orientación de paneles.</p>
-              </div>
-
-              <div style={{ background: '#1b324d', border: '1px solid #9a7ac0', borderRadius: '0.8rem', padding: '1rem' }}>
-                <span style={{ fontSize: '1.8rem' }}>🛰️</span>
-                <h4 style={{ margin: '0.3rem 0', color: '#ffffff', fontFamily: 'Fredoka' }}>Aurora · Oficial Científica</h4>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: '#ba68c8', fontWeight: 700 }}>Asignado a: {students[2]}</p>
-                <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.82rem', color: '#bed4ea' }}>Supervisa registros DONKI y activa protocolos de blindaje radiológico.</p>
-              </div>
-
-              <div style={{ background: '#1b324d', border: '1px solid #67a995', borderRadius: '0.8rem', padding: '1rem' }}>
-                <span style={{ fontSize: '1.8rem' }}>🌱</span>
-                <h4 style={{ margin: '0.3rem 0', color: '#ffffff', fontFamily: 'Fredoka' }}>Nico · Soporte Vital & Cultivos</h4>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: '#81c784', fontWeight: 700 }}>Asignado a: {students[3]}</p>
-                <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.82rem', color: '#bed4ea' }}>Vigila el balance de oxígeno, reciclaje de agua y crecimiento de plantas.</p>
+                    onClick={() => handleCadetCountChange(count)}
+                  >
+                    {t('station.cadetsCount', { count })}
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '0.8rem' }}>
-              <button type="button" className="earth-screen__back-btn" onClick={() => setActiveTab('PARTICIPANTS')}>Atrás</button>
-              <button
-                type="button"
-                className="facility-card__btn facility-card__btn--gold"
-                onClick={() => setActiveTab('COOP_BRIEFING')}
-              >
-                <span>Preparar Despegue Grupal (E5)</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'COOP_BRIEFING' && (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#f6c15b', marginBottom: '0.5rem' }}>
-              <Play size={24} weight="fill" />
-              <strong style={{ fontFamily: 'Fredoka', fontSize: '1.15rem' }}>E5 · Despegue y Coordinación Cooperativa</strong>
-            </div>
-            <p style={{ color: '#bed4ea', fontSize: '0.92rem' }}>
-              ¡La tripulación escolar de <strong>{classCode}</strong> está configurada y lista! En la versión completa de aula, cada cadete interviene por turnos según su rol asignado.
-            </p>
-
+            {/* Aviso de Privacidad Escolar */}
             <div style={{
-              background: '#132338',
-              border: '1px solid #33557d',
+              background: 'rgba(246, 193, 91, 0.1)',
+              border: '1px solid #f6c15b',
               borderRadius: '0.8rem',
-              padding: '1.2rem',
-              marginTop: '1rem'
+              padding: '0.8rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.7rem',
+              marginBottom: '1.2rem',
             }}>
-              <p style={{ margin: 0, color: '#69f0ae', fontWeight: 700, fontSize: '1rem' }}>
-                ✓ Maqueta de Modo Estación validada con éxito.
-              </p>
-              <p style={{ margin: '0.4rem 0 0 0', color: '#bed4ea', fontSize: '0.88rem' }}>
-                Para la competencia en vivo de NASA Space Apps 2026, puedes jugar ahora mismo la experiencia individual completa en modo Despegue.
+              <ShieldCheck size={26} color="#f6c15b" weight="fill" style={{ flexShrink: 0 }} />
+              <p style={{ margin: 0, color: '#fbe9c7', fontSize: '0.85rem', lineHeight: '1.4' }}>
+                {t('station.privacyNotice')}
               </p>
             </div>
 
-            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-              <button type="button" className="earth-screen__back-btn" onClick={onClose}>
-                Cerrar Maqueta
+            {/* Tarjetas de Participantes y Roles */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(13.5rem, 1fr))', gap: '0.9rem' }}>
+              {aliases.map((alias, idx) => {
+                const role = assignedRoles[idx];
+                const roleLabel = t(`coop.roles.${role}`) || ROLE_LABELS[role];
+                const roleDesc = t(`station.roles.${role?.toLowerCase()}`);
+                const isFirst = idx === 0;
+
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      background: '#132338',
+                      border: isFirst ? '2px solid #4a88cc' : '1px solid #33557d',
+                      borderRadius: '0.8rem',
+                      padding: '0.9rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#7cb5c8', fontWeight: 700, fontSize: '0.82rem' }}>
+                        {t('station.cadetNumber', { num: idx + 1 })}
+                      </span>
+                      <span style={{
+                        background: '#1b324d',
+                        border: '1px solid #3b6394',
+                        color: '#f6c15b',
+                        borderRadius: '0.4rem',
+                        padding: '0.15rem 0.45rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                      }}>
+                        {ROLE_ICONS[role]} {roleLabel}
+                      </span>
+                    </div>
+
+                    <input
+                      type="text"
+                      value={alias}
+                      onChange={(e) => handleAliasChange(idx, e.target.value)}
+                      placeholder={t('station.aliasPlaceholder', { num: idx + 1, example: SUGGESTED_ALIASES[idx] ?? 'Astro' })}
+                      className="callsign-box__input"
+                      maxLength={18}
+                    />
+
+                    <p style={{ margin: 0, color: '#b9d2ea', fontSize: '0.78rem', lineHeight: '1.35', flex: 1 }}>
+                      {roleDesc}
+                    </p>
+
+                    {isFirst && (
+                      <span style={{ color: '#69f0ae', fontSize: '0.75rem', fontWeight: 700, marginTop: '0.2rem' }}>
+                        ⭐ {t('coop.leadsTurn')}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Aviso de Liderazgo Rotativo */}
+            <div style={{ background: '#0e1c2e', border: '1px solid #284465', borderRadius: '0.8rem', padding: '0.8rem 1rem', marginTop: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <Compass size={22} color="#f6c15b" weight="fill" />
+              <span style={{ fontSize: '0.85rem', color: '#bed5ea' }}>
+                {t('station.turnRotationNotice', {
+                  name: aliases[0]?.trim() || 'Cadete 1',
+                  role: t(`coop.roles.${assignedRoles[0]}`) || ROLE_LABELS[assignedRoles[0]],
+                })}
+              </span>
+            </div>
+
+            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '0.8rem' }}>
+              <button
+                type="button"
+                className="earth-screen__back-btn"
+                onClick={() => setActiveTab('MISSION')}
+              >
+                <ArrowLeft weight="bold" />
+                <span>{t('station.backBtn')}</span>
               </button>
+              <button
+                type="button"
+                className="facility-card__btn facility-card__btn--gold"
+                onClick={() => setActiveTab('LAUNCH')}
+              >
+                <span>{t('station.nextBtn')}</span>
+                <ArrowRight weight="bold" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* PESTAÑA 3: GUÍA COOPERATIVA Y DESPEGUE */}
+        {activeTab === 'LAUNCH' && (
+          <div>
+            {/* Principios de la partida cooperativa */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(13rem, 1fr))', gap: '0.8rem', marginBottom: '1.2rem' }}>
+              <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '0.8rem' }}>
+                <strong style={{ color: '#f6c15b', fontSize: '0.9rem', display: 'block', marginBottom: '0.2rem' }}>
+                  🤝 {t('station.rules.consensusTitle')}
+                </strong>
+                <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.8rem', lineHeight: '1.35' }}>
+                  {t('station.rules.consensusDesc')}
+                </p>
+              </div>
+              <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '0.8rem' }}>
+                <strong style={{ color: '#f6c15b', fontSize: '0.9rem', display: 'block', marginBottom: '0.2rem' }}>
+                  🔄 {t('station.rules.rotationTitle')}
+                </strong>
+                <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.8rem', lineHeight: '1.35' }}>
+                  {t('station.rules.rotationDesc')}
+                </p>
+              </div>
+              <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '0.8rem' }}>
+                <strong style={{ color: '#f6c15b', fontSize: '0.9rem', display: 'block', marginBottom: '0.2rem' }}>
+                  🏗️ {t('station.rules.buildingTitle')}
+                </strong>
+                <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.8rem', lineHeight: '1.35' }}>
+                  {t('station.rules.buildingDesc')}
+                </p>
+              </div>
+              <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '0.8rem' }}>
+                <strong style={{ color: '#f6c15b', fontSize: '0.9rem', display: 'block', marginBottom: '0.2rem' }}>
+                  💻 {t('station.rules.localTitle')}
+                </strong>
+                <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.8rem', lineHeight: '1.35' }}>
+                  {t('station.rules.localDesc')}
+                </p>
+              </div>
+            </div>
+
+            {/* Resumen del Grupo Configurado */}
+            <div style={{
+              background: '#0d1c2d',
+              border: '2px solid #2f5684',
+              borderRadius: '0.9rem',
+              padding: '1.1rem',
+              marginBottom: '1rem',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                <h3 style={{ margin: 0, fontFamily: 'Fredoka', fontSize: '1.2rem', color: '#ffffff' }}>
+                  {cleanTeam || 'Equipo Sin Nombre'} · <span style={{ color: '#f6c15b' }}>{roomCode}</span>
+                </h3>
+                <span style={{ background: '#19395f', color: '#88c8ff', padding: '0.2rem 0.6rem', borderRadius: '0.4rem', fontSize: '0.8rem', fontWeight: 700 }}>
+                  {destination === 'MOON' ? '🌕 Luna' : '🔴 Marte'} · {city === 'AREQUIPA' ? 'Arequipa' : 'Tromsø'}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginTop: '0.6rem' }}>
+                {cleanAliases.map((alias, idx) => {
+                  const role = assignedRoles[idx];
+                  return (
+                    <span
+                      key={idx}
+                      style={{
+                        background: '#15293f',
+                        border: '1px solid #355883',
+                        borderRadius: '0.5rem',
+                        padding: '0.35rem 0.65rem',
+                        fontSize: '0.82rem',
+                        color: '#ffffff',
+                      }}
+                    >
+                      <strong>{alias || `Cadete ${idx + 1}`}</strong>: {ROLE_ICONS[role]} {t(`coop.roles.${role}`) || ROLE_LABELS[role]}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Errores de Validación */}
+            {!isValid && (
+              <div style={{
+                background: 'rgba(244, 67, 54, 0.15)',
+                border: '1px solid #f44336',
+                borderRadius: '0.8rem',
+                padding: '0.8rem 1rem',
+                color: '#ffcdd2',
+                fontSize: '0.85rem',
+                marginBottom: '1rem',
+              }}>
+                {!isTeamValid && <p style={{ margin: '0.2rem 0' }}>• {t('station.errors.teamName')}</p>}
+                {hasEmptyAlias && <p style={{ margin: '0.2rem 0' }}>• {t('station.errors.uniqueAliases')}</p>}
+                {hasDuplicateAlias && <p style={{ margin: '0.2rem 0' }}>• {t('station.errors.uniqueAliases')}</p>}
+              </div>
+            )}
+
+            {/* Acciones Finales */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem', marginTop: '1.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.6rem' }}>
+                <button
+                  type="button"
+                  className="earth-screen__back-btn"
+                  onClick={() => setActiveTab('CREW')}
+                >
+                  <ArrowLeft weight="bold" />
+                  <span>{t('station.backBtn')}</span>
+                </button>
+                {onLaunchDemoSolo && (
+                  <button
+                    type="button"
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#8abde6',
+                      textDecoration: 'underline',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                      padding: '0.5rem',
+                    }}
+                    onClick={() => {
+                      onClose();
+                      onLaunchDemoSolo();
+                    }}
+                  >
+                    {t('station.soloFallback')}
+                  </button>
+                )}
+              </div>
+
               <button
                 type="button"
                 className="earth-action-btn"
-                onClick={() => {
-                  onClose();
-                  onLaunchDemoSolo();
+                disabled={!isValid}
+                style={{
+                  opacity: isValid ? 1 : 0.5,
+                  cursor: isValid ? 'pointer' : 'not-allowed',
                 }}
+                onClick={handleLaunchCoop}
               >
-                <span>Iniciar Partida (Modo Despegue)</span>
+                <RocketLaunch weight="fill" />
+                <span>{t('station.startMissionBtn')}</span>
+                <Sparkle weight="fill" />
               </button>
             </div>
           </div>

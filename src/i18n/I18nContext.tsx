@@ -20,6 +20,7 @@ const dictionaries: Record<SupportedLanguage, Record<string, any>> = {
 };
 
 const I18nContext = createContext<I18nContextValue | null>(null);
+const reportedI18nIssues = new Set<string>();
 
 function getNestedValue(obj: Record<string, any>, path: string): string | undefined {
   const parts = path.split('.');
@@ -35,11 +36,45 @@ function getNestedValue(obj: Record<string, any>, path: string): string | undefi
   return typeof current === 'string' ? current : undefined;
 }
 
-function interpolate(template: string, params?: Record<string, string | number>): string {
-  if (!params) return template;
-  return template.replace(/\{(\w+)\}/g, (_, key) => {
-    return params[key] !== undefined ? String(params[key]) : `{${key}}`;
-  });
+function reportI18nIssue(message: string) {
+  const isDevelopment = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV ?? false;
+  if (!isDevelopment || reportedI18nIssues.has(message)) return;
+  reportedI18nIssues.add(message);
+  console.warn(`[i18n] ${message}`);
+}
+
+function interpolate(
+  template: string,
+  key: string,
+  params?: Record<string, string | number>,
+): string {
+  return template.replace(/\{(\w+)\}/g, (_, placeholder: string) => {
+    const value = params?.[placeholder];
+    if (value !== undefined) return String(value);
+    reportI18nIssue(`Missing interpolation "${placeholder}" for "${key}".`);
+    return '';
+  }).replace(/\s{2,}/g, ' ').trim();
+}
+
+export function translate(
+  language: SupportedLanguage,
+  key: string,
+  params?: Record<string, string | number>,
+): string {
+  const lookupOrder = [...new Set<SupportedLanguage>([language, FALLBACK_LANGUAGE, 'es'])];
+  let value: string | undefined;
+
+  for (const locale of lookupOrder) {
+    value = getNestedValue(dictionaries[locale], key);
+    if (value) break;
+  }
+
+  if (!value) {
+    reportI18nIssue(`Missing translation key "${key}".`);
+    return language === 'es' ? 'Texto no disponible' : 'Text unavailable';
+  }
+
+  return interpolate(value, key, params);
 }
 
 function getStoredLanguage(): SupportedLanguage {
@@ -91,23 +126,7 @@ export function I18nProvider({ children, initialLanguage }: I18nProviderProps) {
   }, [language]);
 
   const t = useCallback(
-    (key: string, params?: Record<string, string | number>): string => {
-      const activeDict = dictionaries[language];
-      let value = activeDict ? getNestedValue(activeDict, key) : undefined;
-
-      // Fallback to default/fallback language if missing in draft / active locale
-      if (!value && language !== FALLBACK_LANGUAGE) {
-        const fallbackDict = dictionaries[FALLBACK_LANGUAGE];
-        value = fallbackDict ? getNestedValue(fallbackDict, key) : undefined;
-      }
-
-      if (!value) {
-        // Return key if nowhere found
-        return key;
-      }
-
-      return interpolate(value, params);
-    },
+    (key: string, params?: Record<string, string | number>): string => translate(language, key, params),
     [language],
   );
 
@@ -128,11 +147,8 @@ const defaultContextValue: I18nContextValue = {
   language: DEFAULT_LANGUAGE,
   languageInfo: defaultLanguageInfo,
   setLanguage: () => {},
-  t: (key: string, params?: Record<string, string | number>): string => {
-    const value = getNestedValue(en, key);
-    if (!value) return key;
-    return interpolate(value, params);
-  },
+  t: (key: string, params?: Record<string, string | number>): string =>
+    translate(DEFAULT_LANGUAGE, key, params),
   isDraft: false,
 };
 

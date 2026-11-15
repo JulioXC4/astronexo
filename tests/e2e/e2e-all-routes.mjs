@@ -708,7 +708,100 @@ async function runTest() {
       console.log('Route 5: Completed successfully!');
     }
 
-    console.log('\n=== ALL 5 ROUTES (4 FULL PATHWAYS + I18N SUITE) COMPLETED AND VERIFIED SUCCESSFULLY! ===');
+    // -------------------------------------------------------------
+    // ROUTE 6: Modo Estación Cooperativo Local (P1)
+    // -------------------------------------------------------------
+    console.log('\n>>> TESTING ROUTE 6: Modo Estación Cooperativo Local (1440x900)');
+    {
+      const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await context.addInitScript(() => { localStorage.setItem('astronexo_lang_v3', 'es'); });
+      const page = await context.newPage();
+      await page.goto(BASE_URL);
+      await page.waitForLoadState('networkidle');
+
+      // 1. Open Station Mode from Welcome Screen
+      const stationBtn = page.locator('button:has-text("Modo Estación")');
+      await stationBtn.waitFor({ state: 'visible' });
+      await stationBtn.click();
+
+      const classroomModalBtn = page.locator('button.welcome__dialog-action').first();
+      await classroomModalBtn.waitFor({ state: 'visible' });
+      await classroomModalBtn.click();
+
+      // 2. Configure Station Room & Mission
+      await page.waitForSelector('.station-modal');
+      const teamInput = page.locator('input.callsign-box__input').nth(1);
+      await teamInput.fill('Equipo Orión E2E');
+      const marsBtn = page.locator('button:has-text("Marte")');
+      await marsBtn.click();
+
+      const nextToCrewBtn = page.locator('button:has-text("Siguiente")');
+      await nextToCrewBtn.click();
+
+      // 3. Configure Crew
+      const fourCadetsBtn = page.locator('button:has-text("4 Cadetes")');
+      await fourCadetsBtn.click();
+
+      const nextToLaunchBtn = page.locator('button:has-text("Siguiente")');
+      await nextToLaunchBtn.click();
+
+      // 4. Launch Coop Mission
+      const launchCoopBtn = page.locator('button.earth-action-btn:has-text("Iniciar Misión Cooperativa")');
+      await launchCoopBtn.waitFor({ state: 'visible' });
+      await launchCoopBtn.click();
+
+      // 5. Build 3 Space Modules
+      await page.waitForSelector('.module-card');
+      await page.locator('.module-card').nth(0).locator('button').click();
+      await page.locator('.module-card').nth(1).locator('button').click();
+      await page.locator('.module-card').nth(2).locator('button').click();
+      await page.click('button.builder-start');
+
+      // 6. Transition to Space Guard
+      await page.waitForSelector('.turn-transition button');
+      await page.click('.turn-transition button');
+
+      // 7. Play 5 turns with collective agreement
+      for (let turn = 1; turn <= 5; turn++) {
+        await page.waitForSelector('.coop-role-bar');
+        const skipAction = page.locator('button.intervention-option--skip');
+        await skipAction.waitFor({ state: 'visible' });
+        await skipAction.click();
+
+        const confirmDialogBtn = page.locator('.group-decision-dialog button.pixel-button--primary');
+        await confirmDialogBtn.waitFor({ state: 'visible' });
+        await confirmDialogBtn.click();
+
+        const advanceBtn = page.locator('footer.turn-controls button');
+        await page.waitForFunction(() => !document.querySelector('footer.turn-controls button')?.hasAttribute('disabled'));
+        await advanceBtn.click();
+
+        await page.waitForSelector('.turn-transition button');
+        await page.click('.turn-transition button');
+      }
+
+      // 8. Collective Results Screen
+      await page.waitForSelector('.coop-results-shell');
+      const submitReportBtn = page.locator('button:has-text("ENTREGAR INFORME")');
+      await submitReportBtn.waitFor({ state: 'visible' });
+      await submitReportBtn.click();
+
+      // 9. Earth Return & Next Adventure
+      await page.waitForSelector('.earth-screen');
+      const nextAdventureBtn = page.locator('button:has-text("Ver Análisis")');
+      await nextAdventureBtn.waitFor({ state: 'visible' });
+      await nextAdventureBtn.click();
+
+      await page.waitForSelector('button:has-text("Volver a la Bienvenida")');
+      const homeBtn = page.locator('button:has-text("Volver a la Bienvenida")');
+      await homeBtn.click();
+      await page.waitForSelector('.welcome');
+
+      await context.close();
+      console.log('Route 6: Local Cooperative Station Mode completed successfully!');
+    }
+
+    console.log('\n=== ALL 6 ROUTES (4 PATHWAYS + I18N + LOCAL COOP STATION MODE) COMPLETED AND VERIFIED! ===');
   } finally {
     await browser.close();
   }

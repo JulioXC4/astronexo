@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react';
+import { assetManifest } from '../assets/manifest';
+
 export type PortraitIdentity = 'ALBA' | 'LEO' | 'AURORA' | 'NICO' | 'CHISPA';
 
 export interface CharacterPortraitProps {
@@ -6,6 +9,7 @@ export interface CharacterPortraitProps {
   readonly selected?: boolean;
   readonly mood?: 'normal' | 'alert' | 'celebrate';
   readonly label?: string;
+  readonly source?: string | null;
 }
 
 const accents: Record<PortraitIdentity, string> = {
@@ -13,20 +17,23 @@ const accents: Record<PortraitIdentity, string> = {
 };
 
 const pixelPortraits: Partial<Record<PortraitIdentity, string>> = {
-  ALBA: '/assets/pixel-art/cadet-alba.png',
+  ALBA: assetManifest['character.alba'].path ?? undefined,
   LEO: '/assets/pixel-art/commander-leo.png',
-  AURORA: '/assets/pixel-art/officer-aurora.png',
-  NICO: '/assets/pixel-art/engineer-nico.png',
+  AURORA: assetManifest['character.aurora'].path ?? undefined,
+  NICO: assetManifest['character.nico'].path ?? undefined,
+  CHISPA: assetManifest['character.chispa'].path ?? undefined,
 };
 
-/** Original SVG stand-in; these are not portraits extracted from the design PDF. */
-export function CharacterPortrait({ identity, kind = 'cadet', selected = false, mood = 'normal', label }: CharacterPortraitProps) {
+/** Uses the asset catalog and falls back to the original SVG stand-in if an image cannot load. */
+export function CharacterPortrait({ identity, kind = 'cadet', selected = false, mood = 'normal', label, source }: CharacterPortraitProps) {
   const robot = kind === 'robot' || identity === 'CHISPA';
   const accent = accents[identity ?? (robot ? 'CHISPA' : 'ALBA')];
   const accessibleLabel = label ?? (robot ? 'Robot acompañante' : 'Cadete astronauta');
-  const pixelPortrait = identity && pixelPortraits[identity];
-  if (pixelPortrait) return <span className={`character-portrait character-portrait--pixel${selected ? ' character-portrait--selected' : ''}`} role="img" aria-label={`${accessibleLabel}, ${mood === 'alert' ? 'alerta' : mood === 'celebrate' ? 'celebración' : 'normal'}${selected ? ', seleccionado' : ''}`}>
-    <img src={pixelPortrait} alt="" />
+  const pixelPortrait = source ?? (identity && pixelPortraits[identity]);
+  const [imageFailed, setImageFailed] = useState(false);
+  useEffect(() => setImageFailed(false), [pixelPortrait]);
+  if (pixelPortrait && !imageFailed) return <span className={`character-portrait character-portrait--pixel${selected ? ' character-portrait--selected' : ''}`} role="img" aria-label={`${accessibleLabel}, ${mood === 'alert' ? 'alerta' : mood === 'celebrate' ? 'celebración' : 'normal'}${selected ? ', seleccionado' : ''}`}>
+    <img src={pixelPortrait} alt="" onError={() => setImageFailed(true)} />
   </span>;
   return <svg className="character-portrait" viewBox="0 0 240 240" role="img" aria-label={`${accessibleLabel}, ${mood === 'alert' ? 'alerta' : mood === 'celebrate' ? 'celebración' : 'normal'}${selected ? ', seleccionado' : ''}`}>
     <circle cx="120" cy="120" r="112" fill={selected ? '#f6c15b' : '#527d8d'}/>
