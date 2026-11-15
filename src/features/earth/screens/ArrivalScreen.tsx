@@ -82,8 +82,14 @@ export function ArrivalScreen({ destination, astronautName, cityName, backpack, 
             <strong>Equipamiento disponible en la base:</strong> {tools.join(' · ')}
           </p>
           <p style={{ margin: 0, color: '#90caf9', fontSize: '0.88rem' }}>
-            <strong>Integración científica NASA:</strong> {nasaData.observations.length} registros históricos transferidos ({nasaData.validation === 'VERIFIED' ? 'Verificados y Validados' : 'Pendientes'}).
+            <strong>Referencia científica NASA:</strong> {nasaData.observations.length} registros históricos de respaldo ({nasaData.validation === 'VERIFIED' ? 'contrastados con la fuente' : 'pendientes'}). Las barras espaciales son simuladas.
           </p>
+          <ul style={{ margin: '0.75rem 0 0', paddingLeft: '1.25rem', color: '#bed4ea', fontSize: '0.82rem' }}>
+            {nasaData.observations.map((observation) => <li key={observation.recordId}>
+              {observation.source} · {observation.observedAt} · {observation.parameter}: {observation.value} {observation.unit} ·{' '}
+              <a href={observation.sourceUrl} target="_blank" rel="noreferrer">registro original</a>
+            </li>)}
+          </ul>
         </section>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>

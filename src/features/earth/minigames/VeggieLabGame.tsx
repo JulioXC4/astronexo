@@ -182,7 +182,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
               />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#90caf9' }}>
-              <span>Recomendación NASA: 70% Rojo / 30% Azul</span>
+              <span>Objetivo del simulador: 70% Rojo / 30% Azul</span>
               <button
                 type="button"
                 className="callsign-chip"

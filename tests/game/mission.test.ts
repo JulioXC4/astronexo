@@ -84,6 +84,9 @@ describe('motor H0–H2', () => {
     expect(result?.score.total).toBeGreaterThan(0);
     expect(result?.score.operationalCompletion).toBeGreaterThan(0);
     expect(result?.interruptionCause).toBeTruthy();
+    expect(result?.causeAndEffect.some((line) => line.startsWith('Energía:') && line.includes('alertas ignoradas'))).toBe(true);
+    expect(result?.causeAndEffect.some((line) => line.startsWith('Oxígeno:'))).toBe(true);
+    expect(result?.causeAndEffect.some((line) => line.startsWith('Escudo:'))).toBe(true);
   });
 
   it('no completa el objetivo científico por sobrevivir cinco turnos', () => {
@@ -95,6 +98,19 @@ describe('motor H0–H2', () => {
     expect(result?.scientificObjectiveAchieved).toBe(false);
     expect(result?.outcome).toBe('INTERRUPTED');
     expect(result?.interruptionCause).toContain('objetivo científico');
+  });
+
+  it('calcula el puntaje con los cuatro componentes P0 y el factor de dificultad', () => {
+    let state = createMission({ ...baseSetup, difficulty: 'ACTIVE' });
+    while (state.outcome === 'IN_PROGRESS') state = advanceTurn(applyAction(state, { type: 'SKIP_INTERVENTION' }));
+    const score = getMissionResult(state)?.score;
+    expect(score).toBeDefined();
+    if (!score) return;
+    const expected = Math.max(0, Math.min(100, Math.round((
+      score.crewSafety + score.finalResources + score.alertPrioritization + score.scientificObjective
+    ) / 4 * score.difficultyFactor)));
+    expect(score.total).toBe(expected);
+    expect(score.difficultyFactor).toBe(1.08);
   });
 
   it('interrumpe por alimento y por exposición sin consumir Escudo automáticamente', () => {

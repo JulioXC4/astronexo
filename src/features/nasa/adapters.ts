@@ -3,7 +3,7 @@ import { getSolarDatasetByCity } from '../../data/nasa/powerData';
 import { DEFAULT_DONKI_EVENT } from '../../data/nasa/donkiData';
 
 /**
- * Normaliza y construye el dataset NASA verificado según la ciudad y la misión.
+ * Construye el respaldo local contrastado con las fuentes NASA el 2026-11-15.
  */
 export function buildVerifiedNasaDataset(cityId: string = 'AREQUIPA', selectedSolarDayIndex: number = 0): NasaDataset {
   const solarDataset = getSolarDatasetByCity(cityId);
@@ -18,6 +18,6 @@ export function buildVerifiedNasaDataset(cityId: string = 'AREQUIPA', selectedSo
   return {
     validation: 'VERIFIED',
     observations,
-    note: `Datos históricos verificados de NASA POWER (${solarDataset.cityId}, ${solarDay.date}, ${solarDay.irradianceKwhPerM2} kWh/m²/día) y NASA DONKI (Tormenta CME ${donkiEvent.observedAt.slice(0, 10)}).`,
+    note: `Respaldo histórico NASA POWER (${solarDataset.cityId}, ${solarDay.date}, ${solarDay.irradianceKwhPerM2} kW-hr/m²/día) y NASA DONKI (CME ${donkiEvent.observedAt.slice(0, 10)}), contrastado el 2026-11-15. Las barras, costos, alertas y producción espacial son parámetros simulados; POWER solo describe la Tierra.`,
   };
 }

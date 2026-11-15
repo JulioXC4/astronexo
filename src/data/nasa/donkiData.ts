@@ -26,22 +26,19 @@ export interface DonkiEventRecord {
 }
 
 /**
- * Registros históricos verificados de NASA DONKI (Space Weather Database).
- * - CME: Eyección de masa coronal (nubes de plasma magnetizado que viajan en 1-3 días).
- * - FLR: Llamarada solar (fotones X/UV que llegan a la velocidad de la luz en 8 minutos).
- * - GST: Tormenta geomagnética en la magnetosfera terrestre.
- * - SEP: Eventos de partículas energéticas solares.
+ * Respaldo local de registros históricos de NASA DONKI (M2M_CATALOG).
+ * Ambos registros son CME. Las fechas y velocidades provienen de sus fichas DONKI;
+ * el protocolo jugable y sus consecuencias son una simulación educativa.
  * Los indicadores de protección se expresan en niveles educativos de alerta simulada.
  */
-export const DONKI_HISTORICAL_EVENTS: readonly DonkiEventRecord[] = [
-  {
-    eventId: '2024-05-10T06:54:00-CME-001',
+const PRIMARY_CME: DonkiEventRecord = {
+    eventId: '2024-05-10T07:12:00-CME-001',
     eventType: 'CME',
-    typeLabel: 'Eyección de Masa Coronal (CME) y Tormenta G5',
-    observedAt: '2024-05-10T06:54:00Z',
-    summary: 'La mayor eyección coronal del ciclo solar 25 (región NOAA AR 3664) con velocidad superior a 1200 km/s.',
+    typeLabel: 'Eyección de Masa Coronal (CME)',
+    observedAt: '2024-05-10T07:12:00Z',
+    summary: 'CME observada el 10 de mayo de 2024 desde la región activa 13664; análisis de la parte principal: 1018 km/s.',
     scientificDetail: 'Nube masiva de plasma solar y campo magnético. En cuerpos sin atmósfera ni magnetosfera global (como la Luna o durante el tránsito interplanetario), el flujo de partículas energéticas requiere refugio blindado de polietileno/agua.',
-    sourceUrl: 'https://kauai.ccmc.gsfc.nasa.gov/DONKI/view/CME/27043/1',
+    sourceUrl: 'https://ccmc.gsfc.nasa.gov/DONKI/view/CME/30670/-1',
     recommendedAction: {
       id: 'SHELTER_SHIELD',
       label: 'Activar protocolo de refugio y blindaje hermético',
@@ -67,48 +64,34 @@ export const DONKI_HISTORICAL_EVENTS: readonly DonkiEventRecord[] = [
     ],
     observation: {
       source: 'DONKI',
-      recordId: '2024-05-10T06:54:00-CME-001',
-      observedAt: '2024-05-10T06:54:00Z',
-      parameter: 'Coronal Mass Ejection (CME) - NOAA AR 3664',
-      value: 'Velocidad > 1200 km/s · Asociada a Tormenta Geomagnética G5',
+      recordId: '2024-05-10T07:12:00-CME-001',
+      observedAt: '2024-05-10T07:12:00Z',
+      parameter: 'CME bulk speed (M2M_CATALOG, NOAA AR 13664)',
+      value: 1018,
       unit: 'km/s',
-      sourceUrl: 'https://kauai.ccmc.gsfc.nasa.gov/DONKI/view/CME/27043/1',
+      sourceUrl: 'https://ccmc.gsfc.nasa.gov/DONKI/view/CME/30670/-1',
     },
-  },
+};
+
+export const DONKI_HISTORICAL_EVENTS: readonly DonkiEventRecord[] = [
+  PRIMARY_CME,
   {
-    eventId: '2024-02-22T22:08:00-FLR-001',
-    eventType: 'FLR',
-    typeLabel: 'Llamarada Solar Clase X6.3',
-    observedAt: '2024-02-22T22:08:00Z',
-    summary: 'La llamarada solar más potente de la primera mitad del ciclo solar 25, detectada por SDO y GOES.',
-    scientificDetail: 'Emisión repentina de radiación electromagnética (rayos X y UV extremos) que viaja a la velocidad de la luz y alcanza la órbita lunar en solo 8 minutos.',
-    sourceUrl: 'https://kauai.ccmc.gsfc.nasa.gov/DONKI/view/FLR/26780/1',
-    recommendedAction: {
-      id: 'RADIO_COMM_ALERT',
-      label: 'Activar filtro de radiofrecuencia y suspender paseos exteriores',
-      description: 'Proteger antenas de comunicaciones y mantener a los astronautas en cabina.',
-      outcomeType: 'CORRECT',
-      explanation: '¡Gran decisión! Evitaste el apagón de telemetría y la exposición directa a rayos X en el exterior.',
-    },
-    alternativeActions: [
-      {
-        id: 'IGNORE_WARNING',
-        label: 'Ignorar aviso porque el cielo lunar se ve oscuro',
-        description: 'Continuar tareas exteriores sin protección.',
-        outcomeType: 'RISKY',
-        explanation: 'Peligro: la radiación X no es visible al ojo humano pero penetra trajes espaciales ligeros.',
-      },
-    ],
+    ...PRIMARY_CME,
+    eventId: '2024-05-10T21:28:00-CME-001',
+    typeLabel: 'Eyección de Masa Coronal (CME) posterior',
+    observedAt: '2024-05-10T21:28:00Z',
+    summary: 'CME observada el 10 de mayo de 2024 desde S35E01; primer análisis DONKI: 717 km/s.',
+    sourceUrl: 'https://ccmc.gsfc.nasa.gov/DONKI/view/CME/30753/-1',
     observation: {
       source: 'DONKI',
-      recordId: '2024-02-22T22:08:00-FLR-001',
-      observedAt: '2024-02-22T22:08:00Z',
-      parameter: 'Solar Flare X-Ray Peak Flux',
-      value: 'X6.3 class flare',
-      unit: 'Watts/m²',
-      sourceUrl: 'https://kauai.ccmc.gsfc.nasa.gov/DONKI/view/FLR/26780/1',
+      recordId: '2024-05-10T21:28:00-CME-001',
+      observedAt: '2024-05-10T21:28:00Z',
+      parameter: 'CME speed (M2M_CATALOG, first analysis)',
+      value: 717,
+      unit: 'km/s',
+      sourceUrl: 'https://ccmc.gsfc.nasa.gov/DONKI/view/CME/30753/-1',
     },
   },
-] as const;
+];
 
 export const DEFAULT_DONKI_EVENT = DONKI_HISTORICAL_EVENTS[0];

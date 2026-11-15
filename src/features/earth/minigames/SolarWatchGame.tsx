@@ -86,7 +86,7 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
                   handleReset();
                 }}
               >
-                {ev.typeLabel.split(' ')[0]} ({ev.observedAt.slice(0, 10)})
+                {ev.eventType} · {ev.observedAt.slice(11, 16)} UTC
               </button>
             ))}
           </div>
@@ -214,7 +214,7 @@ export function SolarWatchGame({ onComplete, onBack }: SolarWatchGameProps) {
                 <CheckCircle weight="fill" size={22} /> ¡Tripulación a Salvo bajo el Escudo!
               </strong>
               <p style={{ margin: '0.2rem 0 0 0', color: '#c8e6c9', fontSize: '0.88rem' }}>
-                El frente de onda de la tormenta de mayo de 2024 ({event.summary}) cruzó la superficie a &gt;1200 km/s. Al evacuar a tiempo y sellar la compuerta de polietileno, la radiación en el búnker se mantuvo en niveles seguros.
+                {event.summary} En esta simulación completaste el protocolo de refugio y protección de sensores. El registro NASA no proporciona una dosis recibida por la tripulación.
               </p>
             </div>
             <button

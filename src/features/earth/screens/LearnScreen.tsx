@@ -25,7 +25,7 @@ const LEARN_TOPICS = [
     title: 'Soporte Vital Regenerativo (ECLSS)',
     source: 'NASA ECLSS (Environmental Control and Life Support)',
     url: 'https://www.nasa.gov/reference/environmental-control-and-life-support-systems-eclss/',
-    summary: 'En la Estación Espacial Internacional y en la Luna, el 98% del agua de la tripulación (incluyendo sudor y condensación) se filtra y recicla para beber. Mediante electrólisis, se separa el agua en oxígeno respirable e hidrógeno.',
+    summary: 'En la Estación Espacial Internacional se recicla agua de la tripulación mediante sistemas de filtración. La electrólisis separa el agua para producir oxígeno respirable. La base lunar del juego representa una aplicación simulada de estos principios.',
   },
   {
     icon: <Plant size={28} color="#81c784" weight="fill" />,

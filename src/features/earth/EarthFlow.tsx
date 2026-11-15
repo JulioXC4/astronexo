@@ -53,7 +53,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
   const [avatar, setAvatar] = useState<AvatarOption>(DEFAULT_AVATAR);
   const [fictionalName, setFictionalName] = useState<string>(SUGGESTED_CALLSIGNS[0]);
   const [completedMissions, setCompletedMissions] = useState<MissionType[]>([]);
-  const [backpack, setBackpack] = useState<Backpack>(['FOLDING_PANELS', 'LIFE_SUPPORT', 'SHELTER_KIT']);
+  const [backpack, setBackpack] = useState<Backpack | null>(null);
 
   function navigateTo(nextScreen: EarthScreenState) {
     setPreviousScreen(screen);
@@ -88,7 +88,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
 
   function handleLaunchMission() {
     if (completedMissions.length !== 3) return;
-    if (backpack.length !== 3) return;
+    if (!backpack) return;
 
     const verifiedNasaDataset = buildVerifiedNasaDataset(city.id);
 
@@ -132,6 +132,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
             if (selectedCity.id !== city.id) {
               setCity(selectedCity);
               setCompletedMissions([]); // Reiniciar misiones si cambia de ciudad
+              setBackpack(null);
             }
             navigateTo('DESTINATION');
           }}
@@ -279,6 +280,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
 
     // 14. Despegue Animado 2D
     case 'LIFTOFF':
+      if (!backpack) return null;
       return (
         <DepartureScreen
           destination={destination}
@@ -291,6 +293,7 @@ export function EarthFlow({ onReady }: EarthFlowProps) {
 
     // 15. Llegada y Alunizaje / Llegada a Destino
     case 'ARRIVAL':
+      if (!backpack) return null;
       return (
         <ArrivalScreen
           destination={destination}

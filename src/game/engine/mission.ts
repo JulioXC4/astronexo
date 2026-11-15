@@ -555,6 +555,26 @@ function buildConfigurationConsequences(state: MissionState) {
   })];
 }
 
+function buildBarConsequences(state: MissionState): readonly string[] {
+  const initial = createMissionState(state.setup, isLegacyDemoSetup(state.setup));
+  return ([
+    ['energy', 'Energía'],
+    ['oxygen', 'Oxígeno'],
+    ['shield', 'Escudo'],
+  ] as const).map(([key, label]) => {
+    const actionDelta = state.decisions.reduce((total, decision) => total + (decision.resourceDelta[key] ?? 0), 0);
+    const alertDelta = state.unresolvedEvents.reduce((total, event) => total + (event.resourceDelta[key] ?? 0), 0);
+    const moduleDelta = state.moduleOperations.reduce((total, operation) =>
+      total + (operation.phase === 'SETUP' ? 0 : (operation.cost[key] ?? 0) + (operation.benefit[key] ?? 0)), 0);
+    const detail = [
+      actionDelta && `decisiones ${actionDelta > 0 ? '+' : ''}${actionDelta}`,
+      alertDelta && `alertas ignoradas ${alertDelta > 0 ? '+' : ''}${alertDelta}`,
+      moduleDelta && `módulos ${moduleDelta > 0 ? '+' : ''}${moduleDelta}`,
+    ].filter(Boolean).join('; ');
+    return `${label}: ${initial[key]} → ${state[key]}. ${detail || 'Sin cambio directo registrado.'} El balance incluye producción y consumo por turno y límites de la barra.`;
+  });
+}
+
 export function getMissionResult(state: MissionState): MissionResult | null {
   if (state.outcome === 'IN_PROGRESS') return null;
   const helpfulDecisions = state.decisions
@@ -569,7 +589,7 @@ export function getMissionResult(state: MissionState): MissionResult | null {
     interruptionCause: state.interruptionCause,
     helpfulDecisions,
     harmfulDecisions,
-    causeAndEffect: [...helpfulDecisions.slice(-4), ...harmfulDecisions.slice(-4)],
+    causeAndEffect: [...buildBarConsequences(state), ...helpfulDecisions.slice(-2), ...harmfulDecisions.slice(-2)],
     scientificObjectiveAchieved: state.scienceProgress >= SCIENCE_TARGET,
     relevantTools: state.selectedTools,
     relevantModules: [...state.selectedModules],

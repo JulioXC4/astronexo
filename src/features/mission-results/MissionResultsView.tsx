@@ -48,7 +48,7 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
           <li><span>Seguridad de la tripulación</span><strong>{score.crewSafety}</strong></li>
           <li><span>Recursos finales</span><strong>{score.finalResources}</strong></li>
           <li><span>Priorización de alertas</span><strong>{score.alertPrioritization}</strong></li>
-          <li><span>Guardia operativa</span><strong>{score.operationalCompletion}</strong></li>
+          <li><span>Guardia operativa (informativo)</span><strong>{score.operationalCompletion}</strong></li>
           <li><span>Objetivo científico</span><strong>{score.scientificObjective}</strong></li>
           <li><span>Factor de dificultad</span><strong>×{score.difficultyFactor}</strong></li>
         </ul>
@@ -57,10 +57,10 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
 
     <section className="decision-report pixel-panel">
       <div>
-        <h2>Decisiones que ayudaron</h2>
+        <h2>Intervenciones realizadas</h2>
         {result.helpfulDecisions.length
           ? <ul>{result.helpfulDecisions.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul>
-          : <p>No se resolvieron alertas en esta guardia.</p>}
+          : <p>No se realizaron intervenciones en esta guardia.</p>}
       </div>
       <div>
         <h2>Consecuencias acumuladas</h2>

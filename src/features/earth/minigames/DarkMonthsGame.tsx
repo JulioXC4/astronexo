@@ -16,7 +16,7 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
   const [isTested, setIsTested] = useState<boolean>(false);
 
   // Datos reales de Tromsø en diciembre (Noche polar)
-  const polarNightRecord = TROMSO_SOLAR_RECORDS.days[2]; // 0.08 kWh/m²/día
+  const polarNightRecord = TROMSO_SOLAR_RECORDS.days[2];
 
   function handleAutoBalance() {
     setThermalHeat(55);

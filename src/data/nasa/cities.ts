@@ -24,8 +24,8 @@ export const SUPPORTED_CITIES: readonly CityData[] = [
     longitude: -71.5375,
     altitudeMeters: 2325,
     climateType: 'Montaña andina desértica',
-    description: 'La Ciudad Blanca a 2,325 m de altitud. Cielos despejados más de 300 días al año y menor densidad atmosférica.',
-    solarContext: 'Radiación solar muy alta y constante (>6.5 kWh/m²/día) debido a su altitud y baja columna de aire. Ángulo óptimo hacia el norte: ~16°.',
+    description: 'La Ciudad Blanca a 2,325 m de altitud. Su ubicación andina permite explorar cómo varía la energía solar entre días históricos.',
+    solarContext: 'En las fechas históricas seleccionadas, NASA POWER registra entre 5.6028 y 6.174 kWh/m²/día. La inclinación de 16° hacia el norte es un supuesto del juego.',
   },
   {
     id: 'TROMSO',
@@ -36,7 +36,7 @@ export const SUPPORTED_CITIES: readonly CityData[] = [
     altitudeMeters: 20,
     climateType: 'Subártico marítimo',
     description: 'La puerta al Ártico sobre el paralelo 69° N. Hogar de la noche polar en invierno y del sol de medianoche en verano.',
-    solarContext: 'Variación solar extrema: desde 0.08 kWh/m²/día en la noche polar de diciembre hasta 5.18 kWh/m²/día en el solsticio de junio.',
+    solarContext: 'En las fechas históricas seleccionadas, NASA POWER registra desde 0 kWh/m²/día en diciembre hasta 3.5702 kWh/m²/día en junio.',
   },
 ] as const;
 

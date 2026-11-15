@@ -296,13 +296,13 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
                 </div>
                 <div>
                   <span style={{ fontSize: '0.78rem', color: '#8fb1d4', textTransform: 'uppercase', fontWeight: 700 }}>
-                    Insolación Anual · NASA POWER
+                    Fechas históricas seleccionadas · NASA POWER
                   </span>
                   <div style={{ fontFamily: 'Fredoka', fontSize: '1.25rem', color: '#ffffff' }}>
-                    {selectedCity.id === 'AREQUIPA' ? '>6.5 kWh/m²/día' : 'Ciclo Polar (0.08 a 5.18)'}
+                    {selectedCity.id === 'AREQUIPA' ? '5.6028 a 6.174 kWh/m²/día' : 'Ciclo Polar (0 a 3.5702)'}
                   </div>
                   <span style={{ fontSize: '0.75rem', color: '#5ec284' }}>
-                    {selectedCity.id === 'AREQUIPA' ? 'Cielo despejado >300 días' : 'Noche polar en dic / Sol medianoche en jun'}
+                    Tres días de 2024, no promedio anual
                   </span>
                 </div>
               </div>

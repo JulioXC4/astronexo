@@ -78,4 +78,52 @@ describe('Integración Tierra → SoloSpaceGame', () => {
     expect(state.completedTurns).toBe(5);
     expect(state.outcome).toBe('COMPLETED');
   });
+
+  it('los kits ganados alteran recursos y operaciones espaciales sin depender de NASA POWER', () => {
+    const withPanels = createMission({ ...setup('AREQUIPA', 'MOON', [0, 1, 2]), selectedModules: modules });
+    const withoutPanels = createMission({ ...setup('AREQUIPA', 'MOON', [1, 2, 4]), selectedModules: modules });
+    expect(withPanels.energy).toBe(withoutPanels.energy + 8);
+    const panelTurn = advanceTurn(applyAction({ ...withPanels, activeAlerts: [], energy: 60 }, { type: 'SKIP_INTERVENTION' }));
+    const plainTurn = advanceTurn(applyAction({ ...withoutPanels, activeAlerts: [], energy: 60 }, { type: 'SKIP_INTERVENTION' }));
+    expect(panelTurn.energy).toBeGreaterThan(plainTurn.energy);
+
+    const doubleLife = createMission({ ...setup('AREQUIPA', 'MOON', [1, 2, 3]), selectedModules: modules });
+    const lifeTurn = advanceTurn(applyAction({ ...withPanels, activeAlerts: [], oxygen: 60 }, { type: 'SKIP_INTERVENTION' }));
+    const doubleLifeTurn = advanceTurn(applyAction({ ...doubleLife, activeAlerts: [], oxygen: 60 }, { type: 'SKIP_INTERVENTION' }));
+    expect(doubleLifeTurn.oxygen).toBeGreaterThan(lifeTurn.oxygen);
+
+    const otherModules = ['SOLAR_STORAGE', 'REINFORCED_LIFE_SUPPORT', 'SCIENCE_LAB'] as const;
+    const withShelter = createMission({ ...setup('AREQUIPA', 'MOON', [0, 1, 2]), selectedModules: otherModules });
+    const withoutShelter = createMission({ ...setup('AREQUIPA', 'MOON', [0, 1, 4]), selectedModules: otherModules });
+    const shelteredTurn = advanceTurn(applyAction({ ...withShelter, activeAlerts: [], shield: 60 }, { type: 'SKIP_INTERVENTION' }));
+    const exposedTurn = advanceTurn(applyAction({ ...withoutShelter, activeAlerts: [], shield: 60 }, { type: 'SKIP_INTERVENTION' }));
+    expect(shelteredTurn.radiationExposure).toBeLessThan(exposedTurn.radiationExposure);
+
+    const withCrop = createMission({ ...setup('TROMSO', 'MARS', [1, 2, 4]), selectedModules: modules });
+    const withoutCrop = createMission({ ...setup('TROMSO', 'MARS', [0, 2, 3]), selectedModules: modules });
+    expect(withCrop.foodSupply).toBe(withoutCrop.foodSupply + 16);
+    const cropHarvest = applyAction({ ...withCrop, foodSupply: 50 }, { type: 'MANAGE_GREENHOUSE', choiceId: 'MAINTAIN_CROPS' });
+    const plainHarvest = applyAction({ ...withoutCrop, foodSupply: 50 }, { type: 'MANAGE_GREENHOUSE', choiceId: 'MAINTAIN_CROPS' });
+    expect(cropHarvest.foodSupply).toBeGreaterThan(plainHarvest.foodSupply);
+  });
+
+  it('las rutas Arequipa → Luna y Tromsø → Marte llegan a un resultado con cinco turnos como máximo', () => {
+    for (const [city, destination] of [['AREQUIPA', 'MOON'], ['TROMSO', 'MARS']] as const) {
+      let state = createMission({ ...setup(city, destination, [0, 2, 3]), selectedModules: modules });
+      for (let guard = 0; guard < 5 && state.outcome === 'IN_PROGRESS'; guard++) {
+        expect(state.activeAlerts.length).toBeLessThanOrEqual(2);
+        const acted = applyAction(state, { type: 'SKIP_INTERVENTION' });
+        expect(acted.decisions.at(-1)?.turn).toBe(state.turn);
+        state = advanceTurn(acted);
+      }
+      const result = getMissionResult(state);
+      expect(result).not.toBeNull();
+      expect(result?.turnsReached).toBeGreaterThan(0);
+      expect(result?.turnsReached).toBeLessThanOrEqual(5);
+      expect(result?.finalState.setup.city).toBe(city);
+      expect(result?.finalState.destination).toBe(destination);
+      expect(result?.score.total).toBeGreaterThanOrEqual(0);
+      expect(result?.score.total).toBeLessThanOrEqual(100);
+    }
+  });
 });

@@ -85,15 +85,15 @@ test('NASA DONKI - Verificación de eventos históricos de clima espacial', () =
 
   const cmeEvent = DONKI_HISTORICAL_EVENTS.find((e) => e.eventType === 'CME');
   assert.ok(cmeEvent, 'Debe existir un evento histórico CME');
-  assert.equal(cmeEvent.eventId, '2024-05-10T06:54:00-CME-001');
+  assert.equal(cmeEvent.eventId, '2024-05-10T07:12:00-CME-001');
   assert.ok(cmeEvent.sourceUrl.includes('ccmc.gsfc.nasa.gov/DONKI'));
   assert.equal(cmeEvent.recommendedAction.outcomeType, 'CORRECT');
 
-  const flareEvent = DONKI_HISTORICAL_EVENTS.find((e) => e.eventType === 'FLR');
-  assert.ok(flareEvent, 'Debe existir un evento de llamarada solar FLR');
-  assert.equal(flareEvent.eventId, '2024-02-22T22:08:00-FLR-001');
+  const laterCme = DONKI_HISTORICAL_EVENTS.find((e) => e.eventId === '2024-05-10T21:28:00-CME-001');
+  assert.ok(laterCme, 'Debe existir un segundo evento CME trazable');
+  assert.equal(laterCme.observation.value, 717);
 
-  assert.equal(DEFAULT_DONKI_EVENT.eventId, '2024-05-10T06:54:00-CME-001');
+  assert.equal(DEFAULT_DONKI_EVENT.eventId, '2024-05-10T07:12:00-CME-001');
 });
 
 // =============================================================================

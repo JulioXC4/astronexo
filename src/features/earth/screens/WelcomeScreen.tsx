@@ -114,7 +114,7 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
         </> : <>
           <p className="welcome__dialog-kicker">Nuestra base científica</p>
           <h2 id="welcome-dialog-title">Fuentes científicas</h2>
-          <p>Usaremos registros históricos verificables de la NASA para modelar la radiación y el clima espacial.</p>
+          <p>Usaremos registros históricos de NASA POWER sobre radiación solar terrestre y de DONKI sobre eventos solares. Las barras y consecuencias espaciales son una simulación educativa.</p>
           <ul className="welcome__sources">
             {sources.map((source) => <li key={source.name}>
               <a href={source.url} target="_blank" rel="noreferrer">{source.name}</a>

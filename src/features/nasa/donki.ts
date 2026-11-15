@@ -1,8 +1,8 @@
 import { DONKI_HISTORICAL_EVENTS, DEFAULT_DONKI_EVENT, type DonkiEventRecord } from '../../data/nasa/donkiData';
 
 /**
- * Cliente para NASA DONKI (Space Weather Database of Notifications, Knowledge, Information).
- * Proporciona eventos históricos verificables de CME, llamaradas solares y tormentas geomagnéticas.
+ * Acceso al respaldo local de NASA DONKI.
+ * No realiza peticiones de red en tiempo de juego.
  */
 export async function fetchHistoricalSpaceWeatherEvents(): Promise<readonly DonkiEventRecord[]> {
   return DONKI_HISTORICAL_EVENTS;

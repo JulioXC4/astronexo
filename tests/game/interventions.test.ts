@@ -85,11 +85,12 @@ describe('G1–G8', () => {
     expect(suspended.greenhouseActive).toBe(false);
   });
 
-  it('G8 responde inmediatamente en Luna y no consume recursos', () => {
+  it('G8 responde inmediatamente en Luna y consume la comunicación disponible', () => {
     const initial = createMission(setup);
     const next = applyAction(initial, { type: 'CONSULT_EARTH', choiceId: 'ENERGY_GUIDANCE' });
     expect(getActionCost(initial, { type: 'CONSULT_EARTH', choiceId: 'ENERGY_GUIDANCE' })).toEqual({});
     expect(next.energy).toBe(initial.energy);
+    expect(next.communicationAvailable).toBe(false);
     expect(next.consultationUsed).toBe(true);
     expect(next.pendingCommunication).toBeNull();
     expect(next.communicationResponse).toContain('Respuesta simulada');
@@ -113,6 +114,8 @@ describe('G1–G8', () => {
   it('la respuesta marciana llega al siguiente turno', () => {
     const initial = createMission({ ...setup, destination: 'MARS' });
     const sent = applyAction(initial, { type: 'CONSULT_EARTH', choiceId: 'RADIATION_GUIDANCE' });
+    expect(sent.energy).toBe(initial.energy);
+    expect(sent.communicationAvailable).toBe(false);
     expect(sent.communicationResponse).toBeUndefined();
     expect(sent.pendingCommunication?.dueTurn).toBe(2);
     const next = advanceTurn(sent);
