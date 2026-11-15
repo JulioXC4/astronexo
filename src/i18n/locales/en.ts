@@ -294,6 +294,9 @@ export const en = {
       educationalNote: 'Educational simulation rules: Evacuation and polyethylene/water shielding are simulated protocols; severity ratings are qualitative without fabricated radiation doses.',
     },
     darkMonths: {
+      allocation: 'Battery budget: {used}% / 100%. Share all power among heat, crops, and radio.',
+      allocationFailure: 'You assigned {used}% of a 100% battery. Adjust the three controls and test again.',
+      reset: 'Reset distribution',
       back: 'Back to Tromsø Map',
       pill: 'Dark Months Reserve · NASA POWER (Tromsø, 69.6° N)',
       title: 'Polar Reserve: Continuous Night Power Distribution',

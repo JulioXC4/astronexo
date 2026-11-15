@@ -51,7 +51,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
         </button>
         <div className="earth-screen__progress-pill">
           <Wind weight="fill" color="#80d8ff" />
-          <span>{t('minigames.altitudeAcclimatization.title')}</span>
+          <span>{t('minigames.altitude.title')}</span>
         </div>
         <LanguageSelector variant="hud" />
       </header>

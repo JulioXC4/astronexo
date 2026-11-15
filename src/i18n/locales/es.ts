@@ -294,6 +294,9 @@ export const es = {
       educationalNote: 'Reglas de simulación educativa: Las acciones de evacuación y blindaje con polietileno/agua son protocolos simulados; los niveles de severidad son cualitativos sin inventar dosis radiológicas.',
     },
     darkMonths: {
+      allocation: 'Presupuesto de batería: {used}% / 100%. Reparte toda la energía entre calor, cultivos y radio.',
+      allocationFailure: 'Asignaste {used}% de una batería de 100%. Ajusta los tres controles y vuelve a probar.',
+      reset: 'Reiniciar distribución',
       back: 'Mapa de Tromsø',
       pill: 'Reserva para los Meses Oscuros · NASA POWER (Tromsø, 69.6° N)',
       title: 'Reserva Polar: Distribución en Noche Continua',
