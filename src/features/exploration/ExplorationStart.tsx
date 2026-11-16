@@ -5,6 +5,8 @@ import { playSound } from '../audio';
 import { SceneScreen, SCENE_BACKGROUNDS } from '../earth/screens/SceneScreen';
 import { REQUIREMENTS } from './explorationData';
 import { canRover, canWalk } from './explorationEngine';
+import { UI } from './explorationAssets';
+import { AssetImage } from './AssetImage';
 
 export type ExplorationChoice =
   | { readonly kind: 'FOOT' }
@@ -43,7 +45,11 @@ export function ExplorationStart({ destination, clock, resources, onChoose }: Ex
 
     <div className="explore-start__cards">
       <article className="explore-card">
-        <PersonSimpleWalk weight="fill" className="explore-card__icon" aria-hidden="true" />
+        <AssetImage
+          src={UI.cardFoot}
+          className="explore-card__art"
+          fallback={<PersonSimpleWalk weight="fill" className="explore-card__icon" aria-hidden="true" />}
+        />
         <h2>{t('exploration.cards.foot.title')}</h2>
         <p className="explore-card__pros"><strong>{t('exploration.prosLabel')}</strong> {t('exploration.cards.foot.pros')}</p>
         <p className="explore-card__cons"><strong>{t('exploration.consLabel')}</strong> {t('exploration.cards.foot.cons')}</p>
@@ -54,7 +60,11 @@ export function ExplorationStart({ destination, clock, resources, onChoose }: Ex
       </article>
 
       <article className="explore-card">
-        <Jeep weight="fill" className="explore-card__icon" aria-hidden="true" />
+        <AssetImage
+          src={UI.cardRover}
+          className="explore-card__art"
+          fallback={<Jeep weight="fill" className="explore-card__icon" aria-hidden="true" />}
+        />
         <h2>{t('exploration.cards.rover.title')}</h2>
         <p className="explore-card__pros"><strong>{t('exploration.prosLabel')}</strong> {t('exploration.cards.rover.pros')}</p>
         <p className="explore-card__cons"><strong>{t('exploration.consLabel')}</strong> {t('exploration.cards.rover.cons')}</p>
@@ -64,17 +74,22 @@ export function ExplorationStart({ destination, clock, resources, onChoose }: Ex
           {REQUIREMENTS.batteryOptions.map((battery) => <button
             key={battery}
             type="button"
-            className="pixel-button pixel-button--primary"
+            className="pixel-button pixel-button--primary explore-card__battery"
             disabled={!canRover(resources, battery)}
             onClick={() => pick({ kind: 'ROVER', battery })}
           >
+            <AssetImage src={UI.battery[battery]} className="explore-card__battery-art" />
             {t('exploration.cards.rover.battery', { amount: battery })}
           </button>)}
         </div>
       </article>
 
       <article className="explore-card">
-        <House weight="fill" className="explore-card__icon" aria-hidden="true" />
+        <AssetImage
+          src={UI.cardStay}
+          className="explore-card__art"
+          fallback={<House weight="fill" className="explore-card__icon" aria-hidden="true" />}
+        />
         <h2>{t('exploration.cards.stay.title')}</h2>
         <p className="explore-card__pros"><strong>{t('exploration.prosLabel')}</strong> {t('exploration.cards.stay.pros')}</p>
         <p className="explore-card__cons"><strong>{t('exploration.consLabel')}</strong> {t('exploration.cards.stay.cons')}</p>

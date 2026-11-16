@@ -3,6 +3,15 @@ import { explorationScience } from '../../game';
 import { useI18n } from '../../i18n';
 import { SceneScreen, SCENE_BACKGROUNDS } from '../earth/screens/SceneScreen';
 import { formatMinutes } from './explorationEngine';
+import { findingImage, MARKERS, UI } from './explorationAssets';
+import { AssetImage } from './AssetImage';
+
+const KIND_MARKER = {
+  SAMPLE: MARKERS.sample,
+  VIEWPOINT: MARKERS.viewpoint,
+  MISSION_TRACE: MARKERS.trace,
+  NASA_CURIOSITY: MARKERS.curiosity,
+} as const;
 
 interface ExplorationReportProps {
   readonly result: ExplorationResult;
@@ -37,12 +46,13 @@ export function ExplorationReport({ result, destination, clock, onContinue }: Ex
 
       {result.rescued
         ? <div className="explore-report__banner explore-report__banner--rescue" role="status">
+          <AssetImage src={MARKERS.beacon} className="explore-report__icon" />
           <strong>{t('exploration.report.rescuedTitle')}</strong> {t('exploration.report.rescuedText')}
         </div>
         : <div className="explore-report__banner explore-report__banner--ok" role="status">
           <strong>{t('exploration.report.returnedTitle')}</strong>
           {result.mode === 'ROVER' && result.batteryReturned > 0
-            && <> {t('exploration.report.returnedBattery', { amount: result.batteryReturned })}</>}
+            && <> <AssetImage src={UI.battery[result.batteryAllocated]} className="explore-report__icon" />{t('exploration.report.returnedBattery', { amount: result.batteryReturned })}</>}
         </div>}
 
       <h2>{t('exploration.report.resources')}</h2>
@@ -71,8 +81,18 @@ export function ExplorationReport({ result, destination, clock, onContinue }: Ex
           <tbody>{result.findings.map((finding) => {
             const key = `exploration.collections.${destination}.${finding.index}`;
             return <tr key={finding.index}>
-              <td>{t(`${key}.name`)}{finding.pieces > 1 ? ` ×${finding.pieces}` : ''}</td>
-              <td>{t(`exploration.kinds.${finding.kind}`)}</td>
+              <td>
+                <span className="explore-report__finding">
+                  <AssetImage src={findingImage(destination, finding.index)} className="explore-report__thumb" />
+                  <span>{t(`${key}.name`)}{finding.pieces > 1 ? ` ×${finding.pieces}` : ''}</span>
+                </span>
+              </td>
+              <td>
+                <span className="explore-report__finding">
+                  <AssetImage src={KIND_MARKER[finding.kind]} className="explore-report__icon" />
+                  <span>{t(`exploration.kinds.${finding.kind}`)}</span>
+                </span>
+              </td>
               <td>{t(`${key}.text`)}</td>
               <td>{finding.points}</td>
             </tr>;
@@ -80,6 +100,7 @@ export function ExplorationReport({ result, destination, clock, onContinue }: Ex
         </table>}
 
       <p className="explore-report__score">
+        <AssetImage src={UI.scienceBadge} className="explore-report__badge" />
         <strong>{t('exploration.report.scoreGained')}</strong> +{result.points}
         {science > 0 && <small> · {t('exploration.report.scienceAdded', { amount: science })}</small>}
       </p>
