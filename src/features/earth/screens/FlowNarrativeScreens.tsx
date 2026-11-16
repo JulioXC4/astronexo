@@ -12,6 +12,7 @@ import './earth.css';
 import './earth-map.css';
 import './avatar-select.css';
 import './briefing-scene.css';
+import { CHARACTER_SPRITES } from '../../../assets/characterSprites';
 
 const AUTO_ADVANCE_MS = 6000;
 
@@ -30,10 +31,7 @@ interface StationPrepScreenProps {
   readonly onContinue: () => void;
 }
 
-const VN_SPRITES = {
-  ALBA: '/assets/pixel-art/cadet-alba.webp',
-  CHISPA: '/assets/characters/chispa.webp',
-} as const;
+const VN_SPRITES = { ALBA: CHARACTER_SPRITES.ALBA, CHISPA: CHARACTER_SPRITES.CHISPA } as const;
 const VN_ACCENT = { ALBA: '#4ec3d9', CHISPA: '#f6c15b' } as const;
 
 /**

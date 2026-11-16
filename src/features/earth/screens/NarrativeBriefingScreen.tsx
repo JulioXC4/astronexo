@@ -8,6 +8,7 @@ import './earth.css';
 import './earth-map.css';
 import './avatar-select.css';
 import './briefing-scene.css';
+import { CHARACTER_SPRITES } from '../../../assets/characterSprites';
 
 interface NarrativeBriefingScreenProps {
   readonly cityName: string;
@@ -22,12 +23,12 @@ interface NarrativeBriefingScreenProps {
 const BACKGROUND = '/assets/pixel-art/academy-briefing-room.webp';
 
 const AVATAR_SPRITES: Record<string, string> = {
-  ALBA: '/assets/pixel-art/cadet-alba.webp',
-  LEO: '/assets/pixel-art/commander-leo.webp',
-  AURORA: '/assets/pixel-art/officer-aurora.webp',
-  NICO: '/assets/pixel-art/engineer-nico.webp',
+  ALBA: CHARACTER_SPRITES.ALBA,
+  LEO: CHARACTER_SPRITES.LEO,
+  AURORA: CHARACTER_SPRITES.AURORA,
+  NICO: CHARACTER_SPRITES.NICO,
 };
-const CHISPA_SPRITE = '/assets/characters/chispa.webp';
+const CHISPA_SPRITE = CHARACTER_SPRITES.CHISPA;
 
 type SpeakerId = 'ALBA' | 'AURORA' | 'CHISPA';
 

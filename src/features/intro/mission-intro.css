@@ -284,3 +284,8 @@
   .mi-gauge--shield .mi-gauge__bar span { width: 95%; }
   .mi-chip--go { opacity: 1; }
 }
+
+/* Los sprites oficiales (los de la selección de astronauta) son de cuerpo entero en un lienzo
+   cuadrado: en el círculo se encuadra la cara y el torso, como un retrato. */
+.mission-intro__speaker .character-portrait--pixel img,
+.mi-recruit .character-portrait--pixel img { object-fit: contain; object-position: center top; transform-origin: 50% 20%; transform: scale(2.05); }

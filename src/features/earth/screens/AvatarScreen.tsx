@@ -8,6 +8,7 @@ import { computeSceneLayout, MAP_HEIGHT, MAP_WIDTH, type SafeZone } from '../../
 import './earth.css';
 import './earth-map.css';
 import './avatar-select.css';
+import { CHARACTER_SPRITES } from '../../../assets/characterSprites';
 
 interface AvatarScreenProps {
   readonly cityName: string;
@@ -21,10 +22,10 @@ interface AvatarScreenProps {
 const BACKGROUND = '/assets/pixel-art/academy-briefing-room.webp';
 
 const AVATAR_SPRITES: Record<string, string> = {
-  ALBA: '/assets/pixel-art/cadet-alba.webp',
-  LEO: '/assets/pixel-art/commander-leo.webp',
-  AURORA: '/assets/pixel-art/officer-aurora.webp',
-  NICO: '/assets/pixel-art/engineer-nico.webp',
+  ALBA: CHARACTER_SPRITES.ALBA,
+  LEO: CHARACTER_SPRITES.LEO,
+  AURORA: CHARACTER_SPRITES.AURORA,
+  NICO: CHARACTER_SPRITES.NICO,
 };
 
 const AVATAR_ACCENTS: Record<string, string> = {

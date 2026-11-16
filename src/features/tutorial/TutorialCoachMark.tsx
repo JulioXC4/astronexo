@@ -3,6 +3,7 @@ import { X } from '@phosphor-icons/react';
 import { useI18n } from '../../i18n';
 import { markTutorialSteps } from './tutorialStorage';
 import './tutorial.css';
+import { CHARACTER_SPRITES } from '../../assets/characterSprites';
 
 export type TutorialCharacter = 'ALBA' | 'CHISPA';
 export type TutorialPlacement = 'top' | 'bottom' | 'left' | 'right' | 'center';
@@ -200,7 +201,7 @@ export function TutorialCoachMark({ open, steps, onComplete, onSkip }: TutorialC
       </button>
       <img
         className="tutorial-coach__portrait"
-        src={step.character === 'ALBA' ? '/assets/pixel-art/cadet-alba.webp' : '/assets/characters/chispa.webp'}
+        src={CHARACTER_SPRITES[step.character]}
         alt={t(`tutorial.characters.${step.character.toLowerCase()}`)}
       />
       <div className="tutorial-coach__copy">

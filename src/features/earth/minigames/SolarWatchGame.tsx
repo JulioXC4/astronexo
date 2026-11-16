@@ -9,11 +9,12 @@ import { MinigameShell } from './ui/MinigameShell';
 import { useScreenRadio } from '../../radio';
 import { playSound } from '../../audio';
 import './solarStorm.css';
+import { CHARACTER_SPRITES } from '../../../assets/characterSprites';
 
 interface Props { readonly onComplete: (outcome: TrainingOutcome) => void; readonly onBack: () => void }
 const ASSET = '/assets/minigames/solar-storm/';
 const ROOM = '/assets/pixel-art/airlock-refuge.webp';
-const CREW_SPRITE = { A: '/assets/pixel-art/cadet-alba.webp', B: '/assets/pixel-art/engineer-nico.webp' } as const;
+const CREW_SPRITE = { A: CHARACTER_SPRITES.ALBA, B: CHARACTER_SPRITES.NICO } as const;
 
 
 /** Coordenadas en el lienzo lógico 1000 × 563 del cuarto de refugio. */

@@ -5,6 +5,7 @@ import { CharacterPortrait, type PortraitIdentity } from '../../visual-kit/Chara
 import { SoundToggle, playSound } from '../audio';
 import { useScreenRadio } from '../radio';
 import './mission-intro.css';
+import { CHARACTER_SPRITES } from '../../assets/characterSprites';
 
 /**
  * Minicinemática ilustrada que cuenta, en cuatro escenas y en el orden real del juego,
@@ -15,7 +16,6 @@ import './mission-intro.css';
  */
 
 const INTRO = '/assets/intro';
-const CHARACTERS = '/assets/characters';
 
 type SceneId = 'destination' | 'base' | 'training' | 'space';
 
@@ -46,14 +46,8 @@ const SCENES: readonly SceneDef[] = [
   },
 ];
 
-/** Sprites oficiales de cuerpo entero (`public/assets/characters/`). */
-const SPRITES: Record<PortraitIdentity, string> = {
-  ALBA: `${CHARACTERS}/alba.webp`,
-  AURORA: `${CHARACTERS}/aurora.webp`,
-  NICO: `${CHARACTERS}/nico.webp`,
-  CHISPA: `${CHARACTERS}/chispa.webp`,
-  LEO: '/assets/pixel-art/commander-leo.webp',
-};
+/** Los mismos personajes de la selección de astronauta (antes usaba los diseños anteriores). */
+const SPRITES: Record<PortraitIdentity, string> = CHARACTER_SPRITES;
 
 const preloaded = new Set<string>();
 /** Pide de fondo las imágenes de una escena; no bloquea nada y solo lo hace una vez. */

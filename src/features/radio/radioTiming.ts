@@ -1,3 +1,4 @@
+import { CHARACTER_SPRITES } from '../../assets/characterSprites';
 /**
  * Reglas de tiempo del globo de radio, tomadas literalmente de la maqueta de
  * Juan Diego (especificación §8). No se tocan sin hablar con él.
@@ -68,9 +69,5 @@ export function canInterrupt(incoming: RadioTone, shownForMs: number, front = fa
   return shownForMs >= RADIO_TIMING.protectedMs;
 }
 
-export const RADIO_PORTRAITS: Readonly<Record<RadioSpeaker, string>> = {
-  ALBA: '/assets/pixel-art/cadet-alba.webp',
-  CHISPA: '/assets/characters/chispa.webp',
-  AURORA: '/assets/pixel-art/officer-aurora.webp',
-  NICO: '/assets/pixel-art/engineer-nico.webp',
-};
+/** Los retratos de la radio son los personajes de la selección de astronauta. */
+export const RADIO_PORTRAITS: Readonly<Record<RadioSpeaker, string>> = CHARACTER_SPRITES;

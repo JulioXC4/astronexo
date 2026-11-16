@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { assetManifest } from '../assets/manifest';
+import { CHARACTER_SPRITES } from '../assets/characterSprites';
 import { useI18n } from '../i18n';
 
 export type PortraitIdentity = 'ALBA' | 'LEO' | 'AURORA' | 'NICO' | 'CHISPA';
@@ -17,13 +17,8 @@ const accents: Record<PortraitIdentity, string> = {
   ALBA: '#76b7bd', LEO: '#70bd87', AURORA: '#bd92d0', NICO: '#e7a872', CHISPA: '#f6c15b',
 };
 
-const pixelPortraits: Partial<Record<PortraitIdentity, string>> = {
-  ALBA: assetManifest['character.alba'].path ?? undefined,
-  LEO: '/assets/pixel-art/commander-leo.webp',
-  AURORA: assetManifest['character.aurora'].path ?? undefined,
-  NICO: assetManifest['character.nico'].path ?? undefined,
-  CHISPA: assetManifest['character.chispa'].path ?? undefined,
-};
+/** Los personajes de la selección de astronauta (fuente única). */
+const pixelPortraits: Partial<Record<PortraitIdentity, string>> = CHARACTER_SPRITES;
 
 /** Uses the asset catalog and falls back to the original SVG stand-in if an image cannot load. */
 export function CharacterPortrait({ identity, kind = 'cadet', selected = false, mood = 'normal', label, source }: CharacterPortraitProps) {
