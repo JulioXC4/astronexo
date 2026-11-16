@@ -97,12 +97,16 @@ export function MissionControlView({
   // Alba abre la guardia diciendo cuál es la meta, y avisa por radio en cuanto
   // una barra entra en rojo. El peligro deja de ser invisible.
   useEffect(() => {
+    // Se descarta lo que viniera de la Tierra antes de abrir la guardia.
+    radio.clear();
     radio.say({
       speaker: 'ALBA',
       text: t('radio.guardGoal', { target: SCIENCE_TARGET }),
       once: 'guard.goal',
     });
-  }, [radio, t]);
+    // Solo al tomar el mando: la meta no cambia durante la guardia.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     for (const { key, labelKey } of TRACKED_RESOURCES) {

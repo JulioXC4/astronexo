@@ -25,7 +25,7 @@ export function NasaSourcesPanel({ cityId, spaceWeather }: NasaSourcesPanelProps
   const speed = event?.value ?? Number(DEFAULT_DONKI_EVENT.observation.value);
   const supporting = DONKI_SUPPORTING_EVENTS.slice(0, 2);
   return (
-    <section className="nasa-sources" aria-label={t('nasaSources.title')} style={{ background: '#15263a', border: '1px solid #33547d', borderRadius: '0.8rem', padding: '1rem 1.2rem', color: '#c5d8ea', fontSize: '0.88rem' }}>
+    <section className="nasa-sources" aria-label={t('nasaSources.title')} style={{ background: 'rgba(2, 8, 19, .55)', border: '2px solid #315b73', borderRadius: 0, padding: '1rem 1.2rem', color: '#dcebf8', fontSize: '0.95rem' }}>
       <h2 style={{ margin: '0 0 0.5rem', fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#ffffff' }}>{t('nasaSources.title')}</h2>
       <ul style={{ margin: 0, paddingLeft: '1.1rem', display: 'grid', gap: '0.35rem' }}>
         {cities.map((id) => {

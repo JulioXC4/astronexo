@@ -59,6 +59,8 @@ export const es = {
   },
   training: {
     done: '¡Lo lograste!',
+    /** Rótulo de la banda que deja la tarea siempre escrita en pantalla. */
+    yourMission: 'Tu misión:',
     keepAdjusting: 'Puedes seguir moviendo los controles para que quede mejor.',
     kitButton: '¡Consigue tu kit! (cuesta {cost} de {resource})',
     reset: 'Empezar de nuevo',
@@ -361,7 +363,7 @@ export const es = {
       counter: 'Aquí verás cuántas misiones completaste. Necesitas llegar a 3/3.',
     },
     guard: {
-      resources: 'Cuida la Energía, el Oxígeno y el Protección.',
+      resources: 'Cuida la Energía, el Oxígeno y la Protección.',
       alerts: '¡Tenemos alertas! Solo puedes atender una por turno.',
       actions: 'Toca Acciones, mira cuánto cuesta cada arreglo y elige.',
     },
@@ -556,7 +558,9 @@ export const es = {
       step4Speaker: 'Chispa',
       step4Role: 'Asistente táctico',
       step4Text: '¡Cada entrenamiento te regala una herramienta! Pero cada decisión cuesta algo. ¡Elige bien!',
-      stepIndicator: 'Paso {current} de {total}',
+      /* Ojo: no puede decir «Paso N», porque la cabecera ya dice «Paso 5» y
+         el niño ve dos numeros de paso distintos en la misma pantalla. */
+      stepIndicator: 'Mensaje {current} de {total}',
       nextBtn: 'Siguiente',
       prevBtn: 'Anterior',
       skipBtn: 'Omitir',
@@ -920,7 +924,7 @@ export const es = {
       simulateStorm: 'Simular Llegada de la Tormenta Solar (CME)',
       impactChecked: 'Impacto de la Tormenta Comprobado',
       reset: 'Reiniciar Protocolo',
-      successTitle: '¡Tripulación a Salvo bajo el Protección!',
+      successTitle: '¡Tripulación a salvo bajo la protección!',
       successDesc: '{summary} En esta simulación completaste el protocolo de refugio y protección de sensores. El registro NASA no proporciona una dosis recibida por la tripulación.',
       confirmCost: 'Confirmar costo de {cost} punto(s) de Energía y obtener el kit',
       scientificNote: 'Dato NASA DONKI verificado: {summary} (Registro: {id}, CCMC GSFC NASA).',

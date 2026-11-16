@@ -18,7 +18,7 @@
 /* HUD: el título del juego ocupa la píldora central */
 .mg-hud__title { gap: .1rem .7rem; }
 .mg-hud__title strong { color: #fff; font: 700 1.1rem 'Fredoka', sans-serif; }
-.mg-hud__subtitle { color: #9fd8e5; font-size: .88rem; font-weight: 800; }
+.mg-hud__subtitle { color: #9fd8e5; font-size: 0.9rem; font-weight: 800; }
 
 /* Tarjeta flotante */
 .mg-card {
@@ -41,7 +41,7 @@
 .mg-card h2, .mg-card h1 { margin: 0; color: #fff; font: 700 1.4rem/1.1 'Fredoka', sans-serif; }
 .mg-card p { margin: 0; font-size: 1rem; line-height: 1.45; color: #dcecf8; }
 .mg-card strong { color: #fff; }
-.mg-kicker { color: #9fd8e5; font: 800 .78rem 'Nunito', sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.mg-kicker { color: #9fd8e5; font: 800 0.9rem 'Nunito', sans-serif; letter-spacing: .08em; text-transform: uppercase; }
 
 /* Botones de opción (modo, evento, día...) */
 .mg-choice { display: flex; flex-wrap: wrap; gap: .35rem; }
@@ -109,13 +109,14 @@
   background: rgba(8, 24, 42, .93);
   box-shadow: 2px 2px 0 rgba(2, 8, 19, .55);
   color: #f5f0da;
-  font: 700 max(.85rem, calc(var(--u, 1px) * 13)) 'Fredoka', sans-serif;
+  /* Estas etiquetas son el marcador del minijuego: tienen que leerse. */
+  font: 700 max(.95rem, calc(var(--u, 1px) * 13)) 'Fredoka', sans-serif;
   white-space: nowrap;
 }
 .mg-tag--on { border-color: #8ff0c0; color: #d8fbe8; }
 .mg-tag--warn { border-color: #ffb24a; color: #ffe2b0; }
 .mg-tag--bad { border-color: #ff8b79; color: #ffd5cf; }
-.mg-tag small { color: #9fd8e5; font-size: .85em; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.mg-tag small { color: #9fd8e5; font-size: 1em; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
 
 /* Pips de acciones restantes */
 .mg-pips { display: inline-flex; gap: 4px; align-items: center; }
