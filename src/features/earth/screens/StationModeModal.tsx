@@ -61,11 +61,11 @@ const SUGGESTED_ALIASES = [
 ];
 
 const ROLE_ICONS: Readonly<Record<PlayerRole, string>> = {
-  COMMANDER: '👩‍🚀',
-  ENERGY: '⚡',
-  OXYGEN: '🫧',
-  PROTECTION: '🛡️',
-  CROPS: '🌱',
+  COMMANDER: '',
+  ENERGY: '',
+  OXYGEN: '',
+  PROTECTION: '',
+  CROPS: '',
 };
 
 export function StationModeModal({
@@ -279,7 +279,7 @@ export function StationModeModal({
                   }}
                   onClick={() => setDestination('MOON')}
                 >
-                  <div style={{ fontSize: '1.6rem', marginBottom: '0.3rem' }}>🌕</div>
+                  <div style={{ fontSize: '1.6rem', marginBottom: '0.3rem' }}></div>
                   <strong style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: destination === 'MOON' ? '#f6c15b' : '#ffffff' }}>
                     {t('station.moon')}
                   </strong>
@@ -297,7 +297,7 @@ export function StationModeModal({
                   }}
                   onClick={() => setDestination('MARS')}
                 >
-                  <div style={{ fontSize: '1.6rem', marginBottom: '0.3rem' }}>🔴</div>
+                  <div style={{ fontSize: '1.6rem', marginBottom: '0.3rem' }}></div>
                   <strong style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: destination === 'MARS' ? '#f6c15b' : '#ffffff' }}>
                     {t('station.mars')}
                   </strong>
@@ -324,7 +324,7 @@ export function StationModeModal({
                   }}
                   onClick={() => setCity('AREQUIPA')}
                 >
-                  <div style={{ fontSize: '1.4rem' }}>🏔️ ☀️</div>
+                  <div style={{ fontSize: '1.4rem' }}> </div>
                   <strong style={{ fontFamily: 'Fredoka', fontSize: '1rem', color: city === 'AREQUIPA' ? '#f6c15b' : '#ffffff' }}>
                     {t('station.arequipa')}
                   </strong>
@@ -342,7 +342,7 @@ export function StationModeModal({
                   }}
                   onClick={() => setCity('TROMSO')}
                 >
-                  <div style={{ fontSize: '1.4rem' }}>❄️ 🌌</div>
+                  <div style={{ fontSize: '1.4rem' }}>❄️ </div>
                   <strong style={{ fontFamily: 'Fredoka', fontSize: '1rem', color: city === 'TROMSO' ? '#f6c15b' : '#ffffff' }}>
                     {t('station.tromso')}
                   </strong>
@@ -353,20 +353,20 @@ export function StationModeModal({
             {/* Paquete Terrestre Canónico */}
             <div style={{ background: '#0e1c2e', border: '1px solid #284465', borderRadius: '0.8rem', padding: '0.9rem', marginTop: '1.2rem' }}>
               <span style={{ color: '#f6c15b', fontWeight: 700, fontSize: '0.86rem' }}>
-                📦 {t('station.groundPackageLabel')}
+                 {t('station.groundPackageLabel')}
               </span>
               <p style={{ margin: '0.3rem 0 0.5rem 0', color: '#bed5ea', fontSize: '0.85rem' }}>
                 {t('station.groundPackageDesc')}
               </p>
               <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                 <span style={{ background: '#1c3450', border: '1px solid #385f8c', borderRadius: '0.5rem', padding: '0.3rem 0.6rem', color: '#e8f2fc', fontSize: '0.82rem' }}>
-                  🔧 Kit de Repuestos (M1)
+                   Kit de Repuestos (M1)
                 </span>
                 <span style={{ background: '#1c3450', border: '1px solid #385f8c', borderRadius: '0.5rem', padding: '0.3rem 0.6rem', color: '#e8f2fc', fontSize: '0.82rem' }}>
-                  🔋 Batería Adicional (M4)
+                   Batería Adicional (M4)
                 </span>
                 <span style={{ background: '#1c3450', border: '1px solid #385f8c', borderRadius: '0.5rem', padding: '0.3rem 0.6rem', color: '#e8f2fc', fontSize: '0.82rem' }}>
-                  {city === 'AREQUIPA' ? '💧 Reciclador de Agua (M5)' : '❄️ Aislamiento Térmico (M5)'}
+                  {city === 'AREQUIPA' ? ' Reciclador de Agua (M5)' : '❄️ Aislamiento Térmico (M5)'}
                 </span>
               </div>
             </div>
@@ -489,7 +489,7 @@ export function StationModeModal({
 
                     {isFirst && (
                       <span style={{ color: '#69f0ae', fontSize: '0.75rem', fontWeight: 700, marginTop: '0.2rem' }}>
-                        ⭐ {t('coop.leadsTurn')}
+                         {t('coop.leadsTurn')}
                       </span>
                     )}
                   </div>
@@ -536,7 +536,7 @@ export function StationModeModal({
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(13rem, 1fr))', gap: '0.8rem', marginBottom: '1.2rem' }}>
               <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '0.8rem' }}>
                 <strong style={{ color: '#f6c15b', fontSize: '0.9rem', display: 'block', marginBottom: '0.2rem' }}>
-                  🤝 {t('station.rules.consensusTitle')}
+                   {t('station.rules.consensusTitle')}
                 </strong>
                 <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.8rem', lineHeight: '1.35' }}>
                   {t('station.rules.consensusDesc')}
@@ -544,7 +544,7 @@ export function StationModeModal({
               </div>
               <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '0.8rem' }}>
                 <strong style={{ color: '#f6c15b', fontSize: '0.9rem', display: 'block', marginBottom: '0.2rem' }}>
-                  🔄 {t('station.rules.rotationTitle')}
+                   {t('station.rules.rotationTitle')}
                 </strong>
                 <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.8rem', lineHeight: '1.35' }}>
                   {t('station.rules.rotationDesc')}
@@ -552,7 +552,7 @@ export function StationModeModal({
               </div>
               <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '0.8rem' }}>
                 <strong style={{ color: '#f6c15b', fontSize: '0.9rem', display: 'block', marginBottom: '0.2rem' }}>
-                  🏗️ {t('station.rules.buildingTitle')}
+                   {t('station.rules.buildingTitle')}
                 </strong>
                 <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.8rem', lineHeight: '1.35' }}>
                   {t('station.rules.buildingDesc')}
@@ -560,7 +560,7 @@ export function StationModeModal({
               </div>
               <div style={{ background: '#132338', border: '1px solid #33557d', borderRadius: '0.8rem', padding: '0.8rem' }}>
                 <strong style={{ color: '#f6c15b', fontSize: '0.9rem', display: 'block', marginBottom: '0.2rem' }}>
-                  💻 {t('station.rules.localTitle')}
+                   {t('station.rules.localTitle')}
                 </strong>
                 <p style={{ margin: 0, color: '#bed4ea', fontSize: '0.8rem', lineHeight: '1.35' }}>
                   {t('station.rules.localDesc')}
@@ -581,7 +581,7 @@ export function StationModeModal({
                   {cleanTeam || 'Equipo Sin Nombre'} · <span style={{ color: '#f6c15b' }}>{roomCode}</span>
                 </h3>
                 <span style={{ background: '#19395f', color: '#88c8ff', padding: '0.2rem 0.6rem', borderRadius: '0.4rem', fontSize: '0.8rem', fontWeight: 700 }}>
-                  {destination === 'MOON' ? '🌕 Luna' : '🔴 Marte'} · {city === 'AREQUIPA' ? 'Arequipa' : 'Tromsø'}
+                  {destination === 'MOON' ? ' Luna' : ' Marte'} · {city === 'AREQUIPA' ? 'Arequipa' : 'Tromsø'}
                 </span>
               </div>
 

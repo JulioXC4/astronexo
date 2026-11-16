@@ -15,8 +15,43 @@
 .mission-hud { display:grid; grid-template-columns:minmax(10rem,.7fr) minmax(30rem,2fr) auto auto; align-items:center; gap:.7rem; padding:.45rem .65rem; border:3px solid #315b73; background:rgb(3 13 27 / 93%); box-shadow:0 8px 22px rgb(0 0 0 / 34%); }
 .mission-hud__identity { min-width:0; }.mission-hud__identity>span { color:var(--space-line); font-size:.65rem; font-weight:900; letter-spacing:.08em; }.mission-hud h1 { margin:.05rem 0 0; overflow:hidden; font:700 clamp(1rem,1.5vw,1.35rem) "Fredoka",sans-serif; letter-spacing:-.02em; text-overflow:ellipsis; white-space:nowrap; }
 .mission-clock { min-width:8.5rem; padding:.35rem .55rem; border:2px solid #55798a; background:#071426; text-align:center; }.mission-clock span,.mission-clock strong { display:block; }.mission-clock span { color:#b9d3df; font-size:.62rem; font-weight:900; }.mission-clock strong { margin-top:.1rem; color:var(--space-green); font-size:.78rem; }
-.resource-rack { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.55rem; }.resource-rack--four { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.resource-rack { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.55rem; }.resource-rack--four { grid-template-columns:repeat(4,minmax(0,1fr)); }.resource-rack--five { grid-template-columns:repeat(5,minmax(0,1fr)); gap:.4rem; }
+/* Con cinco columnas, «PROTECCIÓN» no cabe al tamaño normal. */
+.resource-rack--five .resource-bar__label { font-size:.62rem; gap:.25rem; }
+.resource-rack--five .resource-bar__icon { width:1.05rem; height:1.05rem; }
+/* Riesgo que se ve venir y resumen del turno */
+.turn-risk { margin:.2rem 0 0; font-size:.72rem; font-weight:800; color:#ffb74d; }
+.turn-risk--critical { color:#ff6b6b; }
+.last-change { position:absolute; right:.6rem; bottom:7.5rem; z-index:5; padding:.5rem .65rem; border:2px solid #4cc3d9; background:rgb(5 16 30 / 94%); }
+.last-change>strong { display:block; margin-bottom:.3rem; font-size:.62rem; font-weight:900; letter-spacing:.07em; color:#9bc0e4; }
+.last-change ul { display:grid; gap:.15rem; margin:0; padding:0; list-style:none; }
+.last-change li { display:flex; justify-content:space-between; gap:.8rem; font-size:.7rem; font-weight:800; }
+.last-change__up strong { color:#69f0ae; }
+.last-change__down strong { color:#ff6b6b; }
+/* Cómo quedó el trabajo: palabra + tres marcas, nunca solo color. */
+.work-quality { display:flex; align-items:center; gap:.5rem; margin:.5rem 0 0; padding:.45rem .6rem; border:2px solid #4cc3d9; background:rgb(5 16 30 / 80%); }
+.work-quality>strong { font-size:.6rem; font-weight:900; letter-spacing:.07em; color:#9bc0e4; }
+.work-quality>em { font-size:.72rem; font-style:normal; font-weight:800; }
+.work-quality__marks { display:inline-flex; gap:.18rem; }
+.work-quality__marks i { width:.75rem; height:.75rem; border:2px solid currentcolor; background:transparent; }
+.work-quality__marks i.is-on { background:currentcolor; }
+.work-quality--basic { border-color:#ffb74d; color:#ffb74d; }
+.work-quality--good { border-color:#69f0ae; color:#69f0ae; }
+.work-quality--excellent { border-color:#b388ff; color:#b388ff; }
 .resource-bar { min-width:0; }.resource-bar__label { display:flex; justify-content:space-between; align-items:center; gap:.4rem; margin-bottom:.2rem; font-size:.7rem; font-weight:900; }.resource-bar__label>span { display:inline-flex; min-width:0; align-items:center; gap:.3rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }.resource-bar__icon { width:1.35rem; height:1.35rem; object-fit:contain; image-rendering:pixelated; }.resource-bar__track { height:.8rem; padding:2px; border:2px solid #dfeef0; background:#020813; }.resource-bar__track span { display:block; height:100%; background:var(--space-yellow); transition:width 180ms steps(5,end); }.resource-bar__track--oxygen span { background:var(--space-green); }.resource-bar__track--shield span { background:#62d4ee; }.resource-bar__track--food span { background:var(--space-orange); }
+.resource-bar__track--science span { background:#b388ff; }
+/* Umbrales (maqueta JD v8.3: rojo por debajo de 25). El color nunca informa solo:
+   la barra añade el rótulo .resource-bar__flag y un borde distinto. */
+.resource-bar--low .resource-bar__label strong { color:#ffb74d; }
+.resource-bar--critical .resource-bar__label strong { color:#ff6b6b; }
+.resource-bar__track--low { border-color:#ffb74d; }
+.resource-bar__track--low span { background:#ffb74d !important; }
+.resource-bar__track--critical { border-color:#ff6b6b; animation:resource-alarm 1s steps(2,end) infinite; }
+.resource-bar__track--critical span { background:#ff6b6b !important; }
+.resource-bar__track--goal { border-color:#b388ff; }
+.resource-bar__flag { display:block; margin-top:.15rem; font-size:.6rem; font-weight:900; letter-spacing:.06em; color:#ffb74d; }
+.resource-bar--critical .resource-bar__flag { color:#ff6b6b; }
+@keyframes resource-alarm { 0%,100% { box-shadow:0 0 0 0 rgb(255 107 107 / 0%); } 50% { box-shadow:0 0 0 3px rgb(255 107 107 / 55%); } }
 .early-warning { display:flex; align-items:center; gap:.7rem; min-height:2rem; padding:.3rem .7rem; border:2px solid var(--space-yellow); background:rgb(48 38 12 / 92%); font-size:.72rem; }.early-warning strong { color:var(--space-yellow); }.early-warning small { margin-left:auto; color:#ffeab1; }
 
 .mission-stage { display:grid; grid-template-columns:minmax(0,1fr) minmax(16rem,23vw); gap:.45rem; min-height:0; }
@@ -31,7 +66,19 @@
 .camera-selector { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:.35rem; padding-top:.38rem; }.camera-selector__button { display:grid; grid-template-columns:2.5rem 1fr; grid-template-rows:auto auto; min-width:0; min-height:3.5rem; padding:.22rem; overflow:hidden; border:2px solid #456b7d; color:#edf4f3; background:#091a2b; font:inherit; cursor:pointer; text-align:left; }.camera-selector__button img { grid-row:1/3; width:2.5rem; height:100%; min-height:2.8rem; object-fit:cover; }.camera-selector__button span,.camera-selector__button small { min-width:0; padding-left:.3rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }.camera-selector__button span { align-self:end; font-size:.61rem; font-weight:900; }.camera-selector__button small { color:#9fc1cf; font-size:.52rem; font-weight:900; }.camera-selector__button--selected { border-color:var(--space-yellow); box-shadow:inset 0 0 0 1px var(--space-yellow); }.camera-selector__button--off { filter:grayscale(1); opacity:.62; }.camera-selector__button--warning { border-color:var(--space-red); background:#3a1620; }.camera-selector__button--active small { color:var(--space-green); }
 
 .alerts-monitor { min-height:0; overflow:auto; padding:.55rem; border:3px solid #315b73; background:rgb(3 13 27 / 91%); box-shadow:0 10px 26px rgb(0 0 0 / 32%); scrollbar-color:#315b73 #071426; }.alerts-monitor__heading { display:flex; justify-content:space-between; align-items:center; margin-bottom:.45rem; }.alerts-monitor__heading h2 { margin:0; font:700 1rem "Fredoka",sans-serif; }.alerts-monitor__heading strong { color:var(--space-yellow); }
-.alert-stack { display:grid; gap:.42rem; }.alert-card { width:100%; padding:.48rem; border:2px solid #a64e55; color:#fff; background:rgb(70 23 31 / 92%); font:inherit; cursor:pointer; text-align:left; }.alert-card header { display:flex; align-items:center; gap:.48rem; }.alert-card h3 { margin:0; font-size:.78rem; }.alert-card header div>span { color:#ffc3bc; font-size:.56rem; font-weight:900; }.alert-card__beacon { display:grid; width:1.7rem; height:1.7rem; flex:0 0 auto; place-items:center; color:#3a090c; background:var(--space-red); font-weight:900; }.alert-card--selected { border-color:#ffaaa5; background:#5a2029; box-shadow:0 8px 16px rgb(0 0 0 / 25%); }.alert-card__details p { margin:.4rem 0 0; font-size:.68rem; line-height:1.35; }.alert-card__consequence { color:#ffd0cb; font-weight:800; }.empty-signal { display:grid; min-height:5rem; margin:0; place-items:center; border:2px dashed #456b7d; color:#b7d0dc; font-size:.75rem; text-align:center; }
+.alert-stack { display:grid; gap:.42rem; }.alert-card { width:100%; padding:.48rem; border:2px solid #a64e55; color:#fff; background:rgb(70 23 31 / 92%); font:inherit; cursor:pointer; text-align:left; }.alert-card header { display:flex; align-items:center; gap:.48rem; }.alert-card h3 { margin:0; font-size:.78rem; }.alert-card header div>span { color:#ffc3bc; font-size:.56rem; font-weight:900; }.alert-card__beacon { display:grid; width:1.7rem; height:1.7rem; flex:0 0 auto; place-items:center; color:#3a090c; background:var(--space-red); font-weight:900; }.alert-card--selected { border-color:#ffaaa5; background:#5a2029; box-shadow:0 8px 16px rgb(0 0 0 / 25%); }.alert-card__details p { margin:.4rem 0 0; font-size:.68rem; line-height:1.35; }.alert-card__consequence { color:#ffd0cb; font-weight:800; }
+/* Las dos caras de la decisión, con el mismo peso visual: verde lo que ganas,
+   rojo lo que pagas (convención de la maqueta JD). */
+.alert-card__outcome { margin-top:.4rem; padding:.35rem .45rem; border-left:4px solid; }
+.alert-card__outcome>strong { display:block; margin-bottom:.15rem; font-size:.56rem; font-weight:900; letter-spacing:.06em; }
+.alert-card__outcome>span { font-size:.66rem; line-height:1.3; }
+.alert-card__outcome--good { border-color:#69f0ae; background:rgb(18 46 35 / 70%); }
+.alert-card__outcome--good>strong { color:#69f0ae; }
+.alert-card__outcome--bad { border-color:#ff6b6b; background:rgb(51 26 26 / 70%); }
+.alert-card__outcome--bad>strong { color:#ff8a80; }
+.alert-card__outcome ul { display:grid; gap:.1rem; margin:0; padding:0; list-style:none; }
+.alert-card__outcome li { display:flex; justify-content:space-between; gap:.6rem; font-size:.66rem; font-weight:800; }
+.alert-card__outcome li strong { color:#ff8a80; }.empty-signal { display:grid; min-height:5rem; margin:0; place-items:center; border:2px dashed #456b7d; color:#b7d0dc; font-size:.75rem; text-align:center; }
 .tool-status { margin-top:.5rem; border-top:1px solid #315b73; }.tool-status summary { padding:.45rem 0; color:#c1d9e3; cursor:pointer; font-size:.65rem; font-weight:900; }.tool-status ul { display:grid; gap:.35rem; margin:0; padding:0; list-style:none; }.tool-status li { display:grid; gap:.1rem; padding:.35rem; background:#0b2235; }.tool-status li strong { font-size:.65rem; }.tool-status li span { color:#a8c5d1; font-size:.58rem; }
 
 .mission-bottom-bar { position:relative; z-index:15; display:grid; grid-template-columns:minmax(15rem,20rem) minmax(0,1fr); align-items:center; gap:.6rem; min-height:3.7rem; padding:.4rem; border:3px solid #315b73; background:rgb(3 13 27 / 94%); box-shadow:0 -8px 20px rgb(0 0 0 / 30%); }
@@ -99,7 +146,7 @@
 
 .compartment-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.45rem; }
 .compartment { display:grid; grid-template-rows:5.5rem auto auto; justify-items:center; gap:.15rem; padding:.35rem; border:2px solid #416a80; background:#102d45; }
-.compartment img { width:100%; height:5.5rem; object-fit:contain; }.compartment span,.compartment b { font-size:.62rem; }.compartment--leaking { border-color:#ff867c; }.compartment--isolated { border-color:#ffe55a; background:#40361d; }
+.compartment img { width:100%; height:5.5rem; object-fit:contain; }.compartment span,.compartment b { font-size:.62rem; }.compartment--isolated { border-color:#ffe55a; background:#40361d; }
 .oxygen-damage-points { display:grid; grid-template-columns:repeat(2,minmax(8rem,1fr)); gap:.5rem; }
 .damage-point { display:grid; grid-template-columns:3rem 1fr; align-items:center; gap:.4rem; min-height:3.3rem; border:2px solid #ff867c; background:#5e2832; }.damage-point img { width:3rem; height:3rem; object-fit:contain; }.damage-point--sealed { border-color:var(--space-green); background:#245438; }
 
@@ -142,3 +189,37 @@
   .circuit-tile img,.dust-layer,.capture-meter>span,.tank-fill { transition:none; }
   .circuit-current--live,.eclss-lines path.is-live,.is-transmitting .signal-wave { animation:none; }
 }
+
+/* Celebración al resolver un minijuego: antes solo cambiaba un borde. */
+.puzzle--success { animation: puzzle-cheer 520ms cubic-bezier(.2,1.5,.4,1) 1; }
+@keyframes puzzle-cheer {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+.work-quality { animation: quality-pop 380ms cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes quality-pop {
+  from { opacity: 0; transform: translateY(.5rem) scale(.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.work-quality--excellent .work-quality__marks i.is-on { animation: mark-pop 420ms ease-out both; }
+.work-quality--excellent .work-quality__marks i:nth-child(2) { animation-delay: 90ms; }
+.work-quality--excellent .work-quality__marks i:nth-child(3) { animation-delay: 180ms; }
+@keyframes mark-pop { from { transform: scale(0); } 70% { transform: scale(1.35); } to { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .puzzle--success, .work-quality, .work-quality__marks i { animation: none; }
+}
+.compartment__pressure { display:block; margin-top:.15rem; color:#9bc0e4; font-size:.62rem; font-weight:800; }
+.compartment[data-low-pressure="true"] .compartment__pressure { color:#ff9a8f; }
+
+/* Estrella dorada escondida (maqueta JD v11.0): una por minijuego, en un rincón distinto. */
+.intervention-console { position: relative; }
+.gold-star {
+  position: absolute; z-index: 3; width: 1.9rem; height: 1.9rem; padding: 0;
+  border: 0; background: transparent; color: #ffd75a; font-size: 1.7rem; line-height: 1;
+  text-shadow: 0 0 10px rgb(255 215 90 / 80%); cursor: pointer; opacity: .75;
+  animation: star-twinkle 1.8s ease-in-out infinite;
+}
+.gold-star:hover, .gold-star:focus-visible { opacity: 1; transform: scale(1.25); outline: none; }
+@keyframes star-twinkle { 0%,100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+@media (prefers-reduced-motion: reduce) { .gold-star { animation: none; } }

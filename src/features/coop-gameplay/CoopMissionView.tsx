@@ -13,6 +13,7 @@ interface CoopMissionViewProps {
   readonly onConfirmDecision: () => void;
   readonly onCancelDecision: () => void;
   readonly onAdvance: () => void;
+  readonly onFindStar?: (interventionId: string) => void;
 }
 
 export function CoopMissionView({
@@ -23,6 +24,7 @@ export function CoopMissionView({
   onConfirmDecision,
   onCancelDecision,
   onAdvance,
+  onFindStar,
 }: CoopMissionViewProps) {
   const activePlayer = group.players[group.activePlayerIndex];
   const coordinator = group.players.find((player) => player.roles.includes('COMMANDER'));
@@ -33,6 +35,7 @@ export function CoopMissionView({
       onAction={() => undefined}
       onAdvance={onAdvance}
       onRequestConfirmation={onRequestDecision}
+      onFindStar={onFindStar}
       groupDecisionPending={pendingDecision !== null}
       showFoodAsPrimary={showsFoodAsPrimary(group)}
     />

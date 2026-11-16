@@ -121,7 +121,7 @@ describe('H4 · cooperación local', () => {
     expect(confirmGroupDecision(state, pending!)).toEqual(applyAction(state, action));
   });
 
-  it('muestra Comida como barra principal solo con cinco jugadores', () => {
+  it('muestra Comida como barra principal en todos los equipos', () => {
     expect(showsFoodAsPrimary(COOP_DEMO_GROUPS.THREE)).toBe(false);
     expect(showsFoodAsPrimary(COOP_DEMO_GROUPS.FOUR)).toBe(false);
     expect(showsFoodAsPrimary(COOP_DEMO_GROUPS.FIVE)).toBe(true);
@@ -136,7 +136,7 @@ describe('H4 · cooperación local', () => {
       onAdvance: () => undefined,
     }));
     expect(render(COOP_DEMO_GROUPS.FIVE)).toContain('aria-label="FOOD"');
-    expect(render(COOP_DEMO_GROUPS.FOUR)).not.toContain('aria-label="FOOD"');
+    expect(render(COOP_DEMO_GROUPS.FOUR)).toContain('aria-label="FOOD"');
   });
 
   it('SOLO y LOCAL_COOP mantienen reglas y recursos idénticos', () => {

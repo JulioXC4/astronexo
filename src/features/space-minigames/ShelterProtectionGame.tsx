@@ -3,9 +3,10 @@ import type { ActionChoice } from '../../game';
 import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
 import { isShelterProtected, type ShelterMaterial } from './puzzleRules';
+import { qualityFromMistakes } from '../../game';
 
 interface ShelterProtectionGameProps {
-  readonly onReadyChange: (ready: boolean) => void;
+  readonly onReadyChange: (ready: boolean, quality?: number) => void;
   readonly onChoiceChange: (choice: ActionChoice | undefined) => void;
 }
 
@@ -14,6 +15,7 @@ export function ShelterProtectionGame({ onReadyChange, onChoiceChange }: Shelter
   const [material, setMaterial] = useState<ShelterMaterial | null>(null);
   const [zones, setZones] = useState<readonly number[]>([]);
   const [hint, setHint] = useState('');
+  const [moves, setMoves] = useState(0);
   const ready = isShelterProtected(zones);
   const asset = (role: string) => interventionAssets.G5.find((item) => item.role === role)!.path;
   function chooseMaterial(next: ShelterMaterial) {
@@ -23,9 +25,12 @@ export function ShelterProtectionGame({ onReadyChange, onChoiceChange }: Shelter
     if (!material) { setHint(t('interventions.puzzles.g5.chooseMaterial')); return; }
     const next = zones.includes(index) ? zones.filter((zone) => zone !== index) : zones.length < 3 ? [...zones, index] : zones;
     setZones(next);
+    // Recolocar piezas cuenta: llegar a las zonas prioritarias de primera vale más.
+    const nextMoves = moves + 1;
+    setMoves(nextMoves);
     const complete = isShelterProtected(next);
     setHint(next.length === 3 && !complete ? t('interventions.puzzles.g5.priorityHint') : '');
-    onReadyChange(complete);
+    onReadyChange(complete, complete ? qualityFromMistakes(Math.max(0, nextMoves - 3)) : undefined);
   }
   return <div className={`puzzle puzzle--shelter ${ready ? 'puzzle--success' : ''}`}>
     <div className="puzzle__status"><strong>{t('interventions.puzzles.g5.title')}</strong><span>{t('interventions.puzzles.g5.remaining', { count: 3 - zones.length })}</span></div>

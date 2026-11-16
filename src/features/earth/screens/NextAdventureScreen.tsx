@@ -53,7 +53,7 @@ export function NextAdventureScreen({
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(13rem, 1fr))', gap: '1rem' }}>
           <div className="city-card" style={{ cursor: 'pointer' }} onClick={onReplay}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🎒</div>
+            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}></div>
             <h3 style={{ fontFamily: 'Fredoka', fontSize: '1.2rem', color: '#ffffff', margin: '0 0 0.3rem 0' }}>
               Nueva Estrategia
             </h3>
@@ -66,7 +66,7 @@ export function NextAdventureScreen({
           </div>
 
           <div className="city-card" style={{ cursor: 'pointer' }} onClick={onOpenLearn}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📖</div>
+            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}></div>
             <h3 style={{ fontFamily: 'Fredoka', fontSize: '1.2rem', color: '#ffffff', margin: '0 0 0.3rem 0' }}>
               {t('learn.title')}
             </h3>
@@ -79,7 +79,7 @@ export function NextAdventureScreen({
           </div>
 
           <div className="city-card" style={{ cursor: 'pointer' }} onClick={onOpenStation}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🏫</div>
+            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}></div>
             <h3 style={{ fontFamily: 'Fredoka', fontSize: '1.2rem', color: '#ffffff', margin: '0 0 0.3rem 0' }}>
               {t('welcome.stationMode')}
             </h3>

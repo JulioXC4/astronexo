@@ -1,0 +1,142 @@
+/* ---------- Salida a explorar ---------- */
+.explore-start,
+.explore-report {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow: auto;
+  padding: 1.2rem;
+  color: #f2f7ff;
+  background: radial-gradient(circle at 50% 0%, #17304d, #07111f 70%);
+  font-family: 'Nunito', sans-serif;
+}
+
+.explore-start > header { max-width: 60rem; margin: 0 auto 1rem; }
+.explore-start h1 { margin: .2rem 0; font-family: 'Fredoka', sans-serif; font-size: clamp(1.4rem, 3vw, 2rem); }
+.explore-start > header p { margin: 0; max-width: 52rem; color: #b9d3ec; line-height: 1.4; }
+
+.explore-start__cards {
+  display: grid;
+  max-width: 60rem;
+  margin: 0 auto;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: .9rem;
+}
+
+.explore-card {
+  display: grid;
+  align-content: start;
+  gap: .55rem;
+  padding: 1rem;
+  border: 3px solid #35526f;
+  background: #0d2036;
+  text-align: center;
+}
+.explore-card h2 { margin: 0; font-family: 'Fredoka', sans-serif; font-size: 1.25rem; }
+.explore-card__icon { width: 4.2rem; height: 4.2rem; margin: 0 auto; color: #f6c15b; }
+.explore-card p { margin: 0; font-size: .86rem; line-height: 1.35; text-align: left; }
+/* Verde = lo que ganas, rojo = lo que pagas; siempre con la palabra delante. */
+.explore-card__pros { padding: .4rem .5rem; border-left: 4px solid #69f0ae; background: rgb(18 46 35 / 70%); }
+.explore-card__pros strong { color: #69f0ae; }
+.explore-card__cons { padding: .4rem .5rem; border-left: 4px solid #ff6b6b; background: rgb(51 26 26 / 70%); }
+.explore-card__cons strong { color: #ff8a80; }
+.explore-card__needs { color: #ffb74d; font-weight: 800; }
+.explore-card__batteries { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; }
+.explore-card button:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ---------- Mapa jugable ---------- */
+.explore { position: fixed; inset: 0; z-index: 40; background: #222; font-family: 'Nunito', sans-serif; color: #fff; }
+.explore__canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+.explore__bars {
+  position: absolute;
+  top: .5rem;
+  left: .6rem;
+  display: grid;
+  grid-template-columns: repeat(3, 9rem);
+  gap: .5rem;
+  padding: .45rem .6rem;
+  background: rgb(0 0 0 / 66%);
+}
+
+.explore__panel {
+  position: absolute;
+  left: .6rem;
+  bottom: .6rem;
+  max-width: 23rem;
+  padding: .55rem .7rem;
+  background: rgb(0 0 0 / 70%);
+  font-size: .8rem;
+  line-height: 1.4;
+}
+.explore__panel p { margin: 0 0 .15rem; }
+
+.explore__margin { margin-top: .35rem; }
+.explore__margin-track { width: 100%; height: .85rem; margin: .2rem 0; border: 2px solid #dfeef0; background: #111; }
+.explore__margin-track span { display: block; height: 100%; transition: width 160ms; }
+/* Verde > 40 %, ámbar 15 a 40 %, rojo < 15 %; la palabra y el porcentaje van siempre. */
+.explore__margin--ok .explore__margin-track span { background: #2d8a4d; }
+.explore__margin--warn .explore__margin-track span { background: #e8b04a; }
+.explore__margin--danger .explore__margin-track span { background: #d04a3a; }
+.explore__margin--danger > strong { color: #ff8a7a; }
+.explore__margin small { display: block; color: #cfe4ff; }
+
+.explore__controls {
+  position: absolute;
+  right: .7rem;
+  bottom: .6rem;
+  display: grid;
+  justify-items: end;
+  gap: .4rem;
+}
+
+.explore__dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 3.4rem);
+  grid-template-rows: repeat(2, 3rem);
+  gap: .25rem;
+}
+.explore__key {
+  border: 2px solid #cfe4ff;
+  color: #fff;
+  background: rgb(15 33 53 / 88%);
+  font-size: 1.4rem;
+  touch-action: none;
+  cursor: pointer;
+}
+.explore__key:active { background: #2b5f8f; }
+.explore__key--up { grid-column: 2; grid-row: 1; }
+.explore__key--left { grid-column: 1; grid-row: 2; }
+.explore__key--down { grid-column: 2; grid-row: 2; }
+.explore__key--right { grid-column: 3; grid-row: 2; }
+
+/* ---------- Informe ---------- */
+.explore-report__box { max-width: 58rem; margin: 0 auto; padding: 1.2rem; border: 3px solid #35526f; background: #0d2036; }
+.explore-report h1 { margin: 0 0 .5rem; font-family: 'Fredoka', sans-serif; font-size: 1.6rem; }
+.explore-report h2 { margin: 1rem 0 .3rem; font-size: 1rem; color: #9bc0e4; }
+.explore-report table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.explore-report th, .explore-report td { padding: .35rem .5rem; border-bottom: 1px solid #2a4560; text-align: left; vertical-align: top; }
+.explore-report th { color: #9bc0e4; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; }
+.explore-report__banner { padding: .55rem .75rem; border: 2px solid; }
+.explore-report__banner--ok { border-color: #2d8a4d; background: rgb(18 46 35 / 60%); }
+.explore-report__banner--ok strong { color: #69f0ae; }
+.explore-report__banner--rescue { border-color: #d04a3a; background: rgb(51 26 26 / 60%); }
+.explore-report__banner--rescue strong { color: #ff8a80; }
+.explore-report__score { margin: .9rem 0; font-size: 1.1rem; }
+.explore-report__score small { color: #b9d3ec; }
+
+/* ---------- Tu colección ---------- */
+.collection-list { margin-top: 1rem; }
+.collection-list h3 { margin: 0 0 .4rem; font-size: 1rem; color: #9bc0e4; }
+.collection-list ul { display: grid; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.collection-list li { display: grid; gap: .1rem; padding: .4rem .55rem; border-left: 4px solid #f6c15b; background: rgb(15 33 53 / 80%); }
+.collection-list li span { color: #cfe4ff; font-size: .8rem; line-height: 1.3; }
+
+@media (max-width: 720px) {
+  .explore__bars { grid-template-columns: repeat(3, 6.2rem); }
+  .explore__panel { bottom: 7.6rem; max-width: calc(100vw - 1.2rem); }
+}
+
+/* ---------- En el informe final de la guardia ---------- */
+.results-exploration { max-width: 56rem; margin: 0 auto 1rem; padding: .8rem 1rem; border: 2px solid #35526f; background: rgb(7 20 38 / 85%); }
+.results-exploration > ul { margin: 0 0 .4rem; padding-left: 1.1rem; color: #cfe4ff; font-size: .85rem; }

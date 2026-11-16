@@ -53,10 +53,11 @@ export function ModuleCameras({ state }: ModuleCamerasProps) {
         <span aria-hidden="true">!</span>
         <strong>{selectedCamera === 'EXTERIOR' ? t('alerts.MARS_DUST_STORM.title') : t('missionControl.moduleStatus.affected')}</strong>
       </div>}
+      {/* Ciencia y Comida viven ahora en el rack principal; aquí queda solo
+          lo que no es una de las barras que el niño vigila. */}
       <div className="module-camera-view__telemetry" aria-label={t('missionControl.secondaryTelemetry')}>
-        <span>{t('common.science')} <strong>{state.scienceProgress}/100</strong></span>
-        <span>{t('common.food')} <strong>{state.foodSupply}/100</strong></span>
         <span>{t('common.radiation')} <strong>{state.radiationExposure}/100</strong></span>
+        <span>{t('missionControl.telemetry.solar')} <strong>{state.solarEfficiency}%</strong></span>
       </div>
     </div>
 

@@ -21,7 +21,7 @@ export const qu = {
     selected: 'Akllasqa',
     energy: 'Kallpa (Energía)',
     oxygen: 'Samana (Oxígeno)',
-    shield: 'Amachana (Escudo)',
+    shield: 'Amachana',
     food: 'Mikhuna (Alimentos)',
     foodSupply: 'Mikhuy qullqa',
     science: 'Hamut\'ay (Ciencia)',
@@ -179,7 +179,7 @@ export const qu = {
     startMissionBtn: 'Llamk\'ayta Qallariy: {name}',
     alreadyCompleted: 'Kay llamk\'ayqa tukusqañam.',
     maxReachedNotice: '3 llamk\'aykunatam tukurqankiña! Despegueman riyta atiwaqñam.',
-    proceedToFlightBtn: 'Despegueman Puririy 🚀',
+    proceedToFlightBtn: 'Despegueman Puririy ',
     facilities: {
       solarLab: 'Inti Kallpa Wasi (Solar Detective / Solar Watch)',
       shieldLab: 'Illanchay Amachana Wasi',
@@ -299,7 +299,7 @@ export const qu = {
     departureSubtitle: 'Kay Pachata saqispa hanaq pachaman phawachkanchik.',
     arrivalTitle: '{destination}man Chayamurqanchik!',
     arrivalSubtitle: 'Allinllachu chayamunki hanaq pacha qullqaykiman.',
-    continueBtn: 'Qullqata Sayarichiyman Riy 🚀',
+    continueBtn: 'Qullqata Sayarichiyman Riy ',
   },
 
   baseBuilder: {
@@ -342,11 +342,11 @@ export const qu = {
   },
 
   results: {
-    victoryTitle: 'Purina Allin Tukusqa! 🏆',
+    victoryTitle: 'Purina Allin Tukusqa! ',
     partialTitle: 'Purina Sayachisqa (Interrupción)',
     scoreLabel: 'Puntuación:',
     finalReportTitle: 'Tukuynin Willakuy',
-    returnHomeBtn: 'Kay Pachaman Kutiy 🌍',
+    returnHomeBtn: 'Kay Pachaman Kutiy ',
     playAgainBtn: 'Musuqmanta Pukllay',
   },
 

@@ -4,6 +4,7 @@ import { getMissionsForCity, type EarthMissionDefinition, type MissionType } fro
 import type { ToolId } from '../../../game/contracts';
 import type { TrainingOutcome } from '../../../game';
 import { EarthBaseScene } from '../../../visual-kit/EarthBaseScene';
+import { useRadio } from '../../radio';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
 import { EarthMissionPanel, type MissionPanelState } from './EarthMissionPanel';
@@ -41,7 +42,13 @@ export function PreparationMapScreen({
   onBack,
 }: PreparationMapScreenProps) {
   const { t } = useI18n();
+  const radio = useRadio();
   const missions = getMissionsForCity(cityId);
+
+  // Chispa explica el mapa por radio, sin detener el juego ni tapar el escenario.
+  useEffect(() => {
+    radio.say({ speaker: 'CHISPA', text: t('radio.mapWelcome'), once: 'map.welcome' });
+  }, [radio, t]);
   const [selectedId, setSelectedId] = useState<MissionType | null>(null);
   const [celebratingId, setCelebratingId] = useState<MissionType | null>(justCompletedId);
   const [tutorialOpen, setTutorialOpen] = useState(() => !isTutorialComplete(MAP_TUTORIAL_STEPS));

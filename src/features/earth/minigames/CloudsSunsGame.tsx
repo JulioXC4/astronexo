@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CheckCircle, CloudSun, Info, Minus, Plus, Sparkle } from '@phosphor-icons/react';
 import { getSolarDatasetByCity } from '../../../data/nasa/powerData';
 import { useI18n } from '../../../i18n';
@@ -6,6 +6,11 @@ import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome
 import type { TrainingOutcome } from '../../../game';
 import { MinigameShell } from './ui/MinigameShell';
 import './clouds-suns.css';
+import { GaugeDial } from '../../../visual-kit/GaugeDial';
+import { recommendedReserve, reserveMismatch, reserveHint, tierFromCost } from './trainingRules';
+import { useScreenRadio } from '../../radio';
+import { playSound } from '../../audio';
+import { WorkQuality } from '../../../visual-kit/WorkQuality';
 
 interface CloudsSunsGameProps {
   readonly cityId: string;
@@ -13,18 +18,9 @@ interface CloudsSunsGameProps {
   readonly onBack: () => void;
 }
 
-/** Reserva sugerida = promedio de lo que cada día pierde respecto al mejor día POWER de la ciudad. */
-export function recommendedReservePercent(values: readonly number[]): number {
-  const best = Math.max(...values);
-  if (!(best > 0)) return 100;
-  const shortfall = values.reduce((sum, value) => sum + (1 - value / best), 0) / values.length;
-  return Math.round(shortfall * 100);
-}
-
-/** Diferencia (puntos %) entre la reserva elegida y la que piden los datos NASA POWER. */
-export function reserveMismatch(reservePercent: number, values: readonly number[]): number {
-  return Math.abs(reservePercent - recommendedReservePercent(values));
-}
+/** Se conservan estos nombres: otras pruebas del proyecto los importan desde aquí. */
+export const recommendedReservePercent = recommendedReserve;
+export { reserveMismatch };
 
 /** Cuánto sol pierde un día frente al mejor día (0–1). */
 export function dayShortfall(value: number, best: number): number {
@@ -78,9 +74,12 @@ function SkyPixel({ shortfall }: { shortfall: number }) {
     </svg>
   );
 }
-
 export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGameProps) {
   const { t } = useI18n();
+  useScreenRadio([
+    { speaker: 'CHISPA', text: t('training.clouds.task') },
+    { speaker: 'AURORA', text: t('training.clouds.tip') },
+  ]);
   const dataset = getSolarDatasetByCity(cityId);
   const values = useMemo(() => dataset.days.map((day) => day.irradianceKwhPerM2), [dataset]);
   const best = Math.max(...values);
@@ -90,6 +89,11 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
   const mismatch = reserveMismatch(reserve, values);
   const passed = tested && mismatch <= 25;
   const cost = calculateTrainingCost('CLOUDS_SUNS', mismatch);
+  const wasPassed = useRef(false);
+  useEffect(() => {
+    if (passed && !wasPassed.current) playSound('success');
+    wasPassed.current = passed;
+  }, [passed]);
   const first = dataset.days[0].observation;
   const cityName = cityId === 'TROMSO' ? 'Tromsø' : 'Arequipa';
   const backdrop = cityId === 'TROMSO' ? '/assets/pixel-art/arctic-research-base.png' : '/assets/pixel-art/andean-training-complex.png';
@@ -153,6 +157,11 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
             )}
           </div>
 
+          <GaugeDial label={t('training.clouds.dial')} value={reserve} min={0} max={100}
+            onChange={changeReserve} display={`${reserve}%`} />
+          <p className="clouds-hint" role="status">{t(reserveHint(reserve, values) === 'RIGHT'
+            ? 'training.clouds.hintRight' : reserveHint(reserve, values) === 'TOO_LITTLE'
+              ? 'training.clouds.hintLittle' : 'training.clouds.hintMuch')}</p>
           <input
             id="clouds-reserve" className="clouds-slider" type="range" min={0} max={100} step={1} value={reserve}
             onChange={(event) => changeReserve(Number(event.target.value))}
@@ -160,6 +169,7 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
           <p className="clouds-hint">{t('minigames.cloudsSuns.hint')}</p>
 
           <div className="clouds-actions">
+            <button type="button" className="mg-btn" onClick={() => changeReserve(50)}>{t('training.reset')}</button>
             <p className="clouds-source"><Info size={16} weight="bold" aria-hidden="true" />{t('minigames.cloudsSuns.source', { parameter: first.parameter, unit: first.unit, status: t(`nasaStatus.${first.status ?? 'HISTORICAL'}`) })}</p>
             <button type="button" className="pixel-btn pixel-btn--primary clouds-test" onClick={() => setTested(true)}>
               <Sparkle weight="fill" aria-hidden="true" />
@@ -173,6 +183,7 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
         )}
         {passed && (
           <div role="status" className="mg-card mg-card--success clouds-result clouds-result--ok">
+            <WorkQuality tier={tierFromCost(cost)} />
             <div>
               <strong><CheckCircle weight="fill" aria-hidden="true" /> {t('minigames.cloudsSuns.passed', { recommended })}</strong>
               <p>{t('minigames.cloudsSuns.benefit')}</p>
