@@ -49,8 +49,10 @@ describe('tutorial progress', () => {
     expect(isTutorialComplete(['welcome.solo'], storage)).toBe(false);
   });
 
-  it('falls back to validated English copy for draft languages', () => {
-    expect(translate('qu', 'tutorial.help')).toBe('Help');
-    expect(translate('no', 'tutorial.guard.actions')).toBe('Tap Actions, check each repair cost, and choose one.');
+  it('draft languages have their own complete copy and never show raw keys', () => {
+    expect(translate('qu', 'tutorial.help')).not.toBe('Help');
+    expect(translate('qu', 'tutorial.help').length).toBeGreaterThan(0);
+    expect(translate('no', 'tutorial.guard.actions')).not.toBe('Tap Actions, check each repair cost, and choose one.');
+    expect(translate('no', 'tutorial.guard.actions')).not.toMatch(/tutorial\./);
   });
 });

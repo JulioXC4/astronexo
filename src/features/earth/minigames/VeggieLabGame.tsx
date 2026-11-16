@@ -38,6 +38,11 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
         : !redOk ? t('training.veggie.hintLight')
           : t('training.veggie.hintStart');
 
+  // Siguiente objetivo: el agua si falta o sobra; luego la luz.
+  const target: 'water' | 'light' | null = done ? null
+    : state.water !== 'MID' ? 'water'
+      : 'light';
+
   const strong = growth >= 80;
   const redLeds = Math.round((state.red / 100) * 12);
   const waterLevel = state.water === 'LOW' ? 8 : state.water === 'MID' ? 20 : 30;
@@ -81,11 +86,12 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
       min={VEGGIE.redMin}
       max={VEGGIE.redMax}
       onChange={(red) => setState((s) => ({ ...s, red }))}
+      target={target === 'light'}
       display={t('training.veggie.lightValue', { red: state.red })}
       lowLabel={t('training.veggie.lightBlue')}
       highLabel={t('training.veggie.lightRed')}
     />
-    <div className="train-choice">
+    <div className="train-choice" data-target={target === 'water' || undefined}>
       <strong>{t('training.veggie.water')}</strong>
       <div className="train-choice__row">
         {waterOption('LOW', 'training.veggie.waterLow')}

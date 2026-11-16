@@ -92,7 +92,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  z-index: 50;
+  /* Debajo de los menús y barras de acción (15+): el selector nunca tapa un menú que se abre encima. */
+  z-index: 12;
 }
 
 .lang-hud-pill-group {

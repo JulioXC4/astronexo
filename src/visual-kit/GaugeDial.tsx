@@ -21,6 +21,10 @@ interface GaugeDialProps {
   readonly lowLabel?: string;
   readonly highLabel?: string;
   readonly disabled?: boolean;
+  /** Es el siguiente control que debe tocar el jugador: lleva el aro de guía. */
+  readonly target?: boolean;
+  /** El rótulo de la guía va debajo en vez de arriba (cuando arriba hay otro control). */
+  readonly labelBelow?: boolean;
 }
 
 /** El arco empieza abajo a la izquierda y da 270° hacia la derecha. */
@@ -63,7 +67,7 @@ export function pointToValue(dx: number, dy: number, min: number, max: number, s
  * flechas del teclado, así que sirve como control accesible.
  */
 export function GaugeDial({
-  label, value, min, max, step = 1, onChange, zones = [], display, lowLabel, highLabel, disabled = false,
+  label, value, min, max, step = 1, onChange, zones = [], display, lowLabel, highLabel, disabled = false, target = false, labelBelow = false,
 }: GaugeDialProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const dragging = useRef(false);
@@ -95,7 +99,7 @@ export function GaugeDial({
   const needle = polar(valueToAngle(value, min, max), RADIUS - 14);
   const toAngle = (v: number) => valueToAngle(v, min, max);
 
-  return <div className={`gauge-dial ${disabled ? 'is-disabled' : ''}`}>
+  return <div className={`gauge-dial ${disabled ? 'is-disabled' : ''}`} data-target={target || undefined} data-target-kind="turn" data-guide-below={(target && labelBelow) || undefined}>
     <svg
       ref={svgRef}
       viewBox="0 0 200 200"

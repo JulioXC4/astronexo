@@ -42,6 +42,10 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
         : closed < 3 ? t('training.altitude.hintSeal')
           : t('training.altitude.hintStart');
 
+  // Siguiente objetivo: primero la presión, después el primer sello abierto.
+  const pressureOk = state.kpa >= ALTITUDE.safe[0] && state.kpa <= ALTITUDE.safe[1];
+  const nextSeal = pressureOk && !done ? state.seals.findIndex((closed) => !closed) : -1;
+
   const toggle = (index: number) => setState((s) => ({
     ...s,
     seals: s.seals.map((value, i) => (i === index ? !value : value)) as unknown as AltitudeState['seals'],
@@ -68,6 +72,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
       className={`chamber__seal ${state.seals[i] ? 'is-closed' : 'is-open'}`}
       style={{ left: seal.left, top: seal.top }}
       aria-pressed={state.seals[i]}
+      data-target={i === nextSeal || undefined}
       onClick={() => toggle(i)}
     >
       <strong>{t(seal.key)}</strong>
@@ -81,6 +86,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
     min={ALTITUDE.kpaMin}
     max={ALTITUDE.kpaMax}
     onChange={(kpa) => setState((s) => ({ ...s, kpa }))}
+    target={!pressureOk && !done}
     display={`${state.kpa} kPa`}
     lowLabel={t('training.altitude.low')}
     highLabel={t('training.altitude.high')}

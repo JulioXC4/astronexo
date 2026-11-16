@@ -71,6 +71,10 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
   const hasPower = phase === 'result' && result.passed;
   const stage = nightTick <= 2 ? 'dusk' : nightTick <= 5 ? 'midnight' : 'predawn';
   const aligned = Math.abs(tiltAngle - 16) <= 6;
+  // Siguiente objetivo (uno a la vez): orientar el panel → cerrar el circuito → llenar cada estación → pasar la noche → cobrar.
+  const needy = SYSTEMS.find((system) => system !== 'laboratory' && allocation[system] < DEMAND[system]);
+  const guideSystem = phase === 'distribute' && available > 0 ? needy : undefined;
+  const guideNight = phase === 'distribute' && !guideSystem && assignedUnits(allocation) > 0;
 
   useEffect(() => {
     if (phase !== 'night') return undefined;
@@ -208,6 +212,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
           <button type="button" className="sd-science__close" onClick={() => setScienceOpen(false)} aria-label={t('common.close')}><X weight="bold" /></button>
           <span className="mg-kicker">{tr('scienceDetails')}</span>
           <p>{tr('scientificNote', { irradiance: day.irradianceKwhPerM2 })}</p>
+          <p>{tr('orientationFactor', { count: capture.efficiencyPercent })}</p>
           <p>{tr('educationalNote')} {tr('unitExplanation')}</p>
           <p><a href={day.observation.sourceUrl} target="_blank" rel="noreferrer">NASA POWER · {day.observation.recordId}</a></p>
         </aside>
@@ -219,16 +224,15 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
 
         {phase === 'capture' && (
           <div className="sd-capture">
-            <div className="sd-capture__slider">
+            <div className="sd-capture__slider" data-target={!aligned || undefined} data-target-kind="turn">
               <label htmlFor="tilt-angle-slider">{tr('tiltLabel')} <strong>{tiltAngle}°</strong></label>
               <input id="tilt-angle-slider" type="range" min="0" max="50" value={tiltAngle} onChange={(event) => adjustAngle(Number(event.target.value))} aria-label={tr('preciseControl')} />
               <span className={`sd-hint${aligned ? ' is-ok' : ''}`}>{aligned ? tr('aligned') : tr('aimFor16')}</span>
             </div>
             <div className="sd-capture__chips">
               <span className="sd-chip">{tr('captureResult', { count: capture.units, kwh: capture.kwh })}</span>
-              <span className="sd-chip">{tr('orientationFactor', { count: capture.efficiencyPercent })}</span>
             </div>
-            <button type="button" className="pixel-btn pixel-btn--primary sd-primary" data-sd="close" onClick={toggleCircuit}>{tr('closeCircuit')}</button>
+            <button type="button" className="pixel-btn pixel-btn--primary sd-primary" data-sd="close" data-target={aligned || undefined} onClick={toggleCircuit}>{tr('closeCircuit')}</button>
           </div>
         )}
 
@@ -257,7 +261,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
                     {phase === 'distribute' && (
                       <div className="sd-system__steps">
                         <button type="button" onClick={() => changeAllocation(system, -1)} disabled={allocation[system] === 0} aria-label={tr('removeUnit', { system: tr(`system.${system}`) })}><Minus weight="bold" /></button>
-                        <button type="button" onClick={() => { setSelectedSystem(system); changeAllocation(system, 1); }} disabled={available <= 0 || allocation[system] >= DEMAND[system]} aria-label={tr('addUnit', { system: tr(`system.${system}`) })}><Plus weight="bold" /></button>
+                        <button type="button" data-target={system === guideSystem || undefined} onClick={() => { setSelectedSystem(system); changeAllocation(system, 1); }} disabled={available <= 0 || allocation[system] >= DEMAND[system]} aria-label={tr('addUnit', { system: tr(`system.${system}`) })}><Plus weight="bold" /></button>
                       </div>
                     )}
                   </div>
@@ -268,7 +272,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
             <div className="sd-side">
               {phase === 'distribute' && <>
                 <span className="sd-hint">{tr('distributionHint')} {tr('optionalLab')}</span>
-                <button type="button" className="pixel-btn pixel-btn--primary sd-primary" data-sd="night" onClick={startNight} disabled={assignedUnits(allocation) === 0}>{tr('startNight')}</button>
+                <button type="button" className="pixel-btn pixel-btn--primary sd-primary" data-sd="night" data-target={guideNight || undefined} onClick={startNight} disabled={assignedUnits(allocation) === 0}>{tr('startNight')}</button>
               </>}
               {phase === 'night' && (
                 <div className="sd-night">
@@ -279,7 +283,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
               {phase === 'result' && <>
                 {result.passed && <span className="sd-grade">{tr(`grade.${result.grade}`)}</span>}
                 {!result.passed && <button type="button" className="pixel-btn pixel-btn--primary sd-primary" data-sd="retry" onClick={() => { setPhase('distribute'); setNightTick(0); }}>{tr('retryDistribution')}</button>}
-                {result.passed && <button type="button" className="pixel-btn pixel-btn--primary sd-primary" data-sd="claim" onClick={claimReward}>{tr('claimReward', { cost: calculateTrainingCost('SOLAR_DETECTIVE', result.reservePercent) })}</button>}
+                {result.passed && <button type="button" className="pixel-btn pixel-btn--primary sd-primary" data-sd="claim" data-target data-guide-below onClick={claimReward}>{tr('claimReward', { cost: calculateTrainingCost('SOLAR_DETECTIVE', result.reservePercent) })}</button>}
               </>}
             </div>
           </div>

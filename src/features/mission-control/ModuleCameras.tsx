@@ -4,6 +4,7 @@ import type { MissionState, ModuleId } from '../../game';
 import { exteriorModuleScenes, getModuleScene } from '../../assets/moduleScenes';
 import { spaceBackgrounds } from '../../assets/manifest';
 import { useI18n } from '../../i18n';
+import { ModuleEffectChips } from '../base-builder/ModuleStatus';
 
 interface ModuleCamerasProps { readonly state: MissionState }
 type CameraId = 'EXTERIOR' | ModuleId;
@@ -27,6 +28,8 @@ export function ModuleCameras({ state }: ModuleCamerasProps) {
   const selectedScene = selectedCamera === 'EXTERIOR'
     ? exteriorScene
     : getModuleScene(state.destination, selectedCamera);
+  // «Activo» se dice «Funcionando»: el módulo ya está construido y trabajando para la base.
+  const statusLabel = (key: string) => t(key === 'active' ? 'buildFlow.status.working' : `missionControl.moduleStatus.${key}`);
   const selectedName = selectedCamera === 'EXTERIOR'
     ? t('missionControl.exteriorCamera')
     : t(`baseBuilder.modules.${selectedCamera}.name`);
@@ -42,7 +45,7 @@ export function ModuleCameras({ state }: ModuleCamerasProps) {
           <h2 id="module-cameras-title">{selectedName}</h2>
         </div>
         <strong className={`camera-status camera-status--${selectedStatusKey}`}>
-          {t(`missionControl.moduleStatus.${selectedStatusKey}`)}
+          <span className="camera-status__led" aria-hidden="true" />{statusLabel(selectedStatusKey)}
         </strong>
       </div>
       {!selectedBuilt && <div className="module-camera-view__offline">
@@ -55,6 +58,9 @@ export function ModuleCameras({ state }: ModuleCamerasProps) {
       </div>}
       {/* Ciencia y Comida viven ahora en el rack principal; aquí queda solo
           lo que no es una de las barras que el niño vigila. */}
+      {selectedCamera !== 'EXTERIOR' && selectedBuilt && <div className="module-camera-view__effects">
+        <ModuleEffectChips moduleId={selectedCamera} compact />
+      </div>}
       <div className="module-camera-view__telemetry" aria-label={t('missionControl.secondaryTelemetry')}>
         <span>{t('common.radiation')} <strong>{state.radiationExposure}/100</strong></span>
         <span>{t('missionControl.telemetry.solar')} <strong>{state.solarEfficiency}%</strong></span>
@@ -82,13 +88,13 @@ export function ModuleCameras({ state }: ModuleCamerasProps) {
           type="button"
           key={module.id}
           className={`camera-selector__button camera-selector__button--${statusKey} ${selectedCamera === module.id ? 'camera-selector__button--selected' : ''}`}
-          aria-label={t('missionControl.cameraAria', { camera: index + 2, name, status: t(`missionControl.moduleStatus.${statusKey}`) })}
+          aria-label={t('missionControl.cameraAria', { camera: index + 2, name, status: statusLabel(statusKey) })}
           aria-pressed={selectedCamera === module.id}
           onClick={() => setSelectedCamera(module.id)}
         >
           <img src={getModuleScene(state.destination, module.id)} alt="" decoding="async" loading="lazy" />
           <span>{name}</span>
-          <small>{t(`missionControl.moduleStatus.${statusKey}`)}</small>
+          <small><span className={`camera-status__led camera-status__led--${statusKey}`} aria-hidden="true" />{statusLabel(statusKey)}</small>
         </button>;
       })}
     </div>

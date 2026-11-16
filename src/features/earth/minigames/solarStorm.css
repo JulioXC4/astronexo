@@ -4,8 +4,8 @@
 
 /* ---------- Efectos de escena ---------- */
 .storm-fx { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
-.storm-fx--alert { background: radial-gradient(ellipse at 50% 45%, rgba(255, 70, 50, 0) 40%, rgba(255, 60, 40, .55) 100%); mix-blend-mode: multiply; }
-.storm--alarm .storm-fx--alert { opacity: .7; }
+.storm-fx--alert { background: radial-gradient(ellipse at 50% 45%, rgba(255, 70, 50, 0) 45%, rgba(255, 60, 40, .4) 100%); mix-blend-mode: multiply; }
+.storm--alarm .storm-fx--alert { opacity: .5; }
 .storm--safe .storm-fx--alert { opacity: .9; background: radial-gradient(ellipse at 50% 45%, rgba(80, 210, 255, 0) 45%, rgba(40, 150, 230, .45) 100%); }
 .storm--failed .storm-fx--alert { opacity: 1; background: radial-gradient(ellipse at 50% 45%, rgba(255, 70, 50, 0) 30%, rgba(190, 30, 30, .6) 100%); }
 .storm-fx--wave { background: linear-gradient(105deg, transparent 38%, rgba(255, 196, 90, .55) 48%, rgba(255, 245, 210, .85) 52%, rgba(255, 150, 60, .5) 56%, transparent 66%); mix-blend-mode: screen; transform: translateX(-100%); }
@@ -17,22 +17,22 @@
 /* ---------- Estaciones ---------- */
 .storm-door, .storm-power, .storm-shield, .storm-beacon, .storm-packet, .storm-crew { position: absolute; transform: translate(-50%, -50%); }
 .storm-door { width: calc(var(--u) * 233); height: calc(var(--u) * 275); border: calc(var(--u) * 4) solid transparent; pointer-events: none; }
-.storm-door.is-locked { border-color: #ffb24a; background: repeating-linear-gradient(135deg, rgba(255, 178, 74, .22) 0 calc(var(--u) * 10), transparent calc(var(--u) * 10) calc(var(--u) * 20)); box-shadow: 0 0 calc(var(--u) * 14) rgba(255, 178, 74, .75); }
+.storm-door.is-locked { border-color: #ffb24a; background: repeating-linear-gradient(135deg, rgba(255, 178, 74, .22) 0 calc(var(--u) * 10), transparent calc(var(--u) * 10) calc(var(--u) * 20)); box-shadow: 0 0 calc(var(--u) * 6) rgba(255, 178, 74, .5); }
 .storm-door__lock { position: absolute; left: 50%; top: 50%; display: grid; place-items: center; width: calc(var(--u) * 54); height: calc(var(--u) * 54); transform: translate(-50%, -50%); border: calc(var(--u) * 4) solid #ffe6a1; background: #1d2b44; color: #ffd45c; font-size: calc(var(--u) * 30); }
 .storm-door.is-bad { border-color: #ff6a55; box-shadow: 0 0 calc(var(--u) * 18) #ff4a3a; }
 
 .storm-power { width: calc(var(--u) * 180); height: calc(var(--u) * 112); border: calc(var(--u) * 3) solid transparent; pointer-events: none; }
-.storm-power.is-ready { border-color: #5ff0f2; background: rgba(60, 220, 255, .16); box-shadow: 0 0 calc(var(--u) * 16) #43e8ff, inset 0 0 calc(var(--u) * 14) rgba(67, 232, 255, .55); }
+.storm-power.is-ready { border-color: #5ff0f2; background: rgba(60, 220, 255, .16); box-shadow: 0 0 calc(var(--u) * 6) #43e8ff; }
 .storm-power.is-bad { border-color: #ff6a55; background: rgba(255, 70, 50, .14); box-shadow: 0 0 calc(var(--u) * 14) #ff4a3a; }
 
 .storm-shield { display: grid; place-items: center; width: calc(var(--u) * 196); height: calc(var(--u) * 128); border: calc(var(--u) * 3) dashed transparent; color: #ffb24a; font-size: calc(var(--u) * 24); pointer-events: none; }
 .storm-shield svg { position: absolute; top: calc(var(--u) * -14); right: calc(var(--u) * -14); width: calc(var(--u) * 30); height: calc(var(--u) * 30); padding: calc(var(--u) * 4); border: calc(var(--u) * 3) solid currentColor; background: #1d2b44; }
 .storm-shield.is-exposed { border-color: rgba(255, 178, 74, .8); }
-.storm-shield.is-up { border: calc(var(--u) * 4) solid #6fe3ff; background: linear-gradient(135deg, rgba(90, 210, 255, .25), rgba(90, 210, 255, .08)); color: #8fecff; box-shadow: 0 0 calc(var(--u) * 16) #55dcff; }
+.storm-shield.is-up { border: calc(var(--u) * 4) solid #6fe3ff; background: linear-gradient(135deg, rgba(90, 210, 255, .25), rgba(90, 210, 255, .08)); color: #8fecff; box-shadow: 0 0 calc(var(--u) * 6) #55dcff; }
 .storm-shield.is-bad { border-color: #ff6a55; color: #ff8b79; background: rgba(255, 70, 50, .16); }
 
 .storm-beacon { display: grid; place-items: center; width: calc(var(--u) * 50); height: calc(var(--u) * 44); border: calc(var(--u) * 4) solid #6f7f97; background: #2a3752; color: #8c97ab; font-size: calc(var(--u) * 28); pointer-events: none; }
-.storm-beacon.is-on { border-color: #ffb2a6; background: #c8321f; color: #fff1ea; box-shadow: 0 0 calc(var(--u) * 26) rgba(255, 70, 50, .95); }
+.storm-beacon.is-on { border-color: #ffb2a6; background: #c8321f; color: #fff1ea; box-shadow: 0 0 calc(var(--u) * 10) rgba(255, 70, 50, .7); }
 .storm-beacon.is-bad { border-color: #ff6a55; color: #ff6a55; }
 
 .storm-station { position: absolute; width: 0; height: 0; }
@@ -41,7 +41,7 @@
 .storm-hit--hatch { width: calc(var(--u) * 233); height: calc(var(--u) * 275); }
 .storm-hit--telemetry { width: calc(var(--u) * 196); height: calc(var(--u) * 128); }
 .storm-hit--backup { width: calc(var(--u) * 180); height: calc(var(--u) * 112); }
-.storm-hit:not(:disabled):hover, .storm-hit:focus-visible { box-shadow: inset 0 0 0 calc(var(--u) * 3) rgba(255, 236, 170, .95), 0 0 calc(var(--u) * 12) rgba(255, 211, 107, .7); }
+.storm-hit:not(:disabled):hover, .storm-hit:focus-visible { box-shadow: inset 0 0 0 calc(var(--u) * 3) rgba(255, 236, 170, .9); }
 .storm-hit:disabled { cursor: default; opacity: 1; }
 .storm-tag { position: absolute; left: 0; transform: translateX(-50%); pointer-events: none; }
 .storm-tag img { width: calc(var(--u) * 24); height: calc(var(--u) * 24); object-fit: contain; image-rendering: pixelated; }
@@ -51,7 +51,7 @@
 .storm-tag--backup { top: calc(var(--u) * 62); }
 
 /* ---------- Paquetes de datos ---------- */
-.storm-packet { width: calc(var(--u) * 26); height: calc(var(--u) * 26); padding: 0; border: calc(var(--u) * 3) solid #d8fbff; border-radius: 0; background: linear-gradient(135deg, #3de6ff, #2a7fff); box-shadow: 0 0 calc(var(--u) * 10) #43e8ff; cursor: pointer; }
+.storm-packet { width: calc(var(--u) * 26); height: calc(var(--u) * 26); padding: 0; border: calc(var(--u) * 3) solid #d8fbff; border-radius: 0; background: linear-gradient(135deg, #3de6ff, #2a7fff); cursor: pointer; }
 .storm-packet::after { content: ''; position: absolute; left: 22%; top: 22%; width: 26%; height: 26%; background: #fff; }
 .storm-packet:disabled { cursor: default; opacity: 1; }
 .storm-packet.is-lost, .storm-packet.is-lost:disabled { border-color: #6f7f97; background: #3c475c; box-shadow: none; opacity: .55; }
@@ -61,21 +61,21 @@
 .storm-crew { width: calc(var(--u) * 92); height: calc(var(--u) * 190); transform: translate(-50%, -100%); transition: left .9s steps(9, end); }
 .storm-crew__body { position: absolute; inset: 0; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: pointer; box-shadow: none; }
 .storm-crew__body img { position: absolute; left: 50%; bottom: 0; height: 100%; width: auto; transform: translateX(-50%); image-rendering: pixelated; filter: drop-shadow(0 calc(var(--u) * 3) 0 rgba(2, 8, 19, .5)); pointer-events: none; }
-.storm-crew__body:not(:disabled):hover img, .storm-crew.is-picking img { filter: drop-shadow(0 0 calc(var(--u) * 7) #ffd36b); }
+.storm-crew__body:not(:disabled):hover img, .storm-crew.is-picking img { filter: drop-shadow(0 0 calc(var(--u) * 3) #ffd36b); }
 .storm-crew__body:disabled { cursor: default; opacity: 1; pointer-events: none; }
-.storm-crew.is-inside img { filter: drop-shadow(0 0 calc(var(--u) * 6) #6fe3a0); }
+.storm-crew.is-inside img { filter: drop-shadow(0 0 calc(var(--u) * 3) #6fe3a0); }
 .storm-crew.is-bad img { filter: drop-shadow(0 0 calc(var(--u) * 8) #ff4a3a); }
 .storm-crew__tag { position: absolute; left: 50%; top: calc(100% + var(--u) * 6); transform: translateX(-50%); pointer-events: none; }
 .storm-routes { position: absolute; left: 50%; bottom: calc(100% + var(--u) * 6); z-index: 6; display: grid; gap: .3rem; padding: .4rem; border: 2px solid var(--emap-edge); background: var(--emap-panel); box-shadow: 4px 4px 0 rgba(2, 8, 19, .6); transform: translateX(-50%); }
-.storm-route { display: flex; align-items: center; gap: .4rem; padding: .35rem .7rem; border: 2px solid #4f7f9a; border-radius: 0; background: rgba(2, 8, 19, .55); color: #e8f4ff; font: 800 .8rem 'Nunito', sans-serif; white-space: nowrap; cursor: pointer; }
+.storm-route { display: flex; align-items: center; gap: .5rem; padding: .5rem .9rem; border: 2px solid #4f7f9a; border-radius: 0; background: rgba(2, 8, 19, .55); color: #e8f4ff; font: 800 1.05rem 'Nunito', sans-serif; white-space: nowrap; cursor: pointer; }
 .storm-route--free { border-color: #6fe3a0; }
 .storm-route--blocked { border-color: #ffb24a; }
 .storm-route:hover { background: rgba(36, 90, 130, .75); }
 
 /* ---------- Interfaz flotante ---------- */
-.storm-science-btn { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.35rem; padding: .25rem .65rem; border: 2px solid var(--emap-edge); border-radius: 0; background: rgba(8, 24, 42, .82); color: #fff; font: 800 .8rem 'Nunito', sans-serif; box-shadow: 3px 3px 0 rgba(2, 8, 19, .55); cursor: pointer; }
+.storm-science-btn { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.35rem; padding: .25rem .65rem; border: 2px solid var(--emap-edge); border-radius: 0; background: rgba(8, 24, 42, .82); color: #fff; font: 800 1rem 'Nunito', sans-serif; box-shadow: 3px 3px 0 rgba(2, 8, 19, .55); cursor: pointer; }
 .storm-meters { top: calc(var(--mg-gap) + 3.4rem); left: var(--mg-gap); display: flex; align-items: center; gap: .6rem; padding: .35rem .8rem; }
-.storm-meters strong { font: 700 .95rem 'Fredoka', sans-serif; }
+.storm-meters strong { font: 700 1.2rem 'Fredoka', sans-serif; }
 .storm-meters__sep { width: 2px; align-self: stretch; background: #4f7f9a; }
 .storm-science { top: calc(var(--mg-gap) + 3.4rem); right: var(--mg-gap); width: min(24rem, calc(100% - 2 * var(--mg-gap))); z-index: 6; }
 .storm-science__close { position: absolute; top: .45rem; right: .45rem; display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 2px solid #6f92a3; border-radius: 0; background: #173e5c; color: #fff; cursor: pointer; }
@@ -83,7 +83,7 @@
 .storm-brief__row { display: grid; gap: .25rem; }
 .storm-start { justify-self: end; }
 .storm-result__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
-.storm-arrival { align-self: center; padding: 0 .6rem; color: #ffb24a; font: 700 1rem 'Fredoka', sans-serif; text-transform: uppercase; letter-spacing: .06em; }
+.storm-arrival { align-self: center; padding: 0 .6rem; color: #ffb24a; font: 700 1.3rem 'Fredoka', sans-serif; text-transform: uppercase; letter-spacing: .06em; }
 
 @media (max-width: 1200px), (max-aspect-ratio: 4/3) {
   .storm-meters { top: calc(var(--mg-gap) + 2.9rem); }
@@ -116,3 +116,30 @@
 @keyframes storm-exposed { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
 @keyframes storm-ready { 0%, 100% { box-shadow: 0 0 calc(var(--u) * 10) #43e8ff, inset 0 0 calc(var(--u) * 10) rgba(67, 232, 255, .4); } 50% { box-shadow: 0 0 calc(var(--u) * 20) #43e8ff, inset 0 0 calc(var(--u) * 18) rgba(67, 232, 255, .7); } }
 @keyframes storm-float { 0%, 100% { margin-top: 0; } 50% { margin-top: calc(var(--u) * -5); } }
+
+/* ---------- Guía de siguiente objetivo ---------- */
+.storm .mg-stage__background { filter: brightness(.78) saturate(.85); }
+.storm-dim { position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .25s steps(3, end);
+  background: radial-gradient(circle calc(var(--u) * var(--sr, 200)) at var(--sx, 50%) var(--sy, 50%), transparent 62%, rgba(2, 8, 19, .6) 100%); }
+.storm-dim.is-on { opacity: 1; }
+/* Lo interactivo queda por encima de la atenuación */
+.storm-door, .storm-power, .storm-shield, .storm-beacon, .storm-packet, .storm-crew, .storm-station { z-index: 2; }
+.storm-station { z-index: 3; }
+.storm-hit[data-target] { outline-offset: calc(var(--u) * 3); }
+/* Etiquetas: solo la del objetivo, o la que se señala con el puntero, muestra nombre y estado */
+.storm-tag--compact > span, .storm-tag--compact > small { display: none; }
+.storm-hit:hover + .storm-tag--compact > span, .storm-hit:focus-visible + .storm-tag--compact > span { display: inline; }
+.storm-hit:hover + .storm-tag--compact > small, .storm-hit:focus-visible + .storm-tag--compact > small { display: inline; }
+.storm--failed .storm-tag--compact > span, .storm--failed .storm-tag--compact > small,
+.storm--safe .storm-tag--compact > span, .storm--safe .storm-tag--compact > small { display: inline; }
+.storm-tag svg { flex: none; font-size: 1.15em; }
+.storm-tag__check { color: #6fe3a0; }
+.storm-crew__tag .storm-tag--compact, .storm-crew__tag.storm-tag--compact { gap: .15rem; }
+.storm-crew__tag.storm-tag--compact > small { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .storm-tag__check { animation: storm-check .4s steps(4, end); }
+}
+@keyframes storm-check { 0% { transform: scale(0); } 70% { transform: scale(1.5); } 100% { transform: scale(1); } }
+/* La compuerta es muy alta: el rótulo va dentro del marco, bajo la baliza, para no tapar la alarma */
+.storm-hit--hatch[data-target]::after { bottom: auto; top: 14%; }
+.storm-hit--hatch[data-target]::before { display: none; }
