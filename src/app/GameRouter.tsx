@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { useI18n } from '../i18n';
 import { EarthFlow } from '../features/earth';
 import { SoloSpaceGame } from '../features/space';
 import { CoopSpaceGame } from '../features/coop-gameplay/CoopSpaceGame';
 import type { LocalCoopConfig } from '../features/coop-gameplay/coop.types';
-import { EarthReturnScreen } from '../features/earth/screens/EarthReturnScreen';
 import { NextAdventureScreen } from '../features/earth/screens/NextAdventureScreen';
 import { LearnScreen } from '../features/earth/screens/LearnScreen';
 import { StationModeModal } from '../features/earth/screens/StationModeModal';
@@ -26,11 +24,14 @@ interface GameRouterProps {
   readonly onRestart: () => void;
 }
 
-/** RETURN_VIDEO: cinemática de regreso, justo después del informe y antes de la pantalla de Tierra. */
-type ResultViewStep = 'RETURN_VIDEO' | 'RETURN' | 'NEXT_ADVENTURE' | 'LEARN';
+/**
+ * RETURN_VIDEO: cinemática de regreso, justo después del informe. De ahí se va directo a la
+ * «Próxima aventura», que ya trae el balance de la misión. (Antes había además una pantalla
+ * «Regreso a la Tierra» que repetía el veredicto: una ventana más que leer y cerrar.)
+ */
+type ResultViewStep = 'RETURN_VIDEO' | 'NEXT_ADVENTURE' | 'LEARN';
 
 export function GameRouter({ phase, onReady, onStartCoop, onFinish, onRestart }: GameRouterProps) {
-  const { t } = useI18n();
   const [resultStep, setResultStep] = useState<ResultViewStep>('RETURN_VIDEO');
 
   const [isStationModalOpen, setIsStationModalOpen] = useState(false);
@@ -55,9 +56,6 @@ export function GameRouter({ phase, onReady, onStartCoop, onFinish, onRestart }:
       );
 
     case 'RESULT': {
-      const astronautName = phase.coopGroup
-        ? `${phase.coopGroup.teamAlias} (${phase.coopGroup.players.map((p) => p.alias).join(', ')})`
-        : phase.payload?.setup.earthProfile?.fictionalName ?? t('callsigns.juniorCommander');
 
       if (resultStep === 'LEARN') {
         return (
@@ -71,17 +69,7 @@ export function GameRouter({ phase, onReady, onStartCoop, onFinish, onRestart }:
         return (
           <CinematicTransition
             video={returnVideoFor(phase.result.finalState.setup.city)}
-            onDone={() => setResultStep('RETURN')}
-          />
-        );
-      }
-
-      if (resultStep === 'RETURN') {
-        return (
-          <EarthReturnScreen
-            result={phase.result}
-            astronautName={astronautName}
-            onProceedToNextAdventure={() => setResultStep('NEXT_ADVENTURE')}
+            onDone={() => setResultStep('NEXT_ADVENTURE')}
           />
         );
       }

@@ -425,3 +425,10 @@
 @media (prefers-reduced-motion: reduce) {
   .mission-hud, .mission-stage, .camera-selector, .alert-card-wrap, .intervention-dock { transition: none; }
 }
+
+/* Cartel del nuevo día: la línea se llena mientras dura (2,2 s) y el botón es discreto. */
+.turn-transition__line { position: relative; overflow: hidden; }
+.turn-transition__line::after { content: ''; position: absolute; inset: 0; background: var(--space-yellow); transform-origin: left; animation: turn-line-fill 2.2s linear both; }
+@keyframes turn-line-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.turn-transition .turn-transition__skip { min-height: 2.4rem; padding: .4rem 1rem; border-width: 2px; background: transparent; color: #aac5d1; box-shadow: none; font-size: .95rem; }
+@media (prefers-reduced-motion: reduce) { .turn-transition__line::after { animation: none; } }

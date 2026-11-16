@@ -1,0 +1,41 @@
+/* Control de sonido: icono + panel pequeño con barra de volumen (no es una ventana modal). */
+.sound-control { position: relative; display: inline-flex; }
+.sound-panel {
+  position: absolute;
+  z-index: 70;
+  top: calc(100% + .45rem);
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  width: max-content;
+  padding: .5rem .7rem;
+  border: 2px solid #35526f;
+  background: rgb(9 21 36 / 97%);
+  box-shadow: 0 .5rem 1.2rem rgb(0 0 0 / 40%);
+}
+.sound-panel__mute {
+  display: grid; place-items: center; width: 2.2rem; height: 2.2rem; padding: 0;
+  border: 2px solid #35526f; color: #cfe4ff; background: #0f2135; cursor: pointer; font-size: 1.1rem;
+}
+.sound-panel__mute[aria-pressed="true"] { color: #7d94ad; }
+.sound-panel__mute:focus-visible, .sound-panel__slider:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.sound-panel__slider {
+  width: 8.5rem; height: 1.6rem; margin: 0; background: transparent; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+}
+.sound-panel__slider::-webkit-slider-runnable-track {
+  height: .55rem; border: 1px solid #35526f;
+  background: linear-gradient(to right, #7fd3ea var(--fill, 50%), #12263b var(--fill, 50%));
+}
+.sound-panel__slider::-moz-range-track { height: .55rem; border: 1px solid #35526f; background: #12263b; }
+.sound-panel__slider::-moz-range-progress { height: .55rem; background: #7fd3ea; }
+.sound-panel__slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 1.15rem; height: 1.15rem; margin-top: -.35rem;
+  border: 2px solid #0b1a2c; border-radius: 50%; background: #e8f6ff;
+}
+.sound-panel__slider::-moz-range-thumb { width: 1.05rem; height: 1.05rem; border: 2px solid #0b1a2c; border-radius: 50%; background: #e8f6ff; }
+.sound-panel__value { min-width: 2.6rem; color: #cfe4ff; font: 800 .9rem 'Nunito', sans-serif; text-align: right; }
+/* En la portada el icono está arriba a la izquierda: el panel se abre hacia la derecha. */
+.sound-toggle--welcome .sound-panel, .sound-control.sound-toggle--welcome .sound-panel { right: auto; left: 0; }
+.sound-control:has(.sound-panel) { z-index: 80; }

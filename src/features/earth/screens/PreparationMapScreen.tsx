@@ -24,6 +24,8 @@ interface PreparationMapScreenProps {
   readonly trainingOutcomes: readonly TrainingOutcome[];
   /** Entrenamiento que se acaba de completar al volver de un minijuego (confirmación visual breve). */
   readonly justCompletedId?: MissionType | null;
+  /** Módulo de la estación que el equipo empezó a construir con ese entrenamiento (para el aviso). */
+  readonly buildingModule?: string;
   readonly onOpenMission: (mission: EarthMissionDefinition) => void;
   readonly onProceedToLaunch: (derivedTools: readonly ToolId[]) => void;
   readonly onBack: () => void;
@@ -38,6 +40,7 @@ export function PreparationMapScreen({
   completedMissions,
   trainingOutcomes,
   justCompletedId = null,
+  buildingModule,
   onOpenMission,
   onProceedToLaunch,
   onBack,
@@ -175,7 +178,7 @@ export function PreparationMapScreen({
           <span>{t('map.trainingCompletedToast', {
             facility: t(`map.facilities.${celebratedMission.id}.facilityName`),
             tool: t(`tools.${celebratedMission.targetTool}.label`),
-          })}</span>
+          })}{buildingModule && countCompleted < 3 && <small className="emap-toast__build">{t('map.buildingToast', { module: t(`baseBuilder.modules.${buildingModule}.name`) })}</small>}</span>
         </div>
       )}
 

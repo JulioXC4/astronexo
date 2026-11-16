@@ -86,7 +86,7 @@ try {
   await page.waitForSelector('.turn-summary__next');
   await page.click('.turn-summary__next');
   await page.waitForSelector('.turn-transition button');
-  await page.click('.turn-transition button');
+  await page.click('.turn-transition button', { timeout: 2000 }).catch(() => {}); // el cartel también sigue solo
   await page.waitForSelector('.mission-clock');
   await page.waitForTimeout(7000);
   log = await take();

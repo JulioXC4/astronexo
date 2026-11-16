@@ -18,7 +18,7 @@ import {
 } from './mediaCatalog';
 import {
   isAudioUnlocked, isMuted, msSinceLastSound, playSound, preloadSounds,
-  setSfxSuspended, subscribeMuted, unlockAudio,
+  setSfxSuspended, subscribeMuted, unlockAudio, getVolume, subscribeVolume,
 } from './sound';
 
 const FADE_MS = 400;
@@ -113,8 +113,17 @@ class Channel {
     this.start(incoming, true);
   }
 
+  /** Aplica al momento el volumen general a la pista que suena (sin reiniciarla). */
+  applyVolume() {
+    const current = this.active >= 0 ? this.slots[this.active] : null;
+    if (!current) return;
+    const running = fades.get(current);
+    if (running !== undefined) { window.clearInterval(running); fades.delete(current); }
+    current.volume = Math.min(1, this.volume * getVolume());
+  }
+
   private start(element: HTMLAudioElement, fadeIn: boolean) {
-    const target = this.volume;
+    const target = Math.min(1, this.volume * getVolume());
     if (!fadeIn) element.volume = target;
     element.play().then(() => {
       if (fadeIn && element === this.slots[this.active]) fadeTo(element, target, FADE_MS);
@@ -130,6 +139,12 @@ class Channel {
 
 const musicChannel = new Channel(VOLUME.music);
 const ambientChannel = new Channel(VOLUME.ambient);
+// Mover el volumen general cambia la música y el ambiente al momento.
+subscribeVolume(() => {
+  musicChannel.applyVolume();
+  ambientChannel.applyVolume();
+  if (stinger) stinger.volume = Math.min(1, VOLUME.music * 1.6 * getVolume());
+});
 
 // ── Fanfarria de victoria (una sola vez) ────────────────────────────────────
 let stinger: HTMLAudioElement | null = null;
@@ -151,7 +166,7 @@ function playVictoryThen(next: MusicId | null) {
   stinger ??= new Audio();
   stinger.loop = false;
   stinger.src = audioUrl(MUSIC_FILES.victory);
-  stinger.volume = Math.min(1, VOLUME.music * 1.6);
+  stinger.volume = Math.min(1, VOLUME.music * 1.6 * getVolume());
   const resume = () => {
     if (token !== stingerToken) return;
     if (stinger) release(stinger);

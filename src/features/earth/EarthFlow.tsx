@@ -166,7 +166,11 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
     setJustCompletedMission(missionId);
     setTrainingOutcomes((prev) => (prev.some((item) => item.missionId === missionId) ? prev : [...prev, outcome]));
     setCompletedMissions((prev) => (prev.length >= 3 || prev.includes(missionId) ? prev : [...prev, missionId]));
-    navigateTo('CONSTRUCTION'); // transición breve: avance de obra
+    // Tras el 1.º y el 2.º entrenamiento se vuelve directo al mapa: un aviso breve allí cuenta que
+    // el equipo empezó a construir el módulo. La pantalla de «Avance de obra» queda solo para el
+    // final, con los tres módulos. Antes salía después de CADA entrenamiento (una pantalla más que
+    // leer y cerrar entre jugada y jugada).
+    navigateTo(completedMissions.length + 1 >= 3 ? 'CONSTRUCTION' : 'MAP');
   }
 
   // Exactamente las 3 herramientas ganadas; no se rellenan ni se regalan.
@@ -229,7 +233,6 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
             onPlay={startRecruitment}
             onOpenStation={() => setIsStationModalOpen(true)}
             onOpenLearn={() => navigateTo('LEARN')}
-            onWatchIntro={() => navigateTo('INTRO')}
           />
           {recruitPlaying && <CinematicTransition
             video="recruit"
@@ -343,6 +346,7 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
             completedMissions={completedMissions}
             trainingOutcomes={trainingOutcomes}
             justCompletedId={justCompletedMission}
+            buildingModule={selectedModules[Math.max(0, completedMissions.length - 1)]}
             onOpenMission={(mission: EarthMissionDefinition) => navigateTo(TRAINING_SCREENS[mission.id])}
             onProceedToLaunch={handleProceedToLaunch}
             onBack={() => navigateTo('BRIEFING')}

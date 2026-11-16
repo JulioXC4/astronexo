@@ -6,6 +6,8 @@ import type { LocalCoopConfig } from '../features/coop-gameplay/coop.types';
 import { I18nProvider } from '../i18n';
 import { RadioProvider } from '../features/radio';
 import { initAudio } from '../features/audio';
+// Capa de calma: va la última para tener la última palabra sobre animaciones, brillo y bordes.
+import '../styles/calm.css';
 
 export function App() {
   const [phase, setPhase] = useState<SessionPhase>({ kind: 'EARTH' });

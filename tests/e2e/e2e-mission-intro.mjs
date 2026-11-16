@@ -108,14 +108,16 @@ async function skipPath(browser) {
   }
 }
 
-async function replayFromWelcomeEnglish(browser) {
+/** La introducción en inglés, por el camino normal («Play now» → video → introducción). */
+async function introEnglish(browser) {
   const { context, page, problems } = await newMonitoredPage(browser, { width: 1366, height: 768 }, 'intro-en');
   try {
     await page.addInitScript(() => localStorage.setItem('astronexo_lang_v3', 'en'));
     await page.goto(BASE_URL);
-    await page.locator('button:has-text("Watch intro")').click();
+    if (await page.locator('button:has-text("Watch intro")').count()) throw new Error('El botón «Watch intro» de la bienvenida debía quitarse.');
+    await page.click('.welcome__play');
+    await skipCinematic(page);
     await page.waitForSelector('.mission-intro--destination');
-    if (await page.locator('.cinematic').count()) throw new Error('Repetir desde bienvenida no debe volver a poner el video.');
     for (let i = 0; i < 3; i += 1) await page.locator('.mission-intro__next').click();
     await waitImages(page);
     await assertNoClipping(page, 'en escena 4');
@@ -123,7 +125,7 @@ async function replayFromWelcomeEnglish(browser) {
     await page.locator('.mission-intro__next:has-text("CHOOSE YOUR DESTINATION")').click();
     await page.waitForSelector('[data-destination]');
     failOnProblems(realProblems(problems));
-    console.log('  ✓ repetir desde bienvenida (EN)');
+    console.log('  ✓ introducción en inglés (sin botón «Watch intro»)');
   } finally {
     await context.close();
   }
@@ -168,7 +170,7 @@ let failed = false;
 for (const run of [
   ...VIEWPORTS.map((v) => () => fullIntro(browser, v)),
   () => skipPath(browser),
-  () => replayFromWelcomeEnglish(browser),
+  () => introEnglish(browser),
   () => reducedMotionAndBrokenVideo(browser),
   () => brokenVideoMotion(browser),
 ]) {

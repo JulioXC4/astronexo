@@ -269,15 +269,24 @@ export const TRAININGS = {
   },
 };
 
-/** Abre la instalación `index` del mapa, la completa y atraviesa la transición de obra. */
+/**
+ * Abre la instalación `index` del mapa y la completa. Tras el 1.º y el 2.º entrenamiento se vuelve
+ * directo al mapa (con un aviso de obra); la pantalla «Avance de obra» sale solo tras el último.
+ */
 export async function completeTraining(page, index, id, options, isLast) {
   await page.waitForSelector('.earth-base-facility');
   await page.locator('.earth-base-facility').nth(index).click();
   await page.click('.emap-panel__start');
   await TRAININGS[id](page, options);
+  if (!isLast) {
+    await page.waitForSelector('.earth-base-facility');
+    await page.waitForSelector('.emap-toast');
+    await assertScreenHealthy(page, `mapa tras ${id}`);
+    return;
+  }
   await page.waitForSelector('.pixel-kicker:has-text("AVANCE DE OBRA")');
   await assertScreenHealthy(page, `obra tras ${id}`);
-  await page.click(isLast ? 'button:has-text("Ir al despegue")' : 'button:has-text("Seguir entrenando")');
+  await page.click('button:has-text("Ir al despegue")');
 }
 
 export async function flyAndMonitor(page, { destination, modules }) {
@@ -423,7 +432,7 @@ export async function playFiveTurns(page, { coop = false, actOnTurn, explore = '
     } else if ([2, 4].includes(turn) && !(await page.locator('.results-hero, .coop-results-shell').count())) {
       throw new Error(`Faltó la salida a explorar tras el turno ${turn}.`);
     }
-    await page.click('.turn-transition button');
+    await page.click('.turn-transition button', { timeout: 2000 }).catch(() => {}); // el cartel también sigue solo
     // Si la misión termina antes del turno 5 (interrupción), el informe aparece en lugar del siguiente turno.
     const next = await Promise.race([
       page.waitForSelector('.mission-clock').then(() => 'turn', () => 'turn'),
@@ -455,9 +464,7 @@ export async function openKidReport(page) {
 export async function returnToWelcome(page) {
   await openKidReport(page);
   await page.click('button:has-text("VOLVER A LA TIERRA"), button:has-text("ENTREGAR INFORME")');
-  await skipCinematic(page); // regreso a la Tierra
-  await page.waitForSelector('button:has-text("Ver Análisis y Próxima Aventura")');
-  await page.click('button:has-text("Ver Análisis y Próxima Aventura")');
+  await skipCinematic(page); // regreso a la Tierra → directo a «Próxima aventura»
   await page.waitForSelector('button:has-text("Volver a la Bienvenida")');
   await page.click('button:has-text("Volver a la Bienvenida")');
   await page.waitForSelector('.welcome__play');

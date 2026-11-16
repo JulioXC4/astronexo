@@ -58,8 +58,8 @@ const DUPLICATE_WINDOW_MS = 20000;
 const HISTORY_LIMIT = 3;
 /** Tras cerrarse una ventana importante, la radio espera un poco antes de seguir. */
 const RESUME_DELAY_MS = 900;
-/** Un globo interrumpido por una ventana se repite después solo si estuvo a la vista menos que esto. */
-const RESUME_IF_SEEN_LESS_THAN_MS = 1200;
+/** Un globo interrumpido por una ventana vuelve (una vez) si estuvo a la vista menos que esta parte de su duración. */
+const RESUME_IF_SEEN_LESS_THAN = 0.5;
 
 let counter = 0;
 
@@ -221,10 +221,11 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
   useEffect(() => {
     if (blocked && currentRef.current) {
       const paused = currentRef.current;
-      // Solo vuelve a la cola si apenas se vio (y una sola vez). Antes cualquier globo interrumpido
-      // por una ventana se repetía entero al cerrarla: abrir y cerrar el minijuego de la guardia
-      // hacía que «Aquí Alba. Tu misión…» saliera una y otra vez.
-      const barelySeen = Date.now() - shownAt.current < RESUME_IF_SEEN_LESS_THAN_MS;
+      // Vuelve a la cola UNA sola vez y solo si el niño no alcanzó a leer ni la mitad. Antes se
+      // repetía entero cada vez que se abría y cerraba una ventana («Aquí Alba. Tu misión…» una y
+      // otra vez); y con un límite de 1,2 s se perdían mensajes cortados a la mitad.
+      const duration = visibleDurationMs(resolveMessage(paused.text, translateRef.current));
+      const barelySeen = Date.now() - shownAt.current < duration * RESUME_IF_SEEN_LESS_THAN;
       if (barelySeen && !resumedIds.current.has(paused.id)) {
         resumedIds.current.add(paused.id);
         setQueue((pending) => [paused, ...pending]);

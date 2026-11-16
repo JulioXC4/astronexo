@@ -1,7 +1,7 @@
 import { useState, type KeyboardEvent } from 'react';
 import { ArrowLeft, ArrowRight, CheckCircle, Planet, RocketLaunch } from '@phosphor-icons/react';
 import type { Destination } from '../../../game/contracts';
-import { useI18n, LanguageSelector, msg } from '../../../i18n';
+import { useI18n, LanguageSelector } from '../../../i18n';
 import { useScreenRadio } from '../../radio';
 import { playSound, SoundToggle } from '../../audio';
 import './earth.css';
@@ -20,7 +20,8 @@ const destinationImages = {
 
 export function DestinationScreen({ initialDestination, onSelectDestination, onBack }: DestinationScreenProps) {
   const { t } = useI18n();
-  useScreenRadio([{ speaker: 'ALBA', text: msg('radio.destination') }]);
+  // Sin globo de radio: el título de la pantalla ya dice qué hacer (antes el globo lo repetía).
+  useScreenRadio([]);
   const [selectedDest, setSelectedDest] = useState<Destination>(initialDestination === 'MARS' ? 'MARS' : 'MOON');
   const destinationKey = selectedDest === 'MARS' ? 'mars' : 'moon';
 

@@ -73,8 +73,9 @@ export function TrainingFrame({
   useEffect(() => {
     // La tarea sale primero: se descarta cualquier mensaje viejo (p. ej. el del mapa).
     radio.clear();
+    // Mientras se juega, una sola voz: la tarea. El dato curioso de la Dra. Aurora se cuenta al
+    // ganar, en la tarjeta («¿Sabías que…?»); antes llegaba como un segundo globo a mitad del juego.
     radio.say({ speaker: 'CHISPA', text: msg(taskKey), scope });
-    if (tipKey) radio.say({ speaker: 'AURORA', text: msg(tipKey), scope });
     // Solo al entrar: la tarea no cambia mientras juegas.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -162,6 +163,10 @@ export function TrainingFrame({
         <h2 id="training-win-title">{t('training.winTitle')}</h2>
         <p>{t('training.winBody', { title })}</p>
         <WorkQuality tier={result.tier} />
+        {tipKey && <p className="training-win__fact">
+          <img src={RADIO_PORTRAITS.AURORA} alt="" aria-hidden="true" />
+          <span><b>{t('training.didYouKnow')}</b> {t(tipKey)}</span>
+        </p>}
         <div className="training-win__actions">
           <button type="button" className="training__kit" onClick={claim} autoFocus>
             <Sparkle weight="fill" aria-hidden="true" />

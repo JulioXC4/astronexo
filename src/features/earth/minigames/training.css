@@ -283,3 +283,7 @@ body[data-radio="on"] .training__task { opacity: .4; }
 .training__panel:has([data-target]) :is(.gauge-dial, .train-switch, .train-choice):not([data-target]):hover { opacity: 1; }
 /* Con la tarjeta de victoria abierta, nada detrás distrae. */
 .training:has(.training-win) .training__main { filter: blur(2px) brightness(.7); }
+/* «¿Sabías que…?» de la Dra. Aurora: el dato llega al ganar, cuando hay calma para leerlo. */
+.training-win__fact { display: flex; align-items: flex-start; gap: .55rem; margin: .2rem 0 0; padding: .55rem .7rem; border-left: 3px solid #bd92d0; background: rgb(35 22 48 / 55%); text-align: left; font-size: 1rem !important; font-weight: 600 !important; }
+.training-win__fact img { flex: none; width: 2.2rem; height: 2.2rem; object-fit: contain; image-rendering: pixelated; }
+.training-win__fact b { color: #e1c6ef; margin-right: .25rem; }

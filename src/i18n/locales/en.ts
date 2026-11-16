@@ -61,7 +61,7 @@ export const en = {
     suspended: 'SUSPENDED',
   },
 
-  sound: { on: 'Turn sound on', off: 'Mute' },
+  sound: { on: 'Turn sound on', off: 'Mute', volume: 'Volume' },
   turnSummary: {
     kicker: 'END OF TURN {turn}',
     title: 'What happened · {clock}',
@@ -95,6 +95,7 @@ export const en = {
     keepAdjusting: 'You can keep moving the controls to make it even better.',
     kitButton: 'Get your kit! (costs {cost} {resource})',
     kitShort: 'Get your kit!',
+    didYouKnow: 'Did you know?',
     reset: 'Start over',
     /** "To win" list: what must turn green, always on screen. */
     goalsTitle: 'To win:',
@@ -653,6 +654,7 @@ export const en = {
     moreDetails: 'More details',
     lessDetails: 'Fewer details',
     trainingCompletedToast: 'Done: {facility}! You won: {tool}.',
+    buildingToast: '🔨 Your team started building "{module}".',
     mapAriaLabel: 'Base map of {city} with five training facilities',
     launchPadReady: 'Launch pad ready',
     facilities: {

@@ -95,10 +95,12 @@ async function checkWelcomeSilence(browser) {
   console.log('  ✓ portada: sin multimedia antes de interactuar; tema principal tras el primer clic');
 
   // Silencio: todo se detiene y el botón sigue respondiendo.
+  // El icono abre el control de volumen; el silencio está dentro.
   await page.click('.sound-toggle');
+  await page.click('.sound-panel__mute');
   await page.waitForTimeout(300);
   if ((await playingTracks(page)).length) throw new Error('El silencio no detuvo la música.');
-  await page.click('.sound-toggle');
+  await page.click('.sound-panel__mute');
   await page.waitForTimeout(600);
   if (!(await playingTracks(page)).some((src) => src.includes('01-tema-principal-bienvenida'))) throw new Error('La música no volvió al quitar el silencio.');
   console.log('  ✓ silencio detiene y reanuda la música');
@@ -179,10 +181,10 @@ async function runRoute(browser, route, { reduced = false } = {}) {
       await page.waitForSelector('.cinematic video', { timeout: 4000 });
       const back = await page.getAttribute('.cinematic video', 'src');
       if (!back.includes(route.videos[4])) throw new Error(`Video de regreso incorrecto: ${back}`);
-      if (await page.locator('button:has-text("Ver Análisis y Próxima Aventura")').count()) throw new Error('La pantalla de regreso apareció antes que el video.');
+      if (await page.locator('button:has-text("Volver a la Bienvenida")').count()) throw new Error('La pantalla siguiente apareció antes que el video.');
       await skipCinematic(page);
     }
-    await page.waitForSelector('button:has-text("Ver Análisis y Próxima Aventura")');
+    await page.waitForSelector('button:has-text("Volver a la Bienvenida")');
     if (await page.locator('video').count()) throw new Error('Quedó un <video> montado tras el regreso.');
 
     // Videos vistos y música/ambiente reproducidos, en orden.

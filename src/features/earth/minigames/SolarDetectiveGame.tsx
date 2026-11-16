@@ -46,8 +46,8 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
   const tr = (key: string, params?: Record<string, string | number>) => t(`minigames.solarDetective.${key}`, params);
   // La tarea y un consejo llegan por radio, como en el resto de entrenamientos.
   useScreenRadio([
+    // Una sola voz mientras se juega; el dato de Aurora sale al ganar («¿Sabías que…?»).
     { speaker: 'CHISPA', text: msg('training.solarDetective.task') },
-    { speaker: 'AURORA', text: msg('training.solarDetective.tip') },
   ], 'SOLAR_DETECTIVE');
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [tiltAngle, setTiltAngle] = useState(5);
@@ -316,6 +316,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
         )}
 
         {phase === 'result' && <p className={`sd-explanation${result.passed ? ' is-success' : ''}`}>{explanation}</p>}
+        {phase === 'result' && result.passed && <p className="mg-fact"><b>{t('training.didYouKnow')}</b> {t('training.solarDetective.tip')}</p>}
       </section>
     </MinigameShell>
   );

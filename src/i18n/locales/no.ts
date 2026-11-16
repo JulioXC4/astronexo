@@ -72,6 +72,7 @@ export const no = {
   sound: {
     on: 'Slå på lyd',
     off: 'Slå av lyd',
+    volume: 'Volum',
   },
   turnSummary: {
     kicker: 'SLUTTEN AV RUNDE {turn}',
@@ -106,6 +107,7 @@ export const no = {
     keepAdjusting: 'Du kan fortsette å flytte på kontrollene for å gjøre det enda bedre.',
     kitButton: 'Hent utstyrspakken din! (koster {cost} {resource})',
     kitShort: 'Hent utstyrspakken!',
+    didYouKnow: 'Visste du?',
     reset: 'Begynn på nytt',
     /** «For å vinne»-listen: det som må bli grønt, alltid synlig. */
     goalsTitle: 'For å vinne:',
@@ -723,6 +725,7 @@ export const no = {
     moreDetails: 'Flere detaljer',
     lessDetails: 'Færre detaljer',
     trainingCompletedToast: 'Ferdig: {facility}! Du vant: {tool}.',
+    buildingToast: '🔨 Laget ditt har begynt å bygge «{module}».',
     mapAriaLabel: 'Kart over basen i {city} med fem treningssteder',
     launchPadReady: 'Utskytningsrampen er klar',
     facilities: {

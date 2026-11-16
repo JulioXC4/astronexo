@@ -61,7 +61,7 @@ export const es = {
     suspended: 'SUSPENDIDO',
   },
 
-  sound: { on: 'Activar sonido', off: 'Silenciar' },
+  sound: { on: 'Activar sonido', off: 'Silenciar', volume: 'Volumen' },
   turnSummary: {
     kicker: 'FIN DEL TURNO {turn}',
     title: 'Qué pasó · {clock}',
@@ -95,6 +95,7 @@ export const es = {
     keepAdjusting: 'Puedes seguir moviendo los controles para que quede mejor.',
     kitButton: '¡Consigue tu kit! (cuesta {cost} de {resource})',
     kitShort: '¡Consigue tu kit!',
+    didYouKnow: '¿Sabías que…?',
     reset: 'Empezar de nuevo',
     /** Lista «Para ganar»: lo que hay que dejar en verde, siempre a la vista. */
     goalsTitle: 'Para ganar:',
@@ -654,6 +655,7 @@ export const es = {
     moreDetails: 'Más detalles',
     lessDetails: 'Menos detalles',
     trainingCompletedToast: '¡Listo: {facility}! Ganaste: {tool}.',
+    buildingToast: '🔨 Tu equipo empezó a construir «{module}».',
     mapAriaLabel: 'Mapa de la base de {city} con cinco instalaciones de entrenamiento',
     launchPadReady: 'Plataforma de lanzamiento lista',
     facilities: {

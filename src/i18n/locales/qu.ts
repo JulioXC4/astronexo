@@ -73,6 +73,7 @@ export const qu = {
   sound: {
     on: 'Uyayta kichay',
     off: 'Upallachiy',
+    volume: 'Uyaypa kallpan',
   },
   turnSummary: {
     kicker: '{turn} TURNU TUKUYNIN',
@@ -107,6 +108,7 @@ export const qu = {
     keepAdjusting: 'Controlkunata kuyuchishallaqmi kanki, aswan allin kananpaq.',
     kitButton: '¡Kitniykita chaskiy! ({cost} {resource} chanin)',
     kitShort: '¡Kitniykita chaskiy!',
+    didYouKnow: '¿Yacharqankichu?',
     reset: 'Musuqmanta qallariy',
     /** «Atipanapaq» lista: q\'umir kananpaq, sapa kuti rikukun. */
     goalsTitle: 'Atipanapaq:',
@@ -724,6 +726,7 @@ export const qu = {
     moreDetails: 'Astawan willay',
     lessDetails: 'Pisi willay',
     trainingCompletedToast: 'Tukusqa: {facility}! Atipasqayki: {tool}.',
+    buildingToast: '🔨 Ayllu llamk\x27aqniykiqa «{module}» nisqata ruwayta qallarirqanña.',
     mapAriaLabel: '{city} basipa mapan pichqa yachana wasiyuq',
     launchPadReady: 'Phawariy tiyana wakichisqa',
     facilities: {

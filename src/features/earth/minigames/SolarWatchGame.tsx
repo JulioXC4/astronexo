@@ -43,8 +43,8 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
   const tr = (key: string) => t(`minigames.solarWatchCopy.${key}`);
   // La tarea y un consejo llegan por radio, como en el resto de entrenamientos.
   useScreenRadio([
+    // Una sola voz mientras se juega; el dato de Aurora sale al ganar («¿Sabías que…?»).
     { speaker: 'CHISPA', text: msg('training.solarWatch.task') },
-    { speaker: 'AURORA', text: msg('training.solarWatch.tip') },
   ], 'SOLAR_WATCH');
   const [state, dispatch] = useReducer(stormReducer, undefined, () => initialStormState());
   const [eventIndex, setEventIndex] = useState(0);
@@ -315,6 +315,7 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
           <p><strong>{tr('data')}:</strong> {state.packets}/2 {tr('packetCount')}</p>
           <p><strong>{tr('learn')}:</strong> {safe ? tr('successLearn') : tr('failureLesson')} {safe ? tr(`sacrifice${state.packets}`) : ''}</p>
           {safe && <p>{tr('tool')}: {tr('shelterKit')} · {tr('cost')}: {tool.cost}</p>}
+          {safe && <p className="mg-fact"><b>{t('training.didYouKnow')}</b> {t('training.solarWatch.tip')}</p>}
           <div className="storm-result__actions">
             {safe && <button className="pixel-btn pixel-btn--primary storm-finish" type="button" onClick={() => { if (completed.current) return; completed.current = true; playSound('toolEarned'); onComplete(tool); }}>{tr('finish')}</button>}
             <button type="button" className="mg-btn storm-retry" onClick={reset}>{tr('retry')}</button>

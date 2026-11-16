@@ -95,6 +95,51 @@ export function setMuted(next: boolean) {
   for (const listener of muteListeners) listener(next);
 }
 
+// ── Volumen general (0–1), además del silencio ──────────────────────────────
+const VOLUME_KEY = 'astronexo_volume_v1';
+const DEFAULT_VOLUME = 0.8;
+let masterVolume = readVolume();
+const volumeListeners = new Set<(volume: number) => void>();
+
+function readVolume(): number {
+  try {
+    const raw = window.localStorage.getItem(VOLUME_KEY);
+    const value = raw === null ? NaN : Number(raw);
+    return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : DEFAULT_VOLUME;
+  } catch {
+    return DEFAULT_VOLUME;
+  }
+}
+
+/** Volumen general elegido por el jugador (multiplica música, ambiente y efectos). */
+export function getVolume(): number {
+  return masterVolume;
+}
+
+export function setVolume(next: number) {
+  const value = Math.round(Math.min(1, Math.max(0, next)) * 100) / 100;
+  if (value === masterVolume) return;
+  masterVolume = value;
+  try {
+    window.localStorage.setItem(VOLUME_KEY, String(value));
+  } catch {
+    // Sin almacenamiento el volumen dura solo esta sesión.
+  }
+  // Los bucles que ya suenan cambian al momento.
+  const ctx = context;
+  for (const [id, loop] of activeLoops) {
+    const target = Math.max(0.0001, VOLUME.sfx * (desiredLoops.get(id) ?? 1) * masterVolume);
+    if (ctx) loop.gain.gain.setTargetAtTime(target, ctx.currentTime, 0.03);
+  }
+  for (const listener of volumeListeners) listener(value);
+}
+
+/** Avisa cuando cambia el volumen general (lo usan la música y el control de volumen). */
+export function subscribeVolume(listener: (volume: number) => void): () => void {
+  volumeListeners.add(listener);
+  return () => { volumeListeners.delete(listener); };
+}
+
 /** Avisa cuando cambia el silencio (lo usa el reproductor de música). */
 export function subscribeMuted(listener: (muted: boolean) => void): () => void {
   muteListeners.add(listener);
@@ -187,7 +232,7 @@ function playTone(ctx: AudioContext, tone: Tone) {
   if (tone.to) osc.frequency.exponentialRampToValueAtTime(Math.max(1, tone.to), end);
   // Envolvente corta: evita el chasquido al cortar la onda.
   gain.gain.setValueAtTime(0.0001, start);
-  gain.gain.exponentialRampToValueAtTime(tone.gain ?? 0.18, start + 0.012);
+  gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, (tone.gain ?? 0.18) * masterVolume), start + 0.012);
   gain.gain.exponentialRampToValueAtTime(0.0001, end);
   osc.connect(gain).connect(ctx.destination);
   osc.start(start);
@@ -201,7 +246,7 @@ function playBuffer(ctx: AudioContext, buffer: AudioBuffer, volume: number, id: 
   const source = ctx.createBufferSource();
   const gain = ctx.createGain();
   source.buffer = buffer;
-  gain.gain.value = volume;
+  gain.gain.value = volume * masterVolume;
   source.connect(gain).connect(ctx.destination);
   const entry = { source, gain };
   const set = playing.get(id) ?? new Set();
@@ -243,7 +288,7 @@ export interface PlaySoundOptions {
  * Llamar cuando OCURRE la acción (un handler o un cambio de estado), no en cada render.
  */
 export function playSound(id: SoundId, options: PlaySoundOptions = {}) {
-  if (muted || !unlocked) return;
+  if (muted || !unlocked || masterVolume <= 0) return;
   try {
     const now = performance.now();
     if (now - (lastPlayed.get(id) ?? -Infinity) < (MIN_GAP_MS[id] ?? DEFAULT_GAP_MS)) return;
@@ -294,7 +339,7 @@ function launchLoop(id: LoopSoundId, volume: number) {
     source.buffer = buffer;
     source.loop = true;
     gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(VOLUME.sfx * volume, ctx.currentTime + 0.08);
+    gain.gain.linearRampToValueAtTime(Math.max(0.0001, VOLUME.sfx * volume * masterVolume), ctx.currentTime + 0.08);
     source.connect(gain).connect(ctx.destination);
     source.start();
     activeLoops.set(id, { source, gain });

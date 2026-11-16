@@ -94,7 +94,7 @@ async function quickDemo(browser) {
     for (const index of [0, 1, 2]) await page.locator('.module-picker__button').nth(index).click();
     await page.click('button.builder-start');
     await page.waitForSelector('.turn-transition button');
-    await page.click('.turn-transition button');
+    await page.click('.turn-transition button', { timeout: 2000 }).catch(() => {}); // el cartel también sigue solo
 
     await coopGuardAndResults(page, 'demo');
     await returnToWelcome(page);

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowRight, CaretLeft, CaretRight, Hammer, FastForward } from '@phosphor-icons/react';
 import type { Destination, ModuleId } from '../../../game';
 import { moduleScenes } from '../../../assets/moduleScenes';
-import { LanguageSelector, msg, useI18n } from '../../../i18n';
+import { LanguageSelector, useI18n } from '../../../i18n';
 import { useRadio, useScreenRadio } from '../../radio';
 import { playSound, SoundToggle } from '../../audio';
 import { BuildFlowSteps, ModuleEffectChips, ModuleStatusBadge } from '../../base-builder/ModuleStatus';
@@ -158,9 +158,8 @@ export function ConstructionProgressScreen({ destination, selectedModules, done,
   const known = moduleId ? MODULE_CATALOG.some((module) => module.id === moduleId) : false;
 
   // Nico presenta la obra al llegar; Alba celebra cuando el módulo queda terminado.
-  useScreenRadio(moduleId ? [{ speaker: 'NICO', text: msg('buildFlow.radio.building', {
-    module: msg(`baseBuilder.modules.${moduleId}.name`), desc: msg(`baseBuilder.modules.${moduleId}.desc`),
-  }) }] : []);
+  // La tarjeta de obra ya cuenta qué se construye y para qué: sin globos de radio encima.
+  useScreenRadio([]);
   // Al salir se descarta lo que quede por decir de esta obra.
   useEffect(() => () => radio.clear(), [radio]);
   useEffect(() => {
@@ -170,15 +169,6 @@ export function ConstructionProgressScreen({ destination, selectedModules, done,
   useEffect(() => {
     if (phase !== 'finished' || !moduleId) return;
     playSound('reward'); // el módulo quedó terminado
-    radio.say({
-      speaker: 'ALBA',
-      tone: 'good',
-      front: true,
-      once: `build.done.${moduleId}`,
-      text: msg('buildFlow.radio.finished', {
-        module: msg(`baseBuilder.modules.${moduleId}.name`), benefit: msg(`baseBuilder.modules.${moduleId}.benefit`),
-      }),
-    });
     // Solo al terminar la obra de este módulo.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);

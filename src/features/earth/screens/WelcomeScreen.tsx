@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BookOpen, Broadcast, FilmStrip, Play, X } from '@phosphor-icons/react';
+import { BookOpen, Broadcast, Play, X } from '@phosphor-icons/react';
 import { welcomeLogos } from '../../../assets/welcomeArtwork';
 import { useI18n, LanguageSelector, type SupportedLanguage, msg } from '../../../i18n';
 import { SoundToggle, playSound } from '../../audio';
@@ -15,11 +15,9 @@ interface WelcomeScreenProps {
   readonly onPlay: () => void;
   readonly onOpenStation?: () => void;
   readonly onOpenLearn?: () => void;
-  /** Vuelve a ver la introducción ilustrada (sin video) y continúa al destino. */
-  readonly onWatchIntro?: () => void;
 }
 
-export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn, onWatchIntro }: WelcomeScreenProps) {
+export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScreenProps) {
   const { t, language } = useI18n();
   useScreenRadio([{ speaker: 'ALBA', text: msg('radio.welcome') }]);
   const [panel, setPanel] = useState<WelcomePanel>(null);
@@ -179,10 +177,6 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn, onWatchIntro
             <BookOpen aria-hidden="true" weight="duotone" />
             <span>{t('welcome.scientificSources')}</span>
           </button>
-          {onWatchIntro && <button className="welcome__secondary-button" type="button" onClick={onWatchIntro}>
-            <FilmStrip aria-hidden="true" weight="duotone" />
-            <span>{t('intro.replay')}</span>
-          </button>}
         </div>
       </div>
     </div>
@@ -242,7 +236,9 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn, onWatchIntro
       open={welcomeTutorialOpen}
       steps={welcomeSteps}
       onComplete={finishWelcomeTutorial}
-      onSkip={finishWelcomeTutorial}
+      // Cerrar la ayuda (X, «Saltar» o Escape) solo la cierra. Antes también empezaba la partida:
+      // el niño cerraba el cartel y, sin pulsar «Jugar», arrancaba el video de reclutamiento.
+      onSkip={() => setWelcomeTutorialOpen(false)}
     />
   </main>;
 }
