@@ -139,7 +139,8 @@ async function runRoute(browser, route, { reduced = false } = {}) {
     }
 
     // Despegue: la cuenta atrás no cambia; tras la ignición entra el video de SU ciudad, y luego el del viaje.
-    await page.waitForSelector('button:has-text("Aproximarse a")');
+    await page.waitForSelector('.flight-scene');
+    if (await page.locator('button:has-text("Aproximarse a")').count()) throw new Error('«Aproximarse a…» apareció antes de terminar el viaje.');
     if (!reduced) {
       await page.waitForSelector('.cinematic video', { timeout: 8000 });
       const departure = await page.getAttribute('.cinematic video', 'src');
@@ -150,6 +151,7 @@ async function runRoute(browser, route, { reduced = false } = {}) {
       if (!travel.includes(route.videos[2])) throw new Error(`Video de viaje incorrecto: ${travel}`);
       await skipCinematic(page);
     }
+    await page.waitForSelector('button:has-text("Aproximarse a")', { timeout: 15000 });
     await page.click('button:has-text("Aproximarse a")');
     if (!reduced) {
       await page.waitForSelector('.cinematic video', { timeout: 4000 });

@@ -25,6 +25,12 @@ export function DepartureScreen({ destination, astronautName, cityName, cityId, 
   const [hasLaunched, setHasLaunched] = useState<boolean>(false);
   // Cinemáticas: tras la cuenta atrás (que no cambia) se ve el despegue y luego el viaje.
   const [cinematic, setCinematic] = useState<'departure' | 'travel' | null>(null);
+  /**
+   * El viaje terminó (cuenta atrás + despegue + viaje). Solo entonces aparece «Aproximarse a…».
+   * Antes el botón estaba desde el primer segundo y, si el niño lo tocaba, cortaba la cuenta
+   * atrás y los videos del despegue.
+   */
+  const [journeyDone, setJourneyDone] = useState<boolean>(false);
 
   useEffect(() => {
     warmVideo(departureVideoFor(cityId));
@@ -66,7 +72,7 @@ export function DepartureScreen({ destination, astronautName, cityName, cityId, 
       {cinematic === 'travel' && <CinematicTransition
         key="travel"
         video={travelVideoFor(destination)}
-        onDone={() => setCinematic(null)}
+        onDone={() => { setCinematic(null); setJourneyDone(true); }}
       />}
       <main className="earth-card" style={{ maxWidth: '48rem', textAlign: 'center' }}>
         <h1 className="earth-card__title" style={{ justifyContent: 'center' }}>
@@ -102,13 +108,13 @@ export function DepartureScreen({ destination, astronautName, cityName, cityId, 
           <p className="scene-note">{t(destination === 'MOON' ? 'flight.trajectoryNoteMoon' : 'flight.trajectoryNoteMars')}</p>
         </div>
 
-        <div className="scene-actions">
-          <button type="button" className="earth-action-btn" onClick={onProceedToArrival}>
+        {journeyDone && <div className="scene-actions">
+          <button type="button" className="earth-action-btn" onClick={onProceedToArrival} autoFocus>
             <Sparkle weight="fill" />
             <span>{t(destination === 'MOON' ? 'flight.approachMoon' : 'flight.approachMars')}</span>
             <ArrowRight weight="bold" />
           </button>
-        </div>
+        </div>}
       </main>
     </SceneScreen>
   );

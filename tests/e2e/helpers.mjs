@@ -289,9 +289,17 @@ export async function completeTraining(page, index, id, options, isLast) {
   await page.click('button:has-text("Ir al despegue")');
 }
 
-export async function flyAndMonitor(page, { destination, modules }) {
-  await page.waitForSelector('button:has-text("Aproximarse a")');
+/** Despegue: «Aproximarse a…» solo aparece tras la cuenta atrás y los videos de despegue y viaje. */
+export async function passDeparture(page) {
+  await page.waitForSelector('.flight-scene');
+  if (await page.locator('button:has-text("Aproximarse a")').count()) throw new Error('«Aproximarse a…» apareció durante la cuenta atrás (cortaría la animación).');
+  for (let i = 0; i < 2; i++) await skipCinematic(page, 6000); // despegue y viaje
+  await page.waitForSelector('button:has-text("Aproximarse a")', { timeout: 15000 });
   await page.click('button:has-text("Aproximarse a")');
+}
+
+export async function flyAndMonitor(page, { destination, modules }) {
+  await passDeparture(page);
   await skipCinematic(page, 1000); // llegada
   await page.waitForSelector('button:has-text("Tomar el Mando de la Base")');
   await page.click('button:has-text("Tomar el Mando de la Base")');
