@@ -57,3 +57,9 @@ La consola de un minijuego de la guardia usa `ConsoleGuide` (personaje + una fra
 ## Capturas
 
 `docs/screenshots/narrative-ux/` (WebP, escritorio y tablet): radio en la guardia, modal y ayuda con prioridad, Operación Refugio con un objetivo a la vez y el globo apartado, constructor → obra → terminado → funcionando, cambio de recursos en la guardia, briefing uniforme, Aire y agua y Nubes y soles simplificados.
+
+## Pantallas narrativas con una sola carcasa (`SceneScreen`)
+
+Después de elegir planeta y módulos, las pantallas de preparación de la estación, obra, despegue, llegada, revisión de sistemas, regreso, siguiente paso, Aprende y las de la salida a explorar (tarjetas e informe) usan `SceneScreen` (`src/features/earth/screens/SceneScreen.tsx`): ilustración a pantalla completa (`SCENE_BACKGROUNDS`), barra superior pixel art (volver · etiqueta · idioma) y paneles con esquinas de acento, igual que el constructor, el avatar y el briefing. Las cajas internas usan las clases `scene-box`, `scene-stat`, `scene-dialog`, `scene-card` (`scene-screen.css`) en lugar de estilos en línea. Al añadir una pantalla nueva fuera del mapa o de la guardia, envuélvela en `SceneScreen`.
+
+La pantalla de transición de turno (`TurnTransition`) sigue siendo un negro con título a propósito (corte de cámara entre turnos). Texto del motor (`src/game`) como «aplicó consecuencias de nivel 2» sigue saliendo solo en español: el motor devuelve frases ya redactadas.

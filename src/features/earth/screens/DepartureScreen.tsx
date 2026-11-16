@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, RocketLaunch, Sparkle } from '@phosphor-icons/react';
 import type { Backpack, Destination } from '../../../game/contracts';
-import { useI18n, LanguageSelector } from '../../../i18n';
+import { useI18n } from '../../../i18n';
+import { SceneScreen, SCENE_BACKGROUNDS } from './SceneScreen';
 import './earth.css';
 
 interface DepartureScreenProps {
@@ -30,10 +31,7 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
   const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
 
   return (
-    <div className="earth-screen">
-      <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', maxWidth: '48rem', marginBottom: '0.6rem' }}>
-        <LanguageSelector variant="hud" />
-      </div>
+    <SceneScreen background={SCENE_BACKGROUNDS.academy}>
       <main className="earth-card" style={{ maxWidth: '48rem', textAlign: 'center' }}>
         <h1 className="earth-card__title" style={{ justifyContent: 'center' }}>
           <RocketLaunch color="#f6c15b" weight="fill" />
@@ -45,9 +43,7 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
 
         <div className="flight-scene">
           <div className="flight-scene__stars" aria-hidden="true" />
-          <div className="flight-rocket" aria-hidden="true">
-
-          </div>
+          <div className="flight-rocket" aria-hidden="true" />
           <div style={{ zIndex: 2 }}>
             {!hasLaunched ? (
               <div style={{ fontFamily: 'Fredoka', fontSize: '3.5rem', color: '#f6c15b' }}>
@@ -58,43 +54,26 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
                 {t('flight.ignition')}
               </div>
             )}
-            <p style={{ margin: '0.5rem 0 0 0', color: '#b2cce6', fontSize: '1rem' }}>
+            <p style={{ margin: '0.5rem 0 0 0', color: '#cfe6f7', fontSize: '1.1rem' }}>
               {t('flight.commanderInCommand', { name: astronautName })}
             </p>
           </div>
         </div>
 
-        <div style={{
-          background: '#132338',
-          border: '1px solid #33557d',
-          borderRadius: '0.9rem',
-          padding: '1.2rem',
-          margin: '1.5rem 0',
-          textAlign: 'left'
-        }}>
-          <span style={{ fontSize: '0.85rem', color: '#f6c15b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            {t('flight.cargoManifestTitle')}
-          </span>
-          <p style={{ margin: '0.4rem 0 0 0', color: '#d9e7f5', fontSize: '0.95rem' }}>
-            {t('flight.cargoKitsVerified', { tools: packedTools.join(' · ') })}
-          </p>
-          <p style={{ margin: '0.4rem 0 0 0', color: '#97b8d8', fontSize: '0.85rem' }}>
-            {t(destination === 'MOON' ? 'flight.trajectoryNoteMoon' : 'flight.trajectoryNoteMars')}
-          </p>
+        <div className="scene-box">
+          <span className="scene-kicker">{t('flight.cargoManifestTitle')}</span>
+          <p>{t('flight.cargoKitsVerified', { tools: packedTools.join(' · ') })}</p>
+          <p className="scene-note">{t(destination === 'MOON' ? 'flight.trajectoryNoteMoon' : 'flight.trajectoryNoteMars')}</p>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
-          <button
-            type="button"
-            className="earth-action-btn"
-            onClick={onProceedToArrival}
-          >
+        <div className="scene-actions">
+          <button type="button" className="earth-action-btn" onClick={onProceedToArrival}>
             <Sparkle weight="fill" />
             <span>{t(destination === 'MOON' ? 'flight.approachMoon' : 'flight.approachMars')}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>
       </main>
-    </div>
+    </SceneScreen>
   );
 }

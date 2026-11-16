@@ -68,8 +68,8 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
   if (groupErrors.length > 0 || setupErrors.length > 0) {
     return (
       <main className="coop-error-shell pixel-panel">
-        <span className="pixel-kicker">CONFIGURACIÓN COOPERATIVA INVÁLIDA</span>
-        <h1>No se puede iniciar la Estación</h1>
+        <span className="pixel-kicker">{t('spaceGame.invalidKicker')}</span>
+        <h1>{t('spaceGame.invalidTitle')}</h1>
         <ul>
           {[...groupErrors, ...setupErrors].map((error) => (
             <li key={error}>{error}</li>

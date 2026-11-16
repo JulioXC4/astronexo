@@ -58,7 +58,7 @@ export function ExplorationEvent({ state, completedTurn, clock, onDone }: Explor
   }
 
   if (stage.kind === 'START') {
-    return <ExplorationStart clock={clock} resources={resources} onChoose={choose} />;
+    return <ExplorationStart destination={state.destination} clock={clock} resources={resources} onChoose={choose} />;
   }
   if (stage.kind === 'WALK') {
     return <ExplorationCanvas

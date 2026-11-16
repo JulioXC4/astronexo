@@ -1,7 +1,8 @@
 import { House, Jeep, PersonSimpleWalk } from '@phosphor-icons/react';
-import type { ExplorationResources } from '../../game';
+import type { Destination, ExplorationResources } from '../../game';
 import { useI18n } from '../../i18n';
 import { playSound } from '../audio';
+import { SceneScreen, SCENE_BACKGROUNDS } from '../earth/screens/SceneScreen';
 import { REQUIREMENTS } from './explorationData';
 import { canRover, canWalk } from './explorationEngine';
 
@@ -11,6 +12,7 @@ export type ExplorationChoice =
   | { readonly kind: 'STAY' };
 
 interface ExplorationStartProps {
+  readonly destination: Destination;
   readonly clock: string;
   readonly resources: ExplorationResources;
   readonly onChoose: (choice: ExplorationChoice) => void;
@@ -21,7 +23,7 @@ interface ExplorationStartProps {
  * (mismo patrón que las pantallas de elegir planeta y ciudad). Las opciones que
  * no se pueden pagar quedan desactivadas y dicen por qué.
  */
-export function ExplorationStart({ clock, resources, onChoose }: ExplorationStartProps) {
+export function ExplorationStart({ destination, clock, resources, onChoose }: ExplorationStartProps) {
   const { t } = useI18n();
   const footOk = canWalk(resources);
   const roverAny = REQUIREMENTS.batteryOptions.some((battery) => canRover(resources, battery));
@@ -31,7 +33,8 @@ export function ExplorationStart({ clock, resources, onChoose }: ExplorationStar
     onChoose(choice);
   };
 
-  return <main className="explore-start">
+  return <SceneScreen background={destination === 'MOON' ? SCENE_BACKGROUNDS.moon : SCENE_BACKGROUNDS.mars}>
+    <main className="explore-start earth-card">
     <header>
       <span className="pixel-kicker">{t('exploration.kicker')}</span>
       <h1>{t('exploration.startTitle', { clock })}</h1>
@@ -80,5 +83,6 @@ export function ExplorationStart({ clock, resources, onChoose }: ExplorationStar
         </button>
       </article>
     </div>
-  </main>;
+    </main>
+  </SceneScreen>;
 }

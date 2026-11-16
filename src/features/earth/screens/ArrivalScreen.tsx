@@ -1,6 +1,7 @@
 import { ArrowRight, Planet, ShieldWarning, Sparkle } from '@phosphor-icons/react';
 import type { Backpack, Destination, NasaDataset } from '../../../game/contracts';
-import { useI18n, LanguageSelector } from '../../../i18n';
+import { useI18n } from '../../../i18n';
+import { SceneScreen, SCENE_BACKGROUNDS } from './SceneScreen';
 import './earth.css';
 
 interface ArrivalScreenProps {
@@ -18,10 +19,7 @@ export function ArrivalScreen({ destination, astronautName, cityName, backpack, 
   const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
 
   return (
-    <div className="earth-screen">
-      <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', maxWidth: '52rem', marginBottom: '0.6rem' }}>
-        <LanguageSelector variant="hud" />
-      </div>
+    <SceneScreen background={destination === 'MOON' ? SCENE_BACKGROUNDS.moon : SCENE_BACKGROUNDS.mars}>
       <main className="earth-card" style={{ maxWidth: '52rem' }}>
         <h1 className="earth-card__title">
           <Planet color="#f6c15b" weight="fill" />
@@ -31,88 +29,54 @@ export function ArrivalScreen({ destination, astronautName, cityName, backpack, 
           {t('flight.arrivalSubtitle', { destination: destName })}
         </p>
 
-        <div style={{
-          background: 'radial-gradient(circle at 50% 30%, #3a4759 0%, #17212e 100%)',
-          border: '2px solid #4a6382',
-          borderRadius: '1.2rem',
-          padding: '2rem',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-          marginBottom: '1.5rem'
-        }}>
-          <div style={{ fontSize: '4.5rem', marginBottom: '0.5rem' }}>{destination === 'MOON' ? '' : ''}</div>
-          <h2 style={{ fontFamily: 'Fredoka', fontSize: '1.8rem', color: '#ffffff', margin: 0 }}>
+        <div className="scene-box scene-box--hero">
+          <h2 style={{ fontSize: '1.9rem' }}>
             {t(destination === 'MOON' ? 'flight.baseMoonName' : 'flight.baseMarsName')}
           </h2>
-          <p style={{ color: '#bed4eb', fontSize: '0.95rem', margin: '0.4rem 0 1rem 0' }}>
-            {t('flight.commanderTrained', { name: astronautName, city: cityName })}
-          </p>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(10rem, 1fr))',
-            gap: '1rem',
-            textAlign: 'left',
-            marginTop: '1.2rem'
-          }}>
-            <div style={{ background: '#101a26', padding: '0.8rem 1rem', borderRadius: '0.8rem', border: '1px solid #2d4562' }}>
-              <span style={{ fontSize: '0.8rem', color: '#7cb5c8', fontWeight: 700 }}>{t('flight.externalTemp')}</span>
-              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#ffb74d' }}>{t(destination === 'MOON' ? 'flight.tempMoonVal' : 'flight.tempMarsVal')}</div>
+          <p>{t('flight.commanderTrained', { name: astronautName, city: cityName })}</p>
+          <div className="scene-stats">
+            <div className="scene-stat scene-stat--warm">
+              <span>{t('flight.externalTemp')}</span>
+              <strong>{t(destination === 'MOON' ? 'flight.tempMoonVal' : 'flight.tempMarsVal')}</strong>
             </div>
-            <div style={{ background: '#101a26', padding: '0.8rem 1rem', borderRadius: '0.8rem', border: '1px solid #2d4562' }}>
-              <span style={{ fontSize: '0.8rem', color: '#7cb5c8', fontWeight: 700 }}>{t('flight.atmosphere')}</span>
-              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#64b5f6' }}>{t(destination === 'MOON' ? 'flight.atmoMoonVal' : 'flight.atmoMarsVal')}</div>
+            <div className="scene-stat scene-stat--cool">
+              <span>{t('flight.atmosphere')}</span>
+              <strong>{t(destination === 'MOON' ? 'flight.atmoMoonVal' : 'flight.atmoMarsVal')}</strong>
             </div>
-            <div style={{ background: '#101a26', padding: '0.8rem 1rem', borderRadius: '0.8rem', border: '1px solid #2d4562' }}>
-              <span style={{ fontSize: '0.8rem', color: '#7cb5c8', fontWeight: 700 }}>{t('flight.gravity')}</span>
-              <div style={{ fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#81c784' }}>{t(destination === 'MOON' ? 'flight.gravityMoonVal' : 'flight.gravityMarsVal')}</div>
+            <div className="scene-stat scene-stat--good">
+              <span>{t('flight.gravity')}</span>
+              <strong>{t(destination === 'MOON' ? 'flight.gravityMoonVal' : 'flight.gravityMarsVal')}</strong>
             </div>
           </div>
         </div>
 
-        <section style={{
-          background: '#142539',
-          border: '1px solid #33557e',
-          borderRadius: '0.9rem',
-          padding: '1.2rem',
-          marginBottom: '1.5rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <ShieldWarning color="#f6c15b" weight="fill" size={22} />
-            <h3 style={{ margin: 0, fontFamily: 'Fredoka', fontSize: '1.1rem', color: '#ffffff' }}>
-              {t('flight.initialStateTitle')}
-            </h3>
-          </div>
-          <p style={{ margin: '0 0 0.5rem 0', color: '#bed4ea', fontSize: '0.92rem' }}>
-            {t('flight.availableTools', { tools: tools.join(' · ') })}
-          </p>
-          <p style={{ margin: 0, color: '#90caf9', fontSize: '0.88rem' }}>
-            {t('flight.nasaRef', {
-              count: nasaData.observations.length,
-              status: t(nasaData.validation === 'VERIFIED' ? 'flight.verifiedStatus' : 'flight.pendingStatus'),
-            })}
-          </p>
-          <ul style={{ margin: '0.75rem 0 0', paddingLeft: '1.25rem', color: '#bed4ea', fontSize: '0.82rem' }}>
-            {nasaData.observations.map((observation) => <li key={observation.recordId}>
-              {observation.source} · {observation.observedAt} · {observation.parameter}: {observation.value} {observation.unit} ·{' '}
-              <a href={observation.sourceUrl} target="_blank" rel="noreferrer">{t('flight.originalRecord')}</a>
-            </li>)}
-          </ul>
+        <section className="scene-box">
+          <span className="scene-kicker"><ShieldWarning color="#f6c15b" weight="fill" size={20} style={{ verticalAlign: '-0.2em', marginRight: '.35rem' }} />{t('flight.initialStateTitle')}</span>
+          <p>{t('flight.availableTools', { tools: tools.join(' · ') })}</p>
+          <details className="scene-note" style={{ marginTop: '.5rem' }}>
+            <summary style={{ cursor: 'pointer', fontWeight: 800, color: '#8fd8ff' }}>
+              {t('flight.nasaRef', {
+                count: nasaData.observations.length,
+                status: t(nasaData.validation === 'VERIFIED' ? 'flight.verifiedStatus' : 'flight.pendingStatus'),
+              })}
+            </summary>
+            <ul className="scene-list">
+              {nasaData.observations.map((observation) => <li key={observation.recordId}>
+                {observation.source} · {observation.observedAt} · {observation.parameter}: {observation.value} {observation.unit} ·{' '}
+                <a href={observation.sourceUrl} target="_blank" rel="noreferrer">{t('flight.originalRecord')}</a>
+              </li>)}
+            </ul>
+          </details>
         </section>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button
-            type="button"
-            className="earth-action-btn"
-            onClick={onEnterBase}
-          >
+        <div className="scene-actions scene-actions--end">
+          <button type="button" className="earth-action-btn" onClick={onEnterBase}>
             <Sparkle weight="fill" />
             <span>{t(destination === 'MOON' ? 'flight.takeCommandMoon' : 'flight.takeCommandMars')}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>
       </main>
-    </div>
+    </SceneScreen>
   );
 }

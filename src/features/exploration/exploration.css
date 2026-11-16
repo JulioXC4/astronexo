@@ -1,24 +1,19 @@
 /* ---------- Salida a explorar ---------- */
+/* Las tarjetas y el informe viven dentro de SceneScreen (mismo fondo, barra y paneles que el resto de pantallas). */
 .explore-start,
 .explore-report {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  overflow: auto;
-  padding: 1.2rem;
+  max-width: 60rem;
   color: #f2f7ff;
-  background: radial-gradient(circle at 50% 0%, #17304d, #07111f 70%);
   font-family: 'Nunito', sans-serif;
 }
 
-.explore-start > header { max-width: 60rem; margin: 0 auto 1rem; }
+.explore-start > header { margin: 0 0 1rem; }
 .explore-start h1 { margin: .2rem 0; font-family: 'Fredoka', sans-serif; font-size: clamp(1.4rem, 3vw, 2rem); }
 .explore-start > header p { margin: 0; max-width: 52rem; color: #b9d3ec; line-height: 1.4; }
 
 .explore-start__cards {
   display: grid;
-  max-width: 60rem;
-  margin: 0 auto;
+  margin: 0;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   gap: .9rem;
 }
@@ -28,8 +23,8 @@
   align-content: start;
   gap: .55rem;
   padding: 1rem;
-  border: 3px solid #35526f;
-  background: #0d2036;
+  border: 2px solid #315b73;
+  background: rgba(2, 8, 19, .55);
   text-align: center;
 }
 .explore-card h2 { margin: 0; font-family: 'Fredoka', sans-serif; font-size: 1.25rem; }
@@ -111,7 +106,7 @@
 .explore__key--right { grid-column: 3; grid-row: 2; }
 
 /* ---------- Informe ---------- */
-.explore-report__box { max-width: 58rem; margin: 0 auto; padding: 1.2rem; border: 3px solid #35526f; background: #0d2036; }
+.explore-report__box { margin: 0; }
 .explore-report h1 { margin: 0 0 .5rem; font-family: 'Fredoka', sans-serif; font-size: 1.6rem; }
 .explore-report h2 { margin: 1rem 0 .3rem; font-size: 1.05rem; color: #9bc0e4; }
 .explore-report table { width: 100%; border-collapse: collapse; font-size: 1.037rem; }
