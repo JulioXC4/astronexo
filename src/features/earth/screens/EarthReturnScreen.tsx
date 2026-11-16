@@ -1,6 +1,6 @@
 import { ArrowRight, GlobeHemisphereWest, Sparkle } from '@phosphor-icons/react';
 import type { MissionResult } from '../../../game';
-import { useI18n } from '../../../i18n';
+import { resolveMessage, useI18n } from '../../../i18n';
 import { SceneScreen, SCENE_BACKGROUNDS } from './SceneScreen';
 import './earth.css';
 
@@ -32,7 +32,7 @@ export function EarthReturnScreen({ result, astronautName, onProceedToNextAdvent
           <p>{t('return.crewMember', { name: astronautName })}</p>
           <div className="scene-box" style={{ maxWidth: '32rem', margin: '1.1rem auto 0' }}>
             <span className="scene-kicker">{t('return.flightLogTitle')}</span>
-            <p>{isSuccess ? t('return.successLog') : (result.interruptionCause ?? t('return.interruptedLog'))}</p>
+            <p>{isSuccess ? t('return.successLog') : (result.interruptionCause ? resolveMessage(result.interruptionCause, t) : t('return.interruptedLog'))}</p>
           </div>
         </div>
 

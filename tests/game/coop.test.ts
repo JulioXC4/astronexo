@@ -22,6 +22,9 @@ import {
 } from '../../src/features/coop-gameplay';
 import type { LocalCoopConfig } from '../../src/features/coop-gameplay';
 
+import { resolveMessage, translate } from '../../src/i18n';
+const es = (text: string) => resolveMessage(text, (key, params) => translate('es', key, params));
+
 function withPlayers(count: number): LocalCoopConfig {
   return createLocalCoopConfig('Equipo de prueba', Array.from({ length: count }, (_, index) => `Tripulante ${index + 1}`));
 }
@@ -41,8 +44,8 @@ function finishMission(setup: GameSetup) {
 
 describe('H4 · cooperación local', () => {
   it('rechaza grupos con menos de 3 o más de 5 participantes', () => {
-    expect(validateLocalCoopConfig(withPlayers(2))).toContain('El grupo debe tener entre 3 y 5 participantes.');
-    expect(validateLocalCoopConfig(withPlayers(6))).toContain('El grupo debe tener entre 3 y 5 participantes.');
+    expect(validateLocalCoopConfig(withPlayers(2)).map(es)).toContain('El grupo debe tener entre 3 y 5 participantes.');
+    expect(validateLocalCoopConfig(withPlayers(6)).map(es)).toContain('El grupo debe tener entre 3 y 5 participantes.');
     expect(validateLocalCoopConfig(withPlayers(3))).toHaveLength(0);
     expect(validateLocalCoopConfig(withPlayers(5))).toHaveLength(0);
   });
@@ -53,7 +56,7 @@ describe('H4 · cooperación local', () => {
       ...group,
       players: group.players.map((player, index) => ({ ...player, id: index < 2 ? 'DUPLICADO' : player.id })),
     };
-    expect(validateLocalCoopConfig(duplicated)).toContain('Los identificadores ficticios deben ser únicos y no vacíos.');
+    expect(validateLocalCoopConfig(duplicated).map(es)).toContain('Los identificadores ficticios deben ser únicos y no vacíos.');
   });
 
   it('asigna los roles educativos correctos para 3, 4 y 5 participantes', () => {
@@ -72,7 +75,7 @@ describe('H4 · cooperación local', () => {
         COOP_DEMO_GROUPS.THREE.players[2],
       ],
     };
-    expect(validateLocalCoopConfig(swapped)).toContain('Los roles no corresponden al tamaño del grupo.');
+    expect(validateLocalCoopConfig(swapped).map(es)).toContain('Los roles no corresponden al tamaño del grupo.');
   });
 
   it('rota al participante activo después de cada turno y vuelve al inicio', () => {

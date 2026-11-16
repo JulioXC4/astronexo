@@ -1,3 +1,4 @@
+import { msg } from '../../i18n/message';
 import { getMissionsForCity, type MissionType } from '../../data/missions';
 import { isValidGameSetup, isValidModuleSelection } from '../../game';
 import type { City, Destination, EarthMissionId, GameMode, GameSetup, ModuleId, ToolId, TrainingOutcome } from '../../game';
@@ -69,9 +70,9 @@ export function buildEarthV3Setup(selection: EarthLaunchSelection): GameSetup {
       outcomes: selection.trainingOutcomes ? [...selection.trainingOutcomes] : undefined,
       trainings: trainings.map(({ mission }) => ({
         id: mission.id,
-        name: mission.name,
-        costDescription: mission.costDescription,
-        effectOnSpaceMission: mission.effectOnSpaceMission,
+        name: msg(`map.facilities.${mission.id}.name`),
+        costDescription: msg(`map.facilities.${mission.id}.cost`),
+        effectOnSpaceMission: msg(`map.facilities.${mission.id}.effect`),
       })),
     },
   };

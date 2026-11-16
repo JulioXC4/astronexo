@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { assetManifest } from '../assets/manifest';
+import { useI18n } from '../i18n';
 
 export type PortraitIdentity = 'ALBA' | 'LEO' | 'AURORA' | 'NICO' | 'CHISPA';
 
@@ -26,16 +27,19 @@ const pixelPortraits: Partial<Record<PortraitIdentity, string>> = {
 
 /** Uses the asset catalog and falls back to the original SVG stand-in if an image cannot load. */
 export function CharacterPortrait({ identity, kind = 'cadet', selected = false, mood = 'normal', label, source }: CharacterPortraitProps) {
+  const { t } = useI18n();
   const robot = kind === 'robot' || identity === 'CHISPA';
   const accent = accents[identity ?? (robot ? 'CHISPA' : 'ALBA')];
-  const accessibleLabel = label ?? (robot ? 'Robot acompañante' : 'Cadete astronauta');
+  const accessibleLabel = label ?? t(robot ? 'a11y.character.robot' : 'a11y.character.cadet');
+  const mood_ = t(mood === 'alert' ? 'a11y.character.moodAlert' : mood === 'celebrate' ? 'a11y.character.moodCelebrate' : 'a11y.character.moodNormal');
+  const fullLabel = `${accessibleLabel}, ${mood_}${selected ? `, ${t('a11y.character.selected')}` : ''}`;
   const pixelPortrait = source ?? (identity && pixelPortraits[identity]);
   const [imageFailed, setImageFailed] = useState(false);
   useEffect(() => setImageFailed(false), [pixelPortrait]);
-  if (pixelPortrait && !imageFailed) return <span className={`character-portrait character-portrait--pixel${selected ? ' character-portrait--selected' : ''}`} role="img" aria-label={`${accessibleLabel}, ${mood === 'alert' ? 'alerta' : mood === 'celebrate' ? 'celebración' : 'normal'}${selected ? ', seleccionado' : ''}`}>
+  if (pixelPortrait && !imageFailed) return <span className={`character-portrait character-portrait--pixel${selected ? ' character-portrait--selected' : ''}`} role="img" aria-label={fullLabel}>
     <img src={pixelPortrait} alt="" onError={() => setImageFailed(true)} />
   </span>;
-  return <svg className="character-portrait" viewBox="0 0 240 240" role="img" aria-label={`${accessibleLabel}, ${mood === 'alert' ? 'alerta' : mood === 'celebrate' ? 'celebración' : 'normal'}${selected ? ', seleccionado' : ''}`}>
+  return <svg className="character-portrait" viewBox="0 0 240 240" role="img" aria-label={fullLabel}>
     <circle cx="120" cy="120" r="112" fill={selected ? '#f6c15b' : '#527d8d'}/>
     <circle cx="120" cy="120" r="104" fill="#1e3c54"/>
     {robot ? <>

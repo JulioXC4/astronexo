@@ -1,7 +1,10 @@
+import { useI18n } from '../i18n';
+
 /** Decorative city preview in the same illustrated world as the preparation map. */
 export function CityLandscape({ cityId }: { readonly cityId: string }) {
+  const { t } = useI18n();
   const arctic = cityId === 'TROMSO';
-  return <svg className="city-landscape" viewBox="0 0 1000 160" preserveAspectRatio="xMidYMid slice" role="img" aria-label={arctic ? 'Paisaje ilustrado ártico de Tromsø' : 'Paisaje ilustrado andino de Arequipa'}>
+  return <svg className="city-landscape" viewBox="0 0 1000 160" preserveAspectRatio="xMidYMid slice" role="img" aria-label={t(arctic ? 'a11y.landscapeArctic' : 'a11y.landscapeAndean')}>
     <rect width="1000" height="160" rx="12" fill={arctic ? '#294e64' : '#628995'}/>
     {arctic ? <>
       <path d="M0 75Q170 35 340 68T710 58 1000 49" fill="none" stroke="#8ad6c3" strokeWidth="17" opacity=".7"/>

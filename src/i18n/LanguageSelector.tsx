@@ -1,6 +1,6 @@
 import { useI18n } from './I18nContext';
 import { playSound } from '../features/audio/sound';
-import { SUPPORTED_LANGUAGES, type SupportedLanguage } from './types';
+import { SUPPORTED_LANGUAGES, type LanguageInfo, type SupportedLanguage } from './types';
 import { welcomeLanguageCards } from '../assets/welcomeArtwork';
 import './language-selector.css';
 
@@ -19,6 +19,9 @@ export function LanguageSelector({
   plain = false,
 }: LanguageSelectorProps) {
   const { language, setLanguage, languageInfo, t } = useI18n();
+
+  /** La nota de borrador se escribe en el idioma que el jugador tiene activo, no en el del borrador. */
+  const draftNoticeFor = (lang: LanguageInfo) => t('languageSelector.draftNotice', { variety: lang.varietyLabel ?? lang.name });
 
   const handleSelect = (code: SupportedLanguage) => {
     if (code !== language) playSound('languageChange');
@@ -50,7 +53,7 @@ export function LanguageSelector({
                 aria-checked={isSelected}
                 tabIndex={0}
                 className={`lang-option-card ${isSelected ? 'selected' : ''}`}
-                aria-label={`${lang.nativeName} (${lang.name})${lang.isDraft ? ` — ${lang.draftNotice}` : ''}`}
+                aria-label={`${lang.nativeName} (${lang.name})${lang.isDraft ? ` — ${draftNoticeFor(lang)}` : ''}`}
                 onClick={() => handleSelect(lang.code)}
               >
                 <img src={welcomeLanguageCards[lang.code]} alt="" draggable={false} />
@@ -61,7 +64,7 @@ export function LanguageSelector({
 
         {showDraftNotice && languageInfo.isDraft && languageInfo.draftNotice && (
           <p className="lang-draft-banner" role="status">
-            ⚠️ {languageInfo.draftNotice}
+            ⚠️ {draftNoticeFor(languageInfo)}
           </p>
         )}
       </div>
@@ -84,7 +87,7 @@ export function LanguageSelector({
               type="button"
               className={`lang-hud-pill ${isSelected ? 'active' : ''}`}
               aria-pressed={isSelected}
-              title={`${lang.nativeName} (${lang.name})${lang.isDraft ? ' - ' + lang.draftNotice : ''}`}
+              title={`${lang.nativeName} (${lang.name})${lang.isDraft ? ' - ' + draftNoticeFor(lang) : ''}`}
               onClick={() => handleSelect(lang.code)}
             >
               {!plain && (
@@ -100,10 +103,10 @@ export function LanguageSelector({
       {showDraftNotice && languageInfo.isDraft && (
         <span
           className="lang-hud-draft-dot"
-          title={languageInfo.draftNotice}
-          aria-label={languageInfo.draftNotice}
+          title={draftNoticeFor(languageInfo)}
+          aria-label={draftNoticeFor(languageInfo)}
         >
-          {plain ? 'Draft' : '⚠️ Draft'}
+          {plain ? t('a11y.draftBadge') : `⚠️ ${t('a11y.draftBadge')}`}
         </span>
       )}
     </div>

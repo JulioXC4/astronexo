@@ -34,14 +34,7 @@ export interface StationModeModalProps {
 
 type StationTab = 'MISSION' | 'CREW' | 'LAUNCH';
 
-const SUGGESTED_TEAMS = [
-  'Equipo Orión',
-  'Base Cóndor',
-  'Halcón Solar',
-  'Tripulación Apolo',
-  'Constelación Sur',
-  'Aurora Boreal',
-];
+const SUGGESTED_TEAM_COUNT = 6;
 
 const SUGGESTED_ALIASES = [
   'Nova',
@@ -82,7 +75,9 @@ export function StationModeModal({
 
   // Configuración de Misión
   const [roomCode, setRoomCode] = useState('NASA-2026');
-  const [teamAlias, setTeamAlias] = useState('Equipo Orión');
+  // El nombre de equipo por defecto sigue al idioma activo hasta que se escriba otro.
+  const [typedTeamAlias, setTeamAlias] = useState<string | null>(null);
+  const teamAlias = typedTeamAlias ?? t('stationDefaults.team');
   const [destination, setDestination] = useState<Destination>('MOON');
   const [city, setCity] = useState<City>('AREQUIPA');
 
@@ -99,7 +94,7 @@ export function StationModeModal({
     } else {
       const next = [...aliases];
       for (let i = aliases.length; i < count; i++) {
-        const candidate = SUGGESTED_ALIASES.find((a) => !next.includes(a)) ?? `Cadete-${i + 1}`;
+        const candidate = SUGGESTED_ALIASES.find((a) => !next.includes(a)) ?? t('stationDefaults.cadet', { number: i + 1 }).replace(/\s+/g, '-');
         next.push(candidate);
       }
       setAliases(next);
@@ -240,7 +235,7 @@ export function StationModeModal({
                 />
                 <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
                   <span style={{ fontSize: '0.78rem', color: '#7cb5c8' }}>{t('station.suggestedTeams')}</span>
-                  {SUGGESTED_TEAMS.slice(0, 3).map((name) => (
+                  {Array.from({ length: SUGGESTED_TEAM_COUNT }, (_, index) => t(`stationDefaults.teams.${index}`)).slice(0, 3).map((name) => (
                     <button
                       key={name}
                       type="button"
@@ -362,13 +357,13 @@ export function StationModeModal({
               </p>
               <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                 <span style={{ background: '#1c3450', border: '1px solid #385f8c', borderRadius: '0.5rem', padding: '0.3rem 0.6rem', color: '#e8f2fc', fontSize: '0.82rem' }}>
-                   Kit de Repuestos (M1)
+                   {t('tools.SPARE_PARTS_KIT.label')} (M1)
                 </span>
                 <span style={{ background: '#1c3450', border: '1px solid #385f8c', borderRadius: '0.5rem', padding: '0.3rem 0.6rem', color: '#e8f2fc', fontSize: '0.82rem' }}>
-                   Batería Adicional (M4)
+                   {t('tools.EXTRA_BATTERY.label')} (M4)
                 </span>
                 <span style={{ background: '#1c3450', border: '1px solid #385f8c', borderRadius: '0.5rem', padding: '0.3rem 0.6rem', color: '#e8f2fc', fontSize: '0.82rem' }}>
-                  {city === 'AREQUIPA' ? ' Reciclador de Agua (M5)' : '❄️ Aislamiento Térmico (M5)'}
+                  {city === 'AREQUIPA' ? `${t('tools.WATER_RECYCLER.label')} (M5)` : `❄️ ${t('tools.THERMAL_INSULATION.label')} (M5)`}
                 </span>
               </div>
             </div>
@@ -504,7 +499,7 @@ export function StationModeModal({
               <Compass size={22} color="#f6c15b" weight="fill" />
               <span style={{ fontSize: '0.85rem', color: '#bed5ea' }}>
                 {t('station.turnRotationNotice', {
-                  name: aliases[0]?.trim() || 'Cadete 1',
+                  name: aliases[0]?.trim() || t('stationDefaults.cadet', { number: 1 }),
                   role: t(`coop.roles.${assignedRoles[0]}`) || ROLE_LABELS[assignedRoles[0]],
                 })}
               </span>
@@ -580,7 +575,7 @@ export function StationModeModal({
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.6rem' }}>
                 <h3 style={{ margin: 0, fontFamily: 'Fredoka', fontSize: '1.2rem', color: '#ffffff' }}>
-                  {cleanTeam || 'Equipo Sin Nombre'} · <span style={{ color: '#f6c15b' }}>{roomCode}</span>
+                  {cleanTeam || t('stationDefaults.unnamedTeam')} · <span style={{ color: '#f6c15b' }}>{roomCode}</span>
                 </h3>
                 <span style={{ background: '#19395f', color: '#88c8ff', padding: '0.2rem 0.6rem', borderRadius: '0.4rem', fontSize: '0.8rem', fontWeight: 700 }}>
                   {destination === 'MOON' ? ' Luna' : ' Marte'} · {city === 'AREQUIPA' ? 'Arequipa' : 'Tromsø'}
@@ -602,7 +597,7 @@ export function StationModeModal({
                         color: '#ffffff',
                       }}
                     >
-                      <strong>{alias || `Cadete ${idx + 1}`}</strong>: {ROLE_ICONS[role]} {t(`coop.roles.${role}`) || ROLE_LABELS[role]}
+                      <strong>{alias || t('stationDefaults.cadet', { number: idx + 1 })}</strong>: {ROLE_ICONS[role]} {t(`coop.roles.${role}`) || ROLE_LABELS[role]}
                     </span>
                   );
                 })}

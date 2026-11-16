@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CheckCircle, CloudSun, Info, Minus, Plus, Sparkle } from '@phosphor-icons/react';
 import { getSolarDatasetByCity } from '../../../data/nasa/powerData';
-import { useI18n } from '../../../i18n';
+import { msg, useI18n } from '../../../i18n';
 import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
 import type { TrainingOutcome } from '../../../game';
 import { MinigameShell } from './ui/MinigameShell';
@@ -123,7 +123,7 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
             return (
               <article key={day.date} className="mg-card clouds-day" data-day={day.date}>
                 <SkyPixel shortfall={dayShortfall(day.irradianceKwhPerM2, best)} />
-                <h2>{day.seasonLabel}</h2>
+                <h2>{t(`powerDates.${day.date}`)}</h2>
                 <strong className="clouds-day__value">{day.irradianceKwhPerM2} <small>kWh/m²</small></strong>
                 <span className="clouds-day__bar" aria-hidden="true"><span style={{ width: `${best > 0 ? (day.irradianceKwhPerM2 / best) * 100 : 0}%` }} /></span>
                 <span className="clouds-day__note">{loss === 0 ? t('minigames.cloudsSuns.bestDay') : tested ? t('minigames.cloudsSuns.lossLabel', { pct: loss }) : ' '}</span>
@@ -196,8 +196,8 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
             <button
               type="button" className="pixel-btn pixel-btn--primary clouds-confirm" data-target data-guide-below
               onClick={() => { playSound('toolEarned'); onComplete(createTrainingOutcome(
-                'CLOUDS_SUNS', `Reserva ${reserve}% (sugerida ${recommended}%)`, 'energy', cost,
-                'Guardar reserva para días sin sol deja menos energía libre al despegar.',
+                'CLOUDS_SUNS', msg('trainingOutcomes.CLOUDS_SUNS.decision', { reserve, recommended }), 'energy', cost,
+                msg('trainingOutcomes.CLOUDS_SUNS.limitation'),
               )); }}
             >
               <CloudSun weight="fill" aria-hidden="true" />

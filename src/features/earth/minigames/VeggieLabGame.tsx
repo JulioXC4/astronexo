@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { PottedPlant } from '@phosphor-icons/react';
-import { useI18n } from '../../../i18n';
+import { msg, useI18n } from '../../../i18n';
 import { GaugeDial } from '../../../visual-kit/GaugeDial';
 import { LiveMeter } from '../../../visual-kit/LiveMeter';
 import type { TrainingOutcome } from '../../../game';
@@ -130,10 +130,10 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
     onReset={() => setState(START)}
     onConfirm={() => onComplete(createTrainingOutcome(
       'VEGGIE_LAB',
-      `Riego ${WATER_LITERS[state.water]} L, luz ${state.red}% roja`,
+      msg('trainingOutcomes.VEGGIE_LAB.decision', { liters: WATER_LITERS[state.water], red: state.red }),
       'foodSupply',
       calculateTrainingCost('VEGGIE_LAB', state.red),
-      'La prueba usa parte de las raciones de cultivo.',
+      msg('trainingOutcomes.VEGGIE_LAB.limitation'),
     ))}
   />;
 }

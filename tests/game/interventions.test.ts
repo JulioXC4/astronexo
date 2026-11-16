@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { resolveMessage, translate } from '../../src/i18n';
 import {
   EVENT_CONFIG,
   advanceTurn,
@@ -7,6 +8,8 @@ import {
   getActionCost,
 } from '../../src/game';
 import type { AlertKind, Destination, GameSetup, MissionState } from '../../src/game';
+
+const es = (text: string) => resolveMessage(text, (key, params) => translate('es', key, params));
 
 const setup: GameSetup = {
   mode: 'SOLO', city: 'TROMSO', destination: 'MOON',
@@ -109,7 +112,7 @@ describe('G1–G8', () => {
     expect(next.communicationAvailable).toBe(false);
     expect(next.consultationUsed).toBe(true);
     expect(next.pendingCommunication).toBeNull();
-    expect(next.communicationResponse).toContain('Respuesta simulada');
+    expect(es(next.communicationResponse ?? '')).toContain('Respuesta simulada');
   });
 
   it('bloquea acciones con recursos insuficientes', () => {
@@ -137,7 +140,7 @@ describe('G1–G8', () => {
     const next = advanceTurn(sent);
     expect(next.turn).toBe(2);
     expect(next.pendingCommunication).toBeNull();
-    expect(next.communicationResponse).toContain('Respuesta simulada');
+    expect(es(next.communicationResponse ?? '')).toContain('Respuesta simulada');
     expect(applyAction(next, { type: 'CONSULT_EARTH', choiceId: 'ENERGY_GUIDANCE' })).toBe(next);
   });
 });

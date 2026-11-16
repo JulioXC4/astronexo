@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Atom, CaretDown, CaretUp, CheckCircle, GameController, LockKey, Play, Scales, X } from '@phosphor-icons/react';
 import type { EarthMissionDefinition } from '../../../data/missions';
 import type { TrainingOutcome } from '../../../game';
-import { useI18n } from '../../../i18n';
+import { resolveMessage, useI18n } from '../../../i18n';
 import { ToolSprite } from '../../../visual-kit/ToolSprite';
 import { trainingResourceLabel } from '../trainingOutcome';
 
@@ -67,7 +67,7 @@ export function EarthMissionPanel({ mission, state, outcome, onStart, onClose }:
       <p><strong><Atom weight="bold" aria-hidden="true" /> {t('map.scienceData')}:</strong> {t(key('science'))}</p>
       <p><strong>{t('map.spaceEffect')}</strong> {t(key('effect'))}</p>
       {outcome && <p className="emap-panel__prep"><strong>{t('map.yourPrep')}</strong>{' '}
-        {t('map.prepExplanation', { decision: outcome.decision, cost: outcome.cost, resource: trainingResourceLabel(outcome.resource) })}</p>}
+        {t('map.prepExplanation', { decision: resolveMessage(outcome.decision, t), cost: outcome.cost, resource: resolveMessage(trainingResourceLabel(outcome.resource), t) })}</p>}
     </div>}
 
     <button type="button" className="emap-panel__toggle" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>

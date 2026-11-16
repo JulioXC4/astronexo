@@ -81,7 +81,7 @@ export function GroupDecisionDialog({
             <dt>{t('coop.expectedConsequence')}</dt>
             <dd>
               {skip
-                ? state.activeAlerts.map((alert) => alert.consequencePreview).join(' · ') || t('coop.noAlertsActive')
+                ? state.activeAlerts.map((alert) => t(`alertSkip.${alert.kind}`)).join(' · ') || t('coop.noAlertsActive')
                 : intervention ? t(`interventions.items.${intervention.id}.benefit`) : ''}
             </dd>
           </div>

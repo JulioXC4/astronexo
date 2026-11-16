@@ -1,10 +1,11 @@
 import type { TrainingOutcome } from '../../game';
 import { ALL_EARTH_MISSIONS, type MissionType } from '../../data/missions';
+import { msg } from '../../i18n/message';
 
 export type { TrainingOutcome } from '../../game';
 
 export function trainingResourceLabel(resource: TrainingOutcome['resource']): string {
-  return { energy: 'Energía', oxygen: 'Oxígeno', foodSupply: 'Alimentos' }[resource];
+  return msg({ energy: 'hud.energy', oxygen: 'hud.oxygen', foodSupply: 'hud.food' }[resource]);
 }
 
 /** Umbrales de equilibrio del simulador. metric usa el control ya existente en cada juego. */
@@ -33,8 +34,8 @@ export function createTrainingOutcome(
   const mission = ALL_EARTH_MISSIONS[missionId];
   return {
     missionId, decision, resource, cost, tool: mission.targetTool,
-    benefit: mission.effectOnSpaceMission, limitation,
-    explanation: `${decision}: se reservaron ${cost} puntos menos de ${trainingResourceLabel(resource)} para el despegue. ${limitation}`,
+    benefit: msg(`map.facilities.${missionId}.effect`), limitation,
+    explanation: msg('trainingOutcomes.explanation', { decision, cost, resource: trainingResourceLabel(resource), limitation }),
     spaceDelta: { [resource]: -cost },
   };
 }

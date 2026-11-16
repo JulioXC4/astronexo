@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Wind } from '@phosphor-icons/react';
-import { useI18n } from '../../../i18n';
+import { msg, useI18n } from '../../../i18n';
 import { GaugeDial } from '../../../visual-kit/GaugeDial';
 import type { TrainingOutcome } from '../../../game';
 import { calculateTrainingCost, createTrainingOutcome } from '../trainingOutcome';
@@ -118,10 +118,10 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
     onReset={() => setState(START)}
     onConfirm={() => onComplete(createTrainingOutcome(
       'ALTITUDE_ACCLIMATIZATION',
-      `Gas ${altitudeGas(state)}%`,
+      msg('trainingOutcomes.ALTITUDE_ACCLIMATIZATION.decision', { gas: altitudeGas(state) }),
       'oxygen',
       calculateTrainingCost('ALTITUDE_ACCLIMATIZATION', altitudeGas(state)),
-      'El gas de prueba reduce la reserva respirable.',
+      msg('trainingOutcomes.ALTITUDE_ACCLIMATIZATION.limitation'),
     ))}
   />;
 }

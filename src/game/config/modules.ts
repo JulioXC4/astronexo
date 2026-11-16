@@ -1,3 +1,4 @@
+import { msg } from '../../i18n/message';
 import type {
   AlertKind,
   MissionState,
@@ -101,7 +102,7 @@ export function getInitialModuleOperations(modules: readonly ModuleId[]): readon
       turn: 0,
       moduleId: id,
       phase: 'SETUP' as const,
-      summary: `${module.name}: aplicó su beneficio inicial.`,
+      summary: msg('engine.moduleInitial', { module: msg(`baseBuilder.modules.${id}.name`) }),
       cost: {},
       benefit: module.initialEffect,
     }];
@@ -126,7 +127,7 @@ export function getModuleTurnOperations(
       turn: state.turn,
       moduleId: id,
       phase: 'TURN' as const,
-      summary: `${module.name}: ${module.benefit}`,
+      summary: msg('engine.moduleTurn', { module: msg(`baseBuilder.modules.${id}.name`), benefit: msg(`baseBuilder.modules.${id}.benefit`) }),
       cost: module.operationalCost ?? {},
       benefit,
     }];

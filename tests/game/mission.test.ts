@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { resolveMessage, translate } from '../../src/i18n';
 import { advanceTurn, applyAction, createMission, getMissionResult } from '../../src/game';
 import type { GameSetup, MissionState } from '../../src/game';
+
+const es = (text: string) => resolveMessage(text, (key, params) => translate('es', key, params));
 
 export const baseSetup: GameSetup = {
   mode: 'SOLO',
@@ -84,9 +87,9 @@ describe('motor H0–H2', () => {
     expect(result?.score.total).toBeGreaterThan(0);
     expect(result?.score.operationalCompletion).toBeGreaterThan(0);
     expect(result?.interruptionCause).toBeTruthy();
-    expect(result?.causeAndEffect.some((line) => line.startsWith('Energía:') && line.includes('alertas ignoradas'))).toBe(true);
-    expect(result?.causeAndEffect.some((line) => line.startsWith('Oxígeno:'))).toBe(true);
-    expect(result?.causeAndEffect.some((line) => line.startsWith('Escudo:'))).toBe(true);
+    expect(result?.causeAndEffect.map(es).some((line) => line.startsWith('Energía:') && line.includes('alertas ignoradas'))).toBe(true);
+    expect(result?.causeAndEffect.map(es).some((line) => line.startsWith('Oxígeno:'))).toBe(true);
+    expect(result?.causeAndEffect.map(es).some((line) => line.startsWith('Protección:'))).toBe(true);
   });
 
   it('no completa el objetivo científico por sobrevivir cinco turnos', () => {
@@ -97,7 +100,7 @@ describe('motor H0–H2', () => {
     expect(result?.score.scientificObjective).toBe(0);
     expect(result?.scientificObjectiveAchieved).toBe(false);
     expect(result?.outcome).toBe('INTERRUPTED');
-    expect(result?.interruptionCause).toContain('Te faltó ciencia');
+    expect(es(result?.interruptionCause ?? '')).toContain('Te faltó ciencia');
   });
 
   it('calcula el puntaje con los cuatro componentes P0 y el factor de dificultad', () => {
@@ -124,9 +127,9 @@ describe('motor H0–H2', () => {
     }, { type: 'SKIP_INTERVENTION' }));
 
     expect(foodCritical.outcome).toBe('INTERRUPTED');
-    expect(foodCritical.interruptionCause).toContain('Se acabó la comida');
+    expect(es(foodCritical.interruptionCause ?? '')).toContain('Se acabó la comida');
     expect(radiationCritical.outcome).toBe('INTERRUPTED');
     expect(radiationCritical.shield).toBe(0);
-    expect(radiationCritical.interruptionCause).toContain('radiación');
+    expect(es(radiationCritical.interruptionCause ?? '')).toContain('radiación');
   });
 });
