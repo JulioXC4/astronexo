@@ -18,7 +18,7 @@ const accents: Record<PortraitIdentity, string> = {
 
 const pixelPortraits: Partial<Record<PortraitIdentity, string>> = {
   ALBA: assetManifest['character.alba'].path ?? undefined,
-  LEO: '/assets/pixel-art/commander-leo.png',
+  LEO: '/assets/pixel-art/commander-leo.webp',
   AURORA: assetManifest['character.aurora'].path ?? undefined,
   NICO: assetManifest['character.nico'].path ?? undefined,
   CHISPA: assetManifest['character.chispa'].path ?? undefined,

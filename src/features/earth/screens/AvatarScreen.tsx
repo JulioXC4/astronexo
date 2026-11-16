@@ -17,13 +17,13 @@ interface AvatarScreenProps {
   readonly onBack: () => void;
 }
 
-const BACKGROUND = '/assets/pixel-art/academy-briefing-room.png';
+const BACKGROUND = '/assets/pixel-art/academy-briefing-room.webp';
 
 const AVATAR_SPRITES: Record<string, string> = {
-  ALBA: '/assets/pixel-art/cadet-alba.png',
-  LEO: '/assets/pixel-art/commander-leo.png',
-  AURORA: '/assets/pixel-art/officer-aurora.png',
-  NICO: '/assets/pixel-art/engineer-nico.png',
+  ALBA: '/assets/pixel-art/cadet-alba.webp',
+  LEO: '/assets/pixel-art/commander-leo.webp',
+  AURORA: '/assets/pixel-art/officer-aurora.webp',
+  NICO: '/assets/pixel-art/engineer-nico.webp',
 };
 
 const AVATAR_ACCENTS: Record<string, string> = {

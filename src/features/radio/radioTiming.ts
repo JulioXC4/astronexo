@@ -58,8 +58,8 @@ export function canInterrupt(incoming: RadioTone, shownForMs: number, front = fa
 }
 
 export const RADIO_PORTRAITS: Readonly<Record<RadioSpeaker, string>> = {
-  ALBA: '/assets/pixel-art/cadet-alba.png',
-  CHISPA: '/assets/characters/chispa.png',
-  AURORA: '/assets/pixel-art/officer-aurora.png',
-  NICO: '/assets/pixel-art/engineer-nico.png',
+  ALBA: '/assets/pixel-art/cadet-alba.webp',
+  CHISPA: '/assets/characters/chispa.webp',
+  AURORA: '/assets/pixel-art/officer-aurora.webp',
+  NICO: '/assets/pixel-art/engineer-nico.webp',
 };

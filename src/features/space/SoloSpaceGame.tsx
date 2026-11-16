@@ -16,6 +16,8 @@ import { MissionControlView } from '../mission-control';
 import { MissionResultsView } from '../mission-results';
 import { ExplorationEvent } from '../exploration';
 import { TurnTransition } from './TurnTransition';
+import { TurnSummary } from './TurnSummary';
+import { collectTurnSummary, type TurnSummaryData } from './turnSummaryData';
 import { useI18n } from '../../i18n';
 import './space-game.css';
 
@@ -40,6 +42,10 @@ export function SoloSpaceGame({ setup, onFinish }: SoloSpaceGameProps) {
     /** Reloj del turno que viene: lo anuncia la transición al volver. */
     readonly nextClock: string;
   } | null>(null);
+  /** «Qué pasó»: el resumen del turno que acaba de cerrar. */
+  const [summary, setSummary] = useState<TurnSummaryData | null>(null);
+  /** Pantalla que toca después del resumen (salto de día o informe final). */
+  const [pendingTransition, setPendingTransition] = useState<string | null>(null);
 
   if (!setupCanBeCompleted) {
     return <main className="space-entry-error pixel-panel">
@@ -67,23 +73,47 @@ export function SoloSpaceGame({ setup, onFinish }: SoloSpaceGameProps) {
     const clockLabel = next.destination === 'MOON'
       ? t('missionControl.lunarDay', { day: next.clockLabel.match(/\d+/)?.[0] ?? next.turn })
       : next.clockLabel;
+    // Primero el resumen del turno; lo que venga después se decide al continuar.
+    setSummary(collectTurnSummary(mission, t));
     if (shouldOfferExploration(completedTurn, next)) {
-      const doneClock = mission.destination === 'MOON'
-        ? t('missionControl.lunarDay', { day: mission.clockLabel.match(/\d+/)?.[0] ?? completedTurn })
-        : mission.clockLabel;
-      setExploration({ turn: completedTurn, clock: doneClock, nextClock: clockLabel });
+      setExploration({ turn: completedTurn, clock: summaryClock(mission), nextClock: clockLabel });
       return;
     }
-    setTransition(next.outcome === 'IN_PROGRESS' ? clockLabel : t('spaceGame.finalReport'));
+    setPendingTransition(next.outcome === 'IN_PROGRESS' ? clockLabel : t('spaceGame.finalReport'));
+  }
+
+  function summaryClock(state: MissionState) {
+    return state.destination === 'MOON'
+      ? t('missionControl.lunarDay', { day: state.clockLabel.match(/\d+/)?.[0] ?? state.turn })
+      : state.clockLabel;
   }
 
   function retry() {
     if (!mission) return;
     setMission(createMission(mission.setup));
     setTransition(null);
+    setSummary(null);
+    setPendingTransition(null);
   }
 
   if (!mission) return <BaseBuilderView destination={setup.destination} onStart={startGuard} />;
+
+  if (summary) {
+    const guardOver = mission.outcome !== 'IN_PROGRESS';
+    return <TurnSummary
+      state={mission}
+      completedTurn={summary.completedTurn}
+      clock={summary.clock}
+      delta={mission.lastTurnDelta}
+      actionLabel={summary.actionLabel}
+      ignoredAlerts={summary.ignoredAlerts}
+      continueLabel={t(guardOver ? 'turnSummary.report' : 'turnSummary.next')}
+      onContinue={() => {
+        setSummary(null);
+        if (pendingTransition) { setTransition(pendingTransition); setPendingTransition(null); }
+      }}
+    />;
+  }
   if (exploration) {
     return <ExplorationEvent
       state={mission}

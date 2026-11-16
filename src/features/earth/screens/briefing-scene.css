@@ -1,0 +1,75 @@
+/* Briefing narrativo: mismo lenguaje que la selección de astronauta (sala, HUD y paneles pixel art). */
+.brief { user-select: none; }
+.brief .asel-char { cursor: default; pointer-events: none; }
+.brief .asel-char__sprite { filter: brightness(.95) saturate(.95); }
+.brief .asel-char--selected .asel-char__sprite { transform: translateX(-50%) scale(1.08); }
+.brief-actor--chispa { height: 30%; width: 12%; bottom: 19%; }
+
+/* ---------- Panel de diálogo ---------- */
+.brief-dialog {
+  position: absolute;
+  z-index: 4;
+  left: var(--emap-gap);
+  right: var(--emap-gap);
+  bottom: var(--emap-gap);
+  max-width: 60rem;
+  margin-inline: auto;
+  display: grid;
+  gap: .6rem;
+  padding: .9rem 1.1rem 1rem;
+  border: 2px solid var(--emap-edge);
+  background: var(--emap-panel);
+  box-shadow: 4px 4px 0 rgba(2, 8, 19, .6);
+  font-family: 'Nunito', system-ui, sans-serif;
+}
+.brief-dialog::before,
+.brief-dialog::after { content: ''; position: absolute; width: 10px; height: 10px; background: var(--accent, var(--emap-accent)); pointer-events: none; }
+.brief-dialog::before { top: -2px; left: -2px; }
+.brief-dialog::after { right: -2px; bottom: -2px; }
+
+.brief-dialog__speaker { display: flex; align-items: center; gap: .7rem; }
+.brief-dialog__thumb {
+  display: grid;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid var(--accent, var(--emap-accent));
+  background: rgba(2, 8, 19, .7);
+}
+.brief-dialog__thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; image-rendering: pixelated; }
+.brief-dialog__name { display: block; color: var(--accent, var(--emap-accent)); font: 700 1.25rem / 1.1 'Fredoka', sans-serif; }
+.brief-dialog__role { display: block; color: #9fd8e5; font: 800 .72rem 'Nunito', sans-serif; letter-spacing: .05em; text-transform: uppercase; }
+.brief-dialog__text { margin: 0; min-height: 3.2rem; color: #f0f6ff; font-size: 1.1rem; line-height: 1.5; }
+.brief-dialog__controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; padding-top: .6rem; border-top: 2px solid #23415c; }
+.brief-dialog__buttons { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.brief-dialog .pixel-btn { border-radius: .3rem; padding: .6rem 1.1rem; font-size: .95rem; }
+
+/* ---------- Indicador de pasos (cuadrados, como el resto de la interfaz pixel art) ---------- */
+.brief-dots { display: flex; align-items: center; gap: .4rem; }
+.brief-dot {
+  width: .85rem;
+  height: .85rem;
+  min-height: 0;
+  padding: 0;
+  border: 2px solid #4f7f9a;
+  border-radius: 0;
+  background: rgba(2, 8, 19, .6);
+  cursor: pointer;
+}
+.brief-dot:hover { background: rgba(36, 90, 130, .8); }
+.brief-dot--active { border-color: #fff3cf; background: var(--accent, var(--emap-accent)); }
+.brief-dot:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.brief-dots__label { margin-left: .4rem; color: #8daecf; font: 700 .85rem 'Fredoka', sans-serif; }
+
+@media (max-width: 640px) {
+  .brief-dialog { padding: .7rem .8rem .8rem; }
+  .brief-dialog__text { font-size: 1rem; min-height: 4.5rem; }
+  .brief-dialog__controls { flex-direction: column; align-items: stretch; }
+  .brief-dialog__buttons { justify-content: flex-end; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .brief-dialog__text { animation: asel-holo-in .32s steps(4, end) both; }
+  .brief-actor--idle .asel-char__sprite { animation: asel-idle 1.8s steps(2, end) infinite; }
+}

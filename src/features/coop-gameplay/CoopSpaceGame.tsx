@@ -23,6 +23,8 @@ import {
 } from './coop.types';
 import type { LocalCoopConfig, PendingGroupDecision } from './coop.types';
 import { TurnTransition } from '../space/TurnTransition';
+import { TurnSummary } from '../space/TurnSummary';
+import { collectTurnSummary, type TurnSummaryData } from '../space/turnSummaryData';
 import '../space/space-game.css';
 import './coop.css';
 
@@ -56,6 +58,8 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
     /** Reloj del turno que viene: lo anuncia la transición al volver. */
     readonly nextClock: string;
   } | null>(null);
+  const [summary, setSummary] = useState<TurnSummaryData | null>(null);
+  const [pendingTransition, setPendingTransition] = useState<string | null>(null);
 
   const setupErrors = [
     ...(setup.mode === 'LOCAL_COOP' ? [] : ['GameSetup debe usar mode: LOCAL_COOP.']),
@@ -104,18 +108,13 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
     const clockLabel = next.destination === 'MOON'
       ? t('missionControl.lunarDay', { day: next.clockLabel.match(/\d+/)?.[0] ?? next.turn })
       : next.clockLabel;
+    const data = collectTurnSummary(mission, t);
+    setSummary(data);
     if (shouldOfferExploration(completedTurn, next)) {
-      const doneClock = mission.destination === 'MOON'
-        ? t('missionControl.lunarDay', { day: mission.clockLabel.match(/\d+/)?.[0] ?? completedTurn })
-        : mission.clockLabel;
-      setExploration({ turn: completedTurn, clock: doneClock, nextClock: clockLabel });
+      setExploration({ turn: completedTurn, clock: data.clock, nextClock: clockLabel });
       return;
     }
-    setTransition(
-      next.outcome === 'IN_PROGRESS'
-        ? clockLabel
-        : t('coop.transitionReport'),
-    );
+    setPendingTransition(next.outcome === 'IN_PROGRESS' ? clockLabel : t('coop.transitionReport'));
   }
 
   function retryAsTeam() {
@@ -124,10 +123,28 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
     setActiveGroup(cloneGroup(group));
     setPendingDecision(null);
     setTransition(null);
+    setSummary(null);
+    setPendingTransition(null);
   }
 
   if (!mission) {
     return <BaseBuilderView destination={setup.destination} onStart={startGuard} />;
+  }
+
+  if (summary) {
+    return <TurnSummary
+      state={mission}
+      completedTurn={summary.completedTurn}
+      clock={summary.clock}
+      delta={mission.lastTurnDelta}
+      actionLabel={summary.actionLabel}
+      ignoredAlerts={summary.ignoredAlerts}
+      continueLabel={t(mission.outcome === 'IN_PROGRESS' ? 'turnSummary.next' : 'turnSummary.report')}
+      onContinue={() => {
+        setSummary(null);
+        if (pendingTransition) { setTransition(pendingTransition); setPendingTransition(null); }
+      }}
+    />;
   }
 
   if (exploration) {

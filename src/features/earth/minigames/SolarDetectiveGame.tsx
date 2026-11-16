@@ -6,12 +6,13 @@ import { useI18n } from '../../../i18n';
 import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
 import { allocate, assignedUnits, captureEnergy, DEMAND, EMPTY_ALLOCATION, evaluate, nightEnergy, nightSystemEnergy, remainingNightEnergy, type Allocation, type SystemId } from './solarEnergy';
 import { MinigameShell } from './ui/MinigameShell';
+import { useScreenRadio } from '../../radio';
 import './solar-detective.css';
 
 interface Props { readonly onComplete: (outcome: TrainingOutcome) => void; readonly onBack: () => void }
 type Phase = 'capture' | 'distribute' | 'night' | 'result';
 const ASSET_ROOT = '/assets/minigames/solar/';
-const OBSERVATORY = '/assets/pixel-art/andean-solar-observatory.png';
+const OBSERVATORY = '/assets/pixel-art/andean-solar-observatory.webp';
 const PANEL_ANGLES = [5, 16, 35, 50] as const;
 const SYSTEMS: SystemId[] = ['communications', 'shelter', 'laboratory'];
 const MAX_CELLS = 13;
@@ -19,10 +20,10 @@ const SAFE = { x0: 40, x1: 960, y0: 20, y1: 456 };
 const pos = (x: number, y: number) => ({ left: `${x / 10}%`, top: `${y / 5.63}%` });
 
 function panelSprite(angle: number) {
-  if (angle < 8) return 'panel-flat.png';
-  if (angle < 25) return 'panel-tilted.png';
-  if (angle < 43) return 'panel-raised.png';
-  return 'panel-steep.png';
+  if (angle < 8) return 'panel-flat.webp';
+  if (angle < 25) return 'panel-tilted.webp';
+  if (angle < 43) return 'panel-raised.webp';
+  return 'panel-steep.webp';
 }
 
 function useMediaQuery(query: string): boolean {
@@ -41,6 +42,11 @@ function useMediaQuery(query: string): boolean {
 export function SolarDetectiveGame({ onComplete, onBack }: Props) {
   const { t } = useI18n();
   const tr = (key: string, params?: Record<string, string | number>) => t(`minigames.solarDetective.${key}`, params);
+  // La tarea y un consejo llegan por radio, como en el resto de entrenamientos.
+  useScreenRadio([
+    { speaker: 'CHISPA', text: t('training.solarDetective.task') },
+    { speaker: 'AURORA', text: t('training.solarDetective.tip') },
+  ]);
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [tiltAngle, setTiltAngle] = useState(5);
   const [phase, setPhase] = useState<Phase>('capture');
@@ -111,7 +117,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
     onComplete(createTrainingOutcome('SOLAR_DETECTIVE', tr('outcomeDecision', { reserve: result.reservePercent }), 'energy', cost, tr('outcomeConsequence')));
   }
 
-  const batterySprite = batteryUnits === 0 ? 'battery-empty.png' : phase === 'night' ? 'battery-charging.png' : 'battery-charged.png';
+  const batterySprite = batteryUnits === 0 ? 'battery-empty.webp' : phase === 'night' ? 'battery-charging.webp' : 'battery-charged.webp';
   const instruction = phase === 'capture' ? tr('captureInstruction') : phase === 'distribute' ? tr('distributeInstruction') : phase === 'night' ? tr('nightInstruction') : result.passed ? tr('missionSuccess') : tr('missionFailure');
   const systemPowered = (system: SystemId) => {
     if (phase === 'capture') return false;
@@ -166,7 +172,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
       {/* Interruptor */}
       <div className="sd-device sd-device--switch" style={pos(500, 372)}>
         <button type="button" className="sd-sprite" data-sd="switch" onClick={toggleCircuit} disabled={isNight || phase === 'result'} aria-pressed={circuitClosed} aria-label={circuitClosed ? tr('openCircuit') : tr('closeCircuit')}>
-          <img src={`${ASSET_ROOT}${switchMoving ? 'switch-transition.png' : circuitClosed ? 'switch-closed.png' : 'switch-open.png'}`} alt="" draggable={false} />
+          <img src={`${ASSET_ROOT}${switchMoving ? 'switch-transition.webp' : circuitClosed ? 'switch-closed.webp' : 'switch-open.webp'}`} alt="" draggable={false} />
         </button>
       </div>
       <span className={`mg-tag sd-tag${circuitClosed ? ' mg-tag--on' : ''}`} style={pos(500, 398)}><span>{tr('switch')}</span><small>{circuitClosed ? tr('closed') : tr('open')}</small></span>

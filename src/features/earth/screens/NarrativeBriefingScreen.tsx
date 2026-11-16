@@ -1,7 +1,12 @@
-import { useState } from 'react';
-import { ArrowLeft, ArrowRight, RocketLaunch, FastForward, CaretLeft, CaretRight } from '@phosphor-icons/react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { ArrowLeft, ArrowRight, CaretLeft, CaretRight, FastForward } from '@phosphor-icons/react';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { useScreenRadio } from '../../radio';
+import { computeSceneLayout, MAP_HEIGHT, MAP_WIDTH, type SafeZone } from '../../../visual-kit/earthMapLayout';
 import './earth.css';
+import './earth-map.css';
+import './avatar-select.css';
+import './briefing-scene.css';
 
 interface NarrativeBriefingScreenProps {
   readonly cityName: string;
@@ -12,13 +17,47 @@ interface NarrativeBriefingScreenProps {
   readonly onBack: () => void;
 }
 
+/** Misma sala de la academia que la selección de astronauta: el cambio de pantalla no cambia de mundo. */
+const BACKGROUND = '/assets/pixel-art/academy-briefing-room.webp';
+
 const AVATAR_SPRITES: Record<string, string> = {
-  ALBA: '/assets/pixel-art/cadet-alba.png',
-  LEO: '/assets/pixel-art/commander-leo.png',
-  AURORA: '/assets/pixel-art/officer-aurora.png',
-  NICO: '/assets/pixel-art/engineer-nico.png',
+  ALBA: '/assets/pixel-art/cadet-alba.webp',
+  LEO: '/assets/pixel-art/commander-leo.webp',
+  AURORA: '/assets/pixel-art/officer-aurora.webp',
+  NICO: '/assets/pixel-art/engineer-nico.webp',
+};
+const CHISPA_SPRITE = '/assets/characters/chispa.webp';
+
+type SpeakerId = 'ALBA' | 'AURORA' | 'CHISPA';
+
+/** Acento de cada voz: el mismo que usa la selección de astronauta para ese personaje. */
+const SPEAKER_ACCENT: Record<SpeakerId, string> = { ALBA: '#4ec3d9', AURORA: '#bd92d0', CHISPA: '#f6c15b' };
+const SPEAKER_THUMB: Record<SpeakerId, string> = {
+  ALBA: AVATAR_SPRITES.ALBA,
+  AURORA: AVATAR_SPRITES.AURORA,
+  CHISPA: CHISPA_SPRITE,
 };
 
+const TOTAL_STEPS = 4;
+/** La ficha del escenario se encuadra por encima del panel de diálogo, nunca debajo. */
+const DIALOG_RESERVE = 250;
+const DIALOG_RESERVE_PHONE = 290;
+const BRIEFING_SAFE_ZONE: SafeZone = { x0: 190, x1: 810, y0: 100, y1: 540 };
+
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => (typeof window !== 'undefined' && window.matchMedia ? window.matchMedia(query).matches : false));
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, [query]);
+  return matches;
+}
+
+/** Paso 5: el centro de enlace presenta la misión con cuatro diálogos cortos sobre la sala de la academia. */
 export function NarrativeBriefingScreen({
   cityName,
   destination,
@@ -28,200 +67,179 @@ export function NarrativeBriefingScreen({
   onBack,
 }: NarrativeBriefingScreenProps) {
   const { t } = useI18n();
-  const [step, setStep] = useState<number>(1);
-  const totalSteps = 4;
+  // Los diálogos de esta pantalla ya narran; solo se descarta el mensaje de radio de la pantalla anterior.
+  useScreenRadio([]);
+  const [step, setStep] = useState(1);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  const phone = useMediaQuery('(max-width: 640px)');
+  const reserve = phone ? DIALOG_RESERVE_PHONE : DIALOG_RESERVE;
+
+  useLayoutEffect(() => {
+    const element = containerRef.current;
+    if (!element) return undefined;
+    const measure = () => {
+      const rect = element.getBoundingClientRect();
+      setSize((previous) => (previous.width === rect.width && previous.height === rect.height ? previous : { width: rect.width, height: rect.height }));
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', measure);
+      return () => window.removeEventListener('resize', measure);
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const layout = useMemo(
+    () => computeSceneLayout(size.width, Math.max(1, size.height - reserve), BRIEFING_SAFE_ZONE),
+    [size.width, size.height, reserve],
+  );
+  const measured = size.width > 0 && size.height > 0;
+  const bottomGap = measured ? size.height - (layout.y + layout.height) : 0;
 
   const destLabel = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
-  const playerSprite = AVATAR_SPRITES[avatarId] || AVATAR_SPRITES.ALBA;
+  const playerSprite = AVATAR_SPRITES[avatarId] ?? AVATAR_SPRITES.ALBA;
 
-  // Diálogos educativos interactivos
-  const dialogueSteps = [
+  const dialogueSteps: ReadonlyArray<{ speaker: SpeakerId; name: string; role: string; text: string }> = [
     {
-      step: 1,
-      speaker: t('briefing.dialogue.step1Speaker'),
+      speaker: 'ALBA',
+      name: t('briefing.dialogue.step1Speaker'),
       role: t('briefing.title', { city: cityName }),
-      thumb: playerSprite,
       text: t('briefing.dialogue.step1Text', { name: astronautName, city: cityName, destination: destLabel }),
-      accentColor: '#f6c15b',
     },
     {
-      step: 2,
-      speaker: t('briefing.dialogue.step2Speaker'),
-      role: 'Estación de Telemetría',
-      thumb: '/assets/pixel-art/officer-aurora.png',
+      speaker: 'AURORA',
+      name: t('briefing.dialogue.step2Speaker'),
+      role: t('briefing.dialogue.step2Role'),
       text: t('briefing.dialogue.step2Text', { city: cityName }),
-      accentColor: '#4ec3d9',
     },
     {
-      step: 3,
-      speaker: t('briefing.dialogue.step3Speaker'),
-      role: 'Planificación de Misión',
-      thumb: '/assets/pixel-art/cadet-alba.png',
+      speaker: 'ALBA',
+      name: t('briefing.dialogue.step3Speaker'),
+      role: t('briefing.dialogue.step3Role'),
       text: t('briefing.dialogue.step3Text'),
-      accentColor: '#f6c15b',
     },
     {
-      step: 4,
-      speaker: t('briefing.dialogue.step4Speaker'),
-      role: 'Asistente Táctico',
-      thumb: '/assets/characters/chispa.png',
+      speaker: 'CHISPA',
+      name: t('briefing.dialogue.step4Speaker'),
+      role: t('briefing.dialogue.step4Role'),
       text: t('briefing.dialogue.step4Text'),
-      accentColor: '#ffd54f',
     },
   ];
+  const current = dialogueSteps[step - 1];
+  const accent = SPEAKER_ACCENT[current.speaker];
+  const last = step === TOTAL_STEPS;
 
-  const currentDialogue = dialogueSteps[step - 1];
-
-  function handleNext() {
-    if (step < totalSteps) {
-      setStep((prev) => prev + 1);
-    } else {
-      onProceedToMap();
-    }
+  function next() {
+    if (last) onProceedToMap();
+    else setStep((value) => value + 1);
+  }
+  function previous() {
+    setStep((value) => Math.max(1, value - 1));
   }
 
-  function handlePrev() {
-    if (step > 1) {
-      setStep((prev) => prev - 1);
-    }
-  }
+  // Flechas del teclado: mismo ritmo que los botones.
+  const handlers = useRef({ next, previous });
+  handlers.current = { next, previous };
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+      if (event.key === 'ArrowRight') handlers.current.next();
+      else if (event.key === 'ArrowLeft') handlers.current.previous();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  const stageStyle: CSSProperties = measured
+    ? { left: layout.x, top: layout.y, width: layout.width, height: layout.height, ['--u' as string]: `${layout.scale}px`, ['--accent' as string]: accent }
+    : { left: 0, top: 0, width: '100%', height: '100%', ['--u' as string]: '1px', ['--accent' as string]: accent };
 
   return (
-    <div className="earth-screen" style={{ padding: '0.8rem 1.2rem' }}>
-      <header className="earth-screen__header">
-        <button type="button" className="earth-screen__back-btn" onClick={onBack}>
-          <ArrowLeft weight="bold" />
+    <div
+      ref={containerRef}
+      className="emap asel brief"
+      style={{ ['--accent' as string]: accent }}
+      data-letterbox-y={bottomGap > 2 || layout.letterboxY || undefined}
+      data-gap-top={(measured && layout.y > 2) || undefined}
+    >
+      <div className="asel__ambient" style={{ backgroundImage: `url(${BACKGROUND})` }} aria-hidden="true" />
+
+      <div className="asel__stage briefing-stage" style={stageStyle}>
+        <img className="asel__background" src={BACKGROUND} alt="" draggable={false} width={MAP_WIDTH} height={MAP_HEIGHT} />
+        <div className="asel-cast">
+          <div className={`asel-char brief-actor${current.speaker !== 'CHISPA' ? ' brief-actor--idle' : ''}`} style={{ left: '30%', ['--accent' as string]: SPEAKER_ACCENT.ALBA }}>
+            <span className="asel-char__ring" aria-hidden="true" />
+            <img className="asel-char__sprite" src={playerSprite} alt="" draggable={false} />
+            <span className="asel-char__tag">{astronautName}</span>
+          </div>
+          <div className={`asel-char brief-actor brief-actor--chispa${current.speaker === 'CHISPA' ? ' asel-char--selected' : ''}`} style={{ left: '70%', ['--accent' as string]: SPEAKER_ACCENT.CHISPA }}>
+            <span className="asel-char__ring" aria-hidden="true" />
+            <img className="asel-char__sprite" src={CHISPA_SPRITE} alt="" draggable={false} />
+            <span className="asel-char__tag">{t('avatars.chispa.name')}</span>
+          </div>
+        </div>
+      </div>
+
+      <header className="emap-hud">
+        <button type="button" className="emap-hud__back" onClick={onBack}>
+          <ArrowLeft weight="bold" aria-hidden="true" />
           <span>{t('common.back')}</span>
         </button>
-        <div className="earth-screen__progress-pill">
-          <RocketLaunch weight="fill" color="#f6c15b" />
-          <span>{t('briefing.stepIndicator', { city: cityName, destination: destLabel })}</span>
+        <div className="emap-hud__status">
+          <span className="emap-hud__route">{t('briefing.stepIndicator', { city: cityName, destination: destLabel })}</span>
         </div>
-        <LanguageSelector variant="hud" />
+        <div className="emap-hud__tools">
+          <LanguageSelector variant="hud" plain />
+        </div>
       </header>
 
-      <main className="earth-card" style={{ maxWidth: '68rem', padding: 0, overflow: 'hidden' }}>
-        {/* ESCENARIO DEL CENTRO DE COMUNICACIONES PIXEL ART */}
-        <div className="briefing-stage">
-
-          {/* ACTORES EN EL ESCENARIO (ASTRONAUTA A LA IZQUIERDA, CHISPA A LA DERECHA) */}
-          <div className="briefing-actors-stage">
-            {/* Personaje del jugador a la izquierda */}
-            <div className="briefing-actor briefing-actor--player">
-              <img
-                src={playerSprite}
-                alt={astronautName}
-                className="briefing-actor__sprite"
-              />
-              <span className="briefing-actor__name-tag">
-                 {astronautName}
-              </span>
-            </div>
-
-            {/* Asistente Chispa a la derecha */}
-            <div className="briefing-actor briefing-actor--chispa">
-              <img
-                src="/assets/characters/chispa.png"
-                alt="Chispa robot asistente"
-                className="briefing-actor__sprite"
-                style={{ maxHeight: '11rem' }}
-              />
-              <span className="briefing-actor__name-tag" style={{ borderColor: '#e5a93b' }}>
-                 Chispa (IA)
-              </span>
-            </div>
+      <section className="brief-dialog" aria-live="polite" aria-label={current.name}>
+        <div className="brief-dialog__speaker">
+          <span className="brief-dialog__thumb"><img src={SPEAKER_THUMB[current.speaker]} alt="" draggable={false} /></span>
+          <div>
+            <strong className="brief-dialog__name">{current.name}</strong>
+            <span className="brief-dialog__role">{current.role}</span>
           </div>
-
-          {/* CAJA DE DIÁLOGO RPG INFERIOR */}
-          <div className="briefing-dialog-box">
-            <div className="briefing-dialog-box__speaker">
-              <div className="briefing-dialog-box__speaker-thumb" style={{ borderColor: currentDialogue.accentColor }}>
-                <img src={currentDialogue.thumb} alt={currentDialogue.speaker} />
-              </div>
-              <div>
-                <span className="briefing-dialog-box__speaker-name" style={{ color: currentDialogue.accentColor }}>
-                  {currentDialogue.speaker}
-                </span>
-                <span style={{ display: 'block', fontSize: '0.8rem', color: '#90b4d6' }}>
-                  {currentDialogue.role}
-                </span>
-              </div>
-            </div>
-
-            <p className="briefing-dialog-box__text">
-              «{currentDialogue.text}»
-            </p>
-
-            <div className="briefing-dialog-box__controls">
-              {/* Indicador de pasos con puntitos */}
-              <div className="briefing-step-dots" aria-label={`Paso ${step} de ${totalSteps}`}>
-                {dialogueSteps.map((d) => (
-                  <span
-                    key={d.step}
-                    className={`briefing-step-dot ${d.step === step ? 'briefing-step-dot--active' : ''}`}
-                    onClick={() => setStep(d.step)}
-                    style={{ cursor: 'pointer' }}
-                    title={`Paso ${d.step}`}
-                  />
-                ))}
-                <span style={{ fontSize: '0.85rem', color: '#8daecf', marginLeft: '0.4rem', fontFamily: 'Fredoka' }}>
-                  {t('briefing.dialogue.stepIndicator', { current: step, total: totalSteps })}
-                </span>
-              </div>
-
-              {/* Controles de avance */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                {step > 1 && (
-                  <button
-                    type="button"
-                    className="pixel-btn pixel-btn--secondary"
-                    style={{ padding: '0.6rem 1rem', fontSize: '0.95rem' }}
-                    onClick={handlePrev}
-                  >
-                    <CaretLeft weight="bold" />
-                    <span>{t('briefing.dialogue.prevBtn')}</span>
-                  </button>
-                )}
-
-                {step < totalSteps && (
-                  <button
-                    type="button"
-                    className="pixel-btn pixel-btn--secondary"
-                    style={{ padding: '0.6rem 1.1rem', fontSize: '0.95rem', color: '#f6c15b' }}
-                    onClick={() => setStep(totalSteps)}
-                  >
-                    <FastForward weight="bold" />
-                    <span>{t('briefing.dialogue.skipBtn')}</span>
-                  </button>
-                )}
-
-                {step < totalSteps ? (
-                  <button
-                    type="button"
-                    className="pixel-btn pixel-btn--primary"
-                    style={{ padding: '0.65rem 1.4rem', fontSize: '1rem' }}
-                    onClick={handleNext}
-                  >
-                    <span>{t('briefing.dialogue.nextBtn')}</span>
-                    <CaretRight weight="bold" />
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="pixel-btn pixel-btn--primary"
-                    style={{ padding: '0.8rem 1.8rem', fontSize: '1.15rem' }}
-                    onClick={onProceedToMap}
-                  >
-                    <span>{t('briefing.dialogue.readyBtn')}</span>
-                    <ArrowRight weight="bold" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
         </div>
-      </main>
+        <p className="brief-dialog__text" key={step}>«{current.text}»</p>
+        <div className="brief-dialog__controls">
+          <div className="brief-dots" role="group" aria-label={t('briefing.dialogue.stepIndicator', { current: step, total: TOTAL_STEPS })}>
+            {dialogueSteps.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`brief-dot${index + 1 === step ? ' brief-dot--active' : ''}`}
+                aria-label={t('briefing.dialogue.stepIndicator', { current: index + 1, total: TOTAL_STEPS })}
+                aria-current={index + 1 === step ? 'step' : undefined}
+                onClick={() => setStep(index + 1)}
+              />
+            ))}
+            <span className="brief-dots__label">{t('briefing.dialogue.stepIndicator', { current: step, total: TOTAL_STEPS })}</span>
+          </div>
+          <div className="brief-dialog__buttons">
+            {step > 1 && (
+              <button type="button" className="pixel-btn pixel-btn--secondary" onClick={previous}>
+                <CaretLeft weight="bold" aria-hidden="true" />
+                <span>{t('briefing.dialogue.prevBtn')}</span>
+              </button>
+            )}
+            {!last && (
+              <button type="button" className="pixel-btn pixel-btn--secondary" onClick={() => setStep(TOTAL_STEPS)}>
+                <FastForward weight="bold" aria-hidden="true" />
+                <span>{t('briefing.dialogue.skipBtn')}</span>
+              </button>
+            )}
+            <button type="button" className="pixel-btn pixel-btn--primary" onClick={next}>
+              <span>{t(last ? 'briefing.dialogue.readyBtn' : 'briefing.dialogue.nextBtn')}</span>
+              {last ? <ArrowRight weight="bold" aria-hidden="true" /> : <CaretRight weight="bold" aria-hidden="true" />}
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

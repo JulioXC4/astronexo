@@ -1,6 +1,6 @@
 .live-meter { display: grid; gap: .2rem; min-width: 11rem; }
-.live-meter__head { display: flex; justify-content: space-between; gap: .6rem; font-size: .78rem; font-weight: 800; color: #9bc0e4; }
-.live-meter__head strong { color: #fff; font-family: 'Fredoka', sans-serif; font-size: .95rem; }
+.live-meter__head { display: flex; justify-content: space-between; gap: .6rem; font-size: 0.952rem; font-weight: 800; color: #9bc0e4; }
+.live-meter__head strong { color: #fff; font-family: 'Fredoka', sans-serif; font-size: 1.05rem; }
 .live-meter__track { position: relative; height: .95rem; border: 2px solid #dfeef0; background: #0a1522; }
 .live-meter__band { position: absolute; top: 0; bottom: 0; background: rgb(63 174 106 / 38%); border-inline: 2px solid #3fae6a; }
 .live-meter__fill { position: absolute; top: 0; bottom: 0; left: 0; background: #7f9bb8; transition: width 120ms linear; }
@@ -8,5 +8,5 @@
 .live-meter--warn .live-meter__fill { background: #e8b04a; }
 .live-meter--bad .live-meter__fill { background: #d04a3a; }
 .live-meter__limit { position: absolute; top: -.25rem; bottom: -.25rem; width: 3px; background: #ff8a80; }
-.live-meter__limit-label { color: #ff8a80; font-size: .68rem; font-weight: 800; }
+.live-meter__limit-label { color: #ff8a80; font-size: 0.83rem; font-weight: 800; }
 @media (prefers-reduced-motion: reduce) { .live-meter__fill { transition: none; } }

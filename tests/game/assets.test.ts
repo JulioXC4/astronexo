@@ -17,6 +17,17 @@ const projectRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const publicFile = (webPath: string) => join(projectRoot, 'public', webPath.replace(/^\//, ''));
 const bytes = (webPath: string) => readFileSync(publicFile(webPath));
 
+/** Firma del contenedor WebP: "RIFF" .... "WEBP". */
+const isWebp = (data: Buffer) =>
+  data.subarray(0, 4).toString('ascii') === 'RIFF' && data.subarray(8, 12).toString('ascii') === 'WEBP';
+
+/**
+ * Un WebP solo lleva canal alfa si usa el contenedor extendido VP8X con el bit
+ * 0x10 encendido; VP8 simple nunca tiene transparencia.
+ */
+const webpHasAlpha = (data: Buffer) =>
+  data.subarray(12, 16).toString('ascii') === 'VP8X' && (data[20] & 0x10) !== 0;
+
 const catalogPaths = (): string[] => [
   ...Object.values(assetManifest).flatMap((entry) => entry.path ? [entry.path] : []),
   ...Object.values(lunarModuleScenes),
@@ -34,10 +45,10 @@ describe('catálogo de recursos visuales', () => {
 
   it('registra los 15 sprites obligatorios y la muestra marciana sin retirar los anteriores', () => {
     const newFiles = [
-      'circuit-straight.png', 'circuit-corner.png', 'circuit-junction.png', 'solar-battery-bank.png',
-      'solar-cleaner-cartridge.png', 'eclss-water-reservoir.png', 'eclss-power-unit.png', 'eclss-electrolyzer.png',
-      'supply-crate-full.png', 'sample-basalt.png', 'sample-anorthosite.png', 'sample-regolith.png',
-      'instrument-mineral-analyzer.png', 'instrument-magnifier.png', 'instrument-grain-imager.png', 'sample-mars-sedimentary.png',
+      'circuit-straight.webp', 'circuit-corner.webp', 'circuit-junction.webp', 'solar-battery-bank.webp',
+      'solar-cleaner-cartridge.webp', 'eclss-water-reservoir.webp', 'eclss-power-unit.webp', 'eclss-electrolyzer.webp',
+      'supply-crate-full.webp', 'sample-basalt.webp', 'sample-anorthosite.webp', 'sample-regolith.webp',
+      'instrument-mineral-analyzer.webp', 'instrument-magnifier.webp', 'instrument-grain-imager.webp', 'sample-mars-sedimentary.webp',
     ];
     const paths = Object.values(interventionAssets).flatMap((assets) => assets.map((asset) => asset.path));
     for (const file of newFiles) expect(paths).toContain(`/assets/space/objects/${file}`);
@@ -49,7 +60,7 @@ describe('catálogo de recursos visuales', () => {
     expect(Object.values(lunarModuleScenes)).toHaveLength(5);
     expect(Object.values(exteriorModuleScenes)).toHaveLength(3);
     expect(new Set([...Object.values(marsModuleScenes), ...Object.values(exteriorModuleScenes)]).size).toBe(8);
-    expect(lunarModuleScenes.SOLAR_STORAGE).toBe('/assets/pixel-art/lunar-energy-module.png');
+    expect(lunarModuleScenes.SOLAR_STORAGE).toBe('/assets/pixel-art/lunar-energy-module.webp');
   });
 
   it('las cámaras importadas tienen extensión y firma WebP reales', () => {
@@ -57,23 +68,21 @@ describe('catálogo de recursos visuales', () => {
     for (const path of cameras) {
       const data = bytes(path);
       expect(path.endsWith('.webp')).toBe(true);
-      expect(data.subarray(0, 4).toString('ascii')).toBe('RIFF');
-      expect(data.subarray(8, 12).toString('ascii')).toBe('WEBP');
+      expect(isWebp(data), path).toBe(true);
     }
   });
 
-  it('los fondos de control son PNG y los del constructor son JPEG válidos', () => {
-    for (const entry of Object.values(spaceBackgrounds.control)) {
-      const data = bytes(entry.path!);
-      expect([...data.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
+  it('todo el catálogo son WebP válidos: ni un PNG ni un JPEG sueltos', () => {
+    for (const path of new Set(catalogPaths())) {
+      expect(path.endsWith('.webp'), path).toBe(true);
+      expect(isWebp(bytes(path)), path).toBe(true);
     }
-    for (const entry of Object.values(spaceBackgrounds.builder)) {
-      const data = bytes(entry.path!);
-      expect([...data.subarray(0, 2)]).toEqual([255, 216]);
+    for (const entry of [...Object.values(spaceBackgrounds.control), ...Object.values(spaceBackgrounds.builder)]) {
+      expect(isWebp(bytes(entry.path!)), entry.path!).toBe(true);
     }
   });
 
-  it('conserva transparencia en personajes, objetos e iconos PNG', () => {
+  it('conserva transparencia en personajes, objetos e iconos', () => {
     const pngs = [
       ...(['character.alba', 'character.chispa', 'character.aurora', 'character.nico'] as const).map((id) => assetManifest[id].path!),
       ...Object.values(hudAssets).map((entry) => entry.path!),
@@ -81,8 +90,7 @@ describe('catálogo de recursos visuales', () => {
       ...playerSkinCatalog.map((skin) => skin.path),
     ];
     for (const path of new Set(pngs)) {
-      const data = bytes(path);
-      expect(data[25], path).toBe(6);
+      expect(webpHasAlpha(bytes(path)), path).toBe(true);
     }
   });
 
@@ -95,9 +103,9 @@ describe('catálogo de recursos visuales', () => {
   });
 
   it('mantiene disponibles las rutas semánticas del HUD y cámaras exteriores', () => {
-    expect(hudAssets.energy.path).toBe('/assets/space/ui/energy-icon.png');
-    expect(hudAssets.oxygen.path).toBe('/assets/space/ui/oxygen-icon.png');
-    expect(hudAssets.shield.path).toBe('/assets/space/ui/shield-icon.png');
+    expect(hudAssets.energy.path).toBe('/assets/space/ui/energy-icon.webp');
+    expect(hudAssets.oxygen.path).toBe('/assets/space/ui/oxygen-icon.webp');
+    expect(hudAssets.shield.path).toBe('/assets/space/ui/shield-icon.webp');
     expect(exteriorCameraScenes.marsDustStorm.path).toBe(exteriorModuleScenes.MARS_DUST_STORM);
   });
 });

@@ -1,7 +1,8 @@
+import { ArrowDown, CheckCircle, WarningCircle } from '@phosphor-icons/react';
 import type { MissionAlert } from '../../game';
 import { projectAlertConsequence } from '../../game';
 import { useI18n } from '../../i18n';
-import { formatChange, readableChanges } from './resourceLabels';
+import { readableChanges } from './resourceLabels';
 
 interface AlertCardProps {
   readonly alert: MissionAlert;
@@ -14,6 +15,7 @@ export function AlertCard({ alert, selected = false, onSelect }: AlertCardProps)
   const alertKey = `alerts.${alert.kind}`;
   // Lo que cuesta ignorarla, con número. Antes solo había una frase cualitativa.
   const ifIgnored = readableChanges(projectAlertConsequence(alert));
+  const worst = ifIgnored[0];
 
   return <button
     type="button"
@@ -25,21 +27,28 @@ export function AlertCard({ alert, selected = false, onSelect }: AlertCardProps)
       <span className="alert-card__beacon" aria-hidden="true">!</span>
       <div>
         <h3>{t(`${alertKey}.title`)}</h3>
-        <span>{t('alerts.level', { level: alert.severity })}</span>
+        {/* Aunque la tarjeta esté cerrada, el peligro se ve de un vistazo. */}
+        {worst && <span className="alert-card__peek">
+          <ArrowDown weight="bold" aria-hidden="true" />
+          {Math.abs(worst.value)} {t(worst.labelKey)}
+        </span>}
       </div>
     </header>
+
     {selected && <div className="alert-card__details">
       <p>{t(`${alertKey}.description`)}</p>
+
       {/* Las dos caras de la decisión, con el mismo peso visual. */}
       <div className="alert-card__outcome alert-card__outcome--good">
-        <strong>{t('alerts.ifHandled')}</strong>
+        <strong><CheckCircle weight="fill" aria-hidden="true" />{t('alerts.ifHandled')}</strong>
         <span>{t(`${alertKey}.consequence`)}</span>
       </div>
+
       {ifIgnored.length > 0 && <div className="alert-card__outcome alert-card__outcome--bad">
-        <strong>{t('alerts.ifIgnored')}</strong>
+        <strong><WarningCircle weight="fill" aria-hidden="true" />{t('alerts.ifIgnored')}</strong>
         <ul>{ifIgnored.map((change) => <li key={change.key}>
           <span>{t(change.labelKey)}</span>
-          <strong>{formatChange(change.value)}</strong>
+          <b><ArrowDown weight="bold" aria-hidden="true" />{Math.abs(change.value)}</b>
         </li>)}</ul>
       </div>}
     </div>}

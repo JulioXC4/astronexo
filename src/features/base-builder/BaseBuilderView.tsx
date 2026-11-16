@@ -104,7 +104,7 @@ export function BaseBuilderView({ destination, onStart, confirmLabel, initialMod
               : t('baseBuilder.slotEmpty', { slot: index + 1 })}
           >
             {module
-              ? <img src={moduleScenes[destination][module.id]} alt="" />
+              ? <img src={moduleScenes[destination][module.id]} alt="" decoding="async" loading="lazy" />
               : <span>{index + 1}</span>}
             <strong>{module ? t(`baseBuilder.modules.${module.id}.name`) : t('baseBuilder.slotLabel', { slot: index + 1 })}</strong>
           </button>
@@ -119,7 +119,7 @@ export function BaseBuilderView({ destination, onStart, confirmLabel, initialMod
 
     <section className="builder-console" aria-labelledby="catalog-title">
       <div className="builder-console__detail">
-        <img src={moduleScenes[destination][focused.id]} alt="" />
+        <img src={moduleScenes[destination][focused.id]} alt="" decoding="async" loading="lazy" />
         <div>
           <h2 id="catalog-title">{t(`baseBuilder.modules.${focused.id}.name`)}</h2>
           <p>{t(`baseBuilder.modules.${focused.id}.benefit`)}</p>
@@ -141,7 +141,7 @@ export function BaseBuilderView({ destination, onStart, confirmLabel, initialMod
             onDragStart={(event) => event.dataTransfer.setData('text/module-id', module.id)}
             onClick={() => chooseModule(module.id)}
           >
-            <img src={moduleScenes[destination][module.id]} alt="" />
+            <img src={moduleScenes[destination][module.id]} alt="" decoding="async" loading="lazy" />
             <span>{t(`baseBuilder.modules.${module.id}.name`)}</span>
             <small>{t(installed ? 'baseBuilder.installed' : armed ? 'baseBuilder.armed' : 'baseBuilder.place')}</small>
           </button>;

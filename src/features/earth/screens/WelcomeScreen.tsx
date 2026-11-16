@@ -26,7 +26,6 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
   const lastTrigger = useRef<HTMLButtonElement | null>(null);
-  const cityScenesReady = useRef<Promise<void>>(Promise.resolve());
 
   const sources = [
     { name: 'NASA POWER', description: t('welcome.sources.power'), url: 'https://power.larc.nasa.gov/' },
@@ -57,6 +56,12 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [panel]);
 
+  /**
+   * Las escenas de las ciudades pesan ~1,5 MB y la pantalla de ciudad llega tres
+   * pantallas después. Precargarlas junto con la portada hacía que la primera
+   * carga del juego fuera mucho más lenta de lo necesario, así que se esperan
+   * unos segundos de inactividad y recién ahí se piden, de fondo.
+   */
   useEffect(() => {
     const sources = [
       arequipaScene.poster,
@@ -64,15 +69,23 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
       tromsoScene.poster,
       tromsoScene.frames[0].src,
     ];
-    cityScenesReady.current = Promise.all(sources.map((src) => new Promise<void>((resolve) => {
-      const image = new Image();
-      image.decoding = 'async';
-      image.onload = () => {
-        void image.decode().catch(() => undefined).finally(resolve);
-      };
-      image.onerror = () => resolve();
-      image.src = src;
-    }))).then(() => undefined);
+    const preload = () => {
+      for (const src of sources) {
+        const image = new Image();
+        image.decoding = 'async';
+        image.src = src;
+      }
+    };
+    const idle = (window as unknown as {
+      requestIdleCallback?: (cb: () => void, options?: { timeout: number }) => number;
+    }).requestIdleCallback;
+    if (idle) {
+      const handle = idle(preload, { timeout: 4000 });
+      return () => (window as unknown as { cancelIdleCallback?: (id: number) => void })
+        .cancelIdleCallback?.(handle);
+    }
+    const timer = window.setTimeout(preload, 2500);
+    return () => window.clearTimeout(timer);
   }, []);
 
   function openPanel(value: Exclude<WelcomePanel, null>, trigger: HTMLButtonElement) {
@@ -95,8 +108,13 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
     actionLabel: t('tutorial.letsGo'),
   }], [t]);
 
-  async function showCitySelection() {
-    await cityScenesReady.current;
+  /**
+   * Entra de inmediato. Antes se esperaba a que se descargaran las escenas de
+   * las ciudades (~1,5 MB) y el juego se quedaba congelado unos 3 segundos tras
+   * pulsar «Jugar ahora». La precarga sigue corriendo de fondo y la pantalla de
+   * ciudad llega tres pantallas después, con las imágenes ya listas.
+   */
+  function showCitySelection() {
     onPlay();
   }
 
