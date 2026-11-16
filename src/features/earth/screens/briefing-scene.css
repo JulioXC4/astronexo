@@ -73,3 +73,110 @@
   .brief-dialog__text { animation: asel-holo-in .32s steps(4, end) both; }
   .brief-actor--idle .asel-char__sprite { animation: asel-idle 1.8s steps(2, end) infinite; }
 }
+
+/* ======================================================================
+   Novela visual (briefing y preparación de la estación): el escenario
+   ocupa TODA la pantalla y el cuadro de texto flota encima, abajo.
+   ====================================================================== */
+.vn { --vn-box-h: clamp(11rem, 30vh, 15rem); }
+/* Penumbra en la parte baja para que el texto se lea sobre cualquier escenario. */
+.vn::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: calc(var(--vn-box-h) + 5rem);
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(2, 8, 19, 0), rgba(2, 8, 19, .78) 55%, rgba(2, 8, 19, .9));
+}
+.vn .asel__ambient { display: none; }
+
+/* Personajes grandes, de cuerpo entero hasta el cuadro: quien habla da un paso al frente. */
+.vn .brief-actor { bottom: 6%; width: 26%; height: 70%; transition: filter .2s ease; }
+.vn .brief-actor--chispa { bottom: 10%; width: 18%; height: 46%; }
+.vn .brief-actor .asel-char__tag { display: none; }
+.vn .brief-actor--speaking { z-index: 2; }
+.vn .brief-actor--speaking .asel-char__sprite { filter: brightness(1.04) saturate(1.02); transform: translateX(-50%) scale(1.04); }
+.vn .brief-actor--listening .asel-char__sprite { filter: brightness(.55) saturate(.7); transform: translateX(-50%) scale(.97); }
+@media (prefers-reduced-motion: no-preference) {
+  .vn .brief-actor .asel-char__sprite { transition: filter .25s ease, transform .25s steps(3, end); }
+  .vn .brief-actor--speaking .asel-char__sprite { animation: vn-breathe 2.4s ease-in-out infinite; }
+}
+@keyframes vn-breathe {
+  0%, 100% { transform: translateX(-50%) scale(1.04); }
+  50% { transform: translateX(-50%) scale(1.04) translateY(-.35%); }
+}
+
+/* Cuadro de diálogo: ancho, abajo, con la placa del nombre sobre su borde. */
+.vn .brief-dialog {
+  z-index: 5;
+  left: clamp(.5rem, 3vw, 2.5rem);
+  right: clamp(.5rem, 3vw, 2.5rem);
+  bottom: clamp(.5rem, 2.4vh, 1.4rem);
+  max-width: 64rem;
+  min-height: var(--vn-box-h);
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  column-gap: 1rem;
+  padding: 1.5rem 1.3rem 1rem;
+  border: 3px solid var(--accent, var(--emap-accent));
+  background: rgba(6, 16, 31, .93);
+  box-shadow: 0 0 0 3px rgba(2, 8, 19, .7), 0 1rem 2.4rem rgba(0, 0, 0, .5);
+}
+.vn .brief-dialog__speaker { display: contents; }
+.vn .brief-dialog__thumb { grid-row: 1 / 3; grid-column: 1; align-self: start; width: 5.2rem; height: 5.2rem; }
+.vn .brief-dialog__speaker > div {
+  position: absolute;
+  top: 0;
+  left: 1.1rem;
+  transform: translateY(-62%);
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+  padding: .3rem .9rem .35rem;
+  border: 3px solid var(--accent, var(--emap-accent));
+  background: #071426;
+}
+.vn .brief-dialog__name { font-size: 1.35rem; }
+.vn .brief-dialog__role { font-size: .85rem; }
+.vn .brief-dialog__text { grid-column: 2; grid-row: 1 / 3; align-self: center; font-size: clamp(1.15rem, 1.6vw, 1.35rem); line-height: 1.5; min-height: 0; }
+.vn .brief-dialog__controls { grid-column: 1 / -1; }
+.vn .brief-dialog .pixel-btn { font-size: 1.02rem; padding: .7rem 1.2rem; }
+
+@media (max-width: 640px) {
+  .vn { --vn-box-h: 13rem; }
+  .vn .brief-actor { width: 40%; height: 52%; bottom: 30%; }
+  .vn .brief-actor--chispa { width: 26%; height: 34%; bottom: 32%; }
+  .vn .brief-dialog { grid-template-columns: 1fr; padding-top: 1.6rem; }
+  .vn .brief-dialog__thumb { display: none; }
+  .vn .brief-dialog__text { grid-column: 1; }
+}
+
+/* ---------- Preparación de la estación (novela visual sobre la base en obra) ---------- */
+.station-vn { position: relative; height: 100dvh; overflow: hidden; background: #0b1a2c; }
+.station-vn__bg { position: absolute; inset: 0; background: center / cover no-repeat; filter: saturate(.95) brightness(.85); }
+.station-vn__cast { position: absolute; inset: 0; z-index: 2; }
+.station-vn .brief-actor { bottom: 14%; width: 22%; height: 62%; }
+.station-vn .brief-actor--chispa { bottom: 18%; width: 15%; height: 40%; }
+.station-vn .brief-dialog__text p { margin: 0; }
+.station-vn__modules { display: flex; flex-wrap: wrap; gap: .4rem; margin: .7rem 0 0; padding: 0; list-style: none; }
+.station-vn__modules li {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .3rem .7rem; border: 2px dashed #f6c15b; background: rgba(66, 43, 10, .6);
+  color: #ffe3a3; font: 800 1rem 'Nunito', sans-serif;
+}
+.station-vn__modules svg { width: 1.1rem; height: 1.1rem; color: #f6c15b; }
+.station-vn .emap-hud__route { display: inline-flex; align-items: center; gap: .4rem; }
+@media (max-width: 640px) {
+  .station-vn .brief-actor { width: 36%; height: 46%; bottom: 34%; }
+  .station-vn .brief-actor--chispa { width: 24%; height: 30%; bottom: 36%; }
+}
+/* Chispa es bajito: se sube para que no quede detrás del cuadro de texto. */
+.vn.brief .brief-actor--chispa { bottom: 27%; height: 40%; }
+.station-vn .brief-actor--chispa { bottom: 27%; }
+@media (max-width: 640px) {
+  .vn.brief .brief-actor--chispa, .station-vn .brief-actor--chispa { bottom: 38%; height: 28%; }
+}
+/* Pantallas verticales: la sala no puede llenar todo sin cortar a los personajes; el hueco lo
+   rellena la misma sala desenfocada en vez de quedar negro. */
+@media (max-aspect-ratio: 4/3) { .vn .asel__ambient { display: block; } }

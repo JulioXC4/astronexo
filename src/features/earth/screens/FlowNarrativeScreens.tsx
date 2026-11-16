@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
-import { ArrowRight, Hammer, FastForward } from '@phosphor-icons/react';
+import { ArrowRight, CaretLeft, CaretRight, Hammer, FastForward } from '@phosphor-icons/react';
 import type { Destination, ModuleId } from '../../../game';
 import { moduleScenes } from '../../../assets/moduleScenes';
-import { CharacterPortrait } from '../../../visual-kit/CharacterPortrait';
-import { useI18n } from '../../../i18n';
+import { LanguageSelector, msg, useI18n } from '../../../i18n';
 import { useRadio, useScreenRadio } from '../../radio';
-import { playSound } from '../../audio';
+import { playSound, SoundToggle } from '../../audio';
 import { BuildFlowSteps, ModuleEffectChips, ModuleStatusBadge } from '../../base-builder/ModuleStatus';
 import { MODULE_CATALOG } from '../../../game';
 import { SceneScreen, SCENE_BACKGROUNDS } from './SceneScreen';
 import './earth.css';
+import './earth-map.css';
+import './avatar-select.css';
+import './briefing-scene.css';
 
 const AUTO_ADVANCE_MS = 6000;
 
@@ -21,59 +23,109 @@ function useAutoAdvance(onDone: () => void, ms: number = AUTO_ADVANCE_MS) {
   }, [onDone]);
 }
 
-interface BubbleProps {
-  readonly identity: 'ALBA' | 'CHISPA';
-  readonly name: string;
-  readonly lines: readonly string[];
-}
-
-/** Una línea de diálogo de personaje: la misma pieza visual que el briefing y las consolas. */
-function Bubble({ identity, name, lines }: BubbleProps) {
-  return (
-    <div className={`scene-dialog__line scene-dialog__line--${identity.toLowerCase()}`}>
-      <span className="scene-dialog__thumb" aria-hidden="true">
-        <CharacterPortrait identity={identity} kind={identity === 'CHISPA' ? 'robot' : 'cadet'} label={name} />
-      </span>
-      <div>
-        <strong>{name}</strong>
-        {lines.map((line) => <p key={line}>«{line}»</p>)}
-      </div>
-    </div>
-  );
-}
-
 interface StationPrepScreenProps {
   readonly destination: Destination;
+  /** Los tres módulos elegidos en el constructor: son los que entran en obra. */
+  readonly selectedModules?: readonly ModuleId[];
   readonly onContinue: () => void;
 }
 
-/** Paso 4 del flujo: la estación se prepara mientras el cadete entrena. */
-export function StationPrepScreen({ destination, onContinue }: StationPrepScreenProps) {
+const VN_SPRITES = {
+  ALBA: '/assets/pixel-art/cadet-alba.webp',
+  CHISPA: '/assets/characters/chispa.webp',
+} as const;
+const VN_ACCENT = { ALBA: '#4ec3d9', CHISPA: '#f6c15b' } as const;
+
+/**
+ * Paso 4 del flujo: la estación se prepara mientras el cadete entrena. Novela visual: la base en
+ * obra ocupa toda la pantalla y Alba y Chispa hablan en el cuadro de texto de abajo, una frase
+ * cada vez. Antes era una tarjeta pequeña que además avanzaba sola a los 6 s: un niño que lee
+ * despacio no alcanzaba a terminarla.
+ */
+export function StationPrepScreen({ destination, selectedModules = [], onContinue }: StationPrepScreenProps) {
   const { t } = useI18n();
   // Esta pantalla ya narra con sus propios diálogos: solo se descarta el mensaje de radio anterior.
   useScreenRadio([]);
-  useAutoAdvance(onContinue);
+  const [step, setStep] = useState(0);
   const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
+  const lines = [
+    { speaker: 'ALBA' as const, name: t('avatars.alba.name'), role: t('stationPrep.kicker'), text: t('stationPrep.line1') },
+    { speaker: 'CHISPA' as const, name: t('avatars.chispa.name'), role: t('briefing.dialogue.step4Role'), text: t('stationPrep.line2') },
+  ];
+  const current = lines[step];
+  const last = step === lines.length - 1;
+  const background = destination === 'MOON' ? SCENE_BACKGROUNDS.moonBuilder : SCENE_BACKGROUNDS.marsBuilder;
+
+  function next() {
+    playSound('dialogueNext');
+    if (last) onContinue();
+    else setStep((value) => value + 1);
+  }
+
   return (
-    <SceneScreen background={destination === 'MOON' ? SCENE_BACKGROUNDS.moonBuilder : SCENE_BACKGROUNDS.marsBuilder}>
-      <main className="earth-card" style={{ maxWidth: '48rem', textAlign: 'center' }} aria-live="polite">
-        <span className="pixel-kicker">{t('stationPrep.kicker')}</span>
-        <h1 className="earth-card__title" style={{ justifyContent: 'center' }}>
-          <Hammer color="#f6c15b" weight="fill" />
-          <span>{t('stationPrep.title', { destination: destName })}</span>
-        </h1>
-        <div className="scene-dialog">
-          <Bubble identity="ALBA" name={t('avatars.alba.name')} lines={[t('stationPrep.line1')]} />
-          <Bubble identity="CHISPA" name={t('avatars.chispa.name')} lines={[t('stationPrep.line2')]} />
+    <div
+      className="emap asel brief vn station-vn"
+      style={{ ['--accent' as string]: VN_ACCENT[current.speaker], ['--u' as string]: '1px' }}
+      data-speaker={current.speaker}
+    >
+      <div className="station-vn__bg" style={{ backgroundImage: `url(${background})` }} aria-hidden="true" />
+      <div className="asel-cast station-vn__cast" aria-hidden="true">
+        {(['ALBA', 'CHISPA'] as const).map((who) => (
+          <div
+            key={who}
+            className={`asel-char brief-actor${who === 'CHISPA' ? ' brief-actor--chispa' : ''} ${current.speaker === who ? 'brief-actor--speaking' : 'brief-actor--listening'}`}
+            style={{ left: who === 'ALBA' ? '24%' : '76%', ['--accent' as string]: VN_ACCENT[who] }}
+          >
+            <span className="asel-char__ring" />
+            <img className="asel-char__sprite" src={VN_SPRITES[who]} alt="" draggable={false} />
+          </div>
+        ))}
+      </div>
+
+      <header className="emap-hud">
+        <span />
+        <div className="emap-hud__status">
+          <span className="emap-hud__route"><Hammer weight="fill" color="#f6c15b" aria-hidden="true" /> {t('stationPrep.title', { destination: destName })}</span>
         </div>
-        <div className="scene-actions">
-          <button type="button" className="earth-action-btn" onClick={onContinue}>
-            <span>{t('stationPrep.continue')}</span>
-            <ArrowRight weight="bold" />
-          </button>
+        <div className="emap-hud__tools"><span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" plain /></span></div>
+      </header>
+
+      <section className="brief-dialog" aria-live="polite" aria-label={current.name}>
+        <div className="brief-dialog__speaker">
+          <span className="brief-dialog__thumb"><img src={VN_SPRITES[current.speaker]} alt="" draggable={false} /></span>
+          <div>
+            <strong className="brief-dialog__name">{current.name}</strong>
+            <span className="brief-dialog__role">{current.role}</span>
+          </div>
         </div>
-      </main>
-    </SceneScreen>
+        <div className="brief-dialog__text" key={step}>
+          <p>«{current.text}»</p>
+          {last && selectedModules.length > 0 && <ul className="station-vn__modules" aria-label={t('buildFlow.construction.queueTitle')}>
+            {selectedModules.map((id) => <li key={id}><Hammer weight="fill" aria-hidden="true" />{t(`baseBuilder.modules.${id}.name`)}</li>)}
+          </ul>}
+        </div>
+        <div className="brief-dialog__controls">
+          <div className="brief-dots" role="group" aria-label={t('briefing.dialogue.stepIndicator', { current: step + 1, total: lines.length })}>
+            {lines.map((_, index) => (
+              <button key={index} type="button" className={`brief-dot${index === step ? ' brief-dot--active' : ''}`}
+                aria-label={t('briefing.dialogue.stepIndicator', { current: index + 1, total: lines.length })}
+                aria-current={index === step ? 'step' : undefined} onClick={() => setStep(index)} />
+            ))}
+            <span className="brief-dots__label">{t('briefing.dialogue.stepIndicator', { current: step + 1, total: lines.length })}</span>
+          </div>
+          <div className="brief-dialog__buttons">
+            {step > 0 && <button type="button" className="pixel-btn pixel-btn--secondary" onClick={() => { playSound('dialogueNext'); setStep(step - 1); }}>
+              <CaretLeft weight="bold" aria-hidden="true" />
+              <span>{t('briefing.dialogue.prevBtn')}</span>
+            </button>}
+            <button type="button" className="pixel-btn pixel-btn--primary" onClick={next} autoFocus>
+              <span>{t(last ? 'stationPrep.continue' : 'briefing.dialogue.nextBtn')}</span>
+              {last ? <ArrowRight weight="bold" aria-hidden="true" /> : <CaretRight weight="bold" aria-hidden="true" />}
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -103,11 +155,12 @@ export function ConstructionProgressScreen({ destination, selectedModules, done,
   useAutoAdvance(onContinue, CONSTRUCTION_ADVANCE_MS);
   const moduleName = moduleId ? t(`baseBuilder.modules.${moduleId}.name`) : '';
   const moduleDesc = moduleId ? t(`baseBuilder.modules.${moduleId}.desc`) : '';
-  const moduleBenefit = moduleId ? t(`baseBuilder.modules.${moduleId}.benefit`) : '';
   const known = moduleId ? MODULE_CATALOG.some((module) => module.id === moduleId) : false;
 
   // Nico presenta la obra al llegar; Alba celebra cuando el módulo queda terminado.
-  useScreenRadio(moduleId ? [{ speaker: 'NICO', text: t('buildFlow.radio.building', { module: moduleName, desc: moduleDesc }) }] : []);
+  useScreenRadio(moduleId ? [{ speaker: 'NICO', text: msg('buildFlow.radio.building', {
+    module: msg(`baseBuilder.modules.${moduleId}.name`), desc: msg(`baseBuilder.modules.${moduleId}.desc`),
+  }) }] : []);
   // Al salir se descarta lo que quede por decir de esta obra.
   useEffect(() => () => radio.clear(), [radio]);
   useEffect(() => {
@@ -122,7 +175,9 @@ export function ConstructionProgressScreen({ destination, selectedModules, done,
       tone: 'good',
       front: true,
       once: `build.done.${moduleId}`,
-      text: t('buildFlow.radio.finished', { module: moduleName, benefit: moduleBenefit }),
+      text: msg('buildFlow.radio.finished', {
+        module: msg(`baseBuilder.modules.${moduleId}.name`), benefit: msg(`baseBuilder.modules.${moduleId}.benefit`),
+      }),
     });
     // Solo al terminar la obra de este módulo.
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { ArrowRight, CheckCircle } from '@phosphor-icons/react';
 import type { GameAction, MissionState, ResourceDelta } from '../../game';
 import { projectAlertConsequence, resourceLevel, SCIENCE_TARGET } from '../../game';
 import { spaceBackgrounds } from '../../assets/manifest';
@@ -9,7 +10,7 @@ import { ModuleCameras } from './ModuleCameras';
 import { formatChange, readableChanges } from './resourceLabels';
 import { useRadio, useRadioLeave, useRadioAnchor } from '../radio';
 import { SoundToggle } from '../audio';
-import { useI18n, LanguageSelector, resolveMessage } from '../../i18n';
+import { useI18n, LanguageSelector, resolveMessage, msg } from '../../i18n';
 import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../tutorial';
 
 const GUARD_TUTORIAL_STEPS = ['guard.resources', 'guard.alerts', 'guard.actions'] as const;
@@ -94,6 +95,18 @@ export function MissionControlView({
 
   const lastChange = useMemo(() => readableChanges(state.lastTurnDelta), [state.lastTurnDelta]);
 
+  /** Ya usó su única acción del turno: lo único que queda es terminarlo. */
+  const turnDone = state.actionTakenThisTurn && !groupDecisionPending;
+  /** Al empezar el turno, `lastFeedback` solo puede ser la respuesta de la Tierra. */
+  const earthMessage = !state.actionTakenThisTurn && state.lastFeedback?.ok ? state.lastFeedback.message : undefined;
+  /** Cada clic en «Atender» de una alerta abre el menú de acciones (contador = petición nueva). */
+  const [menuRequest, setMenuRequest] = useState(0);
+
+  // Con la acción hecha, el aviso «¡Listo! … Finalizar turno» de la barra ya lo dice (y el resto de
+  // la pantalla se atenúa). Antes Alba lo repetía además por radio: dos mensajes iguales a la vez.
+  /** Momento de la guardia: decide qué se ilumina y qué se atenúa (ver `space-game.css`). */
+  const focus = groupDecisionPending ? 'waiting' : turnDone ? 'done' : 'choose';
+
   // Alba abre la guardia diciendo cuál es la meta, y avisa por radio en cuanto
   // una barra entra en rojo. El peligro deja de ser invisible.
   useEffect(() => {
@@ -101,8 +114,9 @@ export function MissionControlView({
     radio.clear();
     radio.say({
       speaker: 'ALBA',
-      text: t('radio.guardGoal', { target: SCIENCE_TARGET }),
-      once: 'guard.goal',
+      text: msg('radio.guardGoal', { target: SCIENCE_TARGET }),
+      // Una vez por misión: antes se repetía al empezar cada turno (la guardia se monta de nuevo).
+      onceEver: `guard.goal.${state.scenarioSeed}.${state.destination}`,
     });
     // Solo al tomar el mando: la meta no cambia durante la guardia.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -114,11 +128,11 @@ export function MissionControlView({
       radio.say({
         speaker: 'NICO',
         tone: 'danger',
-        text: t('radio.resourceLow', { resource: t(labelKey), value: state[key] }),
+        text: msg('radio.resourceLow', { resource: msg(labelKey), value: state[key] }),
         once: `low.${key}.${state.turn}`,
       });
     }
-  }, [radio, t, state]);
+  }, [radio, state]);
   const tutorialSteps = useMemo(() => [
     {
       id: GUARD_TUTORIAL_STEPS[0],
@@ -146,6 +160,7 @@ export function MissionControlView({
 
   return <main
     className={`mission-shell mission-shell--${state.destination.toLowerCase()} ${hasEarlyWarning ? 'mission-shell--with-warning' : ''}`}
+    data-focus={focus}
     style={background ? { backgroundImage: `linear-gradient(rgb(2 8 19 / 20%), rgb(2 8 19 / 46%)), url('${background}')` } : undefined}
   >
     <header className="mission-hud">
@@ -170,10 +185,13 @@ export function MissionControlView({
         <span>{t('missionControl.turnIndicator', { current: state.turn, total: state.maxTurns })}</span>
         <strong>{clockLabel}</strong>
       </div>
-      <SoundToggle />
+      {/* «Ayuda» vive en la barra de arriba: flotando abajo tapaba las alertas y el resultado. */}
+      <span className="mission-hud__tools">
+        <TutorialHelpButton onClick={() => setTutorialOpen(true)} />
+        <SoundToggle />
+      </span>
       <LanguageSelector variant="hud" />
     </header>
-    <TutorialHelpButton className="tutorial-help-button--floating" onClick={() => setTutorialOpen(true)} />
 
     {hasEarlyWarning && state.earlyWarningForecast && <aside className="early-warning" role="status">
       <strong>{t('missionControl.earlyWarningTitle')}</strong>
@@ -195,9 +213,30 @@ export function MissionControlView({
                 alert={alert}
                 selected={alert.id === selectedAlertId}
                 onSelect={setSelectedAlertId}
+                // Desde la alerta se llega directo a las acciones que la resuelven.
+                onAttend={state.actionTakenThisTurn || groupDecisionPending ? undefined : (alertId) => {
+                  setSelectedAlertId(alertId);
+                  setMenuRequest((count) => count + 1);
+                }}
               />)
             : <p className="empty-signal">{t('missionControl.noAlerts')}</p>}
         </div>
+        {/* Mensaje de la Tierra que llegó al empezar el turno (antes salía como aviso flotante). */}
+        {earthMessage && <p className="earth-message" role="status">
+          <strong>{t('missionControl.earthMessageTitle')}</strong>
+          <span>{resolveMessage(earthMessage, t)}</span>
+        </p>}
+        {/* Último cambio: qué subió y qué bajó en el turno que acaba de pasar (dentro de la columna, sin tapar nada). */}
+        {lastChange.length > 0 && <div className="last-change" role="status">
+          <strong>{t('missionControl.lastChangeTitle')}</strong>
+          <ul>{lastChange.map(({ key, labelKey, value }) => <li
+            key={key}
+            className={value > 0 ? 'last-change__up' : 'last-change__down'}
+          >
+            <span>{t(labelKey)}</span>
+            <strong>{formatChange(value)}</strong>
+          </li>)}</ul>
+        </div>}
         <details className="tool-status">
           <summary>{t('missionControl.toolDrawerSummary')}</summary>
           <ul>{state.selectedTools.map((toolId, index) => <li key={`${toolId}-${index}`}>
@@ -208,24 +247,9 @@ export function MissionControlView({
       </aside>
     </section>
 
-    {state.lastFeedback && <aside className={`mission-feedback ${state.lastFeedback.ok ? 'mission-feedback--success' : 'mission-feedback--error'}`} role="status">
-      <strong>{t('missionControl.feedbackTitle')}</strong>
-      <span>{resolveMessage(state.lastFeedback.message, t)}</span>
-    </aside>}
-
-    {/* Último cambio: qué subió y qué bajó en el turno que acaba de pasar. */}
-    {lastChange.length > 0 && <aside className="last-change" role="status">
-      <strong>{t('missionControl.lastChangeTitle')}</strong>
-      <ul>{lastChange.map(({ key, labelKey, value }) => <li
-        key={key}
-        className={value > 0 ? 'last-change__up' : 'last-change__down'}
-      >
-        <span>{t(labelKey)}</span>
-        <strong>{formatChange(value)}</strong>
-      </li>)}</ul>
-    </aside>}
-
-    <section className="mission-bottom-bar">
+    {/* La barra de turno: dos pasos que se leen de izquierda a derecha.
+        ① Elige UNA acción  →  ② Termina el turno. */}
+    <section className={`mission-bottom-bar${turnDone ? ' mission-bottom-bar--done' : ''}`}>
       <InterventionDock
         key={state.turn}
         state={state}
@@ -234,23 +258,36 @@ export function MissionControlView({
         onFindStar={onFindStar}
         groupDecisionPending={groupDecisionPending}
         focusedAlertId={selectedAlertId}
+        menuRequest={menuRequest}
+        doneSummary={turnDone && state.lastFeedback ? resolveMessage(state.lastFeedback.message, t) : undefined}
       />
       <footer className="turn-controls">
-        <p>{state.actionTakenThisTurn
-          ? t('missionControl.turnControlsReady')
-          : t('missionControl.turnControlsPrompt')}</p>
-        {/* El costo de NO actuar, con número, antes de cerrar el turno. */}
-        {worstRisk && <p className={`turn-risk turn-risk--${worstRisk.level}`} role="status">
-          {worstRisk.after <= 0
-            ? t('missionControl.riskRunsOut', { resource: t(worstRisk.labelKey) })
-            : t('missionControl.riskLow', { resource: t(worstRisk.labelKey), value: worstRisk.after })}
-        </p>}
+        {turnDone
+          ? <p className="turn-done" role="status">
+            <CheckCircle weight="fill" aria-hidden="true" />
+            <span>
+              <strong>{t('missionControl.turnDoneTitle')}</strong>
+              <span>{t(state.turn === state.maxTurns ? 'missionControl.turnDoneLast' : 'missionControl.turnDoneBody')}</span>
+            </span>
+            <ArrowRight className="turn-done__arrow" weight="bold" aria-hidden="true" />
+          </p>
+          : <div className="turn-controls__info">
+            {/* Sin riesgo a la vista, la frase de guía; con riesgo, solo el riesgo (una cosa a la vez). */}
+            {!worstRisk && <p>{t('missionControl.turnControlsPrompt')}</p>}
+            {/* El costo de NO actuar, con número, antes de cerrar el turno. */}
+            {worstRisk && <p className={`turn-risk turn-risk--${worstRisk.level}`} role="status">
+              {worstRisk.after <= 0
+                ? t('missionControl.riskRunsOut', { resource: t(worstRisk.labelKey) })
+                : t('missionControl.riskLow', { resource: t(worstRisk.labelKey), value: worstRisk.after })}
+            </p>}
+          </div>}
         <button
-          className="pixel-button pixel-button--primary"
+          className={`pixel-button pixel-button--primary turn-controls__end${turnDone ? ' turn-controls__end--ready' : ''}`}
           disabled={!state.actionTakenThisTurn}
           onClick={onAdvance}
         >
-          {t(state.turn === state.maxTurns ? 'missionControl.closeGuard' : 'missionControl.endTurn')}
+          <span className="turn-step__num" aria-hidden="true">2</span>
+          <span>{t(state.turn === state.maxTurns ? 'missionControl.closeGuard' : 'missionControl.endTurn')}</span>
         </button>
       </footer>
     </section>

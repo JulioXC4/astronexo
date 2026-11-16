@@ -40,23 +40,12 @@ const SPEAKER_THUMB: Record<SpeakerId, string> = {
 };
 
 const TOTAL_STEPS = 4;
-/** La ficha del escenario se encuadra por encima del panel de diálogo, nunca debajo. */
-const DIALOG_RESERVE = 250;
-const DIALOG_RESERVE_PHONE = 290;
-const BRIEFING_SAFE_ZONE: SafeZone = { x0: 190, x1: 810, y0: 100, y1: 540 };
-
-function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() => (typeof window !== 'undefined' && window.matchMedia ? window.matchMedia(query).matches : false));
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
-    const media = window.matchMedia(query);
-    const update = () => setMatches(media.matches);
-    update();
-    media.addEventListener('change', update);
-    return () => media.removeEventListener('change', update);
-  }, [query]);
-  return matches;
-}
+/**
+ * Novela visual: la sala ocupa TODA la pantalla y el cuadro de diálogo flota encima, abajo.
+ * Solo se protege a lo ancho la zona de los dos personajes (30 % y 70 %); arriba y abajo el
+ * escenario puede recortarse para llenar la pantalla sin franjas.
+ */
+const BRIEFING_SAFE_ZONE: SafeZone = { x0: 220, x1: 780, y0: 60, y1: 420 };
 
 /** Paso 5: el centro de enlace presenta la misión con cuatro diálogos cortos sobre la sala de la academia. */
 export function NarrativeBriefingScreen({
@@ -74,8 +63,6 @@ export function NarrativeBriefingScreen({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
-  const phone = useMediaQuery('(max-width: 640px)');
-  const reserve = phone ? DIALOG_RESERVE_PHONE : DIALOG_RESERVE;
 
   useLayoutEffect(() => {
     const element = containerRef.current;
@@ -95,11 +82,10 @@ export function NarrativeBriefingScreen({
   }, []);
 
   const layout = useMemo(
-    () => computeSceneLayout(size.width, Math.max(1, size.height - reserve), BRIEFING_SAFE_ZONE),
-    [size.width, size.height, reserve],
+    () => computeSceneLayout(size.width, Math.max(1, size.height), BRIEFING_SAFE_ZONE),
+    [size.width, size.height],
   );
   const measured = size.width > 0 && size.height > 0;
-  const bottomGap = measured ? size.height - (layout.y + layout.height) : 0;
 
   const destLabel = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
   const playerSprite = AVATAR_SPRITES[avatarId] ?? AVATAR_SPRITES.ALBA;
@@ -164,22 +150,22 @@ export function NarrativeBriefingScreen({
   return (
     <div
       ref={containerRef}
-      className="emap asel brief"
+      className="emap asel brief vn"
       style={{ ['--accent' as string]: accent }}
-      data-letterbox-y={bottomGap > 2 || layout.letterboxY || undefined}
-      data-gap-top={(measured && layout.y > 2) || undefined}
+      data-speaker={current.speaker}
     >
       <div className="asel__ambient" style={{ backgroundImage: `url(${BACKGROUND})` }} aria-hidden="true" />
 
       <div className="asel__stage briefing-stage" style={stageStyle}>
         <img className="asel__background" src={BACKGROUND} alt="" draggable={false} width={MAP_WIDTH} height={MAP_HEIGHT} />
         <div className="asel-cast">
-          <div className={`asel-char brief-actor${current.speaker !== 'CHISPA' ? ' brief-actor--idle' : ''}`} style={{ left: '30%', ['--accent' as string]: SPEAKER_ACCENT.ALBA }}>
+          {/* Quien habla se ilumina y da un paso al frente; el otro espera en penumbra. */}
+          <div className={`asel-char brief-actor${current.speaker !== 'CHISPA' ? ' brief-actor--speaking' : ' brief-actor--listening'}`} style={{ left: '28%', ['--accent' as string]: SPEAKER_ACCENT.ALBA }}>
             <span className="asel-char__ring" aria-hidden="true" />
             <img className="asel-char__sprite" src={playerSprite} alt="" draggable={false} />
             <span className="asel-char__tag">{astronautName}</span>
           </div>
-          <div className={`asel-char brief-actor brief-actor--chispa${current.speaker === 'CHISPA' ? ' asel-char--selected' : ''}`} style={{ left: '70%', ['--accent' as string]: SPEAKER_ACCENT.CHISPA }}>
+          <div className={`asel-char brief-actor brief-actor--chispa${current.speaker === 'CHISPA' ? ' brief-actor--speaking' : ' brief-actor--listening'}`} style={{ left: '72%', ['--accent' as string]: SPEAKER_ACCENT.CHISPA }}>
             <span className="asel-char__ring" aria-hidden="true" />
             <img className="asel-char__sprite" src={CHISPA_SPRITE} alt="" draggable={false} />
             <span className="asel-char__tag">{t('avatars.chispa.name')}</span>

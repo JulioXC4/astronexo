@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Radio, X } from '@phosphor-icons/react';
-import { useI18n } from '../../i18n';
+import { resolveMessage, useI18n } from '../../i18n';
 import { msSinceLastSound, playSound } from '../audio';
 import { RADIO_PORTRAITS, type RadioMessage } from './radioTiming';
 
@@ -12,26 +12,72 @@ const CORNERS = ['tr', 'br', 'bl', 'tl'] as const;
  * y cada control (botón, perilla, campo) que quede debajo suma. Así el niño casi nunca tiene que
  * cerrar el globo para ver qué pulsar. Con empate gana la esquina de preferencia (`CORNERS`).
  */
-function placeAwayFromTargets(bubble: HTMLElement) {
-  if (document.documentElement.dataset.radioAnchor) return; // pantallas con zona propia (guardia)
+function cornerScores(bubble: HTMLElement) {
   const controls = Array.from(document.querySelectorAll<HTMLElement>(
-    'button, [role="button"], [role="slider"], input, select, a[href], [data-target], [data-radio-avoid]',
+    // Además de lo que se toca, las tarjetas de datos de los minijuegos (`.mg-card`): antes el globo
+    // tapaba, por ejemplo, el día más oscuro de «Nubes y soles».
+    'button, [role="button"], [role="slider"], input, select, a[href], [data-target], [data-radio-avoid], .mg-card',
   ))
     .filter((element) => !element.closest('.radio-bubble') && !element.classList.contains('radio-replay'))
-    .map((element) => ({ rect: element.getBoundingClientRect(), weight: element.hasAttribute('data-target') ? 50 : element.hasAttribute('data-radio-avoid') ? 5 : 1 }))
+    .map((element) => ({
+      rect: element.getBoundingClientRect(),
+      weight: element.hasAttribute('data-target') ? 50 : element.hasAttribute('data-radio-avoid') || element.classList.contains('mg-card') ? 5 : 1,
+    }))
     .filter(({ rect }) => rect.width > 0 && rect.height > 0);
-  let best: (typeof CORNERS)[number] = 'tr';
-  let bestScore = Infinity;
-  for (const corner of CORNERS) {
-    bubble.dataset.corner = corner;
-    const box = bubble.getBoundingClientRect();
-    const score = controls.reduce((sum, { rect, weight }) => (
+  // La caja de cada esquina se calcula con las mismas medidas de `radio.css`, sin mover el globo:
+  // antes se probaba cada esquina cambiando `data-corner` del globo vivo, y eso reiniciaba su
+  // animación de entrada cada 0,6 s (el globo «volvía a aparecer» sin parar).
+  const { width, height } = bubble.getBoundingClientRect();
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const side = 0.8 * rem;
+  const top = 5.6 * rem;
+  const bottom = 6.8 * rem;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const boxes: Record<(typeof CORNERS)[number], { left: number; top: number }> = {
+    tr: { left: vw - side - width, top },
+    br: { left: vw - side - width, top: vh - bottom - height },
+    bl: { left: side, top: vh - bottom - height },
+    tl: { left: side, top },
+  };
+  return CORNERS.map((corner) => {
+    const box = { ...boxes[corner], right: boxes[corner].left + width, bottom: boxes[corner].top + height };
+    return controls.reduce((sum, { rect, weight }) => (
       box.left < rect.right && box.right > rect.left && box.top < rect.bottom && box.bottom > rect.top ? sum + weight : sum
     ), 0);
-    if (score < bestScore) { best = corner; bestScore = score; }
-    if (score === 0) break;
-  }
-  bubble.dataset.corner = best;
+  });
+}
+
+function setCorner(bubble: HTMLElement, corner: (typeof CORNERS)[number]) {
+  if (bubble.dataset.corner === corner) return;
+  // Si ya está a la vista, se muda sin repetir la entrada (ver `.radio-bubble.is-settled`).
+  if (bubble.dataset.corner) bubble.classList.add('is-settled');
+  bubble.dataset.corner = corner;
+  // «Repetir ayuda» aparece después en la misma esquina: nunca encima de lo que el globo evitó.
+  document.documentElement.dataset.radioCorner = corner;
+}
+
+function placeAwayFromTargets(bubble: HTMLElement) {
+  if (document.documentElement.dataset.radioAnchor) return; // pantallas con zona propia (guardia)
+  // En celular el globo va siempre arriba a lo ancho (radio.css): no hay esquina que elegir.
+  if (window.innerWidth <= 560) return;
+  const scores = cornerScores(bubble);
+  // Con empate gana la esquina de preferencia (el orden de CORNERS).
+  const best = scores.indexOf(Math.min(...scores));
+  delete bubble.dataset.corner; // primera colocación: con su animación de entrada
+  setCorner(bubble, CORNERS[best]);
+}
+
+/**
+ * La pantalla puede cambiar debajo del globo (se cierra una tarjeta de inicio y aparece un
+ * contador justo donde estaba). Si lo de debajo ahora importa más, el globo se muda una vez.
+ */
+function moveIfCovering(bubble: HTMLElement) {
+  if (document.documentElement.dataset.radioAnchor || window.innerWidth <= 560) return;
+  const scores = cornerScores(bubble);
+  const current = CORNERS.indexOf(bubble.dataset.corner as (typeof CORNERS)[number]);
+  const best = scores.indexOf(Math.min(...scores));
+  if (current >= 0 && scores[current] >= 5 && scores[best] < scores[current]) setCorner(bubble, CORNERS[best]);
 }
 
 /** Velocidad del efecto máquina de escribir. */
@@ -51,28 +97,41 @@ export function RadioBubble({ message, onDismiss }: RadioBubbleProps) {
   const { t } = useI18n();
   const [typed, setTyped] = useState('');
   const bubbleRef = useRef<HTMLElement | null>(null);
+  // Se traduce aquí, al dibujar: si el niño cambia de idioma, el globo cambia con él.
+  const text = message ? resolveMessage(message.text, t) : '';
 
   useLayoutEffect(() => {
     if (message && bubbleRef.current) placeAwayFromTargets(bubbleRef.current);
   }, [message]);
 
   useEffect(() => {
-    if (!message) { setTyped(''); return undefined; }
+    if (!message) return undefined;
+    const timer = window.setInterval(() => { if (bubbleRef.current) moveIfCovering(bubbleRef.current); }, 600);
+    return () => window.clearInterval(timer);
+  }, [message]);
+
+  // El sonido suena una vez por globo (no al cambiar de idioma).
+  useEffect(() => {
+    if (!message) return;
     // El aviso de peligro no se apila sobre otro efecto que acaba de sonar (alerta de guardia, batería…).
     if (message.tone !== 'danger') playSound('radio');
     else if (msSinceLastSound() > 500) playSound('alarm');
+  }, [message]);
+
+  useEffect(() => {
+    if (!message) { setTyped(''); return undefined; }
     const reduced = typeof window !== 'undefined'
       && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) { setTyped(message.text); return undefined; }
+    if (reduced) { setTyped(text); return undefined; }
     setTyped('');
     let index = 0;
     const timer = window.setInterval(() => {
       index += 1;
-      setTyped(message.text.slice(0, index));
-      if (index >= message.text.length) window.clearInterval(timer);
+      setTyped(text.slice(0, index));
+      if (index >= text.length) window.clearInterval(timer);
     }, TYPE_MS);
     return () => window.clearInterval(timer);
-  }, [message]);
+  }, [message, text]);
 
   if (!message) return null;
 
@@ -94,7 +153,7 @@ export function RadioBubble({ message, onDismiss }: RadioBubbleProps) {
       <strong>{t(`radio.speakers.${message.speaker}`)}</strong>
       {/* El texto completo va al lector de pantalla; el tecleo es solo visual. */}
       <p aria-hidden="true">{typed}</p>
-      <p className="radio-bubble__sr">{message.text}</p>
+      <p className="radio-bubble__sr">{text}</p>
     </div>
     {onDismiss && <button type="button" className="radio-bubble__close" onClick={onDismiss} aria-label={t('radio.close')} title={t('radio.close')}>
       <X weight="bold" aria-hidden="true" />
