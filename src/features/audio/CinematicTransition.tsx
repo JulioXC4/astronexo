@@ -24,6 +24,28 @@ function releaseVideo(video: HTMLVideoElement | null) {
   video.load();
 }
 
+/**
+ * Pone la fuente y reproduce; `onDone` llega al terminar, si falla o si el navegador rechaza
+ * reproducir. Devuelve la limpieza, que suelta el video e ignora lo que llegue después: al
+ * pausar en la limpieza, `play()` se rechaza con AbortError y eso NO es «terminó». En
+ * desarrollo, React StrictMode monta, limpia y vuelve a montar el efecto sobre el mismo
+ * `<video>`; por eso la fuente se pone aquí y no en el JSX (la limpieza la quita).
+ */
+function startVideo(element: HTMLVideoElement, src: string, onDone: () => void): () => void {
+  let active = true;
+  const done = () => { if (active) onDone(); };
+  element.addEventListener('ended', done);
+  element.addEventListener('error', done);
+  element.src = src;
+  element.play().catch(done);
+  return () => {
+    active = false;
+    element.removeEventListener('ended', done);
+    element.removeEventListener('error', done);
+    releaseVideo(element);
+  };
+}
+
 /** Avisa a Chrome/Edge/Firefox de que pronto se pedirá este video. No lo reproduce ni lo monta. */
 const warmed = new Set<VideoId>();
 export function warmVideo(id: VideoId) {
@@ -68,6 +90,7 @@ export function CinematicTransition({ video, onDone }: CinematicTransitionProps)
     if (reduced) { finish(); return undefined; }
     const element = videoRef.current;
     if (!element) return undefined;
+    const stop = startVideo(element, videoUrl(video), finish);
     let endTimer: number | undefined;
     const startTimer = window.setTimeout(finish, START_TIMEOUT_MS);
     const onPlaying = () => window.clearTimeout(startTimer);
@@ -78,7 +101,6 @@ export function CinematicTransition({ video, onDone }: CinematicTransitionProps)
     };
     element.addEventListener('playing', onPlaying);
     element.addEventListener('loadedmetadata', onMetadata);
-    element.play().catch(finish);
     const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') finish(); };
     window.addEventListener('keydown', onKey);
     return () => {
@@ -87,9 +109,9 @@ export function CinematicTransition({ video, onDone }: CinematicTransitionProps)
       element.removeEventListener('playing', onPlaying);
       element.removeEventListener('loadedmetadata', onMetadata);
       window.removeEventListener('keydown', onKey);
-      releaseVideo(element);
+      stop();
     };
-  }, [reduced, finish]);
+  }, [reduced, finish, video]);
 
   if (reduced) return null;
   const poster = VIDEO_POSTERS[video];
@@ -103,7 +125,6 @@ export function CinematicTransition({ video, onDone }: CinematicTransitionProps)
     <video
       ref={videoRef}
       className="cinematic__video"
-      src={videoUrl(video)}
       poster={poster || undefined}
       muted
       playsInline
@@ -112,8 +133,6 @@ export function CinematicTransition({ video, onDone }: CinematicTransitionProps)
       disableRemotePlayback
       aria-hidden="true"
       tabIndex={-1}
-      onEnded={finish}
-      onError={finish}
     />
     <button type="button" className="cinematic__skip" data-silent onClick={finish} autoFocus>
       {t('common.skip')}
@@ -149,11 +168,11 @@ export function AlarmWipe({ onDone }: { readonly onDone: () => void }) {
     if (skip) { finish(); return undefined; }
     const element = videoRef.current;
     if (!element) return undefined;
+    const stop = startVideo(element, videoUrl('alarmWipe'), finish);
     const failsafe = window.setTimeout(finish, 2500);
-    element.play().catch(finish);
     return () => {
       window.clearTimeout(failsafe);
-      releaseVideo(element);
+      stop();
     };
   }, [skip, finish]);
 
@@ -161,13 +180,10 @@ export function AlarmWipe({ onDone }: { readonly onDone: () => void }) {
   return <video
     ref={videoRef}
     className="alarm-wipe"
-    src={videoUrl('alarmWipe')}
     muted
     playsInline
     preload="auto"
     aria-hidden="true"
     tabIndex={-1}
-    onEnded={finish}
-    onError={finish}
   />;
 }
