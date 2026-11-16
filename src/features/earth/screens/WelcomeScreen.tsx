@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, Broadcast, Play, X } from '@phosphor-icons/react';
-import { assetManifest } from '../../../assets/manifest';
-import { useI18n, LanguageSelector } from '../../../i18n';
+import { welcomeLogos } from '../../../assets/welcomeArtwork';
+import { useI18n, LanguageSelector, type SupportedLanguage } from '../../../i18n';
 import { SoundToggle } from '../../audio';
 import { useScreenRadio } from '../../radio';
 import { TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
@@ -18,10 +18,10 @@ interface WelcomeScreenProps {
 }
 
 export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScreenProps) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   useScreenRadio([{ speaker: 'ALBA', text: t('radio.welcome') }]);
   const [panel, setPanel] = useState<WelcomePanel>(null);
-  const [logoFailed, setLogoFailed] = useState(false);
+  const [logoFailedFor, setLogoFailedFor] = useState<SupportedLanguage | null>(null);
   const [welcomeTutorialOpen, setWelcomeTutorialOpen] = useState(false);
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
@@ -85,7 +85,8 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
     requestAnimationFrame(() => lastTrigger.current?.focus());
   }
 
-  const wordmark = assetManifest['ui.welcomeWordmark'];
+  const wordmark = welcomeLogos[language];
+  const logoFailed = logoFailedFor === language;
   const welcomeSteps = useMemo(() => [{
     id: 'welcome.solo',
     character: 'ALBA' as const,
@@ -119,6 +120,12 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
       objectPosition={landingScene.objectPosition}
       priority
     />
+    <div className="welcome__sky" aria-hidden="true">
+      <span className="welcome__star welcome__star--one" />
+      <span className="welcome__star welcome__star--two" />
+      <span className="welcome__star welcome__star--three" />
+      <span className="welcome__meteor" />
+    </div>
 
     {/* Barra superior de idioma estilo HUD */}
     <div className="welcome__top-bar">
@@ -128,10 +135,11 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
 
     <div className="welcome__content">
       <div className="welcome__identity">
-        <h1 className={!logoFailed && wordmark.path ? 'welcome__sr-only' : undefined}>{t('welcome.title')}</h1>
-        {!logoFailed && wordmark.path
-          ? <img className="welcome__wordmark" src={wordmark.path} alt={t('welcome.title')} onError={() => setLogoFailed(true)} />
-          : <p>{t('welcome.subtitle')}</p>}
+        <h1 className={!logoFailed ? 'welcome__sr-only' : undefined}>{t('welcome.title')}</h1>
+        {!logoFailed
+          ? <img className="welcome__wordmark" src={wordmark} alt="" onError={() => setLogoFailedFor(language)} />
+          : null}
+        <p className={!logoFailed ? 'welcome__sr-only' : undefined}>{t('welcome.subtitle')}</p>
       </div>
 
       <div className="welcome__actions">
