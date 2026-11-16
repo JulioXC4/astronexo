@@ -46,7 +46,7 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
         <div className="flight-scene">
           <div className="flight-scene__stars" aria-hidden="true" />
           <div className="flight-rocket" aria-hidden="true">
-            🚀
+
           </div>
           <div style={{ zIndex: 2 }}>
             {!hasLaunched ? (

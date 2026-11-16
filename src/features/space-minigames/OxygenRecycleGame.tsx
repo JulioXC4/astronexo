@@ -2,23 +2,25 @@ import { useState } from 'react';
 import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
 import { eclssConnectionKey, isEclssComplete, type EclssNode } from './puzzleRules';
+import { qualityFromMistakes } from '../../game';
 
-interface OxygenRecycleGameProps { readonly onReadyChange: (ready: boolean) => void; }
+interface OxygenRecycleGameProps { readonly onReadyChange: (ready: boolean, quality?: number) => void; }
 
 export function OxygenRecycleGame({ onReadyChange }: OxygenRecycleGameProps) {
   const { t } = useI18n();
   const [from, setFrom] = useState<EclssNode | null>(null);
   const [connections, setConnections] = useState<ReadonlySet<string>>(new Set());
   const [hint, setHint] = useState('');
+  const [mistakes, setMistakes] = useState(0);
   const ready = isEclssComplete(connections);
   const asset = (role: string) => interventionAssets.G4.find((item) => item.role === role)!.path;
   const connect = (to: EclssNode) => {
     if (!from || ready) return;
     const key = eclssConnectionKey(from, to);
     const valid = ['WATER>ELECTROLYZER_WATER', 'POWER>ELECTROLYZER_POWER', 'ELECTROLYZER_OXYGEN>TANK'].includes(key);
-    if (!valid) { setHint(t('interventions.puzzles.g4.wrong')); setFrom(null); return; }
+    if (!valid) { setHint(t('interventions.puzzles.g4.wrong')); setFrom(null); setMistakes((value) => value + 1); return; }
     const next = new Set(connections).add(key); setConnections(next); setFrom(null); setHint(t('interventions.puzzles.g4.connected'));
-    if (isEclssComplete(next)) onReadyChange(true);
+    if (isEclssComplete(next)) onReadyChange(true, qualityFromMistakes(mistakes));
   };
   return <div className={`puzzle puzzle--eclss ${ready ? 'puzzle--success' : ''}`}>
     <div className="puzzle__status"><strong>{t('interventions.puzzles.g4.title')}</strong><span>{t('interventions.puzzles.g4.progress', { count: connections.size })}</span></div>

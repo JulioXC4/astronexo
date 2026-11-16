@@ -16,12 +16,12 @@ const ROUTES = [
   {
     id: 'r1', city: 'AREQUIPA', destination: 'MOON', viewport: { width: 1366, height: 768 },
     modules: [0, 2, 4], victory: true,
-    trainings: [[0, 'SOLAR_DETECTIVE', { reserve: 55 }], [2, 'ALTITUDE_ACCLIMATIZATION', { pressure: 72 }], [4, 'CLOUDS_SUNS', { city: 'AREQUIPA' }]],
+    trainings: [[0, 'SOLAR_DETECTIVE'], [2, 'ALTITUDE_ACCLIMATIZATION', { pressure: 72 }], [4, 'CLOUDS_SUNS', { city: 'AREQUIPA' }]],
   },
   {
     id: 'r2', city: 'AREQUIPA', destination: 'MARS', viewport: { width: 1600, height: 900 },
     modules: [2, 3, 4],
-    trainings: [[2, 'ALTITUDE_ACCLIMATIZATION', { pressure: 80 }], [4, 'CLOUDS_SUNS', { city: 'AREQUIPA', reserve: recommendedCloudsReserve('AREQUIPA') + 15 }], [0, 'SOLAR_DETECTIVE', { reserve: 40 }]],
+    trainings: [[2, 'ALTITUDE_ACCLIMATIZATION', { pressure: 80 }], [4, 'CLOUDS_SUNS', { city: 'AREQUIPA', reserve: recommendedCloudsReserve('AREQUIPA') + 15 }], [0, 'SOLAR_DETECTIVE']],
   },
   {
     id: 'r3', city: 'TROMSO', destination: 'MOON', viewport: { width: 1024, height: 768 },
@@ -67,7 +67,8 @@ async function runRoute(browser, route) {
       4: performSurvivalIntervention,
       5: performSurvivalIntervention,
     } : undefined;
-    const reached = await playFiveTurns(page, { actOnTurn: realActions });
+    // r3 sale a explorar de verdad (y pide rescate); el resto se queda en la base.
+    const reached = await playFiveTurns(page, { actOnTurn: realActions, explore: route.id === 'r3' ? 'rescue' : 'stay' });
     await page.waitForSelector('.results-hero');
     await assertScreenHealthy(page, 'informe');
     const first = await readOutcome(page);

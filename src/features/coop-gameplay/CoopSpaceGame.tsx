@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import {
   advanceTurn,
+  applyExploration,
+  claimStar,
   createMission,
   getMissionResult,
   isValidGameSetup,
   isValidPreBuildGameSetup,
+  shouldOfferExploration,
 } from '../../game';
 import type { GameAction, GameSetup, MissionResult, MissionState, ModuleId } from '../../game';
 import { useI18n } from '../../i18n';
 import { BaseBuilderView } from '../base-builder';
+import { ExplorationEvent } from '../exploration';
 import { CoopMissionResults } from './CoopMissionResults';
 import { CoopMissionView } from './CoopMissionView';
 import {
@@ -45,6 +49,13 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
     groupErrors.length === 0 && initialSetupValid ? createMission(setup) : null);
   const [pendingDecision, setPendingDecision] = useState<PendingGroupDecision | null>(null);
   const [transition, setTransition] = useState<string | null>(null);
+  const [exploration, setExploration] = useState<{
+    readonly turn: number;
+    /** Reloj del turno que acaba de terminar: el que ve la pantalla de salida. */
+    readonly clock: string;
+    /** Reloj del turno que viene: lo anuncia la transición al volver. */
+    readonly nextClock: string;
+  } | null>(null);
 
   const setupErrors = [
     ...(setup.mode === 'LOCAL_COOP' ? [] : ['GameSetup debe usar mode: LOCAL_COOP.']),
@@ -84,6 +95,7 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
 
   function advanceCoopTurn() {
     if (!mission || pendingDecision || !mission.actionTakenThisTurn) return;
+    const completedTurn = mission.turn;
     const next = advanceTurn(mission);
     if (next.completedTurns > mission.completedTurns) {
       setActiveGroup((current) => rotateActivePlayer(current));
@@ -92,6 +104,13 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
     const clockLabel = next.destination === 'MOON'
       ? t('missionControl.lunarDay', { day: next.clockLabel.match(/\d+/)?.[0] ?? next.turn })
       : next.clockLabel;
+    if (shouldOfferExploration(completedTurn, next)) {
+      const doneClock = mission.destination === 'MOON'
+        ? t('missionControl.lunarDay', { day: mission.clockLabel.match(/\d+/)?.[0] ?? completedTurn })
+        : mission.clockLabel;
+      setExploration({ turn: completedTurn, clock: doneClock, nextClock: clockLabel });
+      return;
+    }
     setTransition(
       next.outcome === 'IN_PROGRESS'
         ? clockLabel
@@ -109,6 +128,23 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
 
   if (!mission) {
     return <BaseBuilderView destination={setup.destination} onStart={startGuard} />;
+  }
+
+  if (exploration) {
+    return <ExplorationEvent
+      state={mission}
+      completedTurn={exploration.turn}
+      clock={exploration.clock}
+      onDone={(result) => {
+        if (result) {
+          setMission((current) => (current ? applyExploration(current, result) : current));
+          // Quien decidió salir fue quien manejó: al volver, decide la siguiente persona.
+          setActiveGroup((current) => rotateActivePlayer(current));
+        }
+        setTransition(exploration.nextClock);
+        setExploration(null);
+      }}
+    />;
   }
 
   if (transition) {
@@ -136,6 +172,7 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
       onConfirmDecision={confirmDecision}
       onCancelDecision={() => setPendingDecision(null)}
       onAdvance={advanceCoopTurn}
+      onFindStar={(id) => setMission((current) => (current ? claimStar(current, id) : current))}
     />
   );
 }

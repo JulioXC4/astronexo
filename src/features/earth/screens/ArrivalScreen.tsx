@@ -41,7 +41,7 @@ export function ArrivalScreen({ destination, astronautName, cityName, backpack, 
           overflow: 'hidden',
           marginBottom: '1.5rem'
         }}>
-          <div style={{ fontSize: '4.5rem', marginBottom: '0.5rem' }}>{destination === 'MOON' ? '🌕' : '🔴'}</div>
+          <div style={{ fontSize: '4.5rem', marginBottom: '0.5rem' }}>{destination === 'MOON' ? '' : ''}</div>
           <h2 style={{ fontFamily: 'Fredoka', fontSize: '1.8rem', color: '#ffffff', margin: 0 }}>
             {t(destination === 'MOON' ? 'flight.baseMoonName' : 'flight.baseMarsName')}
           </h2>

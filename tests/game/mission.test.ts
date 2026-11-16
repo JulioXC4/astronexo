@@ -97,7 +97,7 @@ describe('motor H0–H2', () => {
     expect(result?.score.scientificObjective).toBe(0);
     expect(result?.scientificObjectiveAchieved).toBe(false);
     expect(result?.outcome).toBe('INTERRUPTED');
-    expect(result?.interruptionCause).toContain('objetivo científico');
+    expect(result?.interruptionCause).toContain('Te faltó ciencia');
   });
 
   it('calcula el puntaje con los cuatro componentes P0 y el factor de dificultad', () => {
@@ -124,9 +124,9 @@ describe('motor H0–H2', () => {
     }, { type: 'SKIP_INTERVENTION' }));
 
     expect(foodCritical.outcome).toBe('INTERRUPTED');
-    expect(foodCritical.interruptionCause).toContain('alimentarios');
+    expect(foodCritical.interruptionCause).toContain('Se acabó la comida');
     expect(radiationCritical.outcome).toBe('INTERRUPTED');
     expect(radiationCritical.shield).toBe(0);
-    expect(radiationCritical.interruptionCause).toContain('radiológica');
+    expect(radiationCritical.interruptionCause).toContain('radiación');
   });
 });

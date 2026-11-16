@@ -6,6 +6,7 @@ import { CharacterPortrait } from '../../visual-kit/CharacterPortrait';
 import { ResourceBar } from '../mission-control/ResourceBar';
 import { useI18n, LanguageSelector } from '../../i18n';
 import { NasaSourcesPanel } from '../nasa/NasaSourcesPanel';
+import { CollectionList, formatMinutes } from '../exploration';
 
 interface MissionResultsViewProps {
   readonly result: MissionResult;
@@ -71,6 +72,13 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
         ? <ol>{conclusions.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ol>
         : <p>{t('results.noAdditionalRelations')}</p>}
     </section>
+
+    {finalState.explorations.length > 0 && <section className="results-exploration">
+      <ul>{finalState.explorations.map((trip) => <li key={trip.afterTurn}>
+        {t('exploration.logLine', { turn: trip.afterTurn, time: formatMinutes(trip.minutes), pieces: trip.pieces })}
+      </li>)}</ul>
+      <CollectionList destination={finalState.destination} collection={finalState.collection} />
+    </section>}
 
     <details className="results-details">
       <summary>{t('results.openFullReport')}</summary>

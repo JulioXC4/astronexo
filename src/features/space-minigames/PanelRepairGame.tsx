@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
 import { PANEL_CIRCUIT_START, isPanelCircuitComplete, type CircuitTileState } from './puzzleRules';
+import { qualityFromMistakes } from '../../game';
 
-interface PanelRepairGameProps { readonly onReadyChange: (ready: boolean) => void; }
+interface PanelRepairGameProps { readonly onReadyChange: (ready: boolean, quality?: number) => void; }
 
 const ROLE_BY_SHAPE = { STRAIGHT: 'circuitStraight', CORNER: 'circuitCorner', JUNCTION: 'circuitJunction' } as const;
 
@@ -24,13 +25,14 @@ export function PanelRepairGame({ onReadyChange }: PanelRepairGameProps) {
       setTiles(next);
       setSpares((value) => value - 1);
       setHint(t('interventions.puzzles.g1.repaired'));
-      if (isPanelCircuitComplete(next)) onReadyChange(true);
+      // Gastar los dos repuestos deja el circuito peor acabado que resolverlo con uno.
+      if (isPanelCircuitComplete(next)) onReadyChange(true, qualityFromMistakes(3 - spares));
       return;
     }
     const next = tiles.map((item, position) => position === index ? { ...item, rotation: (item.rotation + 1) % 4 } : item);
     setTiles(next);
     setHint(t('interventions.puzzles.g1.rotated'));
-    if (isPanelCircuitComplete(next)) onReadyChange(true);
+    if (isPanelCircuitComplete(next)) onReadyChange(true, qualityFromMistakes(2 - spares));
   }
 
   function reset() {

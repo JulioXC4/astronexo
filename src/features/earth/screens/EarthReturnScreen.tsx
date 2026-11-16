@@ -37,7 +37,7 @@ export function EarthReturnScreen({ result, astronautName, onProceedToNextAdvent
           margin: '1.5rem 0',
           position: 'relative'
         }}>
-          <div style={{ fontSize: '4.5rem', marginBottom: '0.5rem' }}>🪂 🌊</div>
+          <div style={{ fontSize: '4.5rem', marginBottom: '0.5rem' }}> </div>
           <h2 style={{ fontFamily: 'Fredoka', fontSize: '1.8rem', color: '#ffffff', margin: 0 }}>
             {isSuccess ? t('return.welcomeHome') : t('return.emergencyReturn')}
           </h2>

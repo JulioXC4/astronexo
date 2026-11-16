@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, Broadcast, Play, X } from '@phosphor-icons/react';
 import { welcomeLogos } from '../../../assets/welcomeArtwork';
 import { useI18n, LanguageSelector, type SupportedLanguage } from '../../../i18n';
-import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
+import { SoundToggle } from '../../audio';
+import { useScreenRadio } from '../../radio';
+import { TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
 import { PixelSceneAnimator } from '../components/PixelSceneAnimator';
 import { arequipaScene, landingScene, tromsoScene } from '../scenes/pixelScenes';
 import './welcome.css';
@@ -17,6 +19,7 @@ interface WelcomeScreenProps {
 
 export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScreenProps) {
   const { t, language } = useI18n();
+  useScreenRadio([{ speaker: 'ALBA', text: t('radio.welcome') }]);
   const [panel, setPanel] = useState<WelcomePanel>(null);
   const [logoFailedFor, setLogoFailedFor] = useState<SupportedLanguage | null>(null);
   const [welcomeTutorialOpen, setWelcomeTutorialOpen] = useState(false);
@@ -97,13 +100,11 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
     onPlay();
   }
 
+  // Alba da la bienvenida por radio. Antes, «Jugar ahora» abría un cartel que había que
+  // cerrar; ahora se entra directo y el cartel queda solo en el botón «Ayuda».
   function beginSolo() {
     setPanel(null);
-    if (isTutorialComplete(welcomeSteps.map(({ id }) => id))) {
-      void showCitySelection();
-      return;
-    }
-    setWelcomeTutorialOpen(true);
+    void showCitySelection();
   }
 
   function finishWelcomeTutorial() {
@@ -128,6 +129,7 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
 
     {/* Barra superior de idioma estilo HUD */}
     <div className="welcome__top-bar">
+      <SoundToggle className="sound-toggle--welcome" />
       <LanguageSelector variant="welcome" />
     </div>
 

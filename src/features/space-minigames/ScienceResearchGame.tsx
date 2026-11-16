@@ -2,9 +2,10 @@ import { useState } from 'react';
 import type { Destination } from '../../game';
 import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
+import { qualityFromMistakes } from '../../game';
 import { isScienceClassificationValid, isScienceObservationValid, scienceSamples, type ScienceClassId, type ScienceInstrumentId, type ScienceSampleId } from './puzzleRules';
 
-interface ScienceResearchGameProps { readonly destination: Destination; readonly onReadyChange: (ready: boolean) => void; }
+interface ScienceResearchGameProps { readonly destination: Destination; readonly onReadyChange: (ready: boolean, quality?: number) => void; }
 const SAMPLE_ROLE: Readonly<Record<ScienceSampleId, string>> = { BASALT: 'sampleBasalt', ANORTHOSITE: 'sampleAnorthosite', MARS_SEDIMENTARY: 'sampleMarsSedimentary', REGOLITH: 'sampleRegolith' };
 const INSTRUMENT_ROLE: Readonly<Record<ScienceInstrumentId, string>> = { ANALYZER: 'instrumentAnalyzer', MAGNIFIER: 'instrumentMagnifier', GRAIN_IMAGER: 'instrumentGrainImager' };
 const INSTRUMENTS: readonly ScienceInstrumentId[] = ['ANALYZER', 'MAGNIFIER', 'GRAIN_IMAGER'];
@@ -18,6 +19,7 @@ export function ScienceResearchGame({ destination, onReadyChange }: ScienceResea
   const [observed, setObserved] = useState(false);
   const [instrument, setInstrument] = useState<ScienceInstrumentId | null>(null);
   const [hint, setHint] = useState('');
+  const [mistakes, setMistakes] = useState(0);
   const complete = completedSamples.length === 2;
   const round = samples.find((item) => item.sample === selectedSample) ?? null;
   const asset = (role: string) => interventionAssets.G6.find((item) => item.role === role)!.path;
@@ -29,13 +31,14 @@ export function ScienceResearchGame({ destination, onReadyChange }: ScienceResea
     if (!round) return;
     setInstrument(next);
     const valid = isScienceObservationValid(round, next); setObserved(valid);
+    if (!valid) setMistakes((value) => value + 1);
     setHint(t(valid ? `interventions.puzzles.g6.clues.${round.sample}` : 'interventions.puzzles.g6.instrumentHint'));
   }
   function classify(classification: ScienceClassId) {
     if (!round || !observed) return;
-    if (!isScienceClassificationValid(round, classification)) { setHint(t('interventions.puzzles.g6.classificationHint')); return; }
+    if (!isScienceClassificationValid(round, classification)) { setHint(t('interventions.puzzles.g6.classificationHint')); setMistakes((value) => value + 1); return; }
     const next = [...completedSamples, round.sample]; setCompletedSamples(next);
-    if (next.length === 2) { setHint(t('interventions.puzzles.g6.success')); onReadyChange(true); }
+    if (next.length === 2) { setHint(t('interventions.puzzles.g6.success')); onReadyChange(true, qualityFromMistakes(mistakes)); }
     else { setSelectedSample(null); setObserved(false); setInstrument(null); setHint(t('interventions.puzzles.g6.nextRound')); }
   }
   return <div className={`puzzle puzzle--science ${complete ? 'puzzle--success' : ''}`}>

@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperti
 import { ArrowLeft, ArrowRight } from '@phosphor-icons/react';
 import { AVATAR_OPTIONS, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../../data/avatars';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { useScreenRadio } from '../../radio';
 import { computeSceneLayout, MAP_HEIGHT, MAP_WIDTH, type SafeZone } from '../../../visual-kit/earthMapLayout';
 import './earth.css';
 import './earth-map.css';
@@ -63,6 +64,7 @@ export function AvatarScreen({
   onBack,
 }: AvatarScreenProps) {
   const { t } = useI18n();
+  useScreenRadio([{ speaker: 'CHISPA', text: t('radio.avatar') }]);
   const [selectedAvatarId, setSelectedAvatarId] = useState(initialAvatarId || AVATAR_OPTIONS[0].id);
   const [callsign, setCallsign] = useState(initialFictionalName || SUGGESTED_CALLSIGNS[0]);
 
