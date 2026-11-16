@@ -142,7 +142,7 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
                 entry.resourcesConsumed.foodSupply ? `${Math.abs(entry.resourcesConsumed.foodSupply)} ${t('hud.food')}` : '',
               ].filter(Boolean);
               return <article key={entry.moduleId} data-module-id={entry.moduleId}>
-                <img src={moduleScenes[finalState.destination][entry.moduleId]} alt="" />
+                <img src={moduleScenes[finalState.destination][entry.moduleId]} alt="" decoding="async" loading="lazy" />
                 <h3>{t(`baseBuilder.modules.${entry.moduleId}.name`)}</h3>
                 <p><strong>{t('results.actualConsumption')}:</strong> {costs.length ? costs.join(' · ') : t('results.noOperationalConsumption')}</p>
                 <strong>{t('results.evidenceBenefits')}</strong>

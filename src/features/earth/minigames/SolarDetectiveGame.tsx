@@ -6,6 +6,7 @@ import { useI18n } from '../../../i18n';
 import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
 import { allocate, assignedUnits, captureEnergy, DEMAND, EMPTY_ALLOCATION, evaluate, nightEnergy, nightSystemEnergy, remainingNightEnergy, type Allocation, type SystemId } from './solarEnergy';
 import { MinigameShell } from './ui/MinigameShell';
+import { useScreenRadio } from '../../radio';
 import './solar-detective.css';
 
 interface Props { readonly onComplete: (outcome: TrainingOutcome) => void; readonly onBack: () => void }
@@ -41,6 +42,11 @@ function useMediaQuery(query: string): boolean {
 export function SolarDetectiveGame({ onComplete, onBack }: Props) {
   const { t } = useI18n();
   const tr = (key: string, params?: Record<string, string | number>) => t(`minigames.solarDetective.${key}`, params);
+  // La tarea y un consejo llegan por radio, como en el resto de entrenamientos.
+  useScreenRadio([
+    { speaker: 'CHISPA', text: t('training.solarDetective.task') },
+    { speaker: 'AURORA', text: t('training.solarDetective.tip') },
+  ]);
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [tiltAngle, setTiltAngle] = useState(5);
   const [phase, setPhase] = useState<Phase>('capture');

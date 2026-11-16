@@ -6,6 +6,7 @@ import { DONKI_HISTORICAL_EVENTS } from '../../../data/nasa/donkiData';
 import { useI18n } from '../../../i18n';
 import { initialStormState, stormFailure, stormReducer, type StormAction } from './solarStormLogic';
 import { MinigameShell } from './ui/MinigameShell';
+import { useScreenRadio } from '../../radio';
 import './solarStorm.css';
 
 interface Props { readonly onComplete: (outcome: TrainingOutcome) => void; readonly onBack: () => void }
@@ -35,9 +36,14 @@ type Crew = 'A' | 'B';
 const pos = (x: number, y: number) => ({ left: `${x / 10}%`, top: `${y / 5.63}%` });
 
 export function SolarWatchGame({ onComplete, onBack }: Props) {
-  const { language } = useI18n();
+  const { language, t } = useI18n();
   const words = language === 'es' ? copy.es : copy.en;
   const tr = (key: string) => words[key as CopyKey] ?? key;
+  // La tarea y un consejo llegan por radio, como en el resto de entrenamientos.
+  useScreenRadio([
+    { speaker: 'CHISPA', text: t('training.solarWatch.task') },
+    { speaker: 'AURORA', text: t('training.solarWatch.tip') },
+  ]);
   const [state, dispatch] = useReducer(stormReducer, undefined, () => initialStormState());
   const [eventIndex, setEventIndex] = useState(0);
   const [routeFor, setRouteFor] = useState<Crew | null>(null);
