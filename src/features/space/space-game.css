@@ -146,7 +146,7 @@
 
 .compartment-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.45rem; }
 .compartment { display:grid; grid-template-rows:5.5rem auto auto; justify-items:center; gap:.15rem; padding:.35rem; border:2px solid #416a80; background:#102d45; }
-.compartment img { width:100%; height:5.5rem; object-fit:contain; }.compartment span,.compartment b { font-size:.62rem; }.compartment--leaking { border-color:#ff867c; }.compartment--isolated { border-color:#ffe55a; background:#40361d; }
+.compartment img { width:100%; height:5.5rem; object-fit:contain; }.compartment span,.compartment b { font-size:.62rem; }.compartment--isolated { border-color:#ffe55a; background:#40361d; }
 .oxygen-damage-points { display:grid; grid-template-columns:repeat(2,minmax(8rem,1fr)); gap:.5rem; }
 .damage-point { display:grid; grid-template-columns:3rem 1fr; align-items:center; gap:.4rem; min-height:3.3rem; border:2px solid #ff867c; background:#5e2832; }.damage-point img { width:3rem; height:3rem; object-fit:contain; }.damage-point--sealed { border-color:var(--space-green); background:#245438; }
 
@@ -209,3 +209,17 @@
 @media (prefers-reduced-motion: reduce) {
   .puzzle--success, .work-quality, .work-quality__marks i { animation: none; }
 }
+.compartment__pressure { display:block; margin-top:.15rem; color:#9bc0e4; font-size:.62rem; font-weight:800; }
+.compartment[data-low-pressure="true"] .compartment__pressure { color:#ff9a8f; }
+
+/* Estrella dorada escondida (maqueta JD v11.0): una por minijuego, en un rincón distinto. */
+.intervention-console { position: relative; }
+.gold-star {
+  position: absolute; z-index: 3; width: 1.9rem; height: 1.9rem; padding: 0;
+  border: 0; background: transparent; color: #ffd75a; font-size: 1.7rem; line-height: 1;
+  text-shadow: 0 0 10px rgb(255 215 90 / 80%); cursor: pointer; opacity: .75;
+  animation: star-twinkle 1.8s ease-in-out infinite;
+}
+.gold-star:hover, .gold-star:focus-visible { opacity: 1; transform: scale(1.25); outline: none; }
+@keyframes star-twinkle { 0%,100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+@media (prefers-reduced-motion: reduce) { .gold-star { animation: none; } }

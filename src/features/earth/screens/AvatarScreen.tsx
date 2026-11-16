@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, ArrowRight, UserCircle, Sparkle, CheckCircle } from '@phosphor-icons/react';
 import { AVATAR_OPTIONS, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../../data/avatars';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { useScreenRadio } from '../../radio';
 import './earth.css';
 
 interface AvatarScreenProps {
@@ -36,6 +37,7 @@ export function AvatarScreen({
   onBack,
 }: AvatarScreenProps) {
   const { t } = useI18n();
+  useScreenRadio([{ speaker: 'CHISPA', text: t('radio.avatar') }]);
   const [selectedAvatarId, setSelectedAvatarId] = useState(initialAvatarId || AVATAR_OPTIONS[0].id);
   const [callsign, setCallsign] = useState(initialFictionalName || SUGGESTED_CALLSIGNS[0]);
 

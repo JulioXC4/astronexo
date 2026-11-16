@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Planet, RocketLaunch, CheckCircle, Info } from '@phosphor-icons/react';
 import type { Destination } from '../../../game/contracts';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { useScreenRadio } from '../../radio';
 import './earth.css';
 
 interface DestinationScreenProps {
@@ -12,6 +13,7 @@ interface DestinationScreenProps {
 
 export function DestinationScreen({ initialDestination, onSelectDestination, onBack }: DestinationScreenProps) {
   const { t } = useI18n();
+  useScreenRadio([{ speaker: 'ALBA', text: t('radio.destination') }]);
   const [selectedDest, setSelectedDest] = useState<Destination>(initialDestination || 'MOON');
   const [showFlightSpecs, setShowFlightSpecs] = useState(false);
 

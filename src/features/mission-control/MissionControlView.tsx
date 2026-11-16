@@ -37,6 +37,8 @@ interface MissionControlViewProps {
   readonly onAction: (action: GameAction) => void;
   readonly onAdvance: () => void;
   readonly onRequestConfirmation?: (action: GameAction) => void;
+  /** El niño encontró la estrella dorada escondida de un minijuego. */
+  readonly onFindStar?: (interventionId: string) => void;
   readonly groupDecisionPending?: boolean;
   /** @deprecated Comida es ahora siempre una de las cuatro barras principales. */
   readonly showFoodAsPrimary?: boolean;
@@ -47,6 +49,7 @@ export function MissionControlView({
   onAction,
   onAdvance,
   onRequestConfirmation,
+  onFindStar,
   groupDecisionPending = false,
 }: MissionControlViewProps) {
   const { t } = useI18n();
@@ -222,6 +225,7 @@ export function MissionControlView({
         state={state}
         onAction={onAction}
         onRequestConfirmation={onRequestConfirmation}
+        onFindStar={onFindStar}
         groupDecisionPending={groupDecisionPending}
         focusedAlertId={selectedAlertId}
       />

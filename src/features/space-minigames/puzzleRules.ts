@@ -144,8 +144,17 @@ export function isScienceClassificationValid(round: ScienceRound, classification
   return round.classification === classification;
 }
 
-export function isGreenhouseLightingReady(litTrays: ReadonlySet<number>) {
-  return litTrays.size === 2 && [...litTrays].every((index) => index >= 0 && index < 3);
+/**
+ * Cuál de las tres bandejas tiene la planta ya crecida (y no necesita luz de más).
+ * Antes cualquier par de bandejas valía: no había respuesta incorrecta.
+ */
+export function greenhouseMatureTray(seed: number): number {
+  return Math.abs(Math.trunc(seed)) % 3;
+}
+
+/** Las dos luces van a las plantas pequeñas: la crecida puede esperar. */
+export function isGreenhouseLightingReady(litTrays: ReadonlySet<number>, matureTray = 1) {
+  return litTrays.size === 2 && !litTrays.has(matureTray) && [...litTrays].every((index) => index >= 0 && index < 3);
 }
 
 export type GuidanceChoice = Extract<ActionChoice, `${string}_GUIDANCE`>;

@@ -3,7 +3,8 @@ import { BookOpen, Broadcast, Play, X } from '@phosphor-icons/react';
 import { assetManifest } from '../../../assets/manifest';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import { SoundToggle } from '../../audio';
-import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
+import { useScreenRadio } from '../../radio';
+import { TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
 import { PixelSceneAnimator } from '../components/PixelSceneAnimator';
 import { arequipaScene, landingScene, tromsoScene } from '../scenes/pixelScenes';
 import './welcome.css';
@@ -18,6 +19,7 @@ interface WelcomeScreenProps {
 
 export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScreenProps) {
   const { t } = useI18n();
+  useScreenRadio([{ speaker: 'ALBA', text: t('radio.welcome') }]);
   const [panel, setPanel] = useState<WelcomePanel>(null);
   const [logoFailed, setLogoFailed] = useState(false);
   const [welcomeTutorialOpen, setWelcomeTutorialOpen] = useState(false);
@@ -97,13 +99,11 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
     onPlay();
   }
 
+  // Alba da la bienvenida por radio. Antes, «Jugar ahora» abría un cartel que había que
+  // cerrar; ahora se entra directo y el cartel queda solo en el botón «Ayuda».
   function beginSolo() {
     setPanel(null);
-    if (isTutorialComplete(welcomeSteps.map(({ id }) => id))) {
-      void showCitySelection();
-      return;
-    }
-    setWelcomeTutorialOpen(true);
+    void showCitySelection();
   }
 
   function finishWelcomeTutorial() {

@@ -39,14 +39,21 @@ export interface RadioMessage {
   readonly tone: RadioTone;
   /** Las pistas solo salen una vez por pantalla. */
   readonly once?: string;
+  /**
+   * Aviso de una acción del jugador (recoger una pieza, chocar con terreno blando):
+   * pasa al frente de la cola y, como el peligro, echa al globo en pantalla pasados
+   * los 2,8 s protegidos. Lo hace así el código de referencia de JD.
+   */
+  readonly front?: boolean;
 }
 
 /**
  * Decide si un mensaje nuevo puede echar al que está en pantalla.
- * Solo los avisos de peligro interrumpen, y nunca antes de `protectedMs`.
+ * Interrumpen los avisos de peligro y los de una acción del jugador (`front`),
+ * y nunca antes de `protectedMs`. Las pistas de ayuda esperan su turno.
  */
-export function canInterrupt(incoming: RadioTone, shownForMs: number): boolean {
-  if (incoming !== 'danger') return false;
+export function canInterrupt(incoming: RadioTone, shownForMs: number, front = false): boolean {
+  if (incoming !== 'danger' && !front) return false;
   return shownForMs >= RADIO_TIMING.protectedMs;
 }
 

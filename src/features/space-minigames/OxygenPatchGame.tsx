@@ -35,10 +35,12 @@ export function OxygenPatchGame({ onReadyChange, seed }: OxygenPatchGameProps) {
   return <div className={`puzzle puzzle--oxygen ${ready ? 'puzzle--success' : ''}`} aria-label={t('interventions.puzzles.g3.aria')}>
     <div className="puzzle__status"><strong>{t('interventions.puzzles.g3.title')}</strong><span>{t('interventions.puzzles.g3.pressure', { value: ready ? 100 : isolated === LEAKING_COMPARTMENT ? 72 : 38 })}</span></div>
     <div className="compartment-grid">
-      {[0, 1, 2].map((index) => <button type="button" key={index} className={`compartment ${isolated === index ? 'compartment--isolated' : ''} ${index === LEAKING_COMPARTMENT ? 'compartment--leaking' : ''}`} aria-pressed={isolated === index} onClick={() => isolate(index)}>
-        <img src={asset(index === LEAKING_COMPARTMENT && !ready ? 'leakingPipe' : 'intactPipe')} alt="" />
+      {[0, 1, 2].map((index) => <button type="button" key={index} className={`compartment ${isolated === index ? 'compartment--isolated' : ''}`} data-low-pressure={index === LEAKING_COMPARTMENT && !ready} aria-pressed={isolated === index} onClick={() => isolate(index)}>
+        {/* La tubería rota solo se ve al aislar el compartimento correcto; antes hay que deducirlo por la presión. */}
+        <img src={asset(index === LEAKING_COMPARTMENT && isolated === index && !ready ? 'leakingPipe' : 'intactPipe')} alt="" />
         <span>{t('interventions.puzzles.g3.compartment', { number: index + 1 })}</span>
         <b>{isolated === index ? t('interventions.puzzles.g3.closed') : t('interventions.puzzles.g3.open')}</b>
+        <small className="compartment__pressure">{t('interventions.puzzles.g3.compartmentPressure', { value: index === LEAKING_COMPARTMENT && !ready ? 42 : 100 })}</small>
       </button>)}
     </div>
     {isolated === LEAKING_COMPARTMENT && <div className="oxygen-damage-points">

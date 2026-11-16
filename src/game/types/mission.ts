@@ -1,3 +1,5 @@
+import type { ExplorationRecord } from './exploration';
+
 export type City = 'AREQUIPA' | 'TROMSO';
 export type Destination = 'MOON' | 'MARS';
 export type GameMode = 'SOLO' | 'LOCAL_COOP';
@@ -230,6 +232,13 @@ export interface MissionState {
   readonly lastFeedback?: ActionFeedback;
   /** Cambio neto de cada barra en el turno que acaba de cerrarse («Último cambio»). */
   readonly lastTurnDelta?: ResourceDelta;
+  /** Hallazgos de las salidas a explorar: una entrada por pieza (índice en la colección del destino). */
+  readonly collection: readonly number[];
+  /** Puntos de hallazgos acumulados; la Ciencia solo recibe una parte (ver EXPLORATION_SCIENCE_DIVISOR). */
+  readonly explorationPoints: number;
+  readonly explorations: readonly ExplorationRecord[];
+  /** Minijuegos de la guardia cuya estrella dorada ya se encontró. */
+  readonly starsFound: readonly string[];
 }
 
 export interface ScoreBreakdown {

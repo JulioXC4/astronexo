@@ -114,75 +114,110 @@ export async function passStationPrep(page) {
 }
 
 export async function chooseCity(page, city) {
-  await page.waitForSelector('.academy-card');
-  if (city === 'TROMSO') {
-    await page.click('.academy-card--tromso');
-  }
-  await page.click('button.pixel-btn--primary');
+  await page.waitForSelector('.city-selection__switcher');
+  if (city === 'TROMSO') await page.click('.city-selection__switcher button[data-city="TROMSO"]');
+  await page.click('button.city-selection__confirm');
 }
 
 export async function passAvatarAndBriefing(page) {
-  await page.waitForSelector('.avatar-pixel-card');
-  await page.click('button.pixel-btn--primary');
+  await page.waitForSelector('button:has-text("Elegir a")');
+  await page.click('button:has-text("Elegir a")');
   await page.waitForSelector('.briefing-stage');
-  await page.locator('.briefing-dialog-box__controls .pixel-btn--secondary').last().click();
-  await page.click('.briefing-dialog-box__controls .pixel-btn--primary');
+  // Los diálogos avanzan con «Siguiente»; el último botón lleva al mapa.
+  for (let i = 0; i < 6; i++) {
+    const next = page.locator('button:has-text("Siguiente")').first();
+    if (await next.count() && await next.isVisible().catch(() => false)) { await next.click(); await page.waitForTimeout(200); } else break;
+  }
+  await page.click('button:has-text("Entrar al Mapa"), button:has-text("Ir al mapa")');
   await page.waitForSelector('.earth-base-facility');
 }
 
-// Cada entrenamiento termina en el botón «Confirmar costo de N punto(s)…» (decisión con costo).
-async function confirmTraining(page) {
-  await page.waitForSelector('button:has-text("Confirmar costo de"), button:has-text("Pagar")');
-  await page.click('button:has-text("Confirmar costo de"), button:has-text("Pagar")');
+/** Lleva una perilla a un valor con las flechas del teclado (es un control accesible: role=slider). */
+async function setDial(page, label, target) {
+  const dial = page.locator(`svg[role="slider"][aria-label="${label}"]`).first();
+  await dial.waitFor({ state: 'visible' });
+  await dial.focus();
+  for (let i = 0; i < 160; i++) {
+    const now = Number(await dial.getAttribute('aria-valuenow'));
+    if (now === target) return;
+    const before = now;
+    await page.keyboard.press(now < target ? 'ArrowRight' : 'ArrowLeft');
+    const after = Number(await dial.getAttribute('aria-valuenow'));
+    // El paso de la perilla puede no caer justo en el objetivo: basta con quedar al otro lado.
+    if (after === before || (before < target) !== (after < target)) return;
+  }
+}
+
+// Los entrenamientos de la Tierra ya no tienen «Verificar»: al quedar bien aparece «¡Consigue tu kit!».
+async function claimKit(page) {
+  await page.waitForSelector('.training__kit');
+  await page.click('.training__kit');
 }
 
 export const TRAININGS = {
   // Arequipa
-  SOLAR_DETECTIVE: async (page, { reserve = 55 } = {}) => {
-    await setSliderValue(page, '#tilt-angle-slider', 16);
-    await setSliderValue(page, '#solar-reserve-slider', reserve);
-    await page.click('button:has-text("Cerrar Interruptor")');
-    await confirmTraining(page);
+  SOLAR_DETECTIVE: async (page) => {
+    const sprites = page.locator('.solar-game__sprite-button');
+    await sprites.nth(0).click(); // gira el panel hacia el sol
+    await sprites.nth(1).click(); // cierra el interruptor
+    const pour = async (system, cells) => {
+      await page.click(`.solar-game__system-main:has-text("${system}")`);
+      for (let i = 0; i < cells; i++) await page.locator('.solar-game__energy-cells button.is-full').first().click();
+    };
+    await pour('Comunicaciones', 4);
+    await pour('Refugio', 5);
+    await page.click('.solar-game__primary'); // simular día y noche
+    await page.waitForSelector('.solar-game__game-actions .solar-game__primary:has-text("kit"), .solar-game__game-actions .solar-game__primary:has-text("Reclam"), .solar-game__game-actions .solar-game__primary:has-text("Obtener")', { timeout: 20000 });
+    await page.click('.solar-game__game-actions .solar-game__primary');
   },
   ALTITUDE_ACCLIMATIZATION: async (page, { pressure = 72 } = {}) => {
-    await setSliderValue(page, '#pressure-slider', pressure);
-    await page.click('button:has-text("Sello Principal")');
-    await page.click('button:has-text("Escotilla Exterior")');
-    await page.click('button:has-text("Retorno N₂")');
-    await page.click('button:has-text("Verificar Hermeticidad")');
-    await confirmTraining(page);
+    await setDial(page, 'Presión de la cámara', pressure);
+    for (let i = 0; i < 3; i++) await page.locator('.chamber__seal').nth(i).click();
+    await claimKit(page);
+  },
+  ECLSS_TRAINING: async (page) => {
+    await setDial(page, 'Potencia de la máquina', 300);
+    await setDial(page, 'Agua reciclada', 88);
+    await page.click('.train-switch button'); // limpiador de aire
+    await claimKit(page);
+  },
+  VEGGIE_LAB: async (page) => {
+    await setDial(page, 'Color de la luz', 70);
+    await page.click('.train-choice__row button:has-text("Media")');
+    await claimKit(page);
   },
   // Tromsø
   DARK_MONTHS_RESERVE: async (page) => {
-    // Calefacción ≥50% (55% → costo 1), cultivos ≥20%, telemetría ≥10%; el total debe sumar 100%.
-    await setSliderValue(page, '#polar-heat', 55);
-    await setSliderValue(page, '#polar-crops', 30);
-    await setSliderValue(page, '#polar-radio', 15);
-    await page.click('button:has-text("Simular Noche Continua")');
-    await confirmTraining(page);
+    // 4 baterías en calefacción se congelan: se pasa una de radio a calefacción.
+    await page.click('.polar__place--radio');
+    await page.click('.polar__place--heat');
+    await claimKit(page);
   },
   ARCTIC_GREENHOUSE: async (page) => {
-    await page.click('button:has-text("Auto-Calibrar")');
-    await page.click('span:has-text("Aislamiento Térmico Cúpula:") + button'); // la cúpula debe quedar aislada
-    await page.click('button:has-text("Verificar Ciclo Ártico")');
-    await confirmTraining(page);
+    await setDial(page, 'Calor de la Tierra', 52);
+    await page.click('.train-switch button'); // cerrar la cúpula
+    await claimKit(page);
   },
   SOLAR_WATCH: async (page, { event = 0 } = {}) => {
-    await page.waitForSelector('.callsign-chip');
-    await page.locator('.callsign-chip').nth(event).click();
-    await page.click('button:has-text("1. Sonar Alarma de Evacuación")');
-    await page.waitForSelector('button:has-text("2. Cerrar Compuerta Blindada"):not([disabled])');
-    await page.click('button:has-text("2. Cerrar Compuerta Blindada")');
-    await page.waitForSelector('button:has-text("3. Blindar Telemetría"):not([disabled])');
-    await page.click('button:has-text("3. Blindar Telemetría")');
-    await page.click('button:has-text("Simular Llegada de la Tormenta Solar")');
-    await confirmTraining(page);
+    await page.waitForSelector('.storm-brief__choices');
+    await page.locator('.storm-brief__choices').nth(1).locator('button').nth(event).click();
+    await page.click('.storm-brief .storm-primary');
+    const machine = page.locator('.storm-machine__sprite');
+    await machine.click(); // alarma
+    for (const crew of [0, 1]) await page.locator('.storm-routes > div').nth(crew).locator('button').first().click();
+    await page.click('.storm-backup');
+    await page.locator('.storm-station-tab').nth(1).click();
+    await machine.click(); // refugio
+    await page.locator('.storm-station-tab').nth(2).click();
+    await machine.click(); // telemetría
+    await page.click('.storm-controls .storm-primary'); // simular llegada
+    await page.waitForSelector('.storm-result.is-success .storm-primary', { timeout: 8000 });
+    await page.click('.storm-result.is-success .storm-primary');
   },
   // Común: usa los valores POWER de la ciudad (power.json) para decidir la reserva
   CLOUDS_SUNS: async (page, { city, reserve } = {}) => {
-    await setSliderValue(page, '#clouds-reserve', reserve ?? recommendedCloudsReserve(city));
-    await page.click('button:has-text("Probar la reserva")');
-    await confirmTraining(page);
+    await setDial(page, 'Energía que guardas', reserve ?? recommendedCloudsReserve(city));
+    await claimKit(page);
   },
 };
 
@@ -249,7 +284,7 @@ async function solveInterventionPuzzle(page, label) {
   } else if (label === 'Limpiar paneles') {
     const cells = page.locator('.solar-cell'); await cells.nth(1).click(); await cells.nth(4).click();
   } else if (label === 'Parchar fuga') {
-    await page.locator('.compartment').nth(1).click();
+    await page.locator('.compartment[data-low-pressure="true"]').click();
     await page.locator('.damage-point').nth(0).click(); await page.locator('.damage-point').nth(1).click();
   } else if (label === 'Reciclar oxígeno') {
     await page.locator('.eclss-board article').nth(0).locator('.port').click(); await page.click('.eclss-machine .port:has-text("Entrada de agua")');
@@ -266,7 +301,8 @@ async function solveInterventionPuzzle(page, label) {
     await page.locator('.instrument').nth(/Anortosita/i.test(sample) ? 1 : 2).click();
     await page.locator('.classification-grid button').nth(/Anortosita/i.test(sample) ? 1 : 2).click();
   } else if (label === 'Gestionar invernadero') {
-    const trays = page.locator('.plant-tray'); await trays.nth(0).click(); await trays.nth(1).click();
+    // La luz va a las dos plantas pequeñas; la crecida (data-mature) puede esperar.
+    const small = page.locator('.plant-tray[data-mature="false"]'); await small.nth(0).click(); await small.nth(1).click();
     await page.click('.greenhouse-decision button:has-text("MANTENER")');
   } else if (label === 'Consultar a Tierra') {
     await page.locator('.problem-grid button').first().click();
@@ -287,8 +323,31 @@ export async function performSurvivalIntervention(page) {
   ]);
 }
 
+/**
+ * La salida a explorar aparece tras los turnos 2 y 4. `stay` se queda en la base;
+ * `rescue` sale a pie y pide rescate al instante (prueba todo el trayecto sin depender del tiempo real).
+ */
+async function handleExploration(page, mode) {
+  if (mode === 'stay') {
+    await page.click('.explore-card button:has-text("Quedarme")');
+    return;
+  }
+  // Con menos de 25 de Energía u Oxígeno la salida a pie está desactivada: es la regla del juego.
+  if (await page.locator('.explore-card button:has-text("Salir a pie")').isDisabled()) {
+    console.log('    (sin recursos para salir a pie: se queda en la base, como pide la regla)');
+    await page.click('.explore-card button:has-text("Quedarme")');
+    return;
+  }
+  await page.click('.explore-card button:has-text("Salir a pie")');
+  await page.waitForSelector('.explore__canvas');
+  await page.click('.explore__controls button:has-text("rescate")');
+  await page.waitForSelector('.explore-report');
+  await assertScreenHealthy(page, 'informe de la salida');
+  await page.click('.explore-report button.pixel-button--primary');
+}
+
 /** Cinco turnos. `act` opcional permite una acción en el turno; por defecto «No intervenir». */
-export async function playFiveTurns(page, { coop = false, actOnTurn } = {}) {
+export async function playFiveTurns(page, { coop = false, actOnTurn, explore = 'stay' } = {}) {
   for (let turn = 1; turn <= 5; turn++) {
     await page.waitForSelector('.mission-clock');
     if (actOnTurn?.[turn]) await actOnTurn[turn](page);
@@ -300,7 +359,17 @@ export async function playFiveTurns(page, { coop = false, actOnTurn } = {}) {
     }
     await page.waitForFunction(() => !document.querySelector('footer.turn-controls button')?.hasAttribute('disabled'));
     await page.click('footer.turn-controls button');
-    await page.waitForSelector('.turn-transition button');
+    const stage = await Promise.race([
+      page.waitForSelector('.explore-start').then(() => 'explore'),
+      page.waitForSelector('.turn-transition button').then(() => 'transition'),
+    ]);
+    if (stage === 'explore') {
+      if (![2, 4].includes(turn)) throw new Error(`La salida a explorar solo debe aparecer tras los turnos 2 y 4, no tras el ${turn}.`);
+      await handleExploration(page, explore);
+      await page.waitForSelector('.turn-transition button');
+    } else if ([2, 4].includes(turn) && !(await page.locator('.results-hero, .coop-results-shell').count())) {
+      throw new Error(`Faltó la salida a explorar tras el turno ${turn}.`);
+    }
     await page.click('.turn-transition button');
     // Si la misión termina antes del turno 5 (interrupción), el informe aparece en lugar del siguiente turno.
     const next = await Promise.race([

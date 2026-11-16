@@ -9,6 +9,8 @@ interface RadioInput {
   readonly tone?: RadioTone;
   /** Clave de pista: con el mismo valor, el mensaje solo sale una vez por pantalla. */
   readonly once?: string;
+  /** Aviso de una acción del jugador: va al frente de la cola. */
+  readonly front?: boolean;
 }
 
 interface RadioApi {
@@ -33,6 +35,8 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
   const saidOnce = useRef<Set<string>>(new Set());
   const shownAt = useRef<number>(0);
   const started = useRef<boolean>(false);
+  /** Tras interrumpir por peligro, el aviso sale casi de inmediato. */
+  const fastNext = useRef<boolean>(false);
 
   const say = useCallback((input: RadioInput) => {
     if (input.once) {
@@ -46,8 +50,10 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
       text: input.text,
       tone: input.tone ?? 'normal',
       once: input.once,
+      front: input.front,
     };
-    setQueue((pending) => [...pending, message]);
+    // El peligro pasa al frente de la cola; lo demás espera su turno.
+    setQueue((pending) => (message.tone === 'danger' || message.front ? [message, ...pending] : [...pending, message]));
   }, []);
 
   const clear = useCallback(() => {
@@ -55,24 +61,32 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
     setCurrent(null);
     saidOnce.current = new Set();
     started.current = false;
+    fastNext.current = false;
   }, []);
 
   // Un aviso de peligro puede echar al globo en pantalla, pero solo si este ya
   // lleva el tiempo protegido; nada más interrumpe.
   useEffect(() => {
-    if (!current || queue.length === 0) return;
+    if (!current || queue.length === 0) return undefined;
     const next = queue[0];
-    if (next.tone !== 'danger') return;
-    if (!canInterrupt(next.tone, Date.now() - shownAt.current)) return;
-    setCurrent(null);
+    if (next.tone !== 'danger' && !next.front) return undefined;
+    const interrupt = () => { fastNext.current = true; setCurrent(null); };
+    const shownFor = Date.now() - shownAt.current;
+    if (canInterrupt(next.tone, shownFor, next.front)) { interrupt(); return undefined; }
+    // Aún no pasaron 2,8 s: se espera justo lo que falta y entonces interrumpe.
+    const timer = window.setTimeout(interrupt, RADIO_TIMING.protectedMs - shownFor);
+    return () => window.clearTimeout(timer);
   }, [queue, current]);
 
   // Saca el siguiente de la cola respetando la espera inicial y la pausa entre globos.
   useEffect(() => {
     if (current || queue.length === 0) return;
-    const delay = started.current ? RADIO_TIMING.gapMs : RADIO_TIMING.firstDelayMs;
+    const delay = fastNext.current
+      ? 150
+      : started.current ? RADIO_TIMING.gapMs : RADIO_TIMING.firstDelayMs;
     const timer = window.setTimeout(() => {
       started.current = true;
+      fastNext.current = false;
       setQueue((pending) => {
         if (pending.length === 0) return pending;
         setCurrent(pending[0]);
