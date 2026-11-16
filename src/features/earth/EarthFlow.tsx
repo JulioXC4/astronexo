@@ -10,6 +10,7 @@ import type { LocalCoopConfig } from '../coop-gameplay/coop.types';
 import { useI18n } from '../../i18n';
 import { CinematicTransition, departureVideoFor, useAudioScene, warmVideo, type AudioScene } from '../audio';
 import { MissionIntro, RecruitCaption, preloadIntroScene } from '../intro';
+import { preloadCityScenes } from './scenes/preloadCityScenes';
 
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CitySelectionScreen } from './screens/CitySelectionScreen';
@@ -145,6 +146,7 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
   function startRecruitment() {
     if (recruitPlaying) return;
     preloadIntroScene(0);
+    preloadCityScenes();
     setRecruitPlaying(true);
   }
 

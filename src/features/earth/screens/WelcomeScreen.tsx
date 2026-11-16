@@ -6,7 +6,7 @@ import { SoundToggle, playSound } from '../../audio';
 import { useScreenRadio } from '../../radio';
 import { TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
 import { PixelSceneAnimator } from '../components/PixelSceneAnimator';
-import { arequipaScene, landingScene, tromsoScene } from '../scenes/pixelScenes';
+import { landingScene } from '../scenes/pixelScenes';
 import './welcome.css';
 
 type WelcomePanel = 'STATION' | 'SOURCES' | null;
@@ -58,37 +58,8 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [panel]);
 
-  /**
-   * Las escenas de las ciudades pesan ~1,5 MB y la pantalla de ciudad llega tres
-   * pantallas después. Precargarlas junto con la portada hacía que la primera
-   * carga del juego fuera mucho más lenta de lo necesario, así que se esperan
-   * unos segundos de inactividad y recién ahí se piden, de fondo.
-   */
-  useEffect(() => {
-    const sources = [
-      arequipaScene.poster,
-      arequipaScene.frames[0].src,
-      tromsoScene.poster,
-      tromsoScene.frames[0].src,
-    ];
-    const preload = () => {
-      for (const src of sources) {
-        const image = new Image();
-        image.decoding = 'async';
-        image.src = src;
-      }
-    };
-    const idle = (window as unknown as {
-      requestIdleCallback?: (cb: () => void, options?: { timeout: number }) => number;
-    }).requestIdleCallback;
-    if (idle) {
-      const handle = idle(preload, { timeout: 4000 });
-      return () => (window as unknown as { cancelIdleCallback?: (id: number) => void })
-        .cancelIdleCallback?.(handle);
-    }
-    const timer = window.setTimeout(preload, 2500);
-    return () => window.clearTimeout(timer);
-  }, []);
+  // Las escenas de las ciudades ya no se precargan aquí: se piden al pulsar «Jugar ahora»
+  // (ver `preloadCityScenes`), para que la portada cargue solo lo que muestra.
 
   function openPanel(value: Exclude<WelcomePanel, null>, trigger: HTMLButtonElement) {
     lastTrigger.current = trigger;
