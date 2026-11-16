@@ -45,6 +45,9 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
             : comfy ? t('training.arctic.hintGood')
               : t('training.arctic.hintCold');
 
+  // Siguiente objetivo: cerrar la cúpula primero; después el calor de la Tierra.
+  const target: 'dome' | 'heat' | null = done ? null : !state.insulated ? 'dome' : 'heat';
+
   const plant = freezing ? '#b3e5fc' : hot ? '#ffb74d' : comfy ? '#4caf50' : '#9ccc65';
 
   const scene = <svg viewBox="0 0 900 380" role="img" aria-label={t('training.arctic.title')}>
@@ -104,11 +107,12 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
       max={ARCTIC.flowMax}
       step={2}
       onChange={(flow) => setState((s) => ({ ...s, flow }))}
+      target={target === 'heat'}
       display={`${state.flow}%`}
       lowLabel={t('training.arctic.heatLow')}
       highLabel={t('training.arctic.heatHigh')}
     />
-    <div className="train-switch">
+    <div className="train-switch" data-target={target === 'dome' || undefined}>
       <strong>{t('training.arctic.dome')}</strong>
       <button type="button" aria-pressed={state.insulated} onClick={() => setState((s) => ({ ...s, insulated: !s.insulated }))}>
         {t(state.insulated ? 'training.arctic.domeClosed' : 'training.arctic.domeOpen')}

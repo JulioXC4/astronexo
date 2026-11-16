@@ -7,7 +7,7 @@ import { AlertCard } from './AlertCard';
 import { ResourceBar } from './ResourceBar';
 import { ModuleCameras } from './ModuleCameras';
 import { formatChange, readableChanges } from './resourceLabels';
-import { useRadio } from '../radio';
+import { useRadio, useRadioLeave, useRadioAnchor } from '../radio';
 import { SoundToggle } from '../audio';
 import { useI18n, LanguageSelector } from '../../i18n';
 import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../tutorial';
@@ -54,6 +54,8 @@ export function MissionControlView({
 }: MissionControlViewProps) {
   const { t } = useI18n();
   const radio = useRadio();
+  useRadioLeave();
+  useRadioAnchor('guard');
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(state.activeAlerts[0]?.id ?? null);
   const [tutorialOpen, setTutorialOpen] = useState(() => !isTutorialComplete(GUARD_TUTORIAL_STEPS));
   useEffect(() => {

@@ -20,6 +20,7 @@ import {
   type LocalCoopConfig,
   type PlayerRole,
 } from '../../coop-gameplay/coop.types';
+import { useModalFocus } from '../../../visual-kit/useModalFocus';
 import './earth.css';
 
 export interface StationModeModalProps {
@@ -76,6 +77,7 @@ export function StationModeModal({
   onStartCoopFullRoute,
 }: StationModeModalProps) {
   const { t } = useI18n();
+  const modalRef = useModalFocus<HTMLDivElement>(isOpen, onClose);
   const [activeTab, setActiveTab] = useState<StationTab>('MISSION');
 
   // Configuración de Misión
@@ -157,7 +159,7 @@ export function StationModeModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="station-modal" role="dialog" aria-modal="true" aria-labelledby="station-modal-title">
+      <div ref={modalRef} className="station-modal" role="dialog" aria-modal="true" aria-labelledby="station-modal-title">
         <button type="button" className="station-modal__close" onClick={onClose} aria-label={t('common.close')}>
           <X size={20} weight="bold" />
         </button>

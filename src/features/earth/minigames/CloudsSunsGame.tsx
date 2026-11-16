@@ -85,6 +85,8 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
   const best = Math.max(...values);
   const [reserve, setReserve] = useState<number>(50);
   const [tested, setTested] = useState<boolean>(false);
+  /** Falta mover la perilla al menos una vez: primero se guía a la perilla, luego al botón de probar. */
+  const [touched, setTouched] = useState<boolean>(false);
   const recommended = recommendedReservePercent(values);
   const mismatch = reserveMismatch(reserve, values);
   const passed = tested && mismatch <= 25;
@@ -102,6 +104,7 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
   function changeReserve(next: number) {
     setReserve(Math.max(0, Math.min(100, Math.round(next))));
     setTested(false);
+    setTouched(true);
   }
 
   return (
@@ -114,8 +117,6 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
       onBack={onBack}
     >
       <div className="clouds-layout">
-        <p className="mg-card clouds-intro">{t('minigames.cloudsSuns.intro', { city: cityName })}</p>
-
         <div className="clouds-days" role="img" aria-label={t('minigames.cloudsSuns.chartAria')}>
           {dataset.days.map((day) => {
             const loss = Math.round(dayShortfall(day.irradianceKwhPerM2, best) * 100);
@@ -134,10 +135,6 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
         <section className="mg-card clouds-reserve" aria-label={t('minigames.cloudsSuns.reserveLabel', { value: reserve })}>
           <div className="clouds-reserve__head">
             <label htmlFor="clouds-reserve">{t('minigames.cloudsSuns.reserveLabel', { value: reserve })}</label>
-            <div className="clouds-stepper">
-              <button type="button" className="mg-btn" onClick={() => changeReserve(reserve - 5)} disabled={reserve <= 0} aria-label={t('minigames.cloudsSuns.reserveLess')}><Minus weight="bold" /></button>
-              <button type="button" className="mg-btn" onClick={() => changeReserve(reserve + 5)} disabled={reserve >= 100} aria-label={t('minigames.cloudsSuns.reserveMore')}><Plus weight="bold" /></button>
-            </div>
           </div>
 
           <div className="clouds-gauge" role="group" aria-label={t('minigames.cloudsSuns.gaugeAria')}>
@@ -158,20 +155,28 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
           </div>
 
           <GaugeDial label={t('training.clouds.dial')} value={reserve} min={0} max={100}
-            onChange={changeReserve} display={`${reserve}%`} />
+            onChange={changeReserve} display={`${reserve}%`} target={!touched && !tested} labelBelow />
           <p className="clouds-hint" role="status">{t(reserveHint(reserve, values) === 'RIGHT'
             ? 'training.clouds.hintRight' : reserveHint(reserve, values) === 'TOO_LITTLE'
               ? 'training.clouds.hintLittle' : 'training.clouds.hintMuch')}</p>
-          <input
-            id="clouds-reserve" className="clouds-slider" type="range" min={0} max={100} step={1} value={reserve}
-            onChange={(event) => changeReserve(Number(event.target.value))}
-          />
-          <p className="clouds-hint">{t('minigames.cloudsSuns.hint')}</p>
+          <details className="clouds-more">
+            <summary>{t('minigames.guide.moreDetails')}</summary>
+            <p className="clouds-hint">{t('minigames.cloudsSuns.intro', { city: cityName })}</p>
+            <div className="clouds-stepper" role="group" aria-label={t('minigames.guide.fineTune')}>
+              <button type="button" className="mg-btn" onClick={() => changeReserve(reserve - 5)} disabled={reserve <= 0} aria-label={t('minigames.cloudsSuns.reserveLess')}><Minus weight="bold" /></button>
+              <input
+                id="clouds-reserve" className="clouds-slider" type="range" min={0} max={100} step={1} value={reserve}
+                onChange={(event) => changeReserve(Number(event.target.value))}
+              />
+              <button type="button" className="mg-btn" onClick={() => changeReserve(reserve + 5)} disabled={reserve >= 100} aria-label={t('minigames.cloudsSuns.reserveMore')}><Plus weight="bold" /></button>
+            </div>
+            <p className="clouds-hint">{t('minigames.cloudsSuns.hint')}</p>
+            <p className="clouds-source"><Info size={16} weight="bold" aria-hidden="true" />{t('minigames.cloudsSuns.source', { parameter: first.parameter, unit: first.unit, status: t(`nasaStatus.${first.status ?? 'HISTORICAL'}`) })}</p>
+          </details>
 
           <div className="clouds-actions">
             <button type="button" className="mg-btn" onClick={() => changeReserve(50)}>{t('training.reset')}</button>
-            <p className="clouds-source"><Info size={16} weight="bold" aria-hidden="true" />{t('minigames.cloudsSuns.source', { parameter: first.parameter, unit: first.unit, status: t(`nasaStatus.${first.status ?? 'HISTORICAL'}`) })}</p>
-            <button type="button" className="pixel-btn pixel-btn--primary clouds-test" onClick={() => setTested(true)}>
+            <button type="button" className="pixel-btn pixel-btn--primary clouds-test" data-target={(touched && !tested) || undefined} data-guide-below={(touched && !tested) || undefined} onClick={() => setTested(true)}>
               <Sparkle weight="fill" aria-hidden="true" />
               <span>{t('minigames.cloudsSuns.testBtn')}</span>
             </button>
@@ -189,7 +194,7 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
               <p>{t('minigames.cloudsSuns.benefit')}</p>
             </div>
             <button
-              type="button" className="pixel-btn pixel-btn--primary clouds-confirm"
+              type="button" className="pixel-btn pixel-btn--primary clouds-confirm" data-target data-guide-below
               onClick={() => onComplete(createTrainingOutcome(
                 'CLOUDS_SUNS', `Reserva ${reserve}% (sugerida ${recommended}%)`, 'energy', cost,
                 'Guardar reserva para días sin sol deja menos energía libre al despegar.',

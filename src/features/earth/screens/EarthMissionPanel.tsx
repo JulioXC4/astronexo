@@ -37,6 +37,7 @@ export function EarthMissionPanel({ mission, state, outcome, onStart, onClose }:
     role="complementary"
     aria-labelledby="emap-panel-title"
     data-tutorial="mission-panel"
+    data-radio-block="true"
   >
     <header className="emap-panel__head">
       <span className={`emap-chip emap-chip--${state}`}>{statusLabel}</span>

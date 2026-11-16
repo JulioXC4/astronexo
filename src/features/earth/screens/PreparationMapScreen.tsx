@@ -4,7 +4,7 @@ import { getMissionsForCity, type EarthMissionDefinition, type MissionType } fro
 import type { ToolId } from '../../../game/contracts';
 import type { TrainingOutcome } from '../../../game';
 import { EarthBaseScene } from '../../../visual-kit/EarthBaseScene';
-import { useRadio } from '../../radio';
+import { useRadio, useRadioLeave } from '../../radio';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
 import { EarthMissionPanel, type MissionPanelState } from './EarthMissionPanel';
@@ -43,6 +43,7 @@ export function PreparationMapScreen({
 }: PreparationMapScreenProps) {
   const { t } = useI18n();
   const radio = useRadio();
+  useRadioLeave();
   const missions = getMissionsForCity(cityId);
 
   // Chispa explica el mapa por radio, sin detener el juego ni tapar el escenario.
@@ -57,16 +58,8 @@ export function PreparationMapScreen({
   const isThreeDone = countCompleted >= 3;
   const activeMission = missions.find((mission) => mission.id === selectedId) ?? null;
 
-  // Al abrir una instalación, Chispa dice de qué va en una frase, como en los
-  // minijuegos de la guardia. Antes solo había una ficha de texto que leer.
-  useEffect(() => {
-    if (!activeMission) return;
-    radio.say({
-      speaker: 'CHISPA',
-      front: true,
-      text: t(`map.facilities.${activeMission.id}.objective`),
-    });
-  }, [activeMission, radio, t]);
+  // Al abrir una instalación, la ficha del panel ya dice de qué va (el panel manda sobre la
+  // radio): no se repite por radio, y la radio espera a que el panel se cierre.
   const arctic = cityId === 'TROMSO';
 
   // Herramientas ganadas: exactamente las de las misiones completadas.
