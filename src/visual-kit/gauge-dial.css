@@ -1,4 +1,4 @@
-.gauge-dial { display: grid; justify-items: center; gap: .2rem; width: 11rem; }
+.gauge-dial { display: grid; justify-items: center; gap: .2rem; width: 12.5rem; }
 .gauge-dial__svg { width: 100%; height: auto; cursor: grab; touch-action: none; outline-offset: 4px; user-select: none; }
 .gauge-dial__svg:active { cursor: grabbing; }
 .gauge-dial__svg:focus-visible { outline: 3px solid #ffe16f; }
@@ -12,8 +12,8 @@
 .gauge-dial__needle { stroke: #f6f1d8; stroke-width: 6; stroke-linecap: round; transition: x2 80ms linear, y2 80ms linear; }
 .gauge-dial__hub { fill: #f6c15b; stroke: #6a4a12; stroke-width: 3; }
 .gauge-dial__readout { display: grid; justify-items: center; line-height: 1.15; text-align: center; }
-.gauge-dial__readout strong { font-family: 'Fredoka', sans-serif; font-size: 1.45rem; color: #fff; }
-.gauge-dial__readout span { font-size: 0.952rem; font-weight: 800; color: #9bc0e4; }
-.gauge-dial__ends { display: flex; justify-content: space-between; width: 80%; color: #7f9bb8; font-size: 0.805rem; }
+.gauge-dial__readout strong { font-family: 'Fredoka', sans-serif; font-size: 1.7rem; color: #fff; }
+.gauge-dial__readout span { font-size: 1.1rem; font-weight: 800; color: #9bc0e4; }
+.gauge-dial__ends { display: flex; justify-content: space-between; width: 80%; color: #9fb6cf; font-size: 0.95rem; }
 .gauge-dial.is-disabled { opacity: .5; }
 @media (prefers-reduced-motion: reduce) { .gauge-dial__needle { transition: none; } }

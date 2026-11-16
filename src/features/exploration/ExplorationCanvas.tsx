@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Destination, ExplorationMode, ExplorationResources, ExplorationResult } from '../../game';
 import { useI18n } from '../../i18n';
-import { useRadio } from '../radio';
+import { useRadio, useRadioLeave } from '../radio';
 import { playSound } from '../audio';
 import { getPlayerSkinForAvatarId } from '../../assets/manifest';
 import { ResourceBar } from '../mission-control/ResourceBar';
@@ -78,6 +78,7 @@ function snapshotOf(e: Expedition): HudSnapshot {
 export function ExplorationCanvas({ destination, afterTurn, mode, battery, resources, avatarId = 'ALBA', onFinish }: ExplorationCanvasProps) {
   const { t } = useI18n();
   const radio = useRadio();
+  useRadioLeave();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const expedition = useRef<Expedition | null>(null);
   if (expedition.current === null) {

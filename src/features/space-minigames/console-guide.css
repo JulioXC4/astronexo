@@ -1,0 +1,18 @@
+/* Ayuda dentro de la ventana del minijuego: personaje + una frase grande. */
+.console-guide {
+  display: grid;
+  grid-template-columns: 3.6rem minmax(0, 1fr);
+  align-items: center;
+  gap: .75rem;
+  margin: .6rem 0;
+  padding: .6rem .8rem;
+  border: 3px solid #f6c15b;
+  background: rgb(5 15 30 / 96%);
+}
+.console-guide--good { border-color: #69f0ae; }
+.console-guide__portrait { width: 3.6rem; height: 3.6rem; object-fit: contain; image-rendering: pixelated; }
+.console-guide p { margin: 0; color: #f2f7ff; font-size: 1.15rem; font-weight: 700; line-height: 1.4; }
+.console-guide strong { color: #f6c15b; }
+.console-guide--good strong { color: #69f0ae; }
+.console-guide--tip { border-color: #4f7f9a; }
+.console-guide--tip p { font-size: 1rem; font-weight: 600; color: #cfe6f7; }

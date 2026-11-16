@@ -9,8 +9,10 @@ import type {
   ResourceDelta,
 } from '../../game';
 import { interventionAssets } from '../../assets/interventionAssets';
-import { useRadio } from '../radio';
+import type { RadioSpeaker } from '../radio';
+import { ConsoleGuide } from './ConsoleGuide';
 import { WorkQuality } from '../../visual-kit/WorkQuality';
+import { useModalFocus } from '../../visual-kit/useModalFocus';
 import { playSound } from '../audio';
 import { EarthCommunicationGame } from './EarthCommunicationGame';
 import { GreenhouseGame } from './GreenhouseGame';
@@ -39,7 +41,7 @@ const STAR_SPOTS: Readonly<Record<string, { top?: string; bottom?: string; left?
 };
 
 /** Quién da el consejo de cada minijuego: la ciencia, la dra. Aurora; el resto, Nico. */
-const TIP_SPEAKER: Readonly<Record<string, 'ALBA' | 'AURORA' | 'NICO'>> = {
+const TIP_SPEAKER: Readonly<Record<string, RadioSpeaker>> = {
   G1: 'NICO', G2: 'NICO', G3: 'NICO', G4: 'NICO', G5: 'NICO', G6: 'AURORA', G7: 'AURORA', G8: 'ALBA',
 };
 
@@ -72,7 +74,6 @@ export function InterventionDock({
   focusedAlertId,
 }: InterventionDockProps) {
   const { t } = useI18n();
-  const radio = useRadio();
   const [menuOpen, setMenuOpen] = useState(false);
   const [selected, setSelected] = useState<InterventionAction | null>(null);
   const [skipSelected, setSkipSelected] = useState(false);
@@ -86,9 +87,13 @@ export function InterventionDock({
     setQuality(ready ? value : undefined);
   }
   const [interventionTutorialOpen, setInterventionTutorialOpen] = useState(false);
+  // Dato de la estrella dorada: se cuenta dentro de la ventana del minijuego, no por radio.
+  const [discovery, setDiscovery] = useState<string | null>(null);
   const actionLock = useRef(false);
   const requestLock = useRef(false);
   const panelMode = getInterventionPanelMode(state, selected);
+  // Foco dentro de la ventana al abrirla, Tab sin escaparse, Escape para cerrar, foco de vuelta al cerrar.
+  const consoleRef = useModalFocus<HTMLElement>(Boolean(selected) || skipSelected, () => closeOverlay());
   const intervention = INTERVENTIONS.find((item) => item.action === selected);
   const focusedAlert = state.activeAlerts.find((alert) => alert.id === focusedAlertId);
   const orderedInterventions = [...INTERVENTIONS].sort((left, right) => {
@@ -159,14 +164,9 @@ export function InterventionDock({
   function choose(action: InterventionAction) {
     setMenuOpen(false);
     setSelected(action);
-    // La tarea y un consejo llegan por radio, en vez de en una caja de texto sobre el juego.
-    // (Las claves de texto son G1…G8; la acción es, p. ej., PATCH_OXYGEN_LEAK.)
-    const picked = INTERVENTIONS.find((item) => item.action === action);
-    if (picked) {
-      // Es una acción del jugador: pasa al frente de la cola, por delante del mensaje de la meta.
-      radio.say({ speaker: 'CHISPA', front: true, text: t(`interventions.items.${picked.id}.instructions`) });
-      radio.say({ speaker: TIP_SPEAKER[picked.id] ?? 'NICO', text: t(`interventions.items.${picked.id}.tip`) });
-    }
+    // La tarea y el consejo viven dentro de la ventana del minijuego (ConsoleGuide): un solo lugar,
+    // sin repetirse por radio.
+    setDiscovery(null);
     setSkipSelected(false);
     setChoiceId(undefined);
     reportResult(false);
@@ -175,6 +175,7 @@ export function InterventionDock({
   function closeOverlay() {
     if (groupDecisionPending) return;
     setInterventionTutorialOpen(false);
+    setDiscovery(null);
     setSelected(null);
     setSkipSelected(false);
     setChoiceId(undefined);
@@ -197,7 +198,7 @@ export function InterventionDock({
 
   function findStar(id: string) {
     playSound('reward');
-    radio.say({ speaker: 'CHISPA', tone: 'good', front: true, text: t('discovery.found', { fact: t(`discovery.facts.${id}`) }) });
+    setDiscovery(t('discovery.found', { fact: t(`discovery.facts.${id}`) }));
     onFindStar?.(id);
   }
 
@@ -298,6 +299,7 @@ export function InterventionDock({
       if (event.target === event.currentTarget) closeOverlay();
     }}>
       <section
+        ref={consoleRef}
         className="intervention-console intervention-console--compact"
         role="dialog"
         aria-modal="true"
@@ -335,6 +337,7 @@ export function InterventionDock({
       if (event.target === event.currentTarget) closeOverlay();
     }}>
       <section
+        ref={consoleRef}
         className="intervention-console"
         role="dialog"
         aria-modal="true"
@@ -355,10 +358,10 @@ export function InterventionDock({
             </button>
           </div>
         </header>
-        <div className="intervention-brief">
-          <p>{t(`interventions.items.${intervention.id}.objective`)}</p>
-          <p><strong>{t('interventions.instruction')}:</strong> {t(`interventions.items.${intervention.id}.instructions`)}</p>
-        </div>
+        <ConsoleGuide speaker="CHISPA" text={t(`interventions.items.${intervention.id}.instructions`)} />
+        {discovery
+          ? <ConsoleGuide speaker="CHISPA" tone="good" text={discovery} />
+          : <ConsoleGuide speaker={TIP_SPEAKER[intervention.id] ?? 'NICO'} tone="tip" text={t(`interventions.items.${intervention.id}.tip`)} />}
         <div className="cost-preview">
           <div><span>{t('interventions.realCost')}</span><strong>{formatCost(cost, t)}</strong></div>
           <div><span>{t('interventions.benefit')}</span><strong>{t(`interventions.items.${intervention.id}.benefit`)}</strong></div>

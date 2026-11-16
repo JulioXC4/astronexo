@@ -3,6 +3,9 @@ import { createMission } from '../../../game';
 import type { GameSetup } from '../../../game';
 import { moduleScenes } from '../../../assets/moduleScenes';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { useEffect } from 'react';
+import { useRadio, useScreenRadio } from '../../radio';
+import { BuildFlowSteps, ModuleEffectChips, ModuleStatusBadge } from '../../base-builder/ModuleStatus';
 import './earth.css';
 
 interface SystemsMonitorScreenProps {
@@ -16,6 +19,11 @@ interface SystemsMonitorScreenProps {
  */
 export function SystemsMonitorScreen({ setup, onStart }: SystemsMonitorScreenProps) {
   const { t } = useI18n();
+  // Nico confirma que todo ya funciona; sustituye cualquier mensaje de la pantalla anterior.
+  useScreenRadio([{ speaker: 'NICO', text: t('buildFlow.radio.working') }]);
+  const radio = useRadio();
+  // Al salir se descarta lo que quede por decir: no debe hablar de módulos en la guardia.
+  useEffect(() => () => radio.clear(), [radio]);
   const initial = createMission(setup);
   const weather = setup.spaceWeather;
   const resources: readonly (readonly [string, number])[] = [
@@ -35,12 +43,18 @@ export function SystemsMonitorScreen({ setup, onStart }: SystemsMonitorScreenPro
         </h1>
         <p style={{ color: '#9bc0e4', margin: '0 0 0.8rem' }}>{t('monitor.line')}</p>
 
+        <BuildFlowSteps current="working" />
         <h2 style={{ color: '#ffd54f', fontSize: '1rem', margin: '0.4rem 0' }}>{t('monitor.modules')}</h2>
-        <ul style={{ display: 'flex', gap: '0.8rem', listStyle: 'none', padding: 0, margin: 0, flexWrap: 'wrap' }}>
+        <p style={{ color: '#e3effb', margin: '0 0 0.5rem' }}>{t('buildFlow.monitor.headline')}</p>
+        <ul className="monitor-modules">
           {setup.selectedModules.map((moduleId) => (
-            <li key={moduleId} style={{ textAlign: 'center', color: '#e3effb', width: '9rem', fontSize: '0.85rem' }}>
-              <img src={moduleScenes[setup.destination][moduleId]} alt="" style={{ width: '100%', imageRendering: 'pixelated' }} decoding="async" loading="lazy" />
+            <li key={moduleId} className="monitor-module">
+              <div className="monitor-module__pic">
+                <img src={moduleScenes[setup.destination][moduleId]} alt="" decoding="async" loading="lazy" />
+                <span className="monitor-module__state"><ModuleStatusBadge state="working" /></span>
+              </div>
               <strong>{t(`baseBuilder.modules.${moduleId}.name`)}</strong>
+              <ModuleEffectChips moduleId={moduleId} compact />
             </li>
           ))}
         </ul>

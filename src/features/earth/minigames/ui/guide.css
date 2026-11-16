@@ -1,0 +1,49 @@
+/* Guía de «siguiente objetivo»: un solo elemento interactivo a la vez lleva el aro y la flecha «Pulsa aquí».
+   Se activa con el atributo data-target; el texto viene de i18n mediante --press-here (lo pone el marco del juego). */
+[data-target] { outline: 3px solid #ffe16f; outline-offset: 5px; }
+/* Los pocos elementos que no estaban posicionados para anclar el rótulo */
+.gauge-dial[data-target], .train-switch[data-target], .train-choice[data-target], .polar__place[data-target],
+.training__kit[data-target], .sd-capture__slider[data-target], .sd-primary[data-target], .clouds-test[data-target],
+.clouds-confirm[data-target], .storm-impact[data-target], .sd-system__steps button[data-target], .sd-bank[data-target], .clouds-gauge[data-target] { position: relative; }
+[data-target]::after {
+  content: var(--press-here, '');
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  bottom: calc(100% + 12px);
+  padding: .2rem .65rem .25rem;
+  border: 2px solid #5a3d00;
+  background: #ffe16f;
+  color: #101d2d;
+  font: 800 .95rem 'Nunito', sans-serif;
+  line-height: 1.1;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  box-shadow: 2px 2px 0 rgba(2, 8, 19, .6);
+  pointer-events: none;
+}
+[data-target]::before {
+  content: '';
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  bottom: calc(100% + 2px);
+  width: 0;
+  height: 0;
+  border: 7px solid transparent;
+  border-top-color: #ffe16f;
+  border-bottom-width: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+[data-target][data-target-kind='turn']::after { content: var(--turn-here, ''); }
+/* Los objetos del escenario ya tienen su propio marco: el rótulo va debajo si no cabe arriba. */
+[data-target][data-guide-below]::after { bottom: auto; top: calc(100% + 12px); }
+[data-target][data-guide-below]::before { bottom: auto; top: calc(100% + 2px); border-top-width: 0; border-bottom-width: 7px; border-top-color: transparent; border-bottom-color: #ffe16f; }
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-target] { animation: guide-pulse 1.1s steps(2, end) infinite; }
+  [data-target]::after, [data-target]::before { animation: guide-bob 1.1s steps(2, end) infinite; }
+}
+@keyframes guide-pulse { 0%, 100% { outline-color: #ffe16f; outline-offset: 5px; } 50% { outline-color: #fff6c6; outline-offset: 8px; } }
+@keyframes guide-bob { 0%, 100% { margin-bottom: 0; } 50% { margin-bottom: 5px; } }

@@ -1,10 +1,11 @@
 import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { ArrowLeft } from '@phosphor-icons/react';
-import { LanguageSelector } from '../../../../i18n';
+import { LanguageSelector, useI18n } from '../../../../i18n';
 import { computeSceneLayout, MAP_HEIGHT, MAP_WIDTH, type SafeZone } from '../../../../visual-kit/earthMapLayout';
 import '../../screens/earth.css';
 import '../../screens/earth-map.css';
 import './minigame-ui.css';
+import './guide.css';
 
 export interface StageConfig {
   /** Fondo pixel art 16:9 del escenario (se encuadra con el mismo sistema que el mapa terrestre). */
@@ -39,6 +40,7 @@ interface MinigameShellProps {
 export function MinigameShell({
   className = '', title, subtitle, backLabel, onBack, hudExtra, backdrop, stage, stageContent, stageClassName = '', children,
 }: MinigameShellProps) {
+  const { t } = useI18n();
   const rootRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
 
@@ -79,6 +81,7 @@ export function MinigameShell({
     <div
       ref={rootRef}
       className={`emap mg ${className}`}
+      style={{ ['--press-here' as string]: JSON.stringify(t('minigames.guide.pressHere')), ['--turn-here' as string]: JSON.stringify(t('minigames.guide.turnHere')) }}
       data-letterbox-y={(layout && (bottomGap > 2 || layout.letterboxY)) || undefined}
       data-gap-top={(layout && measured && layout.y + reserveTop > 2) || undefined}
     >

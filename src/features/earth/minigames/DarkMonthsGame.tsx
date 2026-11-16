@@ -41,6 +41,13 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
       : PLACES.every((p) => ok[p]) ? t('training.polar.hintStart')
         : t('training.polar.hintNeed');
 
+  // Siguiente objetivo: primero la batería que sobra (la del lugar con más de lo necesario);
+  // con la batería en la mano, el lugar al que todavía le falta energía.
+  const MIN: Record<Place, number> = { heat: POLAR.minHeat, crops: POLAR.minCrops, radio: POLAR.minRadio };
+  const lacking = PLACES.find((p) => state[p] < MIN[p]);
+  const surplus = [...PLACES].sort((a, b) => (state[b] - MIN[b]) - (state[a] - MIN[a]))[0];
+  const target: Place | null = done ? null : picked ? (lacking ?? null) : (lacking && state[surplus] > MIN[surplus] ? surplus : null);
+
   function touch(place: Place) {
     if (picked === null) {
       if (state[place] > 0) setPicked(place);
@@ -64,6 +71,8 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
           type="button"
           className={`polar__place polar__place--${place} ${on ? 'is-on' : 'is-off'} ${picked === place ? 'is-source' : ''} ${picked && picked !== place ? 'is-target' : ''}`}
           onClick={() => touch(place)}
+          data-target={target === place || undefined}
+          data-guide-below={target === place || undefined}
           aria-label={t('training.polar.count', { count: state[place], place: label })}
         >
           <span className="polar__lamp" aria-hidden="true" />
