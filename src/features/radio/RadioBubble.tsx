@@ -24,19 +24,34 @@ function cornerScores(bubble: HTMLElement) {
       weight: element.hasAttribute('data-target') ? 50 : element.hasAttribute('data-radio-avoid') || element.classList.contains('mg-card') ? 5 : 1,
     }))
     .filter(({ rect }) => rect.width > 0 && rect.height > 0);
-  const original = bubble.dataset.corner;
-  const scores = CORNERS.map((corner) => {
-    bubble.dataset.corner = corner;
-    const box = bubble.getBoundingClientRect();
+  // La caja de cada esquina se calcula con las mismas medidas de `radio.css`, sin mover el globo:
+  // antes se probaba cada esquina cambiando `data-corner` del globo vivo, y eso reiniciaba su
+  // animación de entrada cada 0,6 s (el globo «volvía a aparecer» sin parar).
+  const { width, height } = bubble.getBoundingClientRect();
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const side = 0.8 * rem;
+  const top = 5.6 * rem;
+  const bottom = 6.8 * rem;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const boxes: Record<(typeof CORNERS)[number], { left: number; top: number }> = {
+    tr: { left: vw - side - width, top },
+    br: { left: vw - side - width, top: vh - bottom - height },
+    bl: { left: side, top: vh - bottom - height },
+    tl: { left: side, top },
+  };
+  return CORNERS.map((corner) => {
+    const box = { ...boxes[corner], right: boxes[corner].left + width, bottom: boxes[corner].top + height };
     return controls.reduce((sum, { rect, weight }) => (
       box.left < rect.right && box.right > rect.left && box.top < rect.bottom && box.bottom > rect.top ? sum + weight : sum
     ), 0);
   });
-  if (original) bubble.dataset.corner = original;
-  return scores;
 }
 
 function setCorner(bubble: HTMLElement, corner: (typeof CORNERS)[number]) {
+  if (bubble.dataset.corner === corner) return;
+  // Si ya está a la vista, se muda sin repetir la entrada (ver `.radio-bubble.is-settled`).
+  if (bubble.dataset.corner) bubble.classList.add('is-settled');
   bubble.dataset.corner = corner;
   // «Repetir ayuda» aparece después en la misma esquina: nunca encima de lo que el globo evitó.
   document.documentElement.dataset.radioCorner = corner;
@@ -44,9 +59,12 @@ function setCorner(bubble: HTMLElement, corner: (typeof CORNERS)[number]) {
 
 function placeAwayFromTargets(bubble: HTMLElement) {
   if (document.documentElement.dataset.radioAnchor) return; // pantallas con zona propia (guardia)
+  // En celular el globo va siempre arriba a lo ancho (radio.css): no hay esquina que elegir.
+  if (window.innerWidth <= 560) return;
   const scores = cornerScores(bubble);
   // Con empate gana la esquina de preferencia (el orden de CORNERS).
   const best = scores.indexOf(Math.min(...scores));
+  delete bubble.dataset.corner; // primera colocación: con su animación de entrada
   setCorner(bubble, CORNERS[best]);
 }
 
@@ -55,7 +73,7 @@ function placeAwayFromTargets(bubble: HTMLElement) {
  * contador justo donde estaba). Si lo de debajo ahora importa más, el globo se muda una vez.
  */
 function moveIfCovering(bubble: HTMLElement) {
-  if (document.documentElement.dataset.radioAnchor) return;
+  if (document.documentElement.dataset.radioAnchor || window.innerWidth <= 560) return;
   const scores = cornerScores(bubble);
   const current = CORNERS.indexOf(bubble.dataset.corner as (typeof CORNERS)[number]);
   const best = scores.indexOf(Math.min(...scores));

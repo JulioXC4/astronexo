@@ -270,3 +270,16 @@
   .training .gauge-dial[data-target]::after { right: auto; left: 50%; top: auto; bottom: calc(100% + 12px); transform: translateX(-50%); }
   .training .gauge-dial[data-target]::before { right: auto; left: 50%; top: auto; bottom: calc(100% + 2px); transform: translateX(-50%); border: 7px solid transparent; border-top-color: #ffe16f; border-bottom-width: 0; }
 }
+
+/* ---------- Foco en los entrenamientos ---------- */
+/* Mientras Chispa dice la tarea por radio, la misma frase escrita se atenúa: no dos textos
+   iguales compitiendo. Cuando el globo se va, la banda vuelve a brillar como recordatorio. */
+.training__task { transition: opacity .3s ease; }
+body[data-radio="on"] .training__task { opacity: .4; }
+/* Con un «Pulsa aquí / Gira aquí» activo, los demás controles bajan de volumen (se pueden
+   seguir tocando y vuelven a brillar al pasar el mouse). Los medidores no: son la respuesta. */
+.training__panel :is(.gauge-dial, .train-switch, .train-choice) { transition: opacity .25s ease; }
+.training__panel:has([data-target]) :is(.gauge-dial, .train-switch, .train-choice):not([data-target]) { opacity: .5; }
+.training__panel:has([data-target]) :is(.gauge-dial, .train-switch, .train-choice):not([data-target]):hover { opacity: 1; }
+/* Con la tarjeta de victoria abierta, nada detrás distrae. */
+.training:has(.training-win) .training__main { filter: blur(2px) brightness(.7); }

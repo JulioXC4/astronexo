@@ -202,3 +202,15 @@
   :root[data-radio-corner] .radio-replay,
   [data-radio-anchor="guard"] .radio-replay { top: .4rem; right: .4rem; bottom: auto; left: auto; }
 }
+
+/* Un globo que ya estaba a la vista y cambia de esquina no repite su entrada. */
+.radio-bubble.is-settled { animation: none; }
+
+/* Jerarquía de color: el AMARILLO es solo para «esto se toca» (Pulsa aquí, botón principal).
+   La radio normal habla en azul claro; verde = buena noticia, rojo = peligro. Antes la radio
+   también era amarilla y competía con el botón que el niño debía pulsar. */
+.radio-bubble--normal { --radio-accent: #7fd3ea; }
+.radio-bubble { border-width: 2px; background: rgb(6 17 33 / 95%); box-shadow: 0 .45rem 1.2rem rgb(0 0 0 / 38%); }
+.radio-bubble__copy p { font-size: 1.12rem; }
+.radio-replay { border-width: 2px; border-color: #7fd3ea; color: #dff6ff; }
+.radio-replay svg { color: #7fd3ea; }

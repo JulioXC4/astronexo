@@ -11,6 +11,12 @@ interface RadioInput {
   readonly tone?: RadioTone;
   /** Clave de pista: con el mismo valor, el mensaje solo sale una vez por pantalla. */
   readonly once?: string;
+  /**
+   * Clave de pista para TODA la partida (no se borra al cambiar de pantalla). Para presentaciones
+   * que solo hacen falta la primera vez: el mapa al volver de un entrenamiento, la meta de la
+   * guardia en cada turno… Antes se repetían en cada visita.
+   */
+  readonly onceEver?: string;
   /** Aviso de una acción del jugador: va al frente de la cola. */
   readonly front?: boolean;
   /** Minijuego o pantalla dueña de la ayuda (ver `RadioMessage.scope`). */
@@ -52,6 +58,8 @@ const DUPLICATE_WINDOW_MS = 20000;
 const HISTORY_LIMIT = 3;
 /** Tras cerrarse una ventana importante, la radio espera un poco antes de seguir. */
 const RESUME_DELAY_MS = 900;
+/** Un globo interrumpido por una ventana se repite después solo si estuvo a la vista menos que esto. */
+const RESUME_IF_SEEN_LESS_THAN_MS = 1200;
 
 let counter = 0;
 
@@ -65,6 +73,8 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
   const [blocked, setBlocked] = useState(false);
   const [historySize, setHistorySize] = useState(0);
   const saidOnce = useRef<Set<string>>(new Set());
+  /** `onceEver`: nunca se vacía (ni con `clear`). */
+  const saidEver = useRef<Set<string>>(new Set());
   const recent = useRef<Map<string, number>>(new Map());
   const history = useRef<RadioMessage[]>([]);
   const currentRef = useRef<RadioMessage | null>(null);
@@ -89,6 +99,10 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
   }, []);
 
   const say = useCallback((input: RadioInput) => {
+    // Solo se descarta si YA salió en pantalla (se marca al mostrarse, más abajo). Marcarlo al
+    // encolar lo perdía: si la pantalla se desmonta antes de mostrarlo (o React la monta dos veces
+    // en desarrollo), la cola se vacía y el mensaje no volvía a pedirse nunca.
+    if (input.onceEver && saidEver.current.has(input.onceEver)) return;
     if (input.once) {
       if (saidOnce.current.has(input.once)) return;
       saidOnce.current.add(input.once);
@@ -107,6 +121,7 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
       once: input.once,
       front: input.front,
       scope: input.scope,
+      onceEver: input.onceEver,
     };
     // Ayuda de un minijuego (o pantalla) que el niño ya cerró: no se dice sola, pero queda
     // guardada para «Repetir ayuda».
@@ -201,10 +216,19 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
   // Si se abre una ventana importante con un globo en pantalla, el globo vuelve a la cola
   // (se dirá completo después, no se pierde). Al cerrarse la ventana, la cola sigue sola.
   const wasBlocked = useRef(false);
+  /** Mensajes que ya se guardaron una vez por una ventana: no se vuelven a guardar. */
+  const resumedIds = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (blocked && currentRef.current) {
       const paused = currentRef.current;
-      setQueue((pending) => [paused, ...pending]);
+      // Solo vuelve a la cola si apenas se vio (y una sola vez). Antes cualquier globo interrumpido
+      // por una ventana se repetía entero al cerrarla: abrir y cerrar el minijuego de la guardia
+      // hacía que «Aquí Alba. Tu misión…» saliera una y otra vez.
+      const barelySeen = Date.now() - shownAt.current < RESUME_IF_SEEN_LESS_THAN_MS;
+      if (barelySeen && !resumedIds.current.has(paused.id)) {
+        resumedIds.current.add(paused.id);
+        setQueue((pending) => [paused, ...pending]);
+      }
       setCurrent(null);
     }
     if (wasBlocked.current && !blocked) resumeNext.current = true;
@@ -238,6 +262,7 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
       resumeNext.current = false;
       setQueue((pending) => {
         if (pending.length === 0) return pending;
+        if (pending[0].onceEver) saidEver.current.add(pending[0].onceEver);
         setCurrent(pending[0]);
         shownAt.current = Date.now();
         return pending.slice(1);

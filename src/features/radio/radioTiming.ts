@@ -46,6 +46,8 @@ export interface RadioMessage {
    * ayudas de ese ámbito ya no salen solas (ni al volver a entrar en ese minijuego).
    */
   readonly scope?: string;
+  /** Clave «una vez en toda la partida»: se marca como dicha cuando el globo sale de verdad. */
+  readonly onceEver?: string;
   /** Las pistas solo salen una vez por pantalla. */
   readonly once?: string;
   /**

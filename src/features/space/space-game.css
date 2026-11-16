@@ -385,3 +385,43 @@
   .turn-done__arrow { display:none; }
 }
 @media (max-width:560px) { .turn-controls p.turn-done { display:flex; } }
+
+/* ======================================================================
+   Guardia — FOCO: en cada momento brilla una sola cosa y el resto se atenúa.
+   · choose: la alerta elegida y el paso ① «Elige tu acción».
+   · done:   el aviso «¡Listo!» y el paso ② «Finalizar turno».
+   · menú abierto: solo el menú; el resto queda en penumbra.
+   ====================================================================== */
+.mission-hud, .mission-stage, .module-camera-view, .camera-selector, .alerts-monitor,
+.alert-card-wrap, .tool-status, .alerts-monitor .last-change, .earth-message,
+.intervention-dock, .turn-controls__info, .mission-hud .lang-selector-hud {
+  transition: opacity .25s ease, filter .25s ease;
+}
+/* Lo de consulta (no se toca para jugar) siempre en segundo plano. */
+.mission-hud .lang-selector-hud, .mission-hud .language-selector { filter: brightness(.65) saturate(.6); }
+.mission-hud .lang-selector-hud:hover, .mission-hud .lang-selector-hud:focus-within { filter: none; }
+.camera-status { padding:.18rem .45rem; border-width:1px; font-size:.82rem; }
+.module-camera-view__telemetry span { opacity:.8; }
+
+/* Se atenúa oscureciendo (brillo), nunca con transparencia: con opacidad se veía el fondo de la
+   sala a través de la escena y quedaba una imagen fantasma. */
+/* choose: las alertas no elegidas, las cámaras y los cajones de consulta bajan de volumen. */
+.mission-shell[data-focus="choose"] .camera-selector { filter: brightness(.6) saturate(.7); }
+.mission-shell[data-focus="choose"] .camera-selector:hover { filter: none; }
+.mission-shell[data-focus="choose"] .alert-card-wrap:not(:has(.alert-card--selected)) { filter: brightness(.65) saturate(.7); }
+.mission-shell[data-focus="choose"] .alert-card-wrap:hover { filter: none; }
+.mission-shell[data-focus="choose"] .tool-status,
+.mission-shell[data-focus="choose"] .alerts-monitor .last-change { filter: brightness(.7); }
+
+/* done: ya no hay nada que tocar arriba; solo el paso ②. */
+.mission-shell[data-focus="done"] .mission-stage { filter: brightness(.4) saturate(.5); }
+.mission-shell[data-focus="done"] .mission-stage:hover { filter: brightness(.7) saturate(.8); }
+.mission-shell[data-focus="done"] .intervention-dock { filter: brightness(.75); }
+
+/* Menú de acciones abierto: penumbra real detrás (antes el fondo seguía igual de brillante). */
+.intervention-menu-scrim { background: rgb(2 8 19 / 58%); }
+.mission-shell:has(.intervention-menu) .turn-controls { filter: brightness(.4); }
+
+@media (prefers-reduced-motion: reduce) {
+  .mission-hud, .mission-stage, .camera-selector, .alert-card-wrap, .intervention-dock { transition: none; }
+}

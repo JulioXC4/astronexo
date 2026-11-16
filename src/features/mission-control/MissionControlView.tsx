@@ -102,18 +102,10 @@ export function MissionControlView({
   /** Cada clic en «Atender» de una alerta abre el menú de acciones (contador = petición nueva). */
   const [menuRequest, setMenuRequest] = useState(0);
 
-  // En cuanto hace su acción, Alba le dice que el turno terminó para él: no puede hacer más,
-  // tiene que pasar al siguiente. Antes solo cambiaba una frase pequeña en la barra de abajo.
-  useEffect(() => {
-    if (!turnDone) return;
-    radio.say({
-      speaker: 'ALBA',
-      tone: 'good',
-      front: true,
-      text: msg(state.turn === state.maxTurns ? 'radio.turnDoneLast' : 'radio.turnDone'),
-      once: `turn.done.${state.turn}`,
-    });
-  }, [turnDone, radio, state.turn, state.maxTurns]);
+  // Con la acción hecha, el aviso «¡Listo! … Finalizar turno» de la barra ya lo dice (y el resto de
+  // la pantalla se atenúa). Antes Alba lo repetía además por radio: dos mensajes iguales a la vez.
+  /** Momento de la guardia: decide qué se ilumina y qué se atenúa (ver `space-game.css`). */
+  const focus = groupDecisionPending ? 'waiting' : turnDone ? 'done' : 'choose';
 
   // Alba abre la guardia diciendo cuál es la meta, y avisa por radio en cuanto
   // una barra entra en rojo. El peligro deja de ser invisible.
@@ -123,7 +115,8 @@ export function MissionControlView({
     radio.say({
       speaker: 'ALBA',
       text: msg('radio.guardGoal', { target: SCIENCE_TARGET }),
-      once: 'guard.goal',
+      // Una vez por misión: antes se repetía al empezar cada turno (la guardia se monta de nuevo).
+      onceEver: `guard.goal.${state.scenarioSeed}.${state.destination}`,
     });
     // Solo al tomar el mando: la meta no cambia durante la guardia.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -167,6 +160,7 @@ export function MissionControlView({
 
   return <main
     className={`mission-shell mission-shell--${state.destination.toLowerCase()} ${hasEarlyWarning ? 'mission-shell--with-warning' : ''}`}
+    data-focus={focus}
     style={background ? { backgroundImage: `linear-gradient(rgb(2 8 19 / 20%), rgb(2 8 19 / 46%)), url('${background}')` } : undefined}
   >
     <header className="mission-hud">
@@ -278,7 +272,8 @@ export function MissionControlView({
             <ArrowRight className="turn-done__arrow" weight="bold" aria-hidden="true" />
           </p>
           : <div className="turn-controls__info">
-            <p>{t('missionControl.turnControlsPrompt')}</p>
+            {/* Sin riesgo a la vista, la frase de guía; con riesgo, solo el riesgo (una cosa a la vez). */}
+            {!worstRisk && <p>{t('missionControl.turnControlsPrompt')}</p>}
             {/* El costo de NO actuar, con número, antes de cerrar el turno. */}
             {worstRisk && <p className={`turn-risk turn-risk--${worstRisk.level}`} role="status">
               {worstRisk.after <= 0
