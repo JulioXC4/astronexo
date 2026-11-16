@@ -4,6 +4,7 @@ import type { Destination, ModuleId } from '../../../game';
 import { moduleScenes } from '../../../assets/moduleScenes';
 import { CharacterPortrait } from '../../../visual-kit/CharacterPortrait';
 import { useI18n, LanguageSelector } from '../../../i18n';
+import { useScreenRadio } from '../../radio';
 import './earth.css';
 
 const AUTO_ADVANCE_MS = 6000;
@@ -46,6 +47,8 @@ interface StationPrepScreenProps {
 /** Paso 4 del flujo: la estación se prepara mientras el cadete entrena. */
 export function StationPrepScreen({ destination, onContinue }: StationPrepScreenProps) {
   const { t } = useI18n();
+  // Esta pantalla ya narra con sus propios diálogos: solo se descarta el mensaje de radio anterior.
+  useScreenRadio([]);
   useAutoAdvance(onContinue);
   const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
   return (

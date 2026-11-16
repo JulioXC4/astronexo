@@ -114,7 +114,7 @@ export function NarrativeBriefingScreen({
                 className="briefing-actor__sprite"
               />
               <span className="briefing-actor__name-tag">
-                👨‍🚀 {astronautName}
+                 {astronautName}
               </span>
             </div>
 
@@ -127,7 +127,7 @@ export function NarrativeBriefingScreen({
                 style={{ maxHeight: '11rem' }}
               />
               <span className="briefing-actor__name-tag" style={{ borderColor: '#e5a93b' }}>
-                🤖 Chispa (IA)
+                 Chispa (IA)
               </span>
             </div>
           </div>

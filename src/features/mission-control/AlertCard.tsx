@@ -1,5 +1,7 @@
 import type { MissionAlert } from '../../game';
+import { projectAlertConsequence } from '../../game';
 import { useI18n } from '../../i18n';
+import { formatChange, readableChanges } from './resourceLabels';
 
 interface AlertCardProps {
   readonly alert: MissionAlert;
@@ -10,6 +12,9 @@ interface AlertCardProps {
 export function AlertCard({ alert, selected = false, onSelect }: AlertCardProps) {
   const { t } = useI18n();
   const alertKey = `alerts.${alert.kind}`;
+  // Lo que cuesta ignorarla, con número. Antes solo había una frase cualitativa.
+  const ifIgnored = readableChanges(projectAlertConsequence(alert));
+
   return <button
     type="button"
     className={`alert-card ${selected ? 'alert-card--selected' : ''}`}
@@ -25,7 +30,18 @@ export function AlertCard({ alert, selected = false, onSelect }: AlertCardProps)
     </header>
     {selected && <div className="alert-card__details">
       <p>{t(`${alertKey}.description`)}</p>
-      <p className="alert-card__consequence">{t(`${alertKey}.consequence`)}</p>
+      {/* Las dos caras de la decisión, con el mismo peso visual. */}
+      <div className="alert-card__outcome alert-card__outcome--good">
+        <strong>{t('alerts.ifHandled')}</strong>
+        <span>{t(`${alertKey}.consequence`)}</span>
+      </div>
+      {ifIgnored.length > 0 && <div className="alert-card__outcome alert-card__outcome--bad">
+        <strong>{t('alerts.ifIgnored')}</strong>
+        <ul>{ifIgnored.map((change) => <li key={change.key}>
+          <span>{t(change.labelKey)}</span>
+          <strong>{formatChange(change.value)}</strong>
+        </li>)}</ul>
+      </div>}
     </div>}
   </button>;
 }

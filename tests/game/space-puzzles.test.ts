@@ -64,9 +64,13 @@ describe('reglas puras de los puzles G1–G8', () => {
     expect(isScienceClassificationValid(mars[1], 'VOLCANIC_ROCK')).toBe(false);
   });
 
-  it('G7 requiere exactamente dos bandejas iluminadas', () => {
+  it('G7 requiere dos bandejas iluminadas, las de las plantas pequeñas', () => {
     expect(isGreenhouseLightingReady(new Set([0]))).toBe(false);
     expect(isGreenhouseLightingReady(new Set([0, 2]))).toBe(true);
+    // La planta crecida no necesita la luz: encenderla ya no vale (antes valía cualquier par).
+    expect(isGreenhouseLightingReady(new Set([0, 1]))).toBe(false);
+    expect(isGreenhouseLightingReady(new Set([0, 1]), 2)).toBe(true);
+    expect(isGreenhouseLightingReady(new Set([1, 2]), 2)).toBe(false);
   });
 
   it('G8 acepta solo dos datos pertinentes al problema', () => {

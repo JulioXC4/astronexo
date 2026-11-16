@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { X } from '@phosphor-icons/react';
-import { INTERVENTIONS, getActionCost } from '../../game';
+import { INTERVENTIONS, getActionCost, qualityTier } from '../../game';
 import type {
   ActionChoice,
   GameAction,
@@ -9,6 +9,9 @@ import type {
   ResourceDelta,
 } from '../../game';
 import { interventionAssets } from '../../assets/interventionAssets';
+import { useRadio } from '../radio';
+import { WorkQuality } from '../../visual-kit/WorkQuality';
+import { playSound } from '../audio';
 import { EarthCommunicationGame } from './EarthCommunicationGame';
 import { GreenhouseGame } from './GreenhouseGame';
 import { OxygenPatchGame } from './OxygenPatchGame';
@@ -23,8 +26,27 @@ import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../tu
 
 const INTERVENTION_TUTORIAL_STEP = 'intervention.first';
 
+/** Dónde se esconde la estrella dorada en cada minijuego: una esquina distinta cada vez. */
+const STAR_SPOTS: Readonly<Record<string, { top?: string; bottom?: string; left?: string; right?: string }>> = {
+  G1: { top: '4.6rem', right: '1rem' },
+  G2: { bottom: '5.2rem', left: '1rem' },
+  G3: { top: '46%', right: '.7rem' },
+  G4: { bottom: '6.6rem', right: '1.2rem' },
+  G5: { top: '34%', left: '.7rem' },
+  G6: { bottom: '8rem', left: '46%' },
+  G7: { top: '5.2rem', left: '42%' },
+  G8: { bottom: '3.6rem', right: '34%' },
+};
+
+/** Quién da el consejo de cada minijuego: la ciencia, la dra. Aurora; el resto, Nico. */
+const TIP_SPEAKER: Readonly<Record<string, 'ALBA' | 'AURORA' | 'NICO'>> = {
+  G1: 'NICO', G2: 'NICO', G3: 'NICO', G4: 'NICO', G5: 'NICO', G6: 'AURORA', G7: 'AURORA', G8: 'ALBA',
+};
+
 interface InterventionDockProps {
   readonly state: MissionState;
+  /** Se llama cuando el niño toca la estrella dorada escondida de un minijuego. */
+  readonly onFindStar?: (interventionId: string) => void;
   readonly onAction: (action: GameAction) => void;
   readonly onRequestConfirmation?: (action: GameAction) => void;
   readonly groupDecisionPending?: boolean;
@@ -43,17 +65,26 @@ function formatCost(cost: ResourceDelta, t: Translate) {
 
 export function InterventionDock({
   state,
+  onFindStar,
   onAction,
   onRequestConfirmation,
   groupDecisionPending = false,
   focusedAlertId,
 }: InterventionDockProps) {
   const { t } = useI18n();
+  const radio = useRadio();
   const [menuOpen, setMenuOpen] = useState(false);
   const [selected, setSelected] = useState<InterventionAction | null>(null);
   const [skipSelected, setSkipSelected] = useState(false);
   const [choiceId, setChoiceId] = useState<ActionChoice | undefined>();
   const [interactionReady, setInteractionReady] = useState(false);
+  // Qué tan bien quedó el minijuego; viaja con la acción hasta el motor.
+  const [quality, setQuality] = useState<number | undefined>(undefined);
+  function reportResult(ready: boolean, value?: number) {
+    if (ready && !interactionReady) playSound('success');
+    setInteractionReady(ready);
+    setQuality(ready ? value : undefined);
+  }
   const [interventionTutorialOpen, setInterventionTutorialOpen] = useState(false);
   const actionLock = useRef(false);
   const requestLock = useRef(false);
@@ -73,6 +104,7 @@ export function InterventionDock({
     type: selected,
     targetId: matchingAlert?.id,
     choiceId,
+    quality,
   } : null;
   const cost = pendingAction ? getActionCost(state, pendingAction) : {};
   const canPay = state.energy + (cost.energy ?? 0) >= 0
@@ -96,7 +128,7 @@ export function InterventionDock({
     setSelected(null);
     setSkipSelected(false);
     setChoiceId(undefined);
-    setInteractionReady(false);
+    reportResult(false);
   }, [state.actionTakenThisTurn]);
 
   useEffect(() => {
@@ -127,9 +159,17 @@ export function InterventionDock({
   function choose(action: InterventionAction) {
     setMenuOpen(false);
     setSelected(action);
+    // La tarea y un consejo llegan por radio, en vez de en una caja de texto sobre el juego.
+    // (Las claves de texto son G1…G8; la acción es, p. ej., PATCH_OXYGEN_LEAK.)
+    const picked = INTERVENTIONS.find((item) => item.action === action);
+    if (picked) {
+      // Es una acción del jugador: pasa al frente de la cola, por delante del mensaje de la meta.
+      radio.say({ speaker: 'CHISPA', front: true, text: t(`interventions.items.${picked.id}.instructions`) });
+      radio.say({ speaker: TIP_SPEAKER[picked.id] ?? 'NICO', text: t(`interventions.items.${picked.id}.tip`) });
+    }
     setSkipSelected(false);
     setChoiceId(undefined);
-    setInteractionReady(false);
+    reportResult(false);
   }
 
   function closeOverlay() {
@@ -138,7 +178,7 @@ export function InterventionDock({
     setSelected(null);
     setSkipSelected(false);
     setChoiceId(undefined);
-    setInteractionReady(false);
+    reportResult(false);
   }
 
   function confirm() {
@@ -149,9 +189,16 @@ export function InterventionDock({
       return;
     }
     actionLock.current = true;
+    playSound('reward');
     onAction(pendingAction);
     setSelected(null);
     setMenuOpen(false);
+  }
+
+  function findStar(id: string) {
+    playSound('reward');
+    radio.say({ speaker: 'CHISPA', tone: 'good', front: true, text: t('discovery.found', { fact: t(`discovery.facts.${id}`) }) });
+    onFindStar?.(id);
   }
 
   function chooseSkip() {
@@ -159,7 +206,7 @@ export function InterventionDock({
     setSelected(null);
     setSkipSelected(true);
     setChoiceId(undefined);
-    setInteractionReady(false);
+    reportResult(false);
   }
 
   function confirmSkip() {
@@ -319,22 +366,33 @@ export function InterventionDock({
         {panelMode === 'SKIPPED' ? <div className="console-placeholder"><p>{t('interventions.skippedDesc')}</p></div> : <>
           <div data-tutorial="intervention-game">
             {selected === 'REPAIR_PANELS'
-              ? <PanelRepairGame onReadyChange={setInteractionReady} />
+              ? <PanelRepairGame onReadyChange={reportResult} />
               : selected === 'CLEAN_PANELS'
-                ? <PanelCleaningGame onReadyChange={setInteractionReady} />
+                ? <PanelCleaningGame onReadyChange={reportResult} seed={state.scenarioSeed + state.turn} />
               : selected === 'PATCH_OXYGEN_LEAK'
-                ? <OxygenPatchGame onReadyChange={setInteractionReady} />
+                ? <OxygenPatchGame onReadyChange={reportResult} seed={state.scenarioSeed + state.turn} />
                 : selected === 'RECYCLE_OXYGEN'
-                  ? <OxygenRecycleGame onReadyChange={setInteractionReady} />
+                  ? <OxygenRecycleGame onReadyChange={reportResult} />
                   : selected === 'REINFORCE_SHELTER'
-                    ? <ShelterProtectionGame onReadyChange={setInteractionReady} onChoiceChange={setChoiceId} />
+                    ? <ShelterProtectionGame onReadyChange={reportResult} onChoiceChange={setChoiceId} />
                     : selected === 'RUN_RESEARCH'
-                      ? <ScienceResearchGame destination={state.destination} onReadyChange={setInteractionReady} />
+                      ? <ScienceResearchGame destination={state.destination} onReadyChange={reportResult} />
                       : selected === 'MANAGE_GREENHOUSE'
-                        ? <GreenhouseGame onReadyChange={setInteractionReady} onChoiceChange={setChoiceId} />
-                        : <EarthCommunicationGame state={state} onReadyChange={setInteractionReady} onChoiceChange={setChoiceId} />}
+                        ? <GreenhouseGame onReadyChange={reportResult} onChoiceChange={setChoiceId} seed={state.scenarioSeed + state.turn} />
+                        : <EarthCommunicationGame state={state} onReadyChange={reportResult} onChoiceChange={setChoiceId} />}
           </div>
+          {/* La estrella dorada escondida: un dato real de la NASA y 3 de Ciencia, una sola vez por minijuego. */}
+          {onFindStar && !state.starsFound.includes(intervention.id) && <button
+            type="button"
+            className="gold-star"
+            style={STAR_SPOTS[intervention.id]}
+            aria-label={t('discovery.starLabel')}
+            title={t('discovery.starLabel')}
+            onClick={() => findStar(intervention.id)}
+          >★</button>}
           {!canPay && <p className="error-copy">{t('interventions.insufficientResources')}</p>}
+          {/* Qué tan bien quedó el trabajo. Palabra + tres marcas: nunca solo color. */}
+          {interactionReady && <WorkQuality tier={qualityTier(quality)} />}
           <footer className="intervention-console__actions">
             <button type="button" className="pixel-button" onClick={closeOverlay}>{t('common.back')}</button>
             <button

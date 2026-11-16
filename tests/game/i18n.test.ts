@@ -151,9 +151,9 @@ describe('Sistema de Internacionalización (i18n) v3.0', () => {
 
   it('soporta interpolación de parámetros en plantillas dinámicas', () => {
     const template = en.cities.confirmBase;
-    expect(template).toBe('Confirm Base in {city}');
+    expect(template).toBe('Train in {city}');
     const formatted = template.replace('{city}', 'Arequipa');
-    expect(formatted).toBe('Confirm Base in Arequipa');
+    expect(formatted).toBe('Train in Arequipa');
   });
 
   it('incluye las etiquetas usadas por el constructor y el informe en los cuatro idiomas', () => {

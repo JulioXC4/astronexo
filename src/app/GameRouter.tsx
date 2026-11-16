@@ -28,6 +28,7 @@ type ResultViewStep = 'RETURN' | 'NEXT_ADVENTURE' | 'LEARN';
 
 export function GameRouter({ phase, onReady, onStartCoop, onFinish, onRestart }: GameRouterProps) {
   const [resultStep, setResultStep] = useState<ResultViewStep>('RETURN');
+
   const [isStationModalOpen, setIsStationModalOpen] = useState(false);
 
   switch (phase.kind) {

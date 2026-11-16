@@ -1,6 +1,8 @@
 .tutorial-coach { position:fixed; z-index:90; inset:0; pointer-events:none; font-family:"Nunito",sans-serif; }
-.tutorial-coach__target { position:fixed; border:4px solid #ffe16f; background:transparent url('/assets/space/ui/selection-ring.png') center/100% 100% no-repeat; box-shadow:0 0 0 9999px rgb(2 8 19 / 42%),0 0 22px #ffe16f; image-rendering:pixelated; pointer-events:none; }
-.tutorial-coach__dialog { position:fixed; display:grid; grid-template-columns:6.2rem minmax(0,1fr); grid-template-rows:minmax(7rem,auto) auto; gap:.4rem .8rem; min-height:12.5rem; padding:1rem 1.1rem .9rem; border:4px solid #65d9ef; color:#f5f4df; background:#092038 url('/assets/space/ui/dialog-frame.png') center/100% 100% no-repeat; box-shadow:0 14px 40px rgb(0 0 0 / 65%); image-rendering:pixelated; pointer-events:auto; }
+/* El foco deja pasar el clic: el niño practica sobre el elemento resaltado. */
+.tutorial-coach__target { position:fixed; border:4px solid #ffe16f; background:transparent url('/assets/space/ui/selection-ring.png') center/100% 100% no-repeat; box-shadow:0 0 0 9999px rgb(2 8 19 / 42%),0 0 22px #ffe16f; image-rendering:pixelated; pointer-events:none; animation:coach-target-pulse 1.5s ease-in-out infinite; }
+@keyframes coach-target-pulse { 0%,100% { box-shadow:0 0 0 9999px rgb(2 8 19 / 42%),0 0 18px #ffe16f; } 50% { box-shadow:0 0 0 9999px rgb(2 8 19 / 42%),0 0 32px #ffe16f; } }
+.tutorial-coach__dialog { animation:coach-in 280ms cubic-bezier(.2,1.4,.5,1) both; position:fixed; display:grid; grid-template-columns:6.2rem minmax(0,1fr); grid-template-rows:minmax(7rem,auto) auto; gap:.4rem .8rem; min-height:12.5rem; padding:1rem 1.1rem .9rem; border:4px solid #65d9ef; color:#f5f4df; background:#092038 url('/assets/space/ui/dialog-frame.png') center/100% 100% no-repeat; box-shadow:0 14px 40px rgb(0 0 0 / 65%); image-rendering:pixelated; pointer-events:auto; }
 .tutorial-coach__dialog--alert { border-color:#ff8b79; background-image:url('/assets/space/ui/alert-frame.png'); }
 .tutorial-coach__portrait { align-self:end; width:6.2rem; height:7.2rem; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 4px 0 rgb(0 0 0 / 35%)); }
 .tutorial-coach__copy { align-self:center; min-width:0; padding:.35rem .4rem; background:rgb(2 8 19 / 78%); }
@@ -30,3 +32,4 @@
   .tutorial-coach * { scroll-behavior:auto!important; transition:none!important; animation:none!important; }
 }
 
+@keyframes coach-in { from { opacity:0; transform:translateY(.8rem) scale(.95); } to { opacity:1; transform:translateY(0) scale(1); } }
