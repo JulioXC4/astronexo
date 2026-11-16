@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { ArrowCounterClockwise, ArrowLeft, Sparkle } from '@phosphor-icons/react';
+import { ArrowCounterClockwise, ArrowLeft, ArrowRight, Sparkle } from '@phosphor-icons/react';
 import type { QualityTier } from '../../../game';
 import { LanguageSelector, useI18n } from '../../../i18n';
 import { WorkQuality } from '../../../visual-kit/WorkQuality';
@@ -97,6 +97,7 @@ export function TrainingFrame({
         <button type="button" className="training__kit" onClick={() => { playSound('reward'); onConfirm(); }}>
           <Sparkle weight="fill" aria-hidden="true" />
           <span>{t('training.kitButton', { cost: result.cost, resource: t(RESOURCE_LABEL[result.resource]).toLowerCase() })}</span>
+          <ArrowRight weight="bold" aria-hidden="true" />
         </button>
       </section>}
     </main>

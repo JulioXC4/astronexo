@@ -272,7 +272,7 @@
   margin: 0 0 .3rem;
   color: #f7c55c;
   text-transform: uppercase;
-  font-size: .85rem;
+  font-size: 1.037rem;
   letter-spacing: .06em;
   font-weight: 800;
 }
@@ -339,7 +339,7 @@
 }
 
 .welcome__sources span {
-  font-size: .93rem;
+  font-size: 1.05rem;
 }
 
 @media (min-width: 1001px) and (max-width: 1399px) {

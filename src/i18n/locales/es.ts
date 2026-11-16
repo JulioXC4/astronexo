@@ -31,6 +31,18 @@ export const es = {
   },
 
   sound: { on: 'Activar sonido', off: 'Silenciar' },
+  turnSummary: {
+    kicker: 'FIN DEL TURNO {turn}',
+    title: 'Qué pasó · {clock}',
+    whatYouDid: 'Lo que hiciste:',
+    nothing: 'Nada: dejaste que el turno pasara.',
+    whatYouLeft: 'Lo que dejaste sin atender:',
+    barsTitle: 'Cómo quedaron tus barras',
+    noChange: 'Nada cambió en este turno.',
+    nowAt: 'queda en {value}',
+    next: 'Siguiente turno',
+    report: 'Ver el informe',
+  },
   discovery: {
     starLabel: 'Estrella dorada escondida',
     found: '¡Estrella dorada! +3 de Ciencia. {fact}',
@@ -50,6 +62,14 @@ export const es = {
     keepAdjusting: 'Puedes seguir moviendo los controles para que quede mejor.',
     kitButton: '¡Consigue tu kit! (cuesta {cost} de {resource})',
     reset: 'Empezar de nuevo',
+    solarDetective: {
+      task: 'Gira el panel hacia el Sol, llena la batería y reparte la energía antes de que llegue la noche.',
+      tip: 'Estos tres días son reales: los midió un satélite de la NASA sobre Arequipa.',
+    },
+    solarWatch: {
+      task: 'Viene una tormenta del Sol. Suena la alarma, mete a la tripulación al refugio y protege la antena.',
+      tip: 'A veces el Sol lanza nubes enormes de partículas. Tardan de 1 a 3 días en llegar.',
+    },
     veggie: {
       title: 'Huerto espacial',
       task: 'Las plantas necesitan el color de luz justo y el agua justa. Gira la perilla y elige el agua.',

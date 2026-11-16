@@ -18,15 +18,15 @@ interface NarrativeBriefingScreenProps {
 }
 
 /** Misma sala de la academia que la selección de astronauta: el cambio de pantalla no cambia de mundo. */
-const BACKGROUND = '/assets/pixel-art/academy-briefing-room.png';
+const BACKGROUND = '/assets/pixel-art/academy-briefing-room.webp';
 
 const AVATAR_SPRITES: Record<string, string> = {
-  ALBA: '/assets/pixel-art/cadet-alba.png',
-  LEO: '/assets/pixel-art/commander-leo.png',
-  AURORA: '/assets/pixel-art/officer-aurora.png',
-  NICO: '/assets/pixel-art/engineer-nico.png',
+  ALBA: '/assets/pixel-art/cadet-alba.webp',
+  LEO: '/assets/pixel-art/commander-leo.webp',
+  AURORA: '/assets/pixel-art/officer-aurora.webp',
+  NICO: '/assets/pixel-art/engineer-nico.webp',
 };
-const CHISPA_SPRITE = '/assets/characters/chispa.png';
+const CHISPA_SPRITE = '/assets/characters/chispa.webp';
 
 type SpeakerId = 'ALBA' | 'AURORA' | 'CHISPA';
 

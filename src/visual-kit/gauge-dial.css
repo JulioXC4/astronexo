@@ -13,7 +13,7 @@
 .gauge-dial__hub { fill: #f6c15b; stroke: #6a4a12; stroke-width: 3; }
 .gauge-dial__readout { display: grid; justify-items: center; line-height: 1.15; text-align: center; }
 .gauge-dial__readout strong { font-family: 'Fredoka', sans-serif; font-size: 1.45rem; color: #fff; }
-.gauge-dial__readout span { font-size: .78rem; font-weight: 800; color: #9bc0e4; }
-.gauge-dial__ends { display: flex; justify-content: space-between; width: 80%; color: #7f9bb8; font-size: .66rem; }
+.gauge-dial__readout span { font-size: 0.952rem; font-weight: 800; color: #9bc0e4; }
+.gauge-dial__ends { display: flex; justify-content: space-between; width: 80%; color: #7f9bb8; font-size: 0.805rem; }
 .gauge-dial.is-disabled { opacity: .5; }
 @media (prefers-reduced-motion: reduce) { .gauge-dial__needle { transition: none; } }

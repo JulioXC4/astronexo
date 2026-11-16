@@ -56,6 +56,17 @@ export function PreparationMapScreen({
   const countCompleted = completedMissions.length;
   const isThreeDone = countCompleted >= 3;
   const activeMission = missions.find((mission) => mission.id === selectedId) ?? null;
+
+  // Al abrir una instalación, Chispa dice de qué va en una frase, como en los
+  // minijuegos de la guardia. Antes solo había una ficha de texto que leer.
+  useEffect(() => {
+    if (!activeMission) return;
+    radio.say({
+      speaker: 'CHISPA',
+      front: true,
+      text: t(`map.facilities.${activeMission.id}.objective`),
+    });
+  }, [activeMission, radio, t]);
   const arctic = cityId === 'TROMSO';
 
   // Herramientas ganadas: exactamente las de las misiones completadas.

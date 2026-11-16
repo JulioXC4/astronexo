@@ -6,12 +6,13 @@ import { DONKI_HISTORICAL_EVENTS } from '../../../data/nasa/donkiData';
 import { useI18n } from '../../../i18n';
 import { initialStormState, stormFailure, stormReducer, type StormAction } from './solarStormLogic';
 import { MinigameShell } from './ui/MinigameShell';
+import { useScreenRadio } from '../../radio';
 import './solarStorm.css';
 
 interface Props { readonly onComplete: (outcome: TrainingOutcome) => void; readonly onBack: () => void }
 const ASSET = '/assets/minigames/solar-storm/';
-const ROOM = '/assets/pixel-art/airlock-refuge.png';
-const CREW_SPRITE = { A: '/assets/pixel-art/cadet-alba.png', B: '/assets/pixel-art/engineer-nico.png' } as const;
+const ROOM = '/assets/pixel-art/airlock-refuge.webp';
+const CREW_SPRITE = { A: '/assets/pixel-art/cadet-alba.webp', B: '/assets/pixel-art/engineer-nico.webp' } as const;
 const copy = {
   en: {
     title: 'Operation Shelter', subtitle: 'CME alert · NASA DONKI', alert: 'Space alert! Prepare the shelter before the simulated event.', start: 'Start operation', intro: 'Intro · 8 actions', normal: 'Normal · 7 actions', actions: 'actions left', simulated: 'Educational simulation', nasa: 'NASA DONKI record', science: 'The science behind this mission', scienceBody: 'A coronal mass ejection (CME) is a large release of solar plasma and magnetic field. Space weather can affect spacecraft systems. This exercise uses fictional actions, crew positions and data packets; it is not an official NASA emergency procedure. The historical record does not describe an impact on this station.', alarm: 'Alarm', shelter: 'Shelter', telemetry: 'Telemetry', off: 'OFF', on: 'ON', open: 'OPEN', locked: 'LOCKED', deployed: 'DEPLOYED', protected: 'PROTECTED', backup: 'Backup power', backupReady: 'READY', backupOff: 'OFF', crew: 'Crew corridor', safe: 'Clear route', blocked: 'Blocked route', packet: 'Collect data packet', packetCount: 'data packets', undo: 'Undo', reset: 'Restart', impact: 'Simulate arrival', arrival: 'CME arrival', successTitle: 'Shelter secured!', failTitle: 'Protocol incomplete', safety: 'Mission safety', data: 'Data recovered', tool: 'Tool earned', cost: 'RF-69 energy cost', finish: 'Claim kit and continue', retry: 'Try again', learn: 'What happened', successLearn: 'You prioritized the crew, backup power and equipment protection.', sacrifice0: 'You protected the station immediately and saved no extra data packets.', sacrifice1: 'You saved one packet and left the second to protect the station.', sacrifice2: 'You saved both packets before retracting the antenna.', noAlarm: 'The alarm was off, so the crew was not guided to shelter.', crewOutside: 'A crew member was still outside the shelter.', noBackup: 'Backup power was not ready for the shelter.', hatchOpen: 'The hatch was open when the event arrived.', antennaExposed: 'The antenna remained exposed.', startHint: 'Tap the alarm, then guide each astronaut.', alarmOn: 'Alarm on. Guide both astronauts along the clear route.', alreadyOn: 'The alarm is already on.', alarmFirst: 'Sound the alarm before moving the crew.', alreadyInside: 'This astronaut is already inside.', crewMoved: 'Astronaut reached the shelter.', blockedRoute: 'A fallen panel blocks this route. Try the clear route.', alreadyReady: 'Backup power is already prepared.', backupPrepared: 'Backup power ready.', backupFirst: 'Prepare backup power before securing the hatch.', alreadyLocked: 'The hatch is already secured.', hatchLocked: 'The hatch is secured.', antennaRetracted: 'The antenna is retracted. No more packets can be collected.', packetsFull: 'Both packets are already saved.', packetSaved: 'A simulation data packet was saved.', alreadyProtected: 'Telemetry is already protected.', telemetryProtected: 'Antenna retracted and protected.', undone: 'Last action undone.', arrivalHint: 'The event is reaching the station…', resultHint: 'Review the outcome and try another strategy.', noData: 'No extra packets were saved.', failureLesson: 'Check the unfinished station, then try a new order of actions.',
@@ -35,9 +36,14 @@ type Crew = 'A' | 'B';
 const pos = (x: number, y: number) => ({ left: `${x / 10}%`, top: `${y / 5.63}%` });
 
 export function SolarWatchGame({ onComplete, onBack }: Props) {
-  const { language } = useI18n();
+  const { language, t } = useI18n();
   const words = language === 'es' ? copy.es : copy.en;
   const tr = (key: string) => words[key as CopyKey] ?? key;
+  // La tarea y un consejo llegan por radio, como en el resto de entrenamientos.
+  useScreenRadio([
+    { speaker: 'CHISPA', text: t('training.solarWatch.task') },
+    { speaker: 'AURORA', text: t('training.solarWatch.tip') },
+  ]);
   const [state, dispatch] = useReducer(stormReducer, undefined, () => initialStormState());
   const [eventIndex, setEventIndex] = useState(0);
   const [routeFor, setRouteFor] = useState<Crew | null>(null);
@@ -86,9 +92,9 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
   const stationOn = { alarm: state.alarm, hatch: state.hatch, telemetry: state.telemetry, backup: state.backup };
   const stationAction: Record<'alarm' | 'hatch' | 'telemetry' | 'backup', StormAction> = { alarm: 'alarm', hatch: 'hatch', telemetry: 'telemetry', backup: 'backup' };
   const sprite = {
-    alarm: `${ASSET}storm-alarm-${state.alarm ? 'on' : 'off'}.png`,
-    hatch: `${ASSET}storm-hatch-${state.hatch ? 'locked' : 'open'}.png`,
-    telemetry: `${ASSET}storm-telemetry-deployed.png`,
+    alarm: `${ASSET}storm-alarm-${state.alarm ? 'on' : 'off'}.webp`,
+    hatch: `${ASSET}storm-hatch-${state.hatch ? 'locked' : 'open'}.webp`,
+    telemetry: `${ASSET}storm-telemetry-deployed.webp`,
     backup: '',
   };
   const stationBad = { alarm: bad('noAlarm'), hatch: bad('hatchOpen'), telemetry: bad('antennaExposed'), backup: bad('noBackup') };

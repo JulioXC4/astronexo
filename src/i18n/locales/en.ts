@@ -31,6 +31,18 @@ export const en = {
   },
 
   sound: { on: 'Turn sound on', off: 'Mute' },
+  turnSummary: {
+    kicker: 'END OF TURN {turn}',
+    title: 'What happened · {clock}',
+    whatYouDid: 'What you did:',
+    nothing: 'Nothing: you let the turn go by.',
+    whatYouLeft: 'What you left unattended:',
+    barsTitle: 'How your bars ended up',
+    noChange: 'Nothing changed this turn.',
+    nowAt: 'now at {value}',
+    next: 'Next turn',
+    report: 'See the report',
+  },
   discovery: {
     starLabel: 'Hidden golden star',
     found: 'Golden star! +3 Science. {fact}',
@@ -50,6 +62,14 @@ export const en = {
     keepAdjusting: 'You can keep moving the controls to make it even better.',
     kitButton: 'Get your kit! (costs {cost} {resource})',
     reset: 'Start over',
+    solarDetective: {
+      task: 'Turn the panel toward the Sun, fill the battery and share the energy before night falls.',
+      tip: 'These three days are real: a NASA satellite measured them over Arequipa.',
+    },
+    solarWatch: {
+      task: 'A Sun storm is coming. Sound the alarm, get the crew into the shelter and protect the antenna.',
+      tip: 'Sometimes the Sun throws out huge clouds of particles. They take 1 to 3 days to arrive.',
+    },
     veggie: {
       title: 'Space garden',
       task: 'Plants need just the right light color and just the right water. Turn the dial and pick the water.',

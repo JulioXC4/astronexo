@@ -96,7 +96,7 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
   }, [passed]);
   const first = dataset.days[0].observation;
   const cityName = cityId === 'TROMSO' ? 'Tromsø' : 'Arequipa';
-  const backdrop = cityId === 'TROMSO' ? '/assets/pixel-art/arctic-research-base.png' : '/assets/pixel-art/andean-training-complex.png';
+  const backdrop = cityId === 'TROMSO' ? '/assets/pixel-art/arctic-research-base.webp' : '/assets/pixel-art/andean-training-complex.webp';
   const filled = Math.round(reserve / (100 / CELLS));
 
   function changeReserve(next: number) {

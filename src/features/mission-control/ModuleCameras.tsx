@@ -68,7 +68,7 @@ export function ModuleCameras({ state }: ModuleCamerasProps) {
         aria-pressed={selectedCamera === 'EXTERIOR'}
         onClick={() => setSelectedCamera('EXTERIOR')}
       >
-        <img src={exteriorScene} alt="" />
+        <img src={exteriorScene} alt="" decoding="async" loading="lazy" />
         <span>{t('missionControl.exteriorCamera')}</span>
         <small>{dustStorm ? t('missionControl.moduleStatus.warning') : t('common.online')}</small>
       </button>
@@ -86,7 +86,7 @@ export function ModuleCameras({ state }: ModuleCamerasProps) {
           aria-pressed={selectedCamera === module.id}
           onClick={() => setSelectedCamera(module.id)}
         >
-          <img src={getModuleScene(state.destination, module.id)} alt="" />
+          <img src={getModuleScene(state.destination, module.id)} alt="" decoding="async" loading="lazy" />
           <span>{name}</span>
           <small>{t(`missionControl.moduleStatus.${statusKey}`)}</small>
         </button>;

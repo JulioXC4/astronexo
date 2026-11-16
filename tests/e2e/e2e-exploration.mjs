@@ -31,6 +31,9 @@ try {
   await skipIntervention(page);
   await page.waitForFunction(() => !document.querySelector('footer.turn-controls button')?.hasAttribute('disabled'));
   await page.click('footer.turn-controls button');
+  await page.waitForSelector('.turn-summary__next');
+  if (!(await text(page.locator('.turn-summary'))).includes('Qué pasó')) throw new Error('Falta el resumen del turno.');
+  await page.click('.turn-summary__next');
   await page.waitForSelector('.turn-transition button');
   if (await page.locator('.explore-start').count()) throw new Error('La salida no debe aparecer tras el turno 1.');
   await page.click('.turn-transition button');
@@ -40,6 +43,8 @@ try {
   await skipIntervention(page);
   await page.waitForFunction(() => !document.querySelector('footer.turn-controls button')?.hasAttribute('disabled'));
   await page.click('footer.turn-controls button');
+  await page.waitForSelector('.turn-summary__next');
+  await page.click('.turn-summary__next');
   await page.waitForSelector('.explore-start');
   await assertScreenHealthy(page, 'salida a explorar');
   const cards = await page.locator('.explore-card h2').allInnerTexts();

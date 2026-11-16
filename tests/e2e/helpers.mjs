@@ -363,6 +363,10 @@ export async function playFiveTurns(page, { coop = false, actOnTurn, explore = '
     }
     await page.waitForFunction(() => !document.querySelector('footer.turn-controls button')?.hasAttribute('disabled'));
     await page.click('footer.turn-controls button');
+    // Cada turno cierra con el resumen «Qué pasó»; de ahí se sigue.
+    await page.waitForSelector('.turn-summary__next');
+    await assertScreenHealthy(page, `resumen del turno ${turn}`);
+    await page.click('.turn-summary__next');
     const stage = await Promise.race([
       page.waitForSelector('.explore-start').then(() => 'explore'),
       page.waitForSelector('.turn-transition button').then(() => 'transition'),

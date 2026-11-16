@@ -39,7 +39,7 @@ export function SystemsMonitorScreen({ setup, onStart }: SystemsMonitorScreenPro
         <ul style={{ display: 'flex', gap: '0.8rem', listStyle: 'none', padding: 0, margin: 0, flexWrap: 'wrap' }}>
           {setup.selectedModules.map((moduleId) => (
             <li key={moduleId} style={{ textAlign: 'center', color: '#e3effb', width: '9rem', fontSize: '0.85rem' }}>
-              <img src={moduleScenes[setup.destination][moduleId]} alt="" style={{ width: '100%', imageRendering: 'pixelated' }} />
+              <img src={moduleScenes[setup.destination][moduleId]} alt="" style={{ width: '100%', imageRendering: 'pixelated' }} decoding="async" loading="lazy" />
               <strong>{t(`baseBuilder.modules.${moduleId}.name`)}</strong>
             </li>
           ))}
