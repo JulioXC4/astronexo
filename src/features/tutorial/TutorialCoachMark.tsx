@@ -176,7 +176,7 @@ export function TutorialCoachMark({ open, steps, onComplete, onSkip }: TutorialC
       </button>
       <img
         className="tutorial-coach__portrait"
-        src={step.character === 'ALBA' ? '/assets/pixel-art/cadet-alba.png' : '/assets/characters/chispa.png'}
+        src={step.character === 'ALBA' ? '/assets/pixel-art/cadet-alba.webp' : '/assets/characters/chispa.webp'}
         alt={t(`tutorial.characters.${step.character.toLowerCase()}`)}
       />
       <div className="tutorial-coach__copy">
@@ -188,7 +188,7 @@ export function TutorialCoachMark({ open, steps, onComplete, onSkip }: TutorialC
         <button type="button" className="tutorial-coach__skip" onClick={() => finish(true)}>{t('tutorial.skip')}</button>
         <button ref={primaryButton} type="button" className="tutorial-coach__next" onClick={next}>
           <span>{step.actionLabel ?? t(isLast ? 'tutorial.understood' : 'tutorial.next')}</span>
-          <img src="/assets/space/ui/arrow-next.png" alt="" aria-hidden="true" />
+          <img src="/assets/space/ui/arrow-next.webp" alt="" aria-hidden="true" />
         </button>
       </footer>
     </section>

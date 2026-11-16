@@ -2,11 +2,11 @@ import type { Destination, ModuleId } from '../game';
 
 /** Existing lunar interiors remain the canonical Moon camera feeds. */
 export const lunarModuleScenes: Record<ModuleId, string> = {
-  SOLAR_STORAGE: '/assets/pixel-art/lunar-energy-module.png',
-  REINFORCED_LIFE_SUPPORT: '/assets/pixel-art/lunar-life-support-room.png',
-  STORM_SHELTER: '/assets/pixel-art/airlock-refuge.png',
-  GREENHOUSE: '/assets/pixel-art/lunar-greenhouse-lab.png',
-  SCIENCE_LAB: '/assets/pixel-art/lunar-laboratory.png',
+  SOLAR_STORAGE: '/assets/pixel-art/lunar-energy-module.webp',
+  REINFORCED_LIFE_SUPPORT: '/assets/pixel-art/lunar-life-support-room.webp',
+  STORM_SHELTER: '/assets/pixel-art/airlock-refuge.webp',
+  GREENHOUSE: '/assets/pixel-art/lunar-greenhouse-lab.webp',
+  SCIENCE_LAB: '/assets/pixel-art/lunar-laboratory.webp',
 };
 
 export const marsModuleScenes: Record<ModuleId, string> = {

@@ -13,10 +13,10 @@ interface NarrativeBriefingScreenProps {
 }
 
 const AVATAR_SPRITES: Record<string, string> = {
-  ALBA: '/assets/pixel-art/cadet-alba.png',
-  LEO: '/assets/pixel-art/commander-leo.png',
-  AURORA: '/assets/pixel-art/officer-aurora.png',
-  NICO: '/assets/pixel-art/engineer-nico.png',
+  ALBA: '/assets/pixel-art/cadet-alba.webp',
+  LEO: '/assets/pixel-art/commander-leo.webp',
+  AURORA: '/assets/pixel-art/officer-aurora.webp',
+  NICO: '/assets/pixel-art/engineer-nico.webp',
 };
 
 export function NarrativeBriefingScreen({
@@ -48,7 +48,7 @@ export function NarrativeBriefingScreen({
       step: 2,
       speaker: t('briefing.dialogue.step2Speaker'),
       role: 'Estación de Telemetría',
-      thumb: '/assets/pixel-art/officer-aurora.png',
+      thumb: '/assets/pixel-art/officer-aurora.webp',
       text: t('briefing.dialogue.step2Text', { city: cityName }),
       accentColor: '#4ec3d9',
     },
@@ -56,7 +56,7 @@ export function NarrativeBriefingScreen({
       step: 3,
       speaker: t('briefing.dialogue.step3Speaker'),
       role: 'Planificación de Misión',
-      thumb: '/assets/pixel-art/cadet-alba.png',
+      thumb: '/assets/pixel-art/cadet-alba.webp',
       text: t('briefing.dialogue.step3Text'),
       accentColor: '#f6c15b',
     },
@@ -64,7 +64,7 @@ export function NarrativeBriefingScreen({
       step: 4,
       speaker: t('briefing.dialogue.step4Speaker'),
       role: 'Asistente Táctico',
-      thumb: '/assets/characters/chispa.png',
+      thumb: '/assets/characters/chispa.webp',
       text: t('briefing.dialogue.step4Text'),
       accentColor: '#ffd54f',
     },
@@ -121,7 +121,7 @@ export function NarrativeBriefingScreen({
             {/* Asistente Chispa a la derecha */}
             <div className="briefing-actor briefing-actor--chispa">
               <img
-                src="/assets/characters/chispa.png"
+                src="/assets/characters/chispa.webp"
                 alt="Chispa robot asistente"
                 className="briefing-actor__sprite"
                 style={{ maxHeight: '11rem' }}

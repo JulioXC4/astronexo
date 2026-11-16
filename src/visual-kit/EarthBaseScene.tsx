@@ -27,20 +27,20 @@ export interface EarthBaseSceneProps {
 }
 
 const facilitySprites: Partial<Record<MissionType, string>> = {
-  SOLAR_DETECTIVE: 'andean-solar-observatory.png',
-  ALTITUDE_ACCLIMATIZATION: 'hypobaric-chamber.png',
-  DARK_MONTHS_RESERVE: 'polar-energy-storage.png',
-  SOLAR_WATCH: 'space-weather-observatory.png',
-  ECLSS_TRAINING: 'life-support-lab.png',
-  VEGGIE_LAB: 'hydroponic-greenhouse.png',
-  CLOUDS_SUNS: 'andean-solar-observatory.png', // provisional: sprite propio pendiente (Julio)
+  SOLAR_DETECTIVE: 'andean-solar-observatory.webp',
+  ALTITUDE_ACCLIMATIZATION: 'hypobaric-chamber.webp',
+  DARK_MONTHS_RESERVE: 'polar-energy-storage.webp',
+  SOLAR_WATCH: 'space-weather-observatory.webp',
+  ECLSS_TRAINING: 'life-support-lab.webp',
+  VEGGIE_LAB: 'hydroponic-greenhouse.webp',
+  CLOUDS_SUNS: 'andean-solar-observatory.webp', // provisional: sprite propio pendiente (Julio)
 };
 
 function spriteFor(id: MissionType, arctic: boolean): string | undefined {
   if (arctic) {
-    if (id === 'SOLAR_WATCH') return 'arctic-weather-station.png';
-    if (id === 'CLOUDS_SUNS') return 'polar-energy-storage.png';
-    if (id === 'ECLSS_TRAINING') return 'polar-life-support-lab.png';
+    if (id === 'SOLAR_WATCH') return 'arctic-weather-station.webp';
+    if (id === 'CLOUDS_SUNS') return 'polar-energy-storage.webp';
+    if (id === 'ECLSS_TRAINING') return 'polar-life-support-lab.webp';
     if (id === 'ARCTIC_GREENHOUSE') return undefined;
   }
   return facilitySprites[id];
@@ -83,7 +83,7 @@ export function EarthBaseScene({
   const { t } = useI18n();
   const arctic = cityId === 'TROMSO';
   const cityName = arctic ? 'Tromsø' : 'Arequipa';
-  const background = `/assets/pixel-art/${arctic ? 'arctic-research-base.png' : 'andean-training-complex.png'}`;
+  const background = `/assets/pixel-art/${arctic ? 'arctic-research-base.webp' : 'andean-training-complex.webp'}`;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
