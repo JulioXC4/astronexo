@@ -1,7 +1,7 @@
 import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import type { EarthMissionDefinition, MissionType } from '../data/missions';
 import { useI18n } from '../i18n';
-import { FACILITY_POSITIONS as positions, LAUNCH_PAD, MAP_HEIGHT, MAP_WIDTH, computeSceneLayout } from './earthMapLayout';
+import { LAUNCH_PAD, MAP_HEIGHT, MAP_WIDTH, computeSceneLayout, facilityLayoutFor } from './earthMapLayout';
 import './earth-base-scene.css';
 
 export { MAP_HEIGHT, MAP_WIDTH, computeSceneLayout } from './earthMapLayout';
@@ -33,17 +33,24 @@ const facilitySprites: Partial<Record<MissionType, string>> = {
   SOLAR_WATCH: 'space-weather-observatory.webp',
   ECLSS_TRAINING: 'life-support-lab.webp',
   VEGGIE_LAB: 'hydroponic-greenhouse.webp',
-  CLOUDS_SUNS: 'andean-solar-observatory.webp', // provisional: sprite propio pendiente (Julio)
+  // Paneles y pantalla del Sol: distinto del observatorio de «Baterías con sol» del mismo mapa.
+  CLOUDS_SUNS: 'space-weather-observatory.webp',
+};
+
+/**
+ * Tromsø: cada instalación tiene su propio edificio nevado y ninguno se repite en el mapa
+ * (antes «Nubes y soles» repetía el almacén polar y el invernadero era un dibujo provisional).
+ */
+const arcticSprites: Partial<Record<MissionType, string>> = {
+  SOLAR_WATCH: 'arctic-weather-station.webp',
+  ECLSS_TRAINING: 'polar-life-support-lab.webp',
+  // Laboratorio nevado con cúpula de plantas: el invernadero geotérmico.
+  ARCTIC_GREENHOUSE: 'polar-life-support-lab.webp',
+  CLOUDS_SUNS: 'andean-solar-observatory.webp',
 };
 
 function spriteFor(id: MissionType, arctic: boolean): string | undefined {
-  if (arctic) {
-    if (id === 'SOLAR_WATCH') return 'arctic-weather-station.webp';
-    if (id === 'CLOUDS_SUNS') return 'polar-energy-storage.webp';
-    if (id === 'ECLSS_TRAINING') return 'polar-life-support-lab.webp';
-    if (id === 'ARCTIC_GREENHOUSE') return undefined;
-  }
-  return facilitySprites[id];
+  return (arctic ? arcticSprites[id] : undefined) ?? facilitySprites[id];
 }
 
 function FacilityArtwork({ id }: { id: MissionType }) {
@@ -84,6 +91,7 @@ export function EarthBaseScene({
   const arctic = cityId === 'TROMSO';
   const cityName = arctic ? 'Tromsø' : 'Arequipa';
   const background = `/assets/pixel-art/${arctic ? 'arctic-research-base.webp' : 'andean-training-complex.webp'}`;
+  const { positions, scale: facilityScale, safe } = facilityLayoutFor(cityId);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -109,7 +117,7 @@ export function EarthBaseScene({
     return () => observer.disconnect();
   }, []);
 
-  const layout = useMemo(() => computeSceneLayout(size.width, size.height), [size.width, size.height]);
+  const layout = useMemo(() => computeSceneLayout(size.width, size.height, safe), [size.width, size.height, safe]);
   const measured = size.width > 0 && size.height > 0;
 
   const facilityName = (mission: EarthMissionDefinition) => t(`map.facilities.${mission.id}.facilityName`);
@@ -126,7 +134,7 @@ export function EarthBaseScene({
   const tipMission = tipIndex >= 0 ? missions[tipIndex] : null;
   const tipStyle: CSSProperties | undefined = tipMission ? {
     left: clamp(layout.x + positions[tipIndex].x * layout.scale, 110, Math.max(110, size.width - 110)),
-    top: layout.y + (positions[tipIndex].y + 44) * layout.scale,
+    top: layout.y + (positions[tipIndex].y + 44 * facilityScale) * layout.scale,
   } : undefined;
 
   const stageStyle: CSSProperties = measured
@@ -163,7 +171,7 @@ export function EarthBaseScene({
           const sprite = spriteFor(mission.id, arctic);
           return <g
             key={mission.id}
-            transform={`translate(${x} ${y})`}
+            transform={`translate(${x} ${y})${facilityScale !== 1 ? ` scale(${facilityScale})` : ''}`}
             className={`earth-base-facility earth-base-facility--${state}${chosen ? ' earth-base-facility--chosen' : ''}${celebrating ? ' earth-base-facility--just-completed' : ''}`}
             data-facility-id={mission.id}
             data-state={state}
@@ -193,7 +201,7 @@ export function EarthBaseScene({
             </g>}
             {sprite
               ? <image className="earth-base-facility__sprite" href={`/assets/pixel-art/${sprite}`} x="-75" y="-100" width="150" height="135" preserveAspectRatio="xMidYMid meet" />
-              : <g className="earth-base-facility__sprite" transform={arctic && mission.id === 'ARCTIC_GREENHOUSE' ? 'scale(.68)' : undefined}><FacilityArtwork id={mission.id} /></g>}
+              : <g className="earth-base-facility__sprite"><FacilityArtwork id={mission.id} /></g>}
             <PixelPin state={state} label={index + 1} />
           </g>;
         })}

@@ -287,7 +287,7 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
 
     // 4. La estación se está preparando
     case 'STATION_PREP':
-      return <StationPrepScreen destination={destination} onContinue={() => navigateTo('CITY')} />;
+      return <StationPrepScreen destination={destination} selectedModules={selectedModules} onContinue={() => navigateTo('CITY')} />;
 
     // 5. Arequipa o Tromsø
     case 'CITY':

@@ -77,9 +77,9 @@ function SkyPixel({ shortfall }: { shortfall: number }) {
 export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGameProps) {
   const { t } = useI18n();
   useScreenRadio([
-    { speaker: 'CHISPA', text: t('training.clouds.task') },
-    { speaker: 'AURORA', text: t('training.clouds.tip') },
-  ]);
+    { speaker: 'CHISPA', text: msg('training.clouds.task') },
+    { speaker: 'AURORA', text: msg('training.clouds.tip') },
+  ], 'CLOUDS_SUNS');
   const dataset = getSolarDatasetByCity(cityId);
   const values = useMemo(() => dataset.days.map((day) => day.irradianceKwhPerM2), [dataset]);
   const best = Math.max(...values);

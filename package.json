@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "test": "node --test tests/earth/run-tests.mjs && vitest run",
-    "test:e2e": "node tests/e2e/e2e-all-routes.mjs && node tests/e2e/e2e-exploration.mjs && node tests/e2e/e2e-mission-intro.mjs",
+    "test:e2e": "node tests/e2e/e2e-all-routes.mjs && node tests/e2e/e2e-exploration.mjs && node tests/e2e/e2e-radio-repeat.mjs && node tests/e2e/e2e-mission-intro.mjs",
     "nasa:update": "node scripts/update-nasa-snapshots.mjs",
     "typecheck": "tsc -b",
     "preview": "vite preview"

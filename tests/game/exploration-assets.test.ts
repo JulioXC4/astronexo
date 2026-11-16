@@ -2,13 +2,16 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { AVATAR_OPTIONS } from '../../src/data/avatars';
 import {
-  ASTRONAUT,
   BACKGROUND_CROPS,
   BACKGROUNDS,
   BASES,
+  EXPLORER_FRAME,
+  EXPLORERS,
   FINDING_IMAGES,
   MARKERS,
+  posesForAvatar,
   ROVERS,
   TERRAIN_SPRITES,
   UI,
@@ -29,7 +32,7 @@ const allPaths = (): string[] => [
   ...Object.values(BACKGROUNDS),
   ...Object.values(BASES),
   ...Object.values(ROVERS),
-  ...Object.values(ASTRONAUT),
+  ...Object.values(EXPLORERS).flatMap((poses) => Object.values(poses)),
   ...Object.values(MARKERS),
   ...Object.values(UI.battery),
   UI.scienceBadge,
@@ -54,6 +57,33 @@ describe('sprites de la salida a explorar', () => {
     }
     // Los índices de los lugares del mapa son los de la colección.
     expect(Math.max(...PLACES.map((place) => place.index))).toBe(COLLECTION_SIZE - 1);
+  });
+
+  it('cada personaje elegible explora con sus propias poses', () => {
+    const seen = new Set<string>();
+    for (const avatar of AVATAR_OPTIONS) {
+      const poses = posesForAvatar(avatar.id);
+      expect(poses, avatar.id).toBe(EXPLORERS[avatar.id as keyof typeof EXPLORERS]);
+      for (const path of Object.values(poses)) {
+        expect(path, avatar.id).toContain(`/characters/${avatar.id.toLowerCase()}/`);
+        seen.add(path);
+      }
+    }
+    expect(seen.size).toBe(AVATAR_OPTIONS.length * 4);
+  });
+
+  it('un avatar desconocido o ausente explora con Alba (el avatar por defecto)', () => {
+    expect(posesForAvatar(undefined)).toBe(EXPLORERS.ALBA);
+    expect(posesForAvatar('SIN_PERSONAJE')).toBe(EXPLORERS.ALBA);
+    expect(posesForAvatar('nico')).toBe(EXPLORERS.NICO);
+  });
+
+  it('las poses comparten el lienzo cuadrado que asume la geometría del renderer', () => {
+    for (const poses of Object.values(EXPLORERS)) {
+      for (const path of Object.values(poses)) expect(pngSize(path), path).toEqual({ width: 512, height: 512 });
+    }
+    expect(EXPLORER_FRAME.footY).toBeGreaterThan(EXPLORER_FRAME.bodyHeight);
+    expect(EXPLORER_FRAME.footY).toBeLessThanOrEqual(1);
   });
 
   it('hay un sprite de batería para cada opción de batería', () => {

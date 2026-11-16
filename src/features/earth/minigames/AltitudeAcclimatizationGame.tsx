@@ -106,11 +106,16 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
   />;
 
   return <TrainingFrame
+    scope="ALTITUDE_ACCLIMATIZATION"
     title={t('training.altitude.title')}
     icon={<Wind weight="fill" color="#80d8ff" />}
     onBack={onBack}
-    task={t('training.altitude.task')}
-    tip={t('training.altitude.tip')}
+    taskKey="training.altitude.task"
+    tipKey="training.altitude.tip"
+    goals={[
+      { label: t('training.goals.pressureGreen'), ok: pressureOk },
+      { label: t('training.goals.sealsClosed', { closed }), ok: closed === 3 },
+    ]}
     scene={scene}
     controls={controls}
     hint={hint}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Destination, ExplorationMode, ExplorationResources, ExplorationResult } from '../../game';
-import { useI18n } from '../../i18n';
+import { msg, useI18n } from '../../i18n';
 import { useRadio, useRadioLeave } from '../radio';
 import { playSound, startLoop, stopLoop } from '../audio';
 import { getPlayerSkinForAvatarId } from '../../assets/manifest';
@@ -109,56 +109,62 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
     return { name: latest.current.t(`${key}.name`), text: latest.current.t(`${key}.text`) };
   }, [destination]);
 
+  /** Lo mismo, como referencias: la radio lo traduce al idioma activo al mostrarlo. */
+  const placeRef = useCallback((index: number) => {
+    const key = `exploration.collections.${destination}.${index}`;
+    return { name: msg(`${key}.name`), text: msg(`${key}.text`) };
+  }, [destination]);
+
   const react = useCallback((events: readonly ExpeditionEvent[]) => {
-    const { t: tr, radio: rd } = latest.current;
+    const { radio: rd } = latest.current;
     for (const event of events) {
       switch (event.type) {
         case 'SOFT_TERRAIN':
           if (expedition.current?.mode === 'ROVER') playSound('roverSoftTerrain');
-          rd.say({ text: tr('exploration.radio.softTerrain'), tone: 'danger' }); break;
+          rd.say({ text: msg('exploration.radio.softTerrain'), tone: 'danger' }); break;
         case 'BATTERY_LOW':
           playSound('explorationBatteryLow');
-          rd.say({ text: tr('exploration.radio.lowBattery'), tone: 'danger' }); break;
+          rd.say({ text: msg('exploration.radio.lowBattery'), tone: 'danger' }); break;
         case 'BATTERY_EMPTY':
           playSound('explorationBatteryEmpty');
-          rd.say({ text: tr('exploration.radio.batteryEmpty'), tone: 'danger' }); break;
-        case 'NO_MARGIN': rd.say({ speaker: 'NICO', text: tr('exploration.radio.noMargin'), tone: 'danger' }); break;
+          rd.say({ text: msg('exploration.radio.batteryEmpty'), tone: 'danger' }); break;
+        case 'NO_MARGIN': rd.say({ speaker: 'NICO', text: msg('exploration.radio.noMargin'), tone: 'danger' }); break;
         case 'NOTHING_NEAR': {
           const now = Date.now();
           if (now - lastNothingAt.current > 4000) {
             lastNothingAt.current = now;
             playSound('explorationPileEmpty');
-            rd.say({ text: tr('exploration.radio.nothingNear'), front: true });
+            rd.say({ text: msg('exploration.radio.nothingNear'), front: true });
           }
           break;
         }
         case 'COLLECTED': {
-          const { name, text } = placeName(event.place.index);
+          const { name, text } = placeRef(event.place.index);
           const type = event.place.type;
           // Muestra o huella: recoger; mirador: vista panorámica; curiosidad NASA: destello.
           playSound(type === 'm' ? 'explorationLookout' : type === 'e' ? 'explorationCuriosity' : 'explorationCollect');
           if (type === 's') {
-            const base = tr('exploration.radio.piece', { name, n: event.count, total: event.total });
-            rd.say({ text: event.pileEmpty ? `${base} ${tr('exploration.radio.pileEmpty')}` : base, tone: 'good', front: true });
+            const base = msg('exploration.radio.piece', { name, n: event.count, total: event.total });
+            rd.say({ text: event.pileEmpty ? `${base} ${msg('exploration.radio.pileEmpty')}` : base, tone: 'good', front: true });
           } else {
             const key = type === 'm' ? 'viewpoint' : type === 'r' ? 'trace' : 'curiosity';
-            rd.say({ speaker: type === 'e' ? 'CHISPA' : 'ALBA', text: tr(`exploration.radio.${key}`, { name, text }), tone: 'good', front: true });
+            rd.say({ speaker: type === 'e' ? 'CHISPA' : 'ALBA', text: msg(`exploration.radio.${key}`, { name, text }), tone: 'good', front: true });
           }
           break;
         }
         default: break;
       }
     }
-  }, [placeName]);
+  }, [placeRef]);
 
   // Una pista de ayuda cada vez, en el mismo orden de prioridad que la maqueta.
   const maybeHint = useCallback((e: Expedition, margin: ReturnMargin) => {
-    const { t: tr, radio: rd } = latest.current;
+    const { radio: rd } = latest.current;
     const now = Date.now();
 
     if (margin.cannotReturn && !cannotReturnWarned.current) {
       cannotReturnWarned.current = true;
-      rd.say({ text: tr('exploration.radio.cannotReturn'), tone: 'danger' });
+      rd.say({ text: msg('exploration.radio.cannotReturn'), tone: 'danger' });
     }
     if (!margin.cannotReturn) cannotReturnWarned.current = false;
 
@@ -173,7 +179,7 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
       if (said.current.has(id)) return false;
       said.current.add(id);
       lastHintAt.current = now;
-      rd.say({ text: tr(textKey) });
+      rd.say({ text: msg(textKey) });
       return true;
     };
     if (nearest < RADIO_RANGE.nearPlace && pick('near', 'exploration.radio.nearPlace')) return;
@@ -202,10 +208,10 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
     const playerSprite = new Image();
     playerSprite.src = getPlayerSkinForAvatarId(avatarId).path;
     // Los PNG se piden una sola vez (caché del módulo) y se reutilizan en cada cuadro.
-    const sprites = createSpriteSet(destination);
+    const sprites = createSpriteSet(destination, avatarId);
     let view: PlayerView = { facing: 'right', dir: 'down', moving: false };
 
-    latest.current.radio.say({ text: latest.current.t('exploration.radio.opening'), once: 'explore.opening' });
+    latest.current.radio.say({ text: msg('exploration.radio.opening'), once: 'explore.opening' });
 
     let frame = 0;
     let last = 0;

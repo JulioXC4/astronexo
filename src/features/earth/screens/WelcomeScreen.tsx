@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, Broadcast, FilmStrip, Play, X } from '@phosphor-icons/react';
 import { welcomeLogos } from '../../../assets/welcomeArtwork';
-import { useI18n, LanguageSelector, type SupportedLanguage } from '../../../i18n';
+import { useI18n, LanguageSelector, type SupportedLanguage, msg } from '../../../i18n';
 import { SoundToggle, playSound } from '../../audio';
 import { useScreenRadio } from '../../radio';
 import { TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
@@ -21,7 +21,7 @@ interface WelcomeScreenProps {
 
 export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn, onWatchIntro }: WelcomeScreenProps) {
   const { t, language } = useI18n();
-  useScreenRadio([{ speaker: 'ALBA', text: t('radio.welcome') }]);
+  useScreenRadio([{ speaker: 'ALBA', text: msg('radio.welcome') }]);
   const [panel, setPanel] = useState<WelcomePanel>(null);
   const [logoFailedFor, setLogoFailedFor] = useState<SupportedLanguage | null>(null);
   const [welcomeTutorialOpen, setWelcomeTutorialOpen] = useState(false);

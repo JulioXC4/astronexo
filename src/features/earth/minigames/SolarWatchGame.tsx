@@ -43,9 +43,9 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
   const tr = (key: string) => t(`minigames.solarWatchCopy.${key}`);
   // La tarea y un consejo llegan por radio, como en el resto de entrenamientos.
   useScreenRadio([
-    { speaker: 'CHISPA', text: t('training.solarWatch.task') },
-    { speaker: 'AURORA', text: t('training.solarWatch.tip') },
-  ]);
+    { speaker: 'CHISPA', text: msg('training.solarWatch.task') },
+    { speaker: 'AURORA', text: msg('training.solarWatch.tip') },
+  ], 'SOLAR_WATCH');
   const [state, dispatch] = useReducer(stormReducer, undefined, () => initialStormState());
   const [eventIndex, setEventIndex] = useState(0);
   const [routeFor, setRouteFor] = useState<Crew | null>(null);

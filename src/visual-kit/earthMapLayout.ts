@@ -70,5 +70,33 @@ export const FACILITY_POSITIONS = [
   { x: 190, y: 325 }, { x: 630, y: 325 }, { x: 402, y: 438 },
 ] as const;
 
+/**
+ * Tromsø: el fondo ártico dibuja plataformas hexagonales más grandes y en otro sitio que el
+ * andino. Antes se reutilizaban las posiciones de Arequipa y los edificios quedaban sobre el
+ * camino o fuera de su plataforma. Medido sobre `arctic-research-base.webp` (centro de la cara
+ * superior de cada plataforma + 10, igual que en el mapa andino).
+ */
+export const ARCTIC_FACILITY_POSITIONS = [
+  { x: 258, y: 190 }, { x: 643, y: 192 },
+  { x: 166, y: 348 }, { x: 728, y: 352 }, { x: 445, y: 459 },
+] as const;
+
+export interface FacilityLayout {
+  readonly positions: readonly { readonly x: number; readonly y: number }[];
+  /** Escala de los edificios para que llenen su plataforma. */
+  readonly scale: number;
+  /** Zona que nunca se recorta: incluye los marcadores numerados sobre los edificios. */
+  readonly safe: SafeZone;
+}
+
+/** Posición y tamaño de los edificios según el fondo de cada ciudad. */
+export function facilityLayoutFor(cityId: string): FacilityLayout {
+  return cityId === 'TROMSO'
+    ? ARCTIC_LAYOUT
+    : ANDEAN_LAYOUT;
+}
+const ARCTIC_LAYOUT: FacilityLayout = { positions: ARCTIC_FACILITY_POSITIONS, scale: 1.3, safe: { x0: 60, x1: 990, y0: 48, y1: 520 } };
+const ANDEAN_LAYOUT: FacilityLayout = { positions: FACILITY_POSITIONS, scale: 1, safe: MAP_SAFE_ZONE };
+
 /** Centro de la plataforma de lanzamiento dibujada en ambos fondos. */
 export const LAUNCH_PAD = { x: 892, y: 254 } as const;

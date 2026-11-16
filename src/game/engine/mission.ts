@@ -475,6 +475,7 @@ export function advanceTurn(state: MissionState): MissionState {
     return {
       id: `UNRESOLVED-${alert.id}-T${state.turn}`,
       sourceAlertId: alert.id,
+      alertKind: alert.kind,
       turn: state.turn,
       summary: msg('engine.alertConsequence', { alert: alert.title, level: alert.severity }),
       resourceDelta,

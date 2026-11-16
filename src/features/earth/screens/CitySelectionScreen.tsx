@@ -10,7 +10,7 @@ import {
 } from '@phosphor-icons/react';
 import { playSound, SoundToggle } from '../../audio';
 import { SUPPORTED_CITIES, type CityData } from '../../../data/nasa/cities';
-import { useI18n, LanguageSelector } from '../../../i18n';
+import { useI18n, LanguageSelector, msg } from '../../../i18n';
 import { useScreenRadio } from '../../radio';
 import { PixelSceneAnimator } from '../components/PixelSceneAnimator';
 import { arequipaScene, tromsoScene } from '../scenes/pixelScenes';
@@ -27,7 +27,7 @@ type SupportedCityId = 'AREQUIPA' | 'TROMSO';
 
 export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: CitySelectionScreenProps) {
   const { t } = useI18n();
-  useScreenRadio([{ speaker: 'AURORA', text: t('radio.city') }]);
+  useScreenRadio([{ speaker: 'AURORA', text: msg('radio.city') }]);
   const [selectedCityId, setSelectedCityId] = useState<SupportedCityId>(
     initialCityId === 'TROMSO' ? 'TROMSO' : 'AREQUIPA',
   );

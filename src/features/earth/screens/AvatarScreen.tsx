@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { ArrowLeft, ArrowRight } from '@phosphor-icons/react';
 import { AVATAR_OPTIONS, type AvatarOption } from '../../../data/avatars';
-import { useI18n, LanguageSelector } from '../../../i18n';
+import { useI18n, LanguageSelector, msg } from '../../../i18n';
 import { useScreenRadio } from '../../radio';
 import { playSound, SoundToggle } from '../../audio';
 import { computeSceneLayout, MAP_HEIGHT, MAP_WIDTH, type SafeZone } from '../../../visual-kit/earthMapLayout';
@@ -67,7 +67,7 @@ export function AvatarScreen({
   onBack,
 }: AvatarScreenProps) {
   const { t } = useI18n();
-  useScreenRadio([{ speaker: 'CHISPA', text: t('radio.avatar') }]);
+  useScreenRadio([{ speaker: 'CHISPA', text: msg('radio.avatar') }]);
   const [selectedAvatarId, setSelectedAvatarId] = useState(initialAvatarId || AVATAR_OPTIONS[0].id);
   const suggestions = CALLSIGN_KEYS.map((key) => t(`callsigns.${key}`));
   // Mientras el niño no escriba ni elija nada, el apodo por defecto sigue al idioma activo.
