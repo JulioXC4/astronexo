@@ -7,6 +7,37 @@
  * av morsmålsbrukere. Tekniske NASA-termer og identifikatorer bevares uendret.
  */
 export const no = {
+  // Utkast: introduksjonstekstene venter på språkvask.
+  intro: {
+    label: 'Introduksjon til eventyret',
+    progress: 'Scene {current} av {total}',
+    next: 'Neste',
+    skip: 'Hopp over introen',
+    start: 'VELG REISEMÅL!',
+    replay: 'Se introen',
+    recruitLine: 'Hei, kadett! Romeventyret ditt starter her!',
+    example: 'Eksempel',
+    toWin: 'Du kan vinne dem!',
+    scenes: {
+      destination: { title: 'Velg reisemål!', line: 'Du kan reise til Månen eller til Mars! Du bestemmer!' },
+      base: { title: 'Design basen din!', line: 'Design basen din med tre moduler! Vi bygger den mens du trener.' },
+      training: { title: 'Tren på jorda!', line: 'Tren i Arequipa eller Tromsø. Fullfør tre oppdrag og vinn verktøy!' },
+      space: { title: 'Romoppdraget ditt!', line: 'Pass på energi, oksygen og skjold! Og oppdag nye ting!' },
+    },
+    labels: {
+      moon: 'Månen',
+      mars: 'Mars',
+      moonBase: 'Månebase',
+      marsBase: 'Marsbase',
+      modules: '3 moduler',
+      alert: 'Solstorm!',
+      protect: 'Skjoldet opp!',
+      energy: 'Energi',
+      oxygen: 'Oksygen',
+      shield: 'Skjold',
+      science: 'Vitenskap',
+    },
+  },
   common: {
     back: 'Tilbake',
     continue: 'Fortsett',

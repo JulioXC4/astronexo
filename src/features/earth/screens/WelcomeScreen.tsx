@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BookOpen, Broadcast, Play, X } from '@phosphor-icons/react';
+import { BookOpen, Broadcast, FilmStrip, Play, X } from '@phosphor-icons/react';
 import { welcomeLogos } from '../../../assets/welcomeArtwork';
 import { useI18n, LanguageSelector, type SupportedLanguage } from '../../../i18n';
 import { SoundToggle, playSound } from '../../audio';
@@ -15,9 +15,11 @@ interface WelcomeScreenProps {
   readonly onPlay: () => void;
   readonly onOpenStation?: () => void;
   readonly onOpenLearn?: () => void;
+  /** Vuelve a ver la introducción ilustrada (sin video) y continúa al destino. */
+  readonly onWatchIntro?: () => void;
 }
 
-export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScreenProps) {
+export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn, onWatchIntro }: WelcomeScreenProps) {
   const { t, language } = useI18n();
   useScreenRadio([{ speaker: 'ALBA', text: t('radio.welcome') }]);
   const [panel, setPanel] = useState<WelcomePanel>(null);
@@ -177,6 +179,10 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
             <BookOpen aria-hidden="true" weight="duotone" />
             <span>{t('welcome.scientificSources')}</span>
           </button>
+          {onWatchIntro && <button className="welcome__secondary-button" type="button" onClick={onWatchIntro}>
+            <FilmStrip aria-hidden="true" weight="duotone" />
+            <span>{t('intro.replay')}</span>
+          </button>}
         </div>
       </div>
     </div>

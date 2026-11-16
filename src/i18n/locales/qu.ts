@@ -8,6 +8,37 @@
  * Los términos técnicos aeroespaciales e identificadores se preservan con apoyo bilingüe.
  */
 export const qu = {
+  // Borrador: textos de la introducción pendientes de validación por hablantes.
+  intro: {
+    label: 'Puririynikiman yaykuy',
+    progress: '{current} / {total}',
+    next: 'Qatiqnin',
+    skip: 'Yaykuyta saltay',
+    start: '¡MAYMAN RINAYKITA AKLLAY!',
+    replay: 'Yaykuyta qhaway',
+    recruitLine: '¡Napaykullayki, cadete! ¡Hanaq pacha puririyniyki kaypi qallarin!',
+    example: 'Rikch\'ay',
+    toWin: '¡Atipayta atinki!',
+    scenes: {
+      destination: { title: '¡Mayman rinaykita akllay!', line: '¡Killaman utaq Atipaqman riyta atinki! ¡Qammi akllanki!' },
+      base: { title: '¡Wasiykita ruray!', line: '¡Kimsa t\'aqawan wasiykita ruray! Yachachikuqtiyki hatarichisaqku.' },
+      training: { title: '¡Pachamamapi yachachikuy!', line: 'Arequipapi utaq Tromsøpi yachachikuy. ¡Kimsa misionta tukuy, llamk\'anakunatataq atipay!' },
+      space: { title: '¡Hanaq pacha misionniyki!', line: '¡Kallpata, samanata, amachanatapas qhawariy! ¡Musuq kaqkunatapas tariy!' },
+    },
+    labels: {
+      moon: 'Killa',
+      mars: 'Atipaq',
+      moonBase: 'Killapi wasi',
+      marsBase: 'Atipaqpi wasi',
+      modules: '3 t\'aqa',
+      alert: '¡Inti para!',
+      protect: '¡Amachanata hatarichiy!',
+      energy: 'Kallpa',
+      oxygen: 'Samana',
+      shield: 'Amachana',
+      science: 'Yachay',
+    },
+  },
   common: {
     back: 'Kutiy',
     continue: 'Ñawpariy',

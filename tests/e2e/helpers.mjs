@@ -95,12 +95,27 @@ export async function skipCinematic(page, timeout = 2500) {
   }
 }
 
+/** Introducción ilustrada tras el video: se salta con «Saltar introducción» y se espera al destino. */
+export async function skipMissionIntro(page, timeout = 4000) {
+  const skip = page.locator('.mission-intro__skip');
+  try {
+    await skip.waitFor({ state: 'visible', timeout });
+    await skip.click();
+    await page.locator('.mission-intro').waitFor({ state: 'detached', timeout: 3000 });
+    // Al salir, la introducción ignora clics ~450 ms (evita que un doble clic pulse el destino).
+    await page.waitForTimeout(500);
+  } catch {
+    // Sin introducción: se sigue.
+  }
+}
+
 export async function startFromWelcome(page) {
   await page.goto(BASE_URL);
   await page.waitForSelector('.welcome__play');
   await assertScreenHealthy(page, 'welcome');
   await page.click('.welcome__play');
   await skipCinematic(page); // video de reclutamiento opcional
+  await skipMissionIntro(page);
 }
 
 export async function chooseDestination(page, destination) {

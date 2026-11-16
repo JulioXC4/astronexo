@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useI18n } from '../../i18n';
 import { VIDEO_POSTERS, videoUrl, type VideoId } from './mediaCatalog';
 import './cinematic.css';
@@ -42,6 +42,8 @@ interface CinematicTransitionProps {
   readonly video: VideoId;
   /** Se llama exactamente una vez: al terminar, al saltar, si falla o con movimiento reducido. */
   readonly onDone: () => void;
+  /** Texto opcional superpuesto al video (p. ej. la frase de bienvenida de Alba). No altera su duración. */
+  readonly caption?: ReactNode;
 }
 
 /**
@@ -49,7 +51,7 @@ interface CinematicTransitionProps {
  * Se monta solo en el momento de reproducirse y libera el video al desmontarse.
  * Con `prefers-reduced-motion` no se reproduce: avanza de inmediato.
  */
-export function CinematicTransition({ video, onDone }: CinematicTransitionProps) {
+export function CinematicTransition({ video, onDone, caption }: CinematicTransitionProps) {
   const { t } = useI18n();
   const videoRef = useRef<HTMLVideoElement>(null);
   const doneRef = useRef(false);
@@ -115,6 +117,7 @@ export function CinematicTransition({ video, onDone }: CinematicTransitionProps)
       onEnded={finish}
       onError={finish}
     />
+    {caption}
     <button type="button" className="cinematic__skip" data-silent onClick={finish} autoFocus>
       {t('common.skip')}
     </button>

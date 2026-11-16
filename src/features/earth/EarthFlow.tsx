@@ -9,6 +9,7 @@ import type { GameSetup, ModuleId, TrainingOutcome } from '../../game';
 import type { LocalCoopConfig } from '../coop-gameplay/coop.types';
 import { useI18n } from '../../i18n';
 import { CinematicTransition, departureVideoFor, useAudioScene, warmVideo, type AudioScene } from '../audio';
+import { MissionIntro, RecruitCaption, preloadIntroScene } from '../intro';
 
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CitySelectionScreen } from './screens/CitySelectionScreen';
@@ -34,11 +35,13 @@ import { StationModeModal } from './screens/StationModeModal';
 
 /**
  * Orden narrativo final (Prototipo JD):
- * Inicio → destino → constructor 3/5 → estación en preparación → ciudad → avatar → briefing →
+ * Inicio → video de reclutamiento → introducción (4 escenas) → destino → constructor 3/5 →
+ * estación en preparación → ciudad → avatar → briefing →
  * 3/5 entrenamientos (con avance de obra) → despegue → llegada → monitoreo → guardia.
  */
 export type EarthScreenState =
   | 'WELCOME'
+  | 'INTRO'
   | 'DESTINATION'
   | 'BUILDER'
   | 'STATION_PREP'
@@ -74,7 +77,9 @@ const TRAINING_SCREENS: Readonly<Record<MissionType, EarthScreenState>> = {
 /** Música y ambiente de cada pantalla. Los entrenamientos no usan la música de tensión: no hay presión real de tiempo. */
 function audioSceneFor(screen: EarthScreenState, destination: Destination, cityId: CityData['id']): AudioScene {
   switch (screen) {
-    case 'WELCOME': return { music: 'welcome' };
+    // La introducción continúa la música de bienvenida sin cortarla.
+    case 'WELCOME':
+    case 'INTRO': return { music: 'welcome' };
     case 'DESTINATION':
     case 'CITY':
     case 'AVATAR': return { music: 'selection' };
@@ -135,6 +140,13 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
   useEffect(() => {
     if (completedMissions.length >= 2) warmVideo(departureVideoFor(city.id));
   }, [completedMissions.length, city.id]);
+
+  /** «Jugar ahora»: video de reclutamiento y, mientras dura, se piden de fondo las imágenes de la primera escena. */
+  function startRecruitment() {
+    if (recruitPlaying) return;
+    preloadIntroScene(0);
+    setRecruitPlaying(true);
+  }
 
   function navigateTo(nextScreen: EarthScreenState) {
     // Mantiene la celebración al pasar por el avance de obra y la limpia
@@ -214,13 +226,15 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
       return (
         <>
           <WelcomeScreen
-            onPlay={() => setRecruitPlaying(true)}
+            onPlay={startRecruitment}
             onOpenStation={() => setIsStationModalOpen(true)}
             onOpenLearn={() => navigateTo('LEARN')}
+            onWatchIntro={() => navigateTo('INTRO')}
           />
           {recruitPlaying && <CinematicTransition
             video="recruit"
-            onDone={() => { setRecruitPlaying(false); navigateTo('DESTINATION'); }}
+            caption={<RecruitCaption />}
+            onDone={() => { setRecruitPlaying(false); navigateTo('INTRO'); }}
           />}
           <StationModeModal
             isOpen={isStationModalOpen}
@@ -231,12 +245,17 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
             }}
             onStartCoop={onStartCoop}
             onStartCoopFullRoute={(group) => {
+              // Recorrido completo de Estación: mismo arranque que «Jugar ahora», con el grupo ya guardado.
               setCoopGroup(group);
-              navigateTo('DESTINATION');
+              startRecruitment();
             }}
           />
         </>
       );
+
+    // 1b. Introducción ilustrada: solo narrativa, no toca el estado de la misión
+    case 'INTRO':
+      return <MissionIntro onFinish={() => navigateTo('DESTINATION')} />;
 
     // 2. Luna o Marte
     case 'DESTINATION':

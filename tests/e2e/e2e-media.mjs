@@ -13,7 +13,7 @@
 import {
   launchBrowser, newMonitoredPage, assertScreenHealthy, chooseDestination, buildStation, passStationPrep,
   chooseCity, passAvatarAndBriefing, completeTraining, playFiveTurns, readOutcome, failOnProblems,
-  recommendedCloudsReserve, skipCinematic, BASE_URL, performScienceIntervention, performSurvivalIntervention,
+  recommendedCloudsReserve, skipCinematic, skipMissionIntro, BASE_URL, performScienceIntervention, performSurvivalIntervention,
 } from './helpers.mjs';
 
 const ROUTES = [
@@ -125,6 +125,7 @@ async function runRoute(browser, route, { reduced = false } = {}) {
     }
     await skipCinematic(page);
     if (await page.locator('.cinematic').count()) throw new Error('«Saltar» no cerró la cinemática (o no liberó el video).');
+    await skipMissionIntro(page);
     await chooseDestination(page, route.destination);
     const builtNames = await buildStation(page, route.modules);
     await passStationPrep(page);
