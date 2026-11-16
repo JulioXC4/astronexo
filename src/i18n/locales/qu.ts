@@ -99,6 +99,7 @@ export const qu = {
     title: 'Maymanmi Rinki?',
     subtitle: 'Killa icha Atipaq (Marte) purinata akllay.',
     travelTime: 'Purina pacha',
+    distanceLabel: 'Karu kay',
     environmentalChallenges: 'Hanaq pacha sasachakuykuna',
     confirmDestination: '{dest} purinata taqyaychay',
     moon: {

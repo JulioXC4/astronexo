@@ -1,9 +1,12 @@
-import { useState } from 'react';
-import { ArrowLeft, ArrowRight, UserCircle, Sparkle, CheckCircle } from '@phosphor-icons/react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { ArrowLeft, ArrowRight } from '@phosphor-icons/react';
 import { AVATAR_OPTIONS, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../../data/avatars';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import { useScreenRadio } from '../../radio';
+import { computeSceneLayout, MAP_HEIGHT, MAP_WIDTH, type SafeZone } from '../../../visual-kit/earthMapLayout';
 import './earth.css';
+import './earth-map.css';
+import './avatar-select.css';
 
 interface AvatarScreenProps {
   readonly cityName: string;
@@ -13,6 +16,8 @@ interface AvatarScreenProps {
   readonly onConfirmProfile: (avatar: AvatarOption, fictionalName: string) => void;
   readonly onBack: () => void;
 }
+
+const BACKGROUND = '/assets/pixel-art/academy-briefing-room.png';
 
 const AVATAR_SPRITES: Record<string, string> = {
   ALBA: '/assets/pixel-art/cadet-alba.png',
@@ -28,6 +33,28 @@ const AVATAR_ACCENTS: Record<string, string> = {
   NICO: '#f6c15b',
 };
 
+/** Centros horizontales (lienzo lógico 1000 × 563) de los cuatro astronautas, repartidos alrededor del emblema del suelo. */
+const CAST_X = [300, 433, 567, 700] as const;
+/** Zona que nunca se recorta: el elenco completo y la pantalla holográfica. */
+const AVATAR_SAFE_ZONE: SafeZone = { x0: 190, x1: 810, y0: 100, y1: 540 };
+/** Alto (px) que ocupa la barra inferior en tabletas; el escenario se encuadra por encima. */
+const DOCK_RESERVE = 132;
+const DOCK_RESERVE_PHONE = 214;
+
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => (typeof window !== 'undefined' && window.matchMedia ? window.matchMedia(query).matches : false));
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, [query]);
+  return matches;
+}
+
+/** Selección de astronauta: el elenco posa en la sala de la academia y la ficha se proyecta en la pantalla holográfica. */
 export function AvatarScreen({
   cityName,
   destination,
@@ -41,155 +68,154 @@ export function AvatarScreen({
   const [selectedAvatarId, setSelectedAvatarId] = useState(initialAvatarId || AVATAR_OPTIONS[0].id);
   const [callsign, setCallsign] = useState(initialFictionalName || SUGGESTED_CALLSIGNS[0]);
 
-  const selectedAvatar = AVATAR_OPTIONS.find((a) => a.id === selectedAvatarId) ?? AVATAR_OPTIONS[0];
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  const compact = useMediaQuery('(max-width: 1200px), (max-aspect-ratio: 4/3)');
+  const phone = useMediaQuery('(max-width: 640px)');
+  const reserve = compact ? (phone ? DOCK_RESERVE_PHONE : DOCK_RESERVE) : 0;
 
-  function handleSubmit(e?: React.FormEvent) {
-    if (e) e.preventDefault();
-    const finalName = callsign.trim() || t('avatars.defaultCallsign');
-    onConfirmProfile(selectedAvatar, finalName);
+  useLayoutEffect(() => {
+    const element = containerRef.current;
+    if (!element) return undefined;
+    const measure = () => {
+      const rect = element.getBoundingClientRect();
+      setSize((previous) => (previous.width === rect.width && previous.height === rect.height ? previous : { width: rect.width, height: rect.height }));
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', measure);
+      return () => window.removeEventListener('resize', measure);
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const layout = useMemo(
+    () => computeSceneLayout(size.width, Math.max(1, size.height - reserve), AVATAR_SAFE_ZONE),
+    [size.width, size.height, reserve],
+  );
+  const measured = size.width > 0 && size.height > 0;
+  const bottomGap = measured ? size.height - (layout.y + layout.height) : 0;
+
+  const selectedAvatar = AVATAR_OPTIONS.find((avatar) => avatar.id === selectedAvatarId) ?? AVATAR_OPTIONS[0];
+  const accent = AVATAR_ACCENTS[selectedAvatar.id] ?? '#f6c15b';
+  const selectedAvatarName = t(`avatars.profiles.${selectedAvatar.id}.name`);
+  const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
+
+  function handleSubmit(event?: React.FormEvent) {
+    event?.preventDefault();
+    onConfirmProfile(selectedAvatar, callsign.trim() || t('avatars.defaultCallsign'));
   }
 
-  const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
-  const selectedAvatarName = t(`avatars.profiles.${selectedAvatar.id}.name`);
+  /** Flechas: recorren el elenco como un grupo de opciones (patrón radiogroup). */
+  function handleCastKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    const forward = event.key === 'ArrowRight' || event.key === 'ArrowDown';
+    const backward = event.key === 'ArrowLeft' || event.key === 'ArrowUp';
+    if (!forward && !backward) return;
+    event.preventDefault();
+    const index = AVATAR_OPTIONS.findIndex((avatar) => avatar.id === selectedAvatarId);
+    const next = AVATAR_OPTIONS[(index + (forward ? 1 : -1) + AVATAR_OPTIONS.length) % AVATAR_OPTIONS.length];
+    setSelectedAvatarId(next.id);
+    requestAnimationFrame(() => containerRef.current?.querySelector<HTMLElement>(`[data-avatar-id="${next.id}"]`)?.focus());
+  }
+
+  const stageStyle: CSSProperties = measured
+    ? { left: layout.x, top: layout.y, width: layout.width, height: layout.height, ['--u' as string]: `${layout.scale}px`, ['--accent' as string]: accent }
+    : { left: 0, top: 0, width: '100%', height: '100%', ['--u' as string]: '1px', ['--accent' as string]: accent };
 
   return (
-    <div className="earth-screen" style={{ padding: '0.8rem 1.2rem' }}>
-      <header className="earth-screen__header">
-        <button type="button" className="earth-screen__back-btn" onClick={onBack}>
-          <ArrowLeft weight="bold" />
-          <span>{t('common.back')}</span>
-        </button>
-        <div className="earth-screen__progress-pill">
-          <UserCircle weight="fill" color="#f6c15b" />
-          <span>{t('avatars.stepIndicator', { city: cityName, destination: destName })}</span>
-        </div>
-        <LanguageSelector variant="hud" />
-      </header>
+    <div ref={containerRef} className="emap asel" data-compact={compact || undefined} data-letterbox-y={bottomGap > 2 || layout.letterboxY || undefined} data-gap-top={(measured && layout.y > 2) || undefined}>
+      <div className="asel__ambient" style={{ backgroundImage: `url(${BACKGROUND})` }} aria-hidden="true" />
 
-      <main className="earth-card" style={{ maxWidth: '68rem', padding: '1.4rem' }}>
-        <div style={{ marginBottom: '1.2rem' }}>
-          <h1 className="earth-card__title" style={{ fontSize: '1.75rem', margin: 0 }}>
-            <UserCircle color="#f6c15b" weight="fill" />
-            <span>{t('avatars.title')}</span>
-          </h1>
-          <p style={{ margin: '0.3rem 0 0 0', color: '#9bc0e4', fontSize: '0.95rem' }}>
-            {t('avatars.subtitle', { city: cityName, destination: destName })}
-          </p>
-        </div>
+      <div className="asel__stage" style={stageStyle}>
+        <img className="asel__background" src={BACKGROUND} alt="" draggable={false} width={MAP_WIDTH} height={MAP_HEIGHT} />
 
-        {/* ------------------------------------------------------------- */}
-        {/* GRID DE SELECCIÓN DE HÉROE (CHARACTER SELECT)                 */}
-        {/* ------------------------------------------------------------- */}
-        <div className="avatar-pixel-grid" role="radiogroup" aria-label={t('avatars.title')}>
-          {AVATAR_OPTIONS.map((avatar) => {
-            const isSelected = avatar.id === selectedAvatarId;
+        {/* Ficha proyectada en la pantalla holográfica de la sala */}
+        <section className="asel-holo" aria-live="polite" aria-atomic="true">
+          <div className="asel-holo__content" key={selectedAvatar.id}>
+            <p className="asel-holo__kicker">{t('avatars.title')}</p>
+            <h2 className="asel-holo__name">{selectedAvatarName}</h2>
+            <p className="asel-holo__role">{t(`avatars.profiles.${selectedAvatar.id}.role`)}</p>
+            <p className="asel-holo__desc">{t(`avatars.profiles.${selectedAvatar.id}.desc`)}</p>
+          </div>
+        </section>
+
+        {/* Elenco: cada astronauta es una opción del grupo */}
+        <div className="asel-cast" role="radiogroup" aria-label={t('avatars.title')} onKeyDown={handleCastKeyDown}>
+          {AVATAR_OPTIONS.map((avatar, index) => {
+            const selected = avatar.id === selectedAvatarId;
             const name = t(`avatars.profiles.${avatar.id}.name`);
-            const role = t(`avatars.profiles.${avatar.id}.role`);
-            const bio = t(`avatars.profiles.${avatar.id}.desc`);
-            const spritePath = AVATAR_SPRITES[avatar.id];
-            const accent = AVATAR_ACCENTS[avatar.id] || '#f6c15b';
-
             return (
-              <div
+              <button
                 key={avatar.id}
+                type="button"
                 role="radio"
-                aria-checked={isSelected}
-                tabIndex={0}
-                className={`avatar-pixel-card ${isSelected ? 'avatar-pixel-card--selected' : ''}`}
-                style={isSelected ? { borderColor: accent, boxShadow: `0 0 0 3px ${accent}44, 0 8px 0 #091421` } : undefined}
+                aria-checked={selected}
+                aria-label={`${name}. ${t(`avatars.profiles.${avatar.id}.role`)}`}
+                tabIndex={selected ? 0 : -1}
+                data-avatar-id={avatar.id}
+                className={`asel-char${selected ? ' asel-char--selected' : ''}`}
+                style={{ left: `${CAST_X[index] / 10}%`, ['--accent' as string]: AVATAR_ACCENTS[avatar.id] ?? '#f6c15b' }}
                 onClick={() => setSelectedAvatarId(avatar.id)}
-                onKeyDown={(e) => {
-                  if (e.key === ' ' || e.key === 'Enter') {
-                    e.preventDefault();
-                    setSelectedAvatarId(avatar.id);
-                  }
-                }}
               >
-                {isSelected && (
-                  <div
-                    className="academy-card__selected-pill"
-                    style={{ top: '0.6rem', right: '0.6rem', background: accent, color: '#101d2d' }}
-                  >
-                    <CheckCircle weight="fill" size={14} />
-                    <span>{t('common.selected')}</span>
-                  </div>
-                )}
-
-                <div className="avatar-pixel-card__sprite-frame">
-                  <img
-                    src={spritePath}
-                    alt={name}
-                    className="avatar-pixel-card__sprite"
-                  />
-                </div>
-
-                <h2 className="avatar-pixel-card__name" style={isSelected ? { color: accent } : undefined}>
-                  {name}
-                </h2>
-                <span className="avatar-pixel-card__role" style={{ color: isSelected ? '#ffffff' : '#8daecf' }}>
-                  {role}
-                </span>
-                <p className="avatar-pixel-card__desc">
-                  {bio}
-                </p>
-              </div>
+                <span className="asel-char__ring" aria-hidden="true" />
+                <img className="asel-char__sprite" src={AVATAR_SPRITES[avatar.id]} alt="" draggable={false} />
+                <span className="asel-char__tag">{name}</span>
+              </button>
             );
           })}
         </div>
+      </div>
 
-        {/* ------------------------------------------------------------- */}
-        {/* TERMINAL DE INDICATIVO DE MISIÓN (CALLSIGN)                   */}
-        {/* ------------------------------------------------------------- */}
-        <form onSubmit={handleSubmit} className="callsign-terminal">
-          <label htmlFor="callsign-input-pixel" className="callsign-terminal__label">
-            {t('avatars.callsignLabel')}
-          </label>
+      <header className="emap-hud">
+        <button type="button" className="emap-hud__back" onClick={onBack}>
+          <ArrowLeft weight="bold" aria-hidden="true" />
+          <span>{t('common.back')}</span>
+        </button>
+        <div className="emap-hud__status">
+          <span className="emap-hud__route">{t('avatars.stepIndicator', { city: cityName, destination: destName })}</span>
+        </div>
+        <div className="emap-hud__tools">
+          <LanguageSelector variant="hud" plain />
+        </div>
+      </header>
+
+      <div className="asel-dock">
+        <form className="asel-callsign" onSubmit={handleSubmit}>
+          <label htmlFor="callsign-input-pixel" className="asel-callsign__label">{t('avatars.callsignLabel')}</label>
           <input
             id="callsign-input-pixel"
             type="text"
-            className="callsign-terminal__input"
+            className="asel-callsign__input"
             maxLength={26}
             value={callsign}
-            onChange={(e) => setCallsign(e.target.value)}
+            onChange={(event) => setCallsign(event.target.value)}
             placeholder={t('avatars.callsignPlaceholder')}
+            autoComplete="off"
           />
-
-          <div style={{ marginTop: '0.8rem' }}>
-            <span style={{ fontSize: '0.85rem', color: '#97b7d8', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700 }}>
-              <Sparkle weight="fill" color="#f6c15b" />
-              <span>{t('avatars.callsignSuggestions')}</span>
-            </span>
-            <div className="callsign-suggestions" style={{ marginTop: '0.5rem' }}>
-              {SUGGESTED_CALLSIGNS.map((sug) => (
-                <button
-                  key={sug}
-                  type="button"
-                  className="callsign-chip"
-                  style={callsign === sug ? { background: '#f6c15b', color: '#101d2d', fontWeight: 700 } : undefined}
-                  onClick={() => setCallsign(sug)}
-                >
-                  {sug}
-                </button>
-              ))}
-            </div>
+          <div className="asel-callsign__chips" role="group" aria-label={t('avatars.callsignSuggestions')}>
+            {SUGGESTED_CALLSIGNS.map((suggestion) => (
+              <button
+                key={suggestion}
+                type="button"
+                className={`asel-chip${callsign === suggestion ? ' asel-chip--active' : ''}`}
+                aria-pressed={callsign === suggestion}
+                onClick={() => setCallsign(suggestion)}
+              >
+                {suggestion}
+              </button>
+            ))}
           </div>
         </form>
 
-        {/* ------------------------------------------------------------- */}
-        {/* BOTÓN DE CONFIRMACIÓN                                         */}
-        {/* ------------------------------------------------------------- */}
-        <div style={{ marginTop: '1.4rem', display: 'flex', justifyContent: 'flex-end' }}>
-          <button
-            type="button"
-            className="pixel-btn pixel-btn--primary"
-            style={{ fontSize: '1.2rem', padding: '0.9rem 2.2rem' }}
-            onClick={() => handleSubmit()}
-          >
+        <div className="asel-confirm">
+          <button type="button" className="pixel-btn pixel-btn--primary" onClick={() => handleSubmit()}>
             <span>{t('avatars.confirmAvatar', { name: selectedAvatarName })}</span>
-            <ArrowRight weight="bold" />
+            <ArrowRight weight="bold" aria-hidden="true" />
           </button>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

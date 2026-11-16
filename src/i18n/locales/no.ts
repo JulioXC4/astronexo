@@ -98,6 +98,7 @@ export const no = {
     title: 'Hvor skal du reise?',
     subtitle: 'Velg mellom Månen eller Mars for romekspedisjonen.',
     travelTime: 'Reisetid',
+    distanceLabel: 'Avstand',
     environmentalChallenges: 'Miljøutfordringer',
     confirmDestination: 'Bekreft reise til {dest}',
     moon: {

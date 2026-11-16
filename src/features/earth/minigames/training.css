@@ -100,7 +100,7 @@
 .polar__legend { margin: 0; color: #9bc0e4; font-weight: 800; }
 
 /* ---------- Nubes y soles ---------- */
-.clouds { display: flex; align-items: flex-end; justify-content: center; gap: 3rem; min-height: 19rem; padding: 1.2rem; }
+.training .clouds { display: flex; align-items: flex-end; justify-content: center; gap: 3rem; min-height: 19rem; padding: 1.2rem; }
 .clouds__days { display: flex; align-items: flex-end; gap: 1.4rem; }
 .clouds__day { display: grid; justify-items: center; gap: .25rem; width: 7rem; text-align: center; color: #d1e4f6; }
 .clouds__day strong { font-family: 'Fredoka', sans-serif; font-size: 1.1rem; color: #ffd57a; }
@@ -132,4 +132,4 @@
 .eclss-flow { stroke-dasharray: 14 10; animation: eclss-dash 900ms linear infinite; }
 @keyframes eclss-dash { to { stroke-dashoffset: -24; } }
 @media (prefers-reduced-motion: reduce) { .eclss-flow { animation: none; } }
-@media (max-width: 640px) { .clouds { flex-direction: column; align-items: center; gap: 1rem; } .clouds__days { gap: .6rem; } .clouds__day { width: 5.2rem; } }
+@media (max-width: 640px) { .training .clouds { flex-direction: column; align-items: center; gap: 1rem; } .clouds__days { gap: .6rem; } .clouds__day { width: 5.2rem; } }

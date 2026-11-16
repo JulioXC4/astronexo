@@ -4,11 +4,11 @@
 export const MAP_WIDTH = 1000;
 export const MAP_HEIGHT = 563;
 
-/** Zona que nunca debe recortarse: cinco edificios, su sombra y la plataforma de lanzamiento. */
-const SAFE_X0 = 100;
-const SAFE_X1 = 990;
-const SAFE_Y0 = 80;
-const SAFE_Y1 = 480;
+/** Zona del lienzo lógico que nunca debe recortarse al encuadrar. */
+export interface SafeZone { readonly x0: number; readonly x1: number; readonly y0: number; readonly y1: number }
+
+/** Mapa terrestre: cinco edificios, su sombra y la plataforma de lanzamiento. */
+export const MAP_SAFE_ZONE: SafeZone = { x0: 100, x1: 990, y0: 80, y1: 480 };
 
 export interface SceneLayout {
   /** Píxeles de pantalla por unidad lógica. */
@@ -32,7 +32,8 @@ const clamp = (value: number, min: number, max: number) => Math.min(Math.max(val
  * pero sin recortar nunca la zona segura. Si la relación de aspecto no lo permite (p. ej. tabletas 4:3),
  * reduce la escala hasta que quepa y deja que el fondo ambiental rellene las franjas sobrantes.
  */
-export function computeSceneLayout(viewportWidth: number, viewportHeight: number): SceneLayout {
+export function computeSceneLayout(viewportWidth: number, viewportHeight: number, safe: SafeZone = MAP_SAFE_ZONE): SceneLayout {
+  const { x0: SAFE_X0, x1: SAFE_X1, y0: SAFE_Y0, y1: SAFE_Y1 } = safe;
   if (!(viewportWidth > 0) || !(viewportHeight > 0)) {
     return { scale: 1, x: 0, y: 0, width: MAP_WIDTH, height: MAP_HEIGHT, letterboxX: false, letterboxY: false, letterboxLarge: false };
   }
