@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ExplorationMode, ExplorationResult, MissionState } from '../../game';
 import { useI18n } from '../../i18n';
-import { useRadio } from '../radio';
+import { useRadio, useRadioLeave } from '../radio';
 import { ExplorationCanvas } from './ExplorationCanvas';
 import { ExplorationReport } from './ExplorationReport';
 import { ExplorationStart, type ExplorationChoice } from './ExplorationStart';
@@ -31,6 +31,7 @@ type Stage =
 export function ExplorationEvent({ state, completedTurn, clock, onDone }: ExplorationEventProps) {
   const { t } = useI18n();
   const radio = useRadio();
+  useRadioLeave();
   const [stage, setStage] = useState<Stage>({ kind: 'START' });
   const resources = { energy: state.energy, oxygen: state.oxygen, shield: state.shield };
 
@@ -57,7 +58,7 @@ export function ExplorationEvent({ state, completedTurn, clock, onDone }: Explor
   }
 
   if (stage.kind === 'START') {
-    return <ExplorationStart clock={clock} resources={resources} onChoose={choose} />;
+    return <ExplorationStart destination={state.destination} clock={clock} resources={resources} onChoose={choose} />;
   }
   if (stage.kind === 'WALK') {
     return <ExplorationCanvas

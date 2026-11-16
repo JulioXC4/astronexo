@@ -13,6 +13,7 @@ import {
 import type { ModuleSlots } from './selection';
 import { useI18n, LanguageSelector } from '../../i18n';
 import { useScreenRadio } from '../radio';
+import { BuildFlowSteps, ModuleEffectChips, ModuleStatusBadge } from './ModuleStatus';
 import './base-builder.css';
 
 interface BaseBuilderViewProps {
@@ -82,7 +83,11 @@ export function BaseBuilderView({ destination, onStart, confirmLabel, initialMod
       style={{ backgroundImage: `linear-gradient(rgb(2 8 19 / 5%), rgb(2 8 19 / 15%)), url('${builderBackground}')` }}
       aria-label={t('baseBuilder.platformAria')}
     >
-      <p className="builder-scene__instruction">{armedModule ? t('baseBuilder.armedPrompt') : t('baseBuilder.subtitle')}</p>
+      <div className="builder-scene__instruction">
+        <p>{armedModule ? t('baseBuilder.armedPrompt') : t('baseBuilder.subtitle')}</p>
+        <small>{t('buildFlow.builder.pickHint')}</small>
+        <BuildFlowSteps current="choose" />
+      </div>
       {slots.map((moduleId, index) => {
         const module = moduleId ? MODULE_CATALOG.find((item) => item.id === moduleId) : undefined;
         return <div
@@ -106,6 +111,7 @@ export function BaseBuilderView({ destination, onStart, confirmLabel, initialMod
             {module
               ? <img src={moduleScenes[destination][module.id]} alt="" decoding="async" loading="lazy" />
               : <span>{index + 1}</span>}
+            {module && <em className="module-slot__state"><ModuleStatusBadge state="selected" /></em>}
             <strong>{module ? t(`baseBuilder.modules.${module.id}.name`) : t('baseBuilder.slotLabel', { slot: index + 1 })}</strong>
           </button>
           {module && <button
@@ -122,8 +128,9 @@ export function BaseBuilderView({ destination, onStart, confirmLabel, initialMod
         <img src={moduleScenes[destination][focused.id]} alt="" decoding="async" loading="lazy" />
         <div>
           <h2 id="catalog-title">{t(`baseBuilder.modules.${focused.id}.name`)}</h2>
-          <p>{t(`baseBuilder.modules.${focused.id}.benefit`)}</p>
-          <small>{t('baseBuilder.costLabel')}: {t(`baseBuilder.modules.${focused.id}.cost`)}</small>
+          <p>{t(`baseBuilder.modules.${focused.id}.desc`)}</p>
+          <small>{t('buildFlow.builder.helps')}</small>
+          <ModuleEffectChips moduleId={focused.id} />
         </div>
       </div>
       <div className="module-picker" aria-label={t('baseBuilder.catalogTitle')}>
@@ -143,7 +150,7 @@ export function BaseBuilderView({ destination, onStart, confirmLabel, initialMod
           >
             <img src={moduleScenes[destination][module.id]} alt="" decoding="async" loading="lazy" />
             <span>{t(`baseBuilder.modules.${module.id}.name`)}</span>
-            <small>{t(installed ? 'baseBuilder.installed' : armed ? 'baseBuilder.armed' : 'baseBuilder.place')}</small>
+            <small>{t(installed ? 'buildFlow.status.selected' : armed ? 'baseBuilder.armed' : 'baseBuilder.place')}</small>
           </button>;
         })}
       </div>

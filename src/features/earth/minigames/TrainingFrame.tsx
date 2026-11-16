@@ -4,9 +4,10 @@ import type { QualityTier } from '../../../game';
 import { LanguageSelector, useI18n } from '../../../i18n';
 import { WorkQuality } from '../../../visual-kit/WorkQuality';
 import { playSound } from '../../audio';
-import { RADIO_PORTRAITS, useRadio } from '../../radio';
+import { RADIO_PORTRAITS, useRadio, useRadioLeave } from '../../radio';
 import '../screens/earth.css';
 import './training.css';
+import './ui/guide.css';
 
 export type TrainingResource = 'energy' | 'oxygen' | 'foodSupply';
 
@@ -45,6 +46,7 @@ export function TrainingFrame({
 }: TrainingFrameProps) {
   const { t } = useI18n();
   const radio = useRadio();
+  useRadioLeave();
   const wasDone = useRef(false);
 
   useEffect(() => {
@@ -52,9 +54,9 @@ export function TrainingFrame({
     radio.clear();
     radio.say({ speaker: 'CHISPA', text: task });
     if (tip) radio.say({ speaker: 'AURORA', text: tip });
-    // Al salir se limpia: si no, Chispa seguía explicando el huerto en la
-    // pantalla de obra y hasta en la guardia de la Luna.
-    return () => radio.clear();
+    // De limpiar al salir ya se encarga useRadioLeave(), arriba: sin eso,
+    // Chispa seguía explicando el huerto en la pantalla de obra y hasta en la
+    // guardia de la Luna.
     // Solo al entrar: la tarea no cambia mientras juegas.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -65,7 +67,7 @@ export function TrainingFrame({
     wasDone.current = Boolean(result);
   }, [result]);
 
-  return <div className="earth-screen training">
+  return <div className="earth-screen training" style={{ ['--press-here' as string]: JSON.stringify(t('minigames.guide.pressHere')), ['--turn-here' as string]: JSON.stringify(t('minigames.guide.turnHere')) }}>
     <header className="earth-screen__header training__header">
       <button type="button" className="earth-screen__back-btn" onClick={onBack}>
         <ArrowLeft weight="bold" />
@@ -105,7 +107,7 @@ export function TrainingFrame({
           <WorkQuality tier={result.tier} />
           <small>{t('training.keepAdjusting')}</small>
         </div>
-        <button type="button" className="training__kit" onClick={() => { playSound('reward'); onConfirm(); }}>
+        <button type="button" className="training__kit" data-target data-guide-below onClick={() => { playSound('reward'); onConfirm(); }}>
           <Sparkle weight="fill" aria-hidden="true" />
           <span>{t('training.kitButton', { cost: result.cost, resource: t(RESOURCE_LABEL[result.resource]).toLowerCase() })}</span>
           <ArrowRight weight="bold" aria-hidden="true" />

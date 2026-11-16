@@ -174,6 +174,21 @@ describe('Sistema de Internacionalización (i18n) v3.0', () => {
     }
   });
 
+  it('quechua y noruego tienen las mismas claves y marcadores que inglés: nunca se mezclan idiomas', () => {
+    const english = flattenStrings(en);
+    for (const [name, dictionary] of [['es', es], ['qu', qu], ['no', no]] as const) {
+      const translated = flattenStrings(dictionary);
+      const missing = Object.keys(english).filter((key) => !(key in translated));
+      const extra = Object.keys(translated).filter((key) => !(key in english));
+      expect(missing, `${name}: claves sin traducir`).toEqual([]);
+      expect(extra, `${name}: claves que ya no existen en inglés`).toEqual([]);
+      for (const key of Object.keys(english)) {
+        expect(placeholders(translated[key]).sort(), `${name}:${key}`).toEqual(placeholders(english[key]).sort());
+        expect(translated[key].trim().length, `${name}:${key} vacío`).toBeGreaterThan(0);
+      }
+    }
+  });
+
   it('valida automáticamente todas las claves literales y sus interpolaciones en src', () => {
     const english = flattenStrings(en);
     const spanish = flattenStrings(es);

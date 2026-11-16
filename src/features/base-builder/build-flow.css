@@ -1,0 +1,93 @@
+/* Flujo de construcción: Elegir → Construir → Terminado → Funcionando. Pixel art, sin brillos fuertes. */
+.build-steps { display:flex; flex-wrap:wrap; justify-content:center; gap:.35rem .5rem; margin:.5rem auto; padding:0; list-style:none; font-family:"Nunito",sans-serif; }
+.build-steps__item { display:inline-flex; align-items:center; gap:.4rem; padding:.2rem .6rem .2rem .25rem; border:2px solid #35526f; background:rgb(7 20 38 / 85%); color:#9fb8cc; font-size:.9rem; font-weight:800; }
+.build-steps__dot { display:grid; width:1.55rem; height:1.55rem; place-items:center; border:2px solid #4f7f9a; background:#0b1a2b; font:700 .85rem "Fredoka",sans-serif; }
+.build-steps__item--past { color:#bfe9cd; border-color:#3f8f5d; }
+.build-steps__item--past .build-steps__dot { border-color:#3f8f5d; background:#1d4b34; color:#d6ffe3; }
+.build-steps__item--current { color:#fff; border-color:#ffd45c; background:#1a2f46; }
+.build-steps__item--current .build-steps__dot { border-color:#ffd45c; background:#ffd45c; color:#14202e; }
+
+.module-state { display:inline-flex; align-items:center; gap:.35rem; padding:.18rem .55rem; border:2px solid; font:800 .85rem "Nunito",sans-serif; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
+.module-state svg { width:1.05rem; height:1.05rem; flex:none; }
+.module-state--selected { color:#cfeaff; border-color:#65d9ef; background:rgb(10 40 60 / 90%); }
+.module-state--pending { color:#9fb8cc; border-color:#4f6278; background:rgb(10 20 32 / 90%); border-style:dashed; }
+.module-state--building { color:#ffe29a; border-color:#f2a65a; background:rgb(55 34 10 / 90%); }
+.module-state--finished { color:#d6ffe3; border-color:#4fb277; background:rgb(14 55 36 / 92%); }
+.module-state--working { color:#d6ffe3; border-color:#4fb277; background:rgb(14 55 36 / 92%); }
+.module-state--paused { color:#ffe29a; border-color:#a18a4a; background:rgb(40 34 12 / 90%); }
+
+.effect-chips { display:flex; flex-wrap:wrap; gap:.3rem; margin:.3rem 0 0; padding:0; list-style:none; font-family:"Nunito",sans-serif; }
+.effect-chip { display:inline-flex; align-items:baseline; gap:.3rem; padding:.15rem .5rem; border:2px solid; font-size:.9rem; line-height:1.25; }
+.effect-chip svg { align-self:center; width:1rem; height:1rem; flex:none; }
+.effect-chip strong { font-weight:900; }
+.effect-chip small { font-size:.82rem; font-weight:700; opacity:.9; }
+.effect-chip--good { color:#c9f7d8; border-color:#3f8f5d; background:rgb(14 55 36 / 85%); }
+.effect-chip--cost { color:#ffd0cc; border-color:#b0524d; background:rgb(70 20 22 / 85%); }
+.effect-chips--compact .effect-chip { font-size:.82rem; padding:.1rem .4rem; }
+
+/* Estados animados (solo con movimiento permitido). */
+@media (prefers-reduced-motion:no-preference) {
+  .module-state--building svg { animation:bf-hammer .7s steps(2,end) infinite; transform-origin:70% 70%; }
+  .module-state--finished { animation:bf-pop .5s steps(4,end) 1; }
+  .module-state--working svg { animation:bf-blink 1.4s steps(2,end) infinite; }
+  .module-state--selected { animation:bf-pop .35s steps(3,end) 1; }
+}
+@keyframes bf-hammer { 0%,100% { transform:rotate(-18deg); } 50% { transform:rotate(14deg); } }
+@keyframes bf-pop { 0% { transform:scale(.85); } 60% { transform:scale(1.08); } 100% { transform:scale(1); } }
+@keyframes bf-blink { 0%,100% { opacity:1; } 50% { opacity:.45; } }
+
+/* ---------- Obra de un módulo (pantalla de avance de obra) ---------- */
+.build-card { color:#e3effb; }
+.build-site { position:relative; width:min(18rem,80%); aspect-ratio:16/10; margin:.6rem auto .4rem; overflow:hidden; border:3px solid #4f7f9a; background:#071426; }
+.build-site img { display:block; width:100%; height:100%; object-fit:cover; image-rendering:pixelated; transition:filter .4s steps(4,end); }
+.build-site--building { border-color:#f2a65a; }
+.build-site--building img { filter:grayscale(.55) brightness(.6); }
+.build-site--finished { border-color:#4fb277; }
+.build-site__tape { position:absolute; inset:0; background:repeating-linear-gradient(135deg, rgb(242 166 90 / 38%) 0 .7rem, rgb(20 20 24 / 38%) .7rem 1.4rem); }
+.build-site__progress { position:absolute; right:.5rem; bottom:.5rem; left:.5rem; height:.85rem; overflow:hidden; border:2px solid #f2a65a; background:rgb(2 8 19 / 85%); }
+.build-site__progress>span { display:block; width:100%; height:100%; background:#f2a65a; transform-origin:left center; animation:bf-fill linear 1 both; }
+.build-site__flash { position:absolute; inset:0; background:#fff; opacity:0; }
+.build-site__state { position:absolute; top:.4rem; left:.4rem; }
+.build-card__name { margin:.2rem 0; color:#ffd45c; font:700 1.25rem "Fredoka",sans-serif; }
+.build-card__desc { max-width:34rem; margin:.2rem auto; font-size:1.05rem; line-height:1.4; }
+.build-card .effect-chips { justify-content:center; }
+.build-queue { display:flex; flex-wrap:wrap; justify-content:center; gap:.4rem; margin:.7rem 0 .2rem; padding:0; list-style:none; }
+.build-queue__item { display:grid; justify-items:center; gap:.2rem; min-width:9.5rem; padding:.35rem .5rem; border:2px solid #35526f; background:rgb(7 20 38 / 85%); font-size:.9rem; }
+@keyframes bf-fill { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+@keyframes bf-flash { 0% { opacity:.55; } 100% { opacity:0; } }
+@media (prefers-reduced-motion:no-preference) {
+  .build-site__tape { animation:bf-tape 1.2s linear infinite; }
+  .build-site__flash { animation:bf-flash .6s steps(5,end) 1; }
+}
+@media (prefers-reduced-motion:reduce) { .build-site__progress>span { animation:none; transform:none; } }
+@keyframes bf-tape { to { background-position:2rem 0; } }
+
+/* ---------- Módulos funcionando (revisión de sistemas) ---------- */
+.monitor-modules { display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:.7rem; margin:0; padding:0; list-style:none; }
+.monitor-module { display:grid; align-content:start; justify-items:center; gap:.3rem; color:#e3effb; font-size:.95rem; text-align:center; }
+.monitor-module__pic { position:relative; width:100%; border:3px solid #4fb277; background:#071426; }
+.monitor-module__pic img { display:block; width:100%; image-rendering:pixelated; }
+.monitor-module__state { position:absolute; top:.3rem; left:.3rem; }
+.monitor-module .effect-chips { justify-content:center; }
+@media (prefers-reduced-motion:no-preference) { .monitor-module__pic { animation:bf-power 2.4s steps(4,end) infinite; } }
+@keyframes bf-power { 0%,100% { box-shadow:0 0 0 0 rgb(79 178 119 / 0%); } 50% { box-shadow:0 0 0 4px rgb(79 178 119 / 30%); } }
+
+/* ---------- Cámaras de la guardia: módulo funcionando ---------- */
+.camera-status__led { display:inline-block; width:.6rem; height:.6rem; margin-right:.4rem; vertical-align:baseline; background:#8da0ad; }
+.camera-status--active .camera-status__led,.camera-status__led--active { background:#4fe08a; }
+.camera-status--warning .camera-status__led,.camera-status__led--warning { background:#ffb74d; }
+.camera-status--suspended .camera-status__led,.camera-status__led--suspended { background:#d6c36a; }
+.module-camera-view__effects { position:absolute; z-index:3; bottom:.5rem; left:.55rem; max-width:62%; padding:.25rem .35rem; background:rgb(2 8 19 / 86%); }
+.module-camera-view__effects .effect-chips { margin:0; }
+@media (prefers-reduced-motion:no-preference) {
+  .camera-status--active .camera-status__led,.camera-status__led--active { animation:bf-blink 1.6s steps(2,end) infinite; }
+}
+
+/* ---------- Barras de recursos: aviso de cuánto sube o baja ---------- */
+.resource-bar { position:relative; }
+.resource-bar__delta { position:absolute; z-index:2; top:calc(100% + .1rem); right:0; display:inline-flex; align-items:center; gap:.1rem; padding:.05rem .4rem; border:2px solid; font:800 .95rem "Fredoka",sans-serif; pointer-events:none; }
+.resource-bar__delta svg { width:.95rem; height:.95rem; }
+.resource-bar__delta--up { color:#d6ffe3; border-color:#3f8f5d; background:rgb(14 55 36 / 96%); }
+.resource-bar__delta--down { color:#ffd8d4; border-color:#b0524d; background:rgb(70 20 22 / 96%); }
+@media (prefers-reduced-motion:no-preference) { .resource-bar__delta { animation:bf-delta 2.6s steps(10,end) 1 both; } }
+@keyframes bf-delta { 0% { opacity:0; transform:translateY(.4rem); } 10% { opacity:1; transform:translateY(0); } 80% { opacity:1; } 100% { opacity:0; transform:translateY(-.4rem); } }

@@ -31,8 +31,8 @@ interface TargetBox {
   readonly height: number;
 }
 
-const DIALOG_WIDTH = 390;
-const DIALOG_HEIGHT = 220;
+const DIALOG_WIDTH = 440;
+const DIALOG_HEIGHT = 250;
 const GAP = 22;
 const EDGE = 12;
 
@@ -100,6 +100,30 @@ export function TutorialCoachMark({ open, steps, onComplete, onSkip }: TutorialC
     return () => previousFocus.current?.focus();
   }, [open]);
 
+  // Escape cierra la ayuda aunque el foco esté en otra parte; Tab se queda dentro del cartel.
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.stopPropagation();
+        markTutorialSteps(stepIds);
+        onSkip();
+      }
+      if (event.key === 'Tab') {
+        const controls = Array.from(document.querySelectorAll<HTMLElement>('.tutorial-coach button'));
+        if (controls.length === 0) return;
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        const active = document.activeElement;
+        if (!controls.includes(active as HTMLElement)) { event.preventDefault(); first.focus(); }
+        else if (event.shiftKey && active === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && active === last) { event.preventDefault(); first.focus(); }
+      }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [open, onSkip, stepIds]);
+
   useLayoutEffect(() => {
     if (!open || !step) return;
     let observed: Element | null = null;
@@ -151,9 +175,9 @@ export function TutorialCoachMark({ open, steps, onComplete, onSkip }: TutorialC
     requestAnimationFrame(() => primaryButton.current?.focus());
   }
 
-  return <div className="tutorial-coach" onKeyDown={(event) => {
-    if (event.key === 'Escape') finish(true);
-  }}>
+  // `data-radio-block`: mientras la ayuda está abierta, la radio calla (una sola ayuda a la vez).
+  return <div className="tutorial-coach" data-radio-block="true">
+    {!target && <div className="tutorial-coach__scrim" aria-hidden="true" />}
     {target && <div
       className="tutorial-coach__target"
       aria-hidden="true"

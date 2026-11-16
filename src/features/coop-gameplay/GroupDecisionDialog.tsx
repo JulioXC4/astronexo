@@ -1,6 +1,7 @@
 import { getActionCost, getIntervention } from '../../game';
 import type { MissionState, ResourceDelta } from '../../game';
 import { useI18n } from '../../i18n';
+import { useModalFocus } from '../../visual-kit/useModalFocus';
 import type { LocalPlayer, PendingGroupDecision } from './coop.types';
 
 interface GroupDecisionDialogProps {
@@ -30,6 +31,7 @@ export function GroupDecisionDialog({
   onCancel,
 }: GroupDecisionDialogProps) {
   const { t } = useI18n();
+  const dialogRef = useModalFocus<HTMLElement>(true, onCancel);
   const skip = pending.action.type === 'SKIP_INTERVENTION';
   const intervention = skip ? undefined : getIntervention(pending.action.type);
   const cost = getActionCost(state, pending.action);
@@ -48,6 +50,7 @@ export function GroupDecisionDialog({
   return (
     <div className="coop-dialog-backdrop" role="presentation">
       <section
+        ref={dialogRef}
         className="group-decision-dialog pixel-panel"
         role="dialog"
         aria-modal="true"

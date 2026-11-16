@@ -6,9 +6,12 @@
 .builder-progress strong { color:var(--builder-yellow); font:700 clamp(1.35rem,2.4vw,2rem) "Fredoka",sans-serif; }
 .builder-progress span { font-size:0.9rem; font-weight:900; text-transform:uppercase; }
 .builder-scene { position:relative; min-height:0; overflow:hidden; background-position:center; background-repeat:no-repeat; background-size:cover; }
-.builder-scene__instruction { position:absolute; z-index:4; top:.8rem; left:50%; width:min(42rem,calc(100% - 2rem)); margin:0; padding:.55rem .9rem; transform:translateX(-50%); border:2px solid #78a7bd; background:rgb(3 13 27 / 84%); box-shadow:0 8px 20px rgb(0 0 0 / 30%); font-size:1.05rem; font-weight:800; text-align:center; }
+.builder-scene__instruction { position:absolute; z-index:4; top:.8rem; left:50%; width:min(46rem,calc(100% - 2rem)); margin:0; padding:.55rem .9rem .35rem; transform:translateX(-50%); border:2px solid #78a7bd; background:rgb(3 13 27 / 90%); box-shadow:0 8px 20px rgb(0 0 0 / 30%); text-align:center; }
+.builder-scene__instruction p { margin:0; font-size:1.15rem; font-weight:800; }
+.builder-scene__instruction small { display:block; margin-top:.15rem; color:#b7d2df; font-size:.95rem; font-weight:700; }
+.module-slot__state { position:absolute; z-index:2; top:.35rem; left:.35rem; font-style:normal; }
 .module-slot { position:absolute; z-index:3; width:clamp(9.5rem,20vw,17rem); height:clamp(7rem,19vh,11rem); transform:translate(-50%,-50%); }
-.module-slot--1 { left:26%; top:43%; }.module-slot--2 { left:74%; top:43%; }.module-slot--3 { left:50%; top:68%; }
+.module-slot--1 { left:26%; top:43%; }.module-slot--2 { left:74%; top:43%; }.module-slot--3 { left:50%; top:63%; }
 .module-slot__target { width:100%; height:100%; padding:0; overflow:hidden; border:3px dashed rgb(197 229 241 / 75%); color:#fff; background:rgb(7 20 38 / 32%); font:inherit; cursor:pointer; box-shadow:0 12px 22px rgb(0 0 0 / 25%); }
 .module-slot__target>span { display:grid; width:3rem; height:3rem; margin:auto; place-items:center; border:3px solid rgb(255 255 255 / 60%); color:#fff; background:rgb(7 20 38 / 60%); font:800 1.3rem "Fredoka",sans-serif; }
 .module-slot__target>strong { position:absolute; right:.35rem; bottom:.35rem; left:.35rem; padding:.3rem; overflow:hidden; background:rgb(2 8 19 / 86%); font-size:0.9rem; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; }
@@ -20,7 +23,7 @@
 .builder-console__detail { display:grid; grid-template-columns:5.2rem 1fr; gap:.65rem; min-width:0; align-items:center; }
 .builder-console__detail>img { width:5.2rem; height:4.4rem; object-fit:cover; border:2px solid var(--builder-cyan); }
 .builder-console__detail h2 { margin:0; color:var(--builder-yellow); font:700 1.05rem "Fredoka",sans-serif; }
-.builder-console__detail p { margin:.2rem 0; font-size:0.915rem; line-height:1.25; }.builder-console__detail small { color:#b7d2df; font-size:0.9rem; }
+.builder-console__detail p { margin:.2rem 0; font-size:0.915rem; line-height:1.25; }.builder-console__detail small { color:#b7d2df; font-size:0.9rem; font-weight:800; }
 .module-picker { display:grid; grid-template-columns:repeat(5,minmax(5.3rem,1fr)); gap:.45rem; min-width:0; }
 .module-picker__button { position:relative; display:grid; grid-template-rows:3.7rem auto auto; min-width:0; padding:.25rem; overflow:hidden; border:2px solid #416a80; color:#fff; background:#091a2b; font:inherit; cursor:pointer; text-align:left; }
 .module-picker__button img { width:100%; height:100%; object-fit:cover; filter:saturate(.78) brightness(.82); }
@@ -31,3 +34,6 @@
 @media (max-width:1020px) { .builder-console { grid-template-columns:minmax(0,1fr) auto; }.builder-console__detail { display:none; }.module-picker { grid-template-columns:repeat(5,minmax(4.8rem,1fr)); }.module-slot { width:clamp(8rem,22vw,13rem); height:clamp(6rem,17vh,9rem); } }
 @media (max-width:760px) { .builder-header { grid-template-columns:1fr auto; }.builder-header>.language-selector { display:none; }.builder-console { right:.4rem; bottom:.4rem; left:.4rem; grid-template-columns:1fr; }.module-picker { overflow-x:auto; grid-template-columns:repeat(5,7.2rem); padding-bottom:.25rem; }.builder-start { min-height:2.8rem; }.module-slot--1 { left:24%; top:39%; }.module-slot--2 { left:76%; top:39%; }.module-slot--3 { top:65%; } }
 @media (prefers-reduced-motion:reduce) { .module-slot--ready .module-slot__target { animation:none; } }
+/* Tabletas y pantallas bajas: la consola ocupa más, así que los módulos suben y encogen para no quedar tapados. */
+@media (max-width:1100px) { .builder-console__detail .effect-chip small { display:none; } }
+@media (max-height:820px) { .module-slot { height:clamp(5.5rem,16vh,8.5rem); }.module-slot--1,.module-slot--2 { top:38%; }.module-slot--3 { top:56%; } }

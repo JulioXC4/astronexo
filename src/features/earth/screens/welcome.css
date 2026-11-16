@@ -359,7 +359,7 @@
 
 @media (max-width: 600px) {
   .welcome__top-bar { top: 0.35rem; right: 0.35rem; width: min(70vw, 17rem); }
-  .welcome__top-bar .lang-selector-label { font-size: 0.68rem; }
+  .welcome__top-bar .lang-selector-label { font-size: .85rem; }
   .welcome__scene .pixel-scene__poster,
   .welcome__scene .pixel-scene__base,
   .welcome__scene .pixel-scene__overlay { object-position: 32% center !important; }

@@ -1,20 +1,21 @@
 .tutorial-coach { position:fixed; z-index:90; inset:0; pointer-events:none; font-family:"Nunito",sans-serif; }
 /* El foco deja pasar el clic: el niño practica sobre el elemento resaltado. */
-.tutorial-coach__target { position:fixed; border:4px solid #ffe16f; border-radius:.5rem; background:transparent; box-shadow:0 0 18px #ffe16f; pointer-events:none; animation:coach-target-pulse 1.5s ease-in-out infinite; }
-@keyframes coach-target-pulse { 0%,100% { box-shadow:0 0 14px #ffe16f; } 50% { box-shadow:0 0 30px #ffe16f; } }
+.tutorial-coach__target { position:fixed; border:4px solid #ffe16f; border-radius:.5rem; background:transparent; box-shadow:0 0 0 9999px rgb(2 8 19 / 40%), 0 0 18px #ffe16f; pointer-events:none; animation:coach-target-pulse 1.5s ease-in-out infinite; }
+.tutorial-coach__scrim { position:fixed; inset:0; background:rgb(2 8 19 / 55%); pointer-events:none; }
+@keyframes coach-target-pulse { 0%,100% { box-shadow:0 0 0 9999px rgb(2 8 19 / 40%), 0 0 12px #ffe16f; } 50% { box-shadow:0 0 0 9999px rgb(2 8 19 / 40%), 0 0 22px #ffe16f; } }
 .tutorial-coach__dialog { animation:coach-in 280ms cubic-bezier(.2,1.4,.5,1) both; position:fixed; display:grid; grid-template-columns:6.2rem minmax(0,1fr); grid-template-rows:minmax(7rem,auto) auto; gap:.4rem .8rem; min-height:12.5rem; padding:1rem 1.1rem .9rem; border:4px solid #65d9ef; color:#f5f4df; background:#092038; box-shadow:0 14px 40px rgb(0 0 0 / 65%); pointer-events:auto; }
 .tutorial-coach__dialog--alert { border-color:#ff8b79; }
 .tutorial-coach__portrait { align-self:end; width:6.2rem; height:7.2rem; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 4px 0 rgb(0 0 0 / 35%)); }
 .tutorial-coach__copy { align-self:center; min-width:0; padding:.35rem .4rem; background:rgb(2 8 19 / 78%); }
-.tutorial-coach__copy strong { color:#ffd45c; font:700 1.05rem "Fredoka",sans-serif; }
-.tutorial-coach__copy p { margin:.25rem 0; font-size:clamp(.9rem,2vw,1.05rem); font-weight:800; line-height:1.35; }
+.tutorial-coach__copy strong { color:#ffd45c; font:700 1.25rem "Fredoka",sans-serif; }
+.tutorial-coach__copy p { margin:.25rem 0; font-size:clamp(1.1rem,2.2vw,1.3rem); font-weight:800; line-height:1.4; }
 .tutorial-coach__copy>span { color:#9fd8e5; font-size:0.95rem; font-weight:900; }
 .tutorial-coach__actions { grid-column:1/-1; display:flex; justify-content:flex-end; align-items:center; gap:.55rem; }
-.tutorial-coach__actions button,.tutorial-coach__close,.tutorial-help-button { min-height:2.7rem; border:3px solid #6f92a3; color:#fff; background:#173e5c; font:900 0.952rem "Nunito",sans-serif; cursor:pointer; }
+.tutorial-coach__actions button,.tutorial-coach__close,.tutorial-help-button { min-height:3rem; border:3px solid #6f92a3; color:#fff; background:#173e5c; font:900 1.05rem "Nunito",sans-serif; cursor:pointer; }
 .tutorial-coach__skip { padding:.45rem .7rem; }
 .tutorial-coach__next { display:inline-flex; align-items:center; gap:.4rem; padding:.45rem .75rem; border-color:#fff0a1!important; color:#071426!important; background:#ffd45c!important; }
 .tutorial-coach__next img { width:1.45rem; height:1.45rem; object-fit:contain; image-rendering:pixelated; }
-.tutorial-coach__close { position:absolute; top:.45rem; right:.45rem; display:grid; width:2.3rem; min-height:2.3rem; place-items:center; padding:0; }
+.tutorial-coach__close { position:absolute; top:.45rem; right:.45rem; display:grid; width:2.6rem; min-height:2.6rem; place-items:center; padding:0; }
 .tutorial-coach__close svg { width:1.2rem; height:1.2rem; }
 .tutorial-coach button:focus-visible,.tutorial-help-button:focus-visible { outline:4px solid #fff; outline-offset:3px; }
 .tutorial-help-button { display:inline-flex; align-items:center; justify-content:center; gap:.35rem; min-height:2.35rem; padding:.25rem .55rem; border-width:2px; }

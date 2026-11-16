@@ -304,3 +304,6 @@
 .turn-summary__next svg { width: 1.6rem; height: 1.6rem; }
 .turn-summary__next:hover { transform: translateY(-2px); }
 .turn-summary__next:active { transform: translateY(3px); box-shadow: 0 .1rem 0 #a65e21; }
+/* El retrato del informe es un sprite de cuerpo entero, no el círculo de las caras: sin marco circular ni borde suelto. */
+.results-companion .character-portrait--pixel { display:block; aspect-ratio:auto; border:0; border-radius:0; background:none; overflow:visible; }
+.results-companion .character-portrait--pixel img { height:100%; }

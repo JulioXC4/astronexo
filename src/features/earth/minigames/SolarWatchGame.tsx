@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { ArrowCounterClockwise, Atom, Broadcast, CheckCircle, LockKey, ShieldCheck, Siren, Warning, X } from '@phosphor-icons/react';
+import { ArrowCounterClockwise, Atom, BatteryCharging, Broadcast, CheckCircle, DoorOpen, LockKey, ShieldCheck, Siren, Warning, X } from '@phosphor-icons/react';
 import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
 import type { TrainingOutcome } from '../../../game';
 import { DONKI_HISTORICAL_EVENTS } from '../../../data/nasa/donkiData';
@@ -13,17 +13,7 @@ interface Props { readonly onComplete: (outcome: TrainingOutcome) => void; reado
 const ASSET = '/assets/minigames/solar-storm/';
 const ROOM = '/assets/pixel-art/airlock-refuge.webp';
 const CREW_SPRITE = { A: '/assets/pixel-art/cadet-alba.webp', B: '/assets/pixel-art/engineer-nico.webp' } as const;
-const copy = {
-  en: {
-    title: 'Operation Shelter', subtitle: 'CME alert · NASA DONKI', alert: 'Space alert! Prepare the shelter before the simulated event.', start: 'Start operation', intro: 'Intro · 8 actions', normal: 'Normal · 7 actions', actions: 'actions left', simulated: 'Educational simulation', nasa: 'NASA DONKI record', science: 'The science behind this mission', scienceBody: 'A coronal mass ejection (CME) is a large release of solar plasma and magnetic field. Space weather can affect spacecraft systems. This exercise uses fictional actions, crew positions and data packets; it is not an official NASA emergency procedure. The historical record does not describe an impact on this station.', alarm: 'Alarm', shelter: 'Shelter', telemetry: 'Telemetry', off: 'OFF', on: 'ON', open: 'OPEN', locked: 'LOCKED', deployed: 'DEPLOYED', protected: 'PROTECTED', backup: 'Backup power', backupReady: 'READY', backupOff: 'OFF', crew: 'Crew corridor', safe: 'Clear route', blocked: 'Blocked route', packet: 'Collect data packet', packetCount: 'data packets', undo: 'Undo', reset: 'Restart', impact: 'Simulate arrival', arrival: 'CME arrival', successTitle: 'Shelter secured!', failTitle: 'Protocol incomplete', safety: 'Mission safety', data: 'Data recovered', tool: 'Tool earned', cost: 'RF-69 energy cost', finish: 'Claim kit and continue', retry: 'Try again', learn: 'What happened', successLearn: 'You prioritized the crew, backup power and equipment protection.', sacrifice0: 'You protected the station immediately and saved no extra data packets.', sacrifice1: 'You saved one packet and left the second to protect the station.', sacrifice2: 'You saved both packets before retracting the antenna.', noAlarm: 'The alarm was off, so the crew was not guided to shelter.', crewOutside: 'A crew member was still outside the shelter.', noBackup: 'Backup power was not ready for the shelter.', hatchOpen: 'The hatch was open when the event arrived.', antennaExposed: 'The antenna remained exposed.', startHint: 'Tap the alarm, then guide each astronaut.', alarmOn: 'Alarm on. Guide both astronauts along the clear route.', alreadyOn: 'The alarm is already on.', alarmFirst: 'Sound the alarm before moving the crew.', alreadyInside: 'This astronaut is already inside.', crewMoved: 'Astronaut reached the shelter.', blockedRoute: 'A fallen panel blocks this route. Try the clear route.', alreadyReady: 'Backup power is already prepared.', backupPrepared: 'Backup power ready.', backupFirst: 'Prepare backup power before securing the hatch.', alreadyLocked: 'The hatch is already secured.', hatchLocked: 'The hatch is secured.', antennaRetracted: 'The antenna is retracted. No more packets can be collected.', packetsFull: 'Both packets are already saved.', packetSaved: 'A simulation data packet was saved.', alreadyProtected: 'Telemetry is already protected.', telemetryProtected: 'Antenna retracted and protected.', undone: 'Last action undone.', arrivalHint: 'The event is reaching the station…', resultHint: 'Review the outcome and try another strategy.', noData: 'No extra packets were saved.', failureLesson: 'Check the unfinished station, then try a new order of actions.',
-    astronaut: 'Astronaut', pickRoute: 'Choose a route', modeLabel: 'Difficulty', eventLabel: 'Historical event', packets: 'Data packets', scienceShort: 'Science', close: 'Close', map: 'Map', actionsLabel: 'Actions', statusLost: 'LOST', inside: 'IN SHELTER', outside: 'OUTSIDE', hatchDoor: 'Shelter hatch',
-  },
-  es: {
-    title: 'Operación Refugio', subtitle: 'Alerta CME · NASA DONKI', alert: '¡Alerta espacial! Prepara el refugio antes del evento simulado.', start: 'Iniciar operación', intro: 'Inicial · 8 acciones', normal: 'Normal · 7 acciones', actions: 'acciones restantes', simulated: 'Simulación educativa', nasa: 'Registro NASA DONKI', science: 'La ciencia de esta misión', scienceBody: 'Una eyección de masa coronal (CME) libera plasma solar y campo magnético. El clima espacial puede afectar los sistemas de una nave. Las acciones, posiciones y paquetes de este ejercicio son ficticios; no representan un procedimiento oficial de NASA. El registro histórico no describe un impacto en esta estación.', alarm: 'Alarma', shelter: 'Refugio', telemetry: 'Telemetría', off: 'APAGADA', on: 'ACTIVA', open: 'ABIERTA', locked: 'ASEGURADA', deployed: 'DESPLEGADA', protected: 'PROTEGIDA', backup: 'Energía de respaldo', backupReady: 'LISTA', backupOff: 'APAGADA', crew: 'Corredor de evacuación', safe: 'Ruta libre', blocked: 'Ruta bloqueada', packet: 'Recoger paquete de datos', packetCount: 'paquetes de datos', undo: 'Deshacer', reset: 'Reiniciar', impact: 'Simular llegada', arrival: 'Llega la CME', successTitle: '¡Refugio protegido!', failTitle: 'Protocolo incompleto', safety: 'Seguridad de la misión', data: 'Datos recuperados', tool: 'Herramienta obtenida', cost: 'Costo RF-69 de energía', finish: 'Obtener kit y continuar', retry: 'Reintentar', learn: 'Qué ocurrió', successLearn: 'Priorizaste a la tripulación, la energía de respaldo y la protección del equipo.', sacrifice0: 'Protegiste la estación de inmediato y no guardaste paquetes adicionales.', sacrifice1: 'Guardaste un paquete y dejaste el segundo para proteger la estación.', sacrifice2: 'Guardaste ambos paquetes antes de replegar la antena.', noAlarm: 'La alarma estaba apagada y no se guio a la tripulación.', crewOutside: 'Un astronauta seguía fuera del refugio.', noBackup: 'La energía de respaldo no estaba preparada.', hatchOpen: 'La compuerta estaba abierta al llegar el evento.', antennaExposed: 'La antena quedó expuesta.', startHint: 'Toca la alarma y guía a cada astronauta.', alarmOn: 'Alarma activa. Guía a ambos por la ruta libre.', alreadyOn: 'La alarma ya está activa.', alarmFirst: 'Activa la alarma antes de mover a la tripulación.', alreadyInside: 'Este astronauta ya está dentro.', crewMoved: 'El astronauta llegó al refugio.', blockedRoute: 'Un panel caído bloquea el camino. Prueba la ruta libre.', alreadyReady: 'La energía de respaldo ya está preparada.', backupPrepared: 'Energía de respaldo lista.', backupFirst: 'Prepara la energía de respaldo antes de asegurar la compuerta.', alreadyLocked: 'La compuerta ya está asegurada.', hatchLocked: 'Compuerta asegurada.', antennaRetracted: 'La antena está replegada. Ya no puedes recoger paquetes.', packetsFull: 'Ya guardaste los dos paquetes.', packetSaved: 'Guardaste un paquete de datos de la simulación.', alreadyProtected: 'La telemetría ya está protegida.', telemetryProtected: 'Antena replegada y protegida.', undone: 'Última acción deshecha.', arrivalHint: 'El evento se acerca a la estación…', resultHint: 'Revisa el resultado y prueba otra estrategia.', noData: 'No se guardaron paquetes adicionales.', failureLesson: 'Revisa el sistema pendiente y prueba otro orden de acciones.',
-    astronaut: 'Astronauta', pickRoute: 'Elige una ruta', modeLabel: 'Dificultad', eventLabel: 'Evento histórico', packets: 'Paquetes de datos', scienceShort: 'Ciencia', close: 'Cerrar', map: 'Mapa', actionsLabel: 'Acciones', statusLost: 'PERDIDOS', inside: 'EN REFUGIO', outside: 'AFUERA', hatchDoor: 'Compuerta del refugio',
-  }
-} as const;
-type CopyKey = keyof typeof copy.en;
+
 
 /** Coordenadas en el lienzo lógico 1000 × 563 del cuarto de refugio. */
 const STATION_AT = { alarm: { x: 500, y: 76 }, hatch: { x: 500, y: 250 }, telemetry: { x: 272, y: 286 }, backup: { x: 738, y: 168 } } as const;
@@ -33,12 +23,23 @@ const PACKET_AT = [{ x: 236, y: 262 }, { x: 306, y: 262 }] as const;
 const SAFE = { x0: 40, x1: 960, y0: 50, y1: 540 };
 
 type Crew = 'A' | 'B';
+/** Siguiente objetivo de la operación, en el orden en que se resuelve: alarma → tripulación → respaldo → compuerta → antena → llegada. */
+type StormTarget = 'alarm' | 'crewA' | 'crewB' | 'route' | 'backup' | 'hatch' | 'telemetry' | 'impact';
+/** Foco de luz (lienzo lógico 1000 × 563): centro y radio. Con `impact` no hay foco: el botón de la barra inferior lleva la guía. */
+const SPOT: Record<Exclude<StormTarget, 'impact' | 'route'>, { x: number; y: number; r: number }> = {
+  alarm: { ...STATION_AT.alarm, r: 120 },
+  hatch: { ...STATION_AT.hatch, r: 200 },
+  telemetry: { ...STATION_AT.telemetry, r: 170 },
+  backup: { ...STATION_AT.backup, r: 160 },
+  crewA: { x: CREW_AT.A.out, y: CREW_Y - 90, r: 140 },
+  crewB: { x: CREW_AT.B.out, y: CREW_Y - 90, r: 140 },
+};
+const STATION_ICON = { alarm: Siren, hatch: DoorOpen, telemetry: Broadcast, backup: BatteryCharging } as const;
 const pos = (x: number, y: number) => ({ left: `${x / 10}%`, top: `${y / 5.63}%` });
 
 export function SolarWatchGame({ onComplete, onBack }: Props) {
-  const { language, t } = useI18n();
-  const words = language === 'es' ? copy.es : copy.en;
-  const tr = (key: string) => words[key as CopyKey] ?? key;
+  const { t } = useI18n();
+  const tr = (key: string) => t(`minigames.solarWatchCopy.${key}`);
   // La tarea y un consejo llegan por radio, como en el resto de entrenamientos.
   useScreenRadio([
     { speaker: 'CHISPA', text: t('training.solarWatch.task') },
@@ -82,6 +83,16 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
   const total = state.mode === 'intro' ? 8 : 7;
   const message = state.phase === 'impact' ? tr('arrivalHint') : state.phase === 'result' ? tr('resultHint') : tr(state.feedback === 'start' ? 'startHint' : state.feedback);
   const bad = (key: string) => failed && failure === key;
+  const target: StormTarget | null = !active ? null
+    : !state.alarm ? 'alarm'
+      : routeFor ? 'route'
+        : !state.crewA ? 'crewA'
+          : !state.crewB ? 'crewB'
+            : !state.backup ? 'backup'
+              : !state.hatch ? 'hatch'
+                : !state.telemetry ? 'telemetry'
+                  : 'impact';
+  const spot = target && target !== 'impact' ? SPOT[target === 'route' ? (routeFor === 'B' ? 'crewB' : 'crewA') : target] : null;
 
   const stationLabel = (id: 'alarm' | 'hatch' | 'telemetry' | 'backup') => {
     if (id === 'alarm') return [tr('alarm'), state.alarm ? tr('on') : tr('off')] as const;
@@ -104,6 +115,12 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
       <div className="storm-fx storm-fx--alert" aria-hidden="true" />
       <div className="storm-fx storm-fx--wave" aria-hidden="true" />
       <div className="storm-fx storm-fx--flash" aria-hidden="true" />
+      {/* Atenúa el cuarto salvo el objetivo actual: el niño ve primero lo que debe tocar */}
+      <div
+        className={`storm-dim${spot ? ' is-on' : ''}`}
+        style={spot ? { ['--sx' as string]: `${spot.x / 10}%`, ['--sy' as string]: `${spot.y / 5.63}%`, ['--sr' as string]: spot.r } : undefined}
+        aria-hidden="true"
+      />
 
       {/* Compuerta del refugio */}
       <div className={`storm-door${state.hatch ? ' is-locked' : ''}${stationBad.hatch ? ' is-bad' : ''}`} style={pos(STATION_AT.hatch.x, STATION_AT.hatch.y)} aria-hidden="true">
@@ -121,6 +138,8 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
       {/* Estaciones interactivas */}
       {(['alarm', 'hatch', 'telemetry', 'backup'] as const).map((id) => {
         const [name, status] = stationLabel(id);
+        const Icon = STATION_ICON[id];
+        const here = target === id;
         return (
           <div key={id} className="storm-station" style={pos(STATION_AT[id].x, STATION_AT[id].y)}>
             <button
@@ -128,13 +147,16 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
               className={`storm-hit storm-hit--${id}`}
               data-station={id}
               data-on={stationOn[id] || undefined}
+              data-target={here || undefined}
+              data-guide-below={(here && id === 'alarm') || undefined}
               disabled={!active}
               aria-label={`${name}: ${status}`}
               onClick={() => act(stationAction[id])}
             />
-            <span className={`mg-tag storm-tag storm-tag--${id}${stationOn[id] ? ' mg-tag--on' : ''}${stationBad[id] ? ' mg-tag--bad' : ''}`}>
-              {sprite[id] && <img src={sprite[id]} alt="" draggable={false} />}
+            <span className={`mg-tag storm-tag storm-tag--${id}${here ? '' : ' storm-tag--compact'}${stationOn[id] ? ' mg-tag--on' : ''}${stationBad[id] ? ' mg-tag--bad' : ''}`}>
+              {sprite[id] ? <img src={sprite[id]} alt="" draggable={false} /> : <Icon weight="fill" aria-hidden="true" />}
               <span>{name}</span><small>{status}</small>
+              {stationOn[id] && <CheckCircle className="storm-tag__check" weight="fill" aria-hidden="true" />}
             </span>
           </div>
         );
@@ -170,6 +192,7 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
               type="button"
               className="storm-crew__body"
               data-crew={crew}
+              data-target={(target === (crew === 'A' ? 'crewA' : 'crewB')) || undefined}
               disabled={!active || isIn}
               aria-expanded={routeFor === crew}
               aria-label={`${tr('astronaut')} ${crew}: ${isIn ? tr('inside') : tr('outside')}`}
@@ -177,9 +200,9 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
             >
               <img src={CREW_SPRITE[crew]} alt="" draggable={false} />
             </button>
-            <span className={`mg-tag storm-crew__tag${isIn ? ' mg-tag--on' : ''}${out ? ' mg-tag--bad' : ''}`}>{crew}<small>{isIn ? tr('inside') : tr('outside')}</small></span>
+            <span className={`mg-tag storm-crew__tag${target === (crew === 'A' ? 'crewA' : 'crewB') ? '' : ' storm-tag--compact'}${isIn ? ' mg-tag--on' : ''}${out ? ' mg-tag--bad' : ''}`}>{crew}<small>{isIn ? tr('inside') : tr('outside')}</small>{isIn && <CheckCircle className="storm-tag__check" weight="fill" aria-hidden="true" />}</span>
             {routeFor === crew && !isIn && (
-              <div className="storm-routes" role="group" aria-label={`${tr('pickRoute')} · ${tr('astronaut')} ${crew}`}>
+              <div className="storm-routes" data-target={target === 'route' || undefined} role="group" aria-label={`${tr('pickRoute')} · ${tr('astronaut')} ${crew}`}>
                 {(freeFirst[crew] ? ['free', 'blocked'] as const : ['blocked', 'free'] as const).map((kind) => (
                   <button
                     key={kind}
@@ -213,7 +236,7 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
       hudExtra={<button type="button" className="storm-science-btn" onClick={() => setScienceOpen((open) => !open)} aria-expanded={scienceOpen}><Atom weight="bold" aria-hidden="true" />{tr('scienceShort')}</button>}
     >
       {state.phase !== 'briefing' && (
-        <div className="storm-meters mg-card" aria-live="polite">
+        <div className="storm-meters mg-card" aria-live="polite" data-radio-avoid>
           <span className="mg-kicker">{tr('actionsLabel')}</span>
           <span className="mg-pips" role="img" aria-label={`${state.actions} ${tr('actions')}`}>
             {Array.from({ length: total }, (_, i) => <span key={i} className={i < state.actions ? 'is-full' : ''} />)}
@@ -262,7 +285,7 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
             <div className="mg-actions">
               <button type="button" className="mg-btn" onClick={() => act('undo')} disabled={!state.history.length}><ArrowCounterClockwise weight="bold" aria-hidden="true" />{tr('undo')}</button>
               <button type="button" className="mg-btn" onClick={reset}>{tr('reset')}</button>
-              <button type="button" className="pixel-btn pixel-btn--primary storm-impact" onClick={() => act('impact')}>{tr('impact')}</button>
+              <button type="button" className="pixel-btn pixel-btn--primary storm-impact" data-target={target === 'impact' || undefined} onClick={() => act('impact')}>{tr('impact')}</button>
             </div>
           )}
           {state.phase === 'impact' && <strong className="storm-arrival">{tr('arrival')}</strong>}
@@ -275,7 +298,7 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
           <p><strong>{tr('safety')}:</strong> {safe ? tr('successTitle') : tr(failure ?? 'successTitle')}</p>
           <p><strong>{tr('data')}:</strong> {state.packets}/2 {tr('packetCount')}</p>
           <p><strong>{tr('learn')}:</strong> {safe ? tr('successLearn') : tr('failureLesson')} {safe ? tr(`sacrifice${state.packets}`) : ''}</p>
-          {safe && <p>{tr('tool')}: {language === 'es' ? 'Kit de refugio' : 'Shelter kit'} · {tr('cost')}: {tool.cost}</p>}
+          {safe && <p>{tr('tool')}: {tr('shelterKit')} · {tr('cost')}: {tool.cost}</p>}
           <div className="storm-result__actions">
             {safe && <button className="pixel-btn pixel-btn--primary storm-finish" type="button" onClick={() => { if (completed.current) return; completed.current = true; onComplete(tool); }}>{tr('finish')}</button>}
             <button type="button" className="mg-btn storm-retry" onClick={reset}>{tr('retry')}</button>

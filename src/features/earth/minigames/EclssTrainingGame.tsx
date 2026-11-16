@@ -45,6 +45,13 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
             : state.recycle < 80 ? t('training.eclss.hintThirsty')
               : t('training.eclss.hintStart');
 
+  // Siguiente objetivo, en el mismo orden que las pistas: potencia, limpiador, agua reciclada.
+  const target: 'power' | 'scrubber' | 'recycle' | null = done ? null
+    : (total > ECLSS.powerLimit || o2 < 20.4 || o2 > 21.8) ? 'power'
+      : !state.scrubber ? 'scrubber'
+        : state.recycle < 80 ? 'recycle'
+          : 'power';
+
   const scene = <svg viewBox="0 0 900 380" role="img" aria-label={t('training.eclss.title')}>
     <rect width="900" height="380" fill="#0d1d2e" />
     {/* Agua → máquina → aire */}
@@ -69,6 +76,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
       max={ECLSS.wattsMax}
       step={10}
       onChange={(watts) => setState((s) => ({ ...s, watts }))}
+      target={target === 'power'}
       display={`${state.watts} W`}
     />
     <GaugeDial
@@ -78,9 +86,10 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
       max={ECLSS.recycleMax}
       step={2}
       onChange={(recycle) => setState((s) => ({ ...s, recycle }))}
+      target={target === 'recycle'}
       display={`${state.recycle}%`}
     />
-    <div className="train-switch">
+    <div className="train-switch" data-target={target === 'scrubber' || undefined}>
       <strong>{t('training.eclss.scrubber')}</strong>
       <button type="button" aria-pressed={state.scrubber} onClick={() => setState((s) => ({ ...s, scrubber: !s.scrubber }))}>
         {t(state.scrubber ? 'training.eclss.scrubberOn' : 'training.eclss.scrubberOff')}
