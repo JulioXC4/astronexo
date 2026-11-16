@@ -30,6 +30,18 @@ async function screenshot(page, name) {
   console.log(`[capture] ${file}`);
 }
 
+/** El flujo actual empieza por destino y constructor; la selección de ciudad llega después. */
+async function reachCitySelection(page) {
+  await page.locator('.welcome__play').click();
+  await page.locator('.destination-selection__confirm').click();
+  await page.locator('.module-picker__button').first().waitFor();
+  for (const index of [0, 1, 2]) await page.locator('.module-picker__button').nth(index).click();
+  await page.locator('button.builder-start').click();
+  await page.locator('.earth-action-btn, .city-selection__confirm').first().waitFor();
+  if (await page.locator('.earth-action-btn').count()) await page.locator('.earth-action-btn').click().catch(() => {});
+  await page.locator('.city-selection__confirm').waitFor();
+}
+
 async function openLanding(context, viewportName) {
   const page = await context.newPage();
   const consoleErrors = [];
@@ -62,8 +74,7 @@ try {
   await seed(desktop);
   const desktopRun = await openLanding(desktop, 'desktop');
   const { page } = desktopRun;
-  await page.locator('.welcome__play').click();
-  await page.locator('.city-selection__confirm').waitFor();
+  await reachCitySelection(page);
   await assertImagesLoaded(page);
   assert(await page.locator('[data-city="AREQUIPA"]').getAttribute('aria-checked') === 'true', 'Arequipa should be selected initially');
   await screenshot(page, 'desktop-arequipa.png');
@@ -81,7 +92,7 @@ try {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   assert(overflow <= 1, `Desktop horizontal overflow: ${overflow}px`);
   await page.locator('.city-selection__confirm').click();
-  await page.locator('.destination-pixel-card').first().waitFor();
+  await page.locator('.asel-char').first().waitFor(); // tras la ciudad llega la selección de astronauta
   assert(desktopRun.pageErrors.length === 0, `Page errors: ${desktopRun.pageErrors.join(' | ')}`);
   const relevantResponses = desktopRun.failedResponses.filter((item) => item.includes('/assets/scenes/'));
   assert(relevantResponses.length === 0, `Scene asset responses failed: ${relevantResponses.join(' | ')}`);
@@ -91,8 +102,7 @@ try {
   const tablet = await browser.newContext({ viewport: { width: 1024, height: 768 }, hasTouch: true });
   await seed(tablet, 'en');
   const tabletRun = await openLanding(tablet, 'tablet');
-  await tabletRun.page.locator('.welcome__play').tap();
-  await tabletRun.page.locator('.city-selection__confirm').waitFor();
+  await reachCitySelection(tabletRun.page);
   await tabletRun.page.locator('[data-city="TROMSO"]').tap();
   await tabletRun.page.waitForTimeout(700);
   await assertImagesLoaded(tabletRun.page);

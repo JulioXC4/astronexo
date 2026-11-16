@@ -1,0 +1,57 @@
+/* Nubes y soles: tres cielos con datos NASA POWER y una batería de reserva. */
+.clouds { --emap-accent: #f6c15b; }
+.clouds-layout {
+  position: absolute;
+  z-index: 3;
+  inset: calc(var(--mg-gap) + 3.4rem) var(--mg-gap) var(--mg-gap);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.clouds-layout > * { position: relative; flex: none; width: min(100%, 56rem); }
+.clouds-intro { padding: .45rem .9rem; text-align: center; font-size: .88rem !important; }
+
+.clouds-days { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
+.clouds-day { position: relative; inset: auto; z-index: 1; padding: .55rem; gap: .25rem; text-align: center; }
+.clouds-day h2 { font-size: .95rem; }
+.clouds-sky { display: block; width: 100%; height: clamp(4.2rem, 12vh, 8.2rem); border: 2px solid #1d3550; image-rendering: pixelated; }
+.clouds-day__value { color: #ffd98f; font: 700 1.35rem 'Fredoka', sans-serif; }
+.clouds-day__value small { color: #9fd8e5; font: 800 .7rem 'Nunito', sans-serif; }
+.clouds-day__bar { display: block; height: .55rem; border: 2px solid #4f7f9a; background: rgba(2, 8, 19, .6); }
+.clouds-day__bar > span { display: block; height: 100%; background: #f6c15b; }
+.clouds-day__note { min-height: 1.1em; color: #bfe9f1; font-size: .74rem; font-weight: 800; }
+
+.clouds-reserve { position: relative; inset: auto; z-index: 1; gap: .5rem; }
+.clouds-reserve__head { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+.clouds-reserve__head label { color: #fff; font: 700 1.05rem 'Fredoka', sans-serif; }
+.clouds-stepper { display: flex; gap: .35rem; }
+.clouds-stepper .mg-btn { padding: .3rem .6rem; }
+.clouds-gauge { position: relative; display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 3px; padding: .35rem; border: 3px solid #4f7f9a; background: rgba(2, 8, 19, .6); }
+.clouds-gauge__cell { height: 1.7rem; padding: 0; border: 2px solid #31506a; border-radius: 0; background: #12263b; cursor: pointer; }
+.clouds-gauge__cell:hover { border-color: #ffe6a1; }
+.clouds-gauge__cell.is-full { border-color: #ffe6a1; background: #f6c15b; box-shadow: 0 0 6px rgba(246, 193, 91, .7); }
+.clouds-gauge__target { position: absolute; top: -.2rem; bottom: -.2rem; width: 0; border-left: 3px solid #69f0ae; pointer-events: none; }
+.clouds-gauge__target span { position: absolute; top: 100%; left: 0; transform: translateX(-50%); margin-top: .2rem; padding: .1rem .45rem; border: 2px solid #69f0ae; background: #0c2a22; color: #d8fbe8; font: 800 .7rem 'Nunito', sans-serif; white-space: nowrap; }
+.clouds-slider { width: 100%; accent-color: #f6c15b; cursor: pointer; }
+.clouds-hint { color: #9fd8e5 !important; font-size: .8rem !important; }
+.clouds-actions { display: flex; align-items: center; justify-content: space-between; gap: .8rem; flex-wrap: wrap; }
+.clouds-source { display: flex; align-items: center; gap: .35rem; max-width: 34rem; color: #9fd8e5 !important; font-size: .74rem !important; }
+.clouds-source svg { flex: none; color: #f6c15b; }
+
+.clouds-result { position: sticky; inset: auto; bottom: 0; z-index: 2; padding: .6rem .9rem; font-size: .9rem; }
+.clouds-result--ok { display: flex; align-items: center; justify-content: space-between; gap: .8rem; flex-wrap: wrap; }
+.clouds-result--ok strong { display: flex; align-items: center; gap: .4rem; color: #69f0ae; }
+.clouds-result--ok p { margin-top: .2rem; font-size: .84rem; }
+
+@media (max-width: 760px) {
+  .clouds-days { grid-template-columns: 1fr; }
+  .clouds-day { display: grid; grid-template-columns: 7rem 1fr; align-items: center; text-align: left; column-gap: .6rem; }
+  .clouds-day .clouds-sky { grid-row: 1 / span 4; }
+  .clouds-gauge__cell { height: 1.3rem; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .clouds-gauge__cell { transition: background .12s steps(2), border-color .12s steps(2); }
+}

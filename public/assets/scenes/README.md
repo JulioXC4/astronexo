@@ -22,3 +22,10 @@ These WebP files are normalized copies of the ten user-provided source images. E
 - `cities/tromso/frame-02.webp`: `Gemini_Generated_Image_b6yqthb6yqthb6yq (1).jpeg`; alternate aurora brightness.
 
 The PNG compositions are deliberately not mixed into the animated loops because their camera framing differs more than the JPEG variants. They remain in use as the approved static poster for users who request reduced motion.
+
+## Moon and Mars destinations
+
+- `destinations/moon.webp`: `Imagen de ChatGPT 15 nov 2026, 03_47_48 p.m-1.png`.
+- `destinations/mars.webp`: `Imagen de ChatGPT 15 nov 2026, 03_47_49 p.m-2.png`.
+
+These are WebP quality 88 copies at their original 1672 × 941 dimensions. The selection screen displays them with `object-fit: cover`, without stretching. Each destination has one source image, so the screen uses a short crossfade between destinations instead of a frame animation.

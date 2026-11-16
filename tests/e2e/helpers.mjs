@@ -85,10 +85,10 @@ export async function startFromWelcome(page) {
 }
 
 export async function chooseDestination(page, destination) {
-  await page.waitForSelector('.destination-card');
-  if (destination === 'MARS') await page.click('.destination-card:has-text("Marte")');
+  await page.waitForSelector('[data-destination]');
+  if (destination === 'MARS') await page.click('[data-destination="MARS"]');
   await assertScreenHealthy(page, 'destino');
-  await page.click('button.pixel-btn--primary');
+  await page.click('.destination-selection__confirm');
 }
 
 /** Paso 3: construir 3 de 5 módulos ANTES de elegir la ciudad. Devuelve los nombres elegidos. */
@@ -114,14 +114,18 @@ export async function passStationPrep(page) {
 }
 
 export async function chooseCity(page, city) {
-  await page.waitForSelector('.city-selection__switcher');
-  if (city === 'TROMSO') await page.click('.city-selection__switcher button[data-city="TROMSO"]');
-  await page.click('button.city-selection__confirm');
+  await page.waitForSelector('.city-selection__confirm');
+  if (city === 'TROMSO') {
+    await page.locator('.city-selection__switcher [role=radio]').nth(1).click();
+  }
+  // Deja terminar la precarga de los fotogramas antes de desmontar el escenario.
+  await page.waitForLoadState('networkidle');
+  await page.click('.city-selection__confirm');
 }
 
 export async function passAvatarAndBriefing(page) {
-  await page.waitForSelector('button:has-text("Elegir a")');
-  await page.click('button:has-text("Elegir a")');
+  await page.waitForSelector('.asel-char');
+  await page.click('button.pixel-btn--primary');
   await page.waitForSelector('.briefing-stage');
   // Los diálogos avanzan con «Siguiente»; el último botón lleva al mapa.
   for (let i = 0; i < 6; i++) {
@@ -156,19 +160,17 @@ async function claimKit(page) {
 
 export const TRAININGS = {
   // Arequipa
+  // Rompecabezas de energía: orientar a 16°, cerrar el circuito, repartir (Comunicaciones 4 + Refugio 5) y pasar la noche.
+  // La reserva nocturna la calcula el juego (≈58 % → costo 1), por lo que `reserve` ya no se controla desde fuera.
   SOLAR_DETECTIVE: async (page) => {
-    const sprites = page.locator('.solar-game__sprite-button');
-    await sprites.nth(0).click(); // gira el panel hacia el sol
-    await sprites.nth(1).click(); // cierra el interruptor
-    const pour = async (system, cells) => {
-      await page.click(`.solar-game__system-main:has-text("${system}")`);
-      for (let i = 0; i < cells; i++) await page.locator('.solar-game__energy-cells button.is-full').first().click();
-    };
-    await pour('Comunicaciones', 4);
-    await pour('Refugio', 5);
-    await page.click('.solar-game__primary'); // simular día y noche
-    await page.waitForSelector('.solar-game__game-actions .solar-game__primary:has-text("kit"), .solar-game__game-actions .solar-game__primary:has-text("Reclam"), .solar-game__game-actions .solar-game__primary:has-text("Obtener")', { timeout: 20000 });
-    await page.click('.solar-game__game-actions .solar-game__primary');
+    await setSliderValue(page, '#tilt-angle-slider', 16);
+    await page.click('[data-sd="close"]');
+    const add = (system, times) => page.locator(`[data-system="${system}"] .sd-system__steps button:nth-child(2)`).click({ clickCount: times, delay: 40 });
+    await add('communications', 4);
+    await add('shelter', 5);
+    await page.click('[data-sd="night"]');
+    await page.waitForSelector('[data-sd="claim"]', { timeout: 20000 });
+    await page.click('[data-sd="claim"]');
   },
   ALTITUDE_ACCLIMATIZATION: async (page, { pressure = 72 } = {}) => {
     await setDial(page, 'Presión de la cámara', pressure);
@@ -198,26 +200,28 @@ export const TRAININGS = {
     await page.click('.train-switch button'); // cerrar la cúpula
     await claimKit(page);
   },
+  // Operación Refugio: alarma → tripulación por la ruta libre → energía de respaldo → compuerta → antena → llegada.
   SOLAR_WATCH: async (page, { event = 0 } = {}) => {
-    await page.waitForSelector('.storm-brief__choices');
-    await page.locator('.storm-brief__choices').nth(1).locator('button').nth(event).click();
-    await page.click('.storm-brief .storm-primary');
-    const machine = page.locator('.storm-machine__sprite');
-    await machine.click(); // alarma
-    for (const crew of [0, 1]) await page.locator('.storm-routes > div').nth(crew).locator('button').first().click();
-    await page.click('.storm-backup');
-    await page.locator('.storm-station-tab').nth(1).click();
-    await machine.click(); // refugio
-    await page.locator('.storm-station-tab').nth(2).click();
-    await machine.click(); // telemetría
-    await page.click('.storm-controls .storm-primary'); // simular llegada
-    await page.waitForSelector('.storm-result.is-success .storm-primary', { timeout: 8000 });
-    await page.click('.storm-result.is-success .storm-primary');
+    await page.waitForSelector('.storm-brief');
+    await page.locator('.storm-brief .mg-choice').nth(1).locator('button').nth(event).click();
+    await page.click('.storm-start');
+    await page.click('[data-station="alarm"]');
+    for (const crew of ['A', 'B']) {
+      await page.click(`[data-crew="${crew}"]`);
+      await page.locator(`[data-crew="${crew}"] ~ .storm-routes [data-route="free"]`).click();
+    }
+    await page.click('[data-station="backup"]');
+    await page.click('[data-station="hatch"]');
+    await page.click('[data-station="telemetry"]');
+    await page.click('.storm-impact');
+    await page.waitForSelector('.storm-finish', { timeout: 15000 });
+    await page.click('.storm-finish');
   },
   // Común: usa los valores POWER de la ciudad (power.json) para decidir la reserva
   CLOUDS_SUNS: async (page, { city, reserve } = {}) => {
     await setDial(page, 'Energía que guardas', reserve ?? recommendedCloudsReserve(city));
-    await claimKit(page);
+    await page.click('.clouds-test');
+    await page.click('.clouds-confirm');
   },
 };
 
