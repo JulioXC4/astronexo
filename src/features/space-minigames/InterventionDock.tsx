@@ -53,6 +53,10 @@ interface InterventionDockProps {
   readonly onRequestConfirmation?: (action: GameAction) => void;
   readonly groupDecisionPending?: boolean;
   readonly focusedAlertId?: string | null;
+  /** Sube cada vez que el niño pulsa «Atender» en una alerta: abre el menú de acciones. */
+  readonly menuRequest?: number;
+  /** Lo que hizo en este turno (ya traducido): se muestra en el paso ① cuando está hecho. */
+  readonly doneSummary?: string;
 }
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;
@@ -72,9 +76,20 @@ export function InterventionDock({
   onRequestConfirmation,
   groupDecisionPending = false,
   focusedAlertId,
+  menuRequest = 0,
+  doneSummary,
 }: InterventionDockProps) {
   const { t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
+  // «Atender» en una alerta abre aquí el menú, con las acciones de esa alerta arriba.
+  useEffect(() => {
+    if (menuRequest > 0 && !state.actionTakenThisTurn) {
+      playSound('panelOpen');
+      setMenuOpen(true);
+    }
+    // Solo cuando llega una petición nueva.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menuRequest]);
   const [selected, setSelected] = useState<InterventionAction | null>(null);
   const [skipSelected, setSkipSelected] = useState(false);
   const [choiceId, setChoiceId] = useState<ActionChoice | undefined>();
@@ -235,17 +250,24 @@ export function InterventionDock({
 
   return <section className="intervention-dock" aria-labelledby="intervention-title">
     {emergencyWipe && <AlarmWipe onDone={() => setEmergencyWipe(false)} />}
+    {/* Paso ①: la única acción del turno. Grande, con número y con lo que falta por hacer;
+        antes era una franja pequeña «Acciones · PENDIENTE» que costaba encontrar y entender. */}
     <button
       type="button"
       data-tutorial="space-actions"
-      className="intervention-menu-trigger pixel-button"
+      className={`intervention-menu-trigger pixel-button${state.actionTakenThisTurn ? ' is-done' : ' is-pending'}`}
       aria-expanded={menuOpen}
       aria-controls="intervention-menu"
       disabled={state.actionTakenThisTurn || groupDecisionPending}
       onClick={() => { playSound(menuOpen ? 'panelClose' : 'panelOpen'); setMenuOpen((open) => !open); }}
     >
-      <span id="intervention-title">{t('interventions.openMenu')}</span>
-      <small>{focusedAlert ? t(`alerts.${focusedAlert.kind}.title`) : t('interventions.selectPrompt')}</small>
+      <span className="turn-step__num" aria-hidden="true">{state.actionTakenThisTurn ? '✓' : '1'}</span>
+      <span className="intervention-menu-trigger__copy">
+        <span id="intervention-title">{t(state.actionTakenThisTurn ? 'interventions.stepDone' : 'interventions.openMenu')}</span>
+        <small>{state.actionTakenThisTurn
+          ? doneSummary ?? t('interventions.statusRecorded')
+          : focusedAlert ? t('interventions.forAlert', { alert: t(`alerts.${focusedAlert.kind}.title`) }) : t('interventions.selectPrompt')}</small>
+      </span>
       <strong className={state.actionTakenThisTurn ? 'status-light' : 'status-light status-light--warning'}>
         {t(state.actionTakenThisTurn ? 'interventions.statusRecorded' : 'interventions.statusPending')}
       </strong>
@@ -258,7 +280,8 @@ export function InterventionDock({
         aria-label={t('common.close')}
         onClick={() => { playSound('panelClose'); setMenuOpen(false); }}
       />
-      <div id="intervention-menu" className="intervention-menu" role="dialog" aria-modal="false" aria-label={t('interventions.title')}>
+      {/* data-radio-block: con el menú abierto, la radio y «Repetir ayuda» esperan (antes lo tapaban). */}
+      <div id="intervention-menu" className="intervention-menu" role="dialog" aria-modal="false" aria-label={t('interventions.title')} data-radio-block="true">
         <header>
           <div>
             <h2>{t('interventions.title')}</h2>

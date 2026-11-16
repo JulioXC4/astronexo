@@ -1,4 +1,4 @@
-import { ArrowDown, CheckCircle, WarningCircle } from '@phosphor-icons/react';
+import { ArrowDown, ArrowRight, CheckCircle, Wrench, WarningCircle } from '@phosphor-icons/react';
 import type { MissionAlert } from '../../game';
 import { projectAlertConsequence } from '../../game';
 import { useI18n } from '../../i18n';
@@ -8,16 +8,19 @@ interface AlertCardProps {
   readonly alert: MissionAlert;
   readonly selected?: boolean;
   readonly onSelect?: (alertId: string) => void;
+  /** Abre las acciones que resuelven esta alerta (sin él, la alerta solo se lee). */
+  readonly onAttend?: (alertId: string) => void;
 }
 
-export function AlertCard({ alert, selected = false, onSelect }: AlertCardProps) {
+export function AlertCard({ alert, selected = false, onSelect, onAttend }: AlertCardProps) {
   const { t } = useI18n();
   const alertKey = `alerts.${alert.kind}`;
   // Lo que cuesta ignorarla, con número. Antes solo había una frase cualitativa.
   const ifIgnored = readableChanges(projectAlertConsequence(alert));
   const worst = ifIgnored[0];
 
-  return <button
+  return <div className="alert-card-wrap">
+  <button
     type="button"
     className={`alert-card ${selected ? 'alert-card--selected' : ''}`}
     aria-pressed={selected}
@@ -52,5 +55,12 @@ export function AlertCard({ alert, selected = false, onSelect }: AlertCardProps)
         </li>)}</ul>
       </div>}
     </div>}
-  </button>;
+  </button>
+  {/* El puente entre «qué pasa» y «qué hago»: atender esta alerta abre sus acciones. */}
+  {selected && onAttend && <button type="button" className="alert-card__attend" onClick={() => onAttend(alert.id)}>
+    <Wrench weight="fill" aria-hidden="true" />
+    <span>{t('alerts.attend')}</span>
+    <ArrowRight weight="bold" aria-hidden="true" />
+  </button>}
+  </div>;
 }

@@ -126,10 +126,15 @@ export async function buildStation(page, indexes = [0, 1, 2]) {
   return names;
 }
 
+/** Preparación de la estación: novela visual de dos frases («Siguiente») y luego el botón final. */
 export async function passStationPrep(page) {
-  await page.waitForSelector('button:has-text("Elegir mi base de entrenamiento")');
+  await page.waitForSelector('.station-vn');
   await assertScreenHealthy(page, 'estación en preparación');
-  await page.click('button:has-text("Elegir mi base de entrenamiento")');
+  const finalButton = page.locator('button:has-text("Elegir mi base de entrenamiento")');
+  for (let i = 0; i < 4 && !(await finalButton.count()); i++) {
+    await page.click('.station-vn button:has-text("Siguiente")');
+  }
+  await finalButton.click();
 }
 
 export async function chooseCity(page, city) {
@@ -422,7 +427,18 @@ export async function readOutcome(page) {
   throw new Error(`El informe no indica resultado: ${text.slice(0, 120)}`);
 }
 
+/** Tras el veredicto («¿ganaste?») viene el informe visual; ahí está «Volver a la Tierra». */
+export async function openKidReport(page) {
+  const seeReport = page.locator('.results-see-report');
+  if (await seeReport.count()) {
+    await seeReport.click();
+    await page.waitForSelector('.kid-report');
+    await assertScreenHealthy(page, 'informe para niños');
+  }
+}
+
 export async function returnToWelcome(page) {
+  await openKidReport(page);
   await page.click('button:has-text("VOLVER A LA TIERRA"), button:has-text("ENTREGAR INFORME")');
   await skipCinematic(page); // regreso a la Tierra
   await page.waitForSelector('button:has-text("Ver Análisis y Próxima Aventura")');

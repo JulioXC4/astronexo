@@ -124,11 +124,18 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
   </>;
 
   return <TrainingFrame
+    scope="ECLSS_TRAINING"
     title={t('training.eclss.title')}
     icon={<Drop weight="fill" color="#4cc3d9" />}
     onBack={onBack}
-    task={t('training.eclss.task')}
-    tip={t('training.eclss.tip')}
+    taskKey="training.eclss.task"
+    tipKey="training.eclss.tip"
+    goals={[
+      { label: t('training.goals.oxygenGreen'), ok: o2Ok },
+      { label: t('training.goals.scrubberOn'), ok: state.scrubber },
+      { label: t('training.goals.recycleWater'), ok: state.recycle >= 80 },
+      { label: t('training.goals.underLimit', { limit: ECLSS.powerLimit }), ok: total <= ECLSS.powerLimit },
+    ]}
     scene={scene}
     controls={controls}
     hint={hint}

@@ -13,7 +13,7 @@
 import {
   launchBrowser, newMonitoredPage, assertScreenHealthy, chooseDestination, buildStation, passStationPrep,
   chooseCity, passAvatarAndBriefing, completeTraining, playFiveTurns, readOutcome, failOnProblems,
-  recommendedCloudsReserve, skipCinematic, BASE_URL, performScienceIntervention, performSurvivalIntervention,
+  recommendedCloudsReserve, skipCinematic, BASE_URL, performScienceIntervention, performSurvivalIntervention, openKidReport,
 } from './helpers.mjs';
 
 const ROUTES = [
@@ -172,6 +172,7 @@ async function runRoute(browser, route, { reduced = false } = {}) {
     if (route.victory && outcome !== 'COMPLETADA') throw new Error(`La ruta de victoria terminó como ${outcome}.`);
 
     // El informe termina → cinemática de regreso → pantalla de Tierra.
+    await openKidReport(page);
     await page.click('button:has-text("VOLVER A LA TIERRA"), button:has-text("ENTREGAR INFORME")');
     if (!reduced) {
       await page.waitForSelector('.cinematic video', { timeout: 4000 });

@@ -1,16 +1,20 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { resolveMessage, useI18n } from '../../i18n';
 import { RADIO_TIMING, canInterrupt, visibleDurationMs, type RadioMessage, type RadioSpeaker, type RadioTone } from './radioTiming';
 import { RadioBubble, RadioReplayButton } from './RadioBubble';
 import './radio.css';
 
 interface RadioInput {
   readonly speaker?: RadioSpeaker;
+  /** Mejor una referencia `msg('clave')` que un texto ya traducido: así sigue el idioma activo. */
   readonly text: string;
   readonly tone?: RadioTone;
   /** Clave de pista: con el mismo valor, el mensaje solo sale una vez por pantalla. */
   readonly once?: string;
   /** Aviso de una acción del jugador: va al frente de la cola. */
   readonly front?: boolean;
+  /** Minijuego o pantalla dueña de la ayuda (ver `RadioMessage.scope`). */
+  readonly scope?: string;
 }
 
 interface RadioApi {
@@ -51,7 +55,11 @@ const RESUME_DELAY_MS = 900;
 
 let counter = 0;
 
+/** Las ayudas se pueden silenciar al cerrarlas; los avisos de peligro y las respuestas a una acción, no. */
+const isHelp = (message: Pick<RadioMessage, 'tone' | 'front'>) => message.tone !== 'danger' && !message.front;
+
 export function RadioProvider({ children }: { readonly children: ReactNode }) {
+  const { t } = useI18n();
   const [queue, setQueue] = useState<readonly RadioMessage[]>([]);
   const [current, setCurrent] = useState<RadioMessage | null>(null);
   const [blocked, setBlocked] = useState(false);
@@ -65,6 +73,14 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
   /** Tras interrumpir por peligro o tras una ventana importante, el siguiente sale casi de inmediato. */
   const fastNext = useRef<boolean>(false);
   const resumeNext = useRef<boolean>(false);
+  /**
+   * Minijuegos cuyas ayudas el niño ya cerró: no vuelven a salir solas en toda la partida
+   * (sí con «Repetir ayuda», que es voluntario). Antes, cerrar el globo solo daba paso a la
+   * siguiente ayuda de la cola, y al volver a entrar al minijuego todo empezaba otra vez.
+   */
+  const mutedScopes = useRef<Set<string>>(new Set());
+  /** Pantalla sin ámbito propio en la que el niño cerró la ayuda (se reinicia al cambiar de pantalla). */
+  const screenMuted = useRef<boolean>(false);
   currentRef.current = current;
 
   const enqueue = useCallback((message: RadioMessage) => {
@@ -90,7 +106,18 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
       tone: input.tone ?? 'normal',
       once: input.once,
       front: input.front,
+      scope: input.scope,
     };
+    // Ayuda de un minijuego (o pantalla) que el niño ya cerró: no se dice sola, pero queda
+    // guardada para «Repetir ayuda».
+    const muted = input.scope ? mutedScopes.current.has(input.scope) : screenMuted.current;
+    if (isHelp(message) && muted) {
+      if (!history.current.some((item) => item.text === message.text)) {
+        history.current = [...history.current, message].slice(-HISTORY_LIMIT);
+        setHistorySize(history.current.length);
+      }
+      return;
+    }
     // Un texto idéntico que ya espera en la cola no se encola dos veces.
     setQueue((pending) => {
       if (pending.some((item) => item.text === message.text)) return pending;
@@ -113,10 +140,25 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
     started.current = false;
     fastNext.current = false;
     resumeNext.current = false;
+    screenMuted.current = false;
   }, []);
 
   const dismiss = useCallback(() => {
     setCurrent(null);
+  }, []);
+
+  /**
+   * El niño cerró el globo (X o Escape): entendió o no quiere más ayuda. Se quitan las demás
+   * ayudas pendientes de ese minijuego y no vuelven a salir solas. Los avisos de peligro siguen.
+   */
+  const userDismiss = useCallback(() => {
+    const closing = currentRef.current;
+    setCurrent(null);
+    if (!closing || !isHelp(closing)) return;
+    if (closing.scope) mutedScopes.current.add(closing.scope);
+    else screenMuted.current = true;
+    setQueue((pending) => pending.filter((item) => !isHelp(item)
+      || (closing.scope ? item.scope !== closing.scope : Boolean(item.scope))));
   }, []);
 
   const replay = useCallback(() => {
@@ -204,10 +246,13 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
     return () => window.clearTimeout(timer);
   }, [current, queue, blocked]);
 
-  // Lo retira cuando se cumple su duración.
+  // Lo retira cuando se cumple su duración (medida sobre el texto ya traducido, no sobre la clave).
+  // `t` no entra en las dependencias: cambiar de idioma no reinicia el reloj del globo.
+  const translateRef = useRef(t);
+  translateRef.current = t;
   useEffect(() => {
     if (!current) return undefined;
-    const timer = window.setTimeout(() => setCurrent(null), visibleDurationMs(current.text));
+    const timer = window.setTimeout(() => setCurrent(null), visibleDurationMs(resolveMessage(current.text, translateRef.current)));
     return () => window.clearTimeout(timer);
   }, [current]);
 
@@ -225,18 +270,18 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
   useEffect(() => {
     if (!current || blocked) return undefined;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setCurrent(null);
+      if (event.key === 'Escape') userDismiss();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [current, blocked]);
+  }, [current, blocked, userDismiss]);
 
   const api = useMemo<RadioApi>(() => ({ say, clear, dismiss, replay }), [say, clear, dismiss, replay]);
   const canReplay = historySize > 0 && !current && queue.length === 0 && !blocked;
 
   return <RadioContext.Provider value={api}>
     {children}
-    <RadioBubble message={blocked ? null : current} onDismiss={dismiss} />
+    <RadioBubble message={blocked ? null : current} onDismiss={userDismiss} />
     {canReplay && <RadioReplayButton onReplay={replay} />}
   </RadioContext.Provider>;
 }

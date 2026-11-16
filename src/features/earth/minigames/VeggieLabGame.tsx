@@ -118,11 +118,16 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
   </>;
 
   return <TrainingFrame
+    scope="VEGGIE_LAB"
     title={t('training.veggie.title')}
     icon={<PottedPlant weight="fill" color="#81c784" />}
     onBack={onBack}
-    task={t('training.veggie.task')}
-    tip={t('training.veggie.tip')}
+    taskKey="training.veggie.task"
+    tipKey="training.veggie.tip"
+    goals={[
+      { label: t('training.goals.waterMid'), ok: state.water === 'MID' },
+      { label: t('training.goals.lightRight'), ok: redOk },
+    ]}
     scene={scene}
     controls={controls}
     hint={hint}

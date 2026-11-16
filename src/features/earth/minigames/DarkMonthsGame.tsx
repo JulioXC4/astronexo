@@ -91,11 +91,13 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
   </div>;
 
   return <TrainingFrame
+    scope="DARK_MONTHS_RESERVE"
     title={t('training.polar.title')}
     icon={<Snowflake weight="fill" color="#80d8ff" />}
     onBack={onBack}
-    task={t('training.polar.task')}
-    tip={t('training.polar.tip')}
+    taskKey="training.polar.task"
+    tipKey="training.polar.tip"
+    goals={PLACES.map((place) => ({ label: t(`training.goals.polar.${place}`), ok: ok[place] }))}
     scene={scene}
     controls={<p className="polar__legend">{t('training.polar.battery')} · {POLAR.tokens}</p>}
     hint={hint}

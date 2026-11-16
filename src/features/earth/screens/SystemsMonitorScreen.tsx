@@ -2,7 +2,7 @@ import { ArrowRight, Gauge } from '@phosphor-icons/react';
 import { createMission } from '../../../game';
 import type { GameSetup } from '../../../game';
 import { moduleScenes } from '../../../assets/moduleScenes';
-import { useI18n } from '../../../i18n';
+import { useI18n, msg } from '../../../i18n';
 import { useEffect } from 'react';
 import { useRadio, useScreenRadio } from '../../radio';
 import { playSound } from '../../audio';
@@ -22,7 +22,7 @@ interface SystemsMonitorScreenProps {
 export function SystemsMonitorScreen({ setup, onStart }: SystemsMonitorScreenProps) {
   const { t } = useI18n();
   // Nico confirma que todo ya funciona; sustituye cualquier mensaje de la pantalla anterior.
-  useScreenRadio([{ speaker: 'NICO', text: t('buildFlow.radio.working') }]);
+  useScreenRadio([{ speaker: 'NICO', text: msg('buildFlow.radio.working') }]);
   const radio = useRadio();
   // Al salir se descarta lo que quede por decir: no debe hablar de módulos en la guardia.
   useEffect(() => () => radio.clear(), [radio]);
