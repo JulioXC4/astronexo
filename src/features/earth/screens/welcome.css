@@ -19,6 +19,54 @@
   z-index: 0;
   width: 100%;
   height: 100%;
+  animation: welcome-scene-drift 22s ease-in-out infinite alternate;
+}
+
+.welcome__sky {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.welcome__star {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #fff0c4;
+  box-shadow: 0 0 8px 2px rgba(255, 221, 156, 0.7);
+  animation: welcome-star-pulse 4s steps(2, end) infinite;
+}
+.welcome__star--one { top: 9%; left: 55%; }
+.welcome__star--two { top: 16%; left: 74%; animation-delay: -1.8s; }
+.welcome__star--three { top: 6%; left: 89%; animation-delay: -3.1s; }
+
+.welcome__meteor {
+  position: absolute;
+  top: 11%;
+  right: 11%;
+  width: 5px;
+  height: 5px;
+  background: #fff7da;
+  box-shadow: 6px -3px #ffdf9e, 12px -6px #f8bc85, 18px -9px rgba(248, 188, 133, 0.4);
+  opacity: 0;
+  animation: welcome-meteor 11s linear infinite;
+}
+
+@keyframes welcome-scene-drift {
+  from { transform: scale(1.015) translate3d(0, 0, 0); }
+  to { transform: scale(1.045) translate3d(-0.7%, 0.35%, 0); }
+}
+@keyframes welcome-star-pulse {
+  0%, 65%, 100% { opacity: 0.25; }
+  35% { opacity: 1; }
+}
+@keyframes welcome-meteor {
+  0%, 77% { opacity: 0; transform: translate3d(0, 0, 0); }
+  79% { opacity: 1; }
+  86% { opacity: 0; transform: translate3d(-16vw, 7vw, 0); }
+  100% { opacity: 0; }
 }
 
 .welcome::after {
@@ -37,15 +85,16 @@
   position: absolute;
   top: clamp(0.8rem, 2vh, 1.6rem);
   right: clamp(1rem, 2.5vw, 2.2rem);
-  z-index: 3;
+  z-index: 4;
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  width: min(48vw, 41rem);
 }
 
 .welcome__content {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
@@ -60,7 +109,7 @@
 
 /* Identidad y logo con margen armónico */
 .welcome__identity {
-  width: min(38vw, 32rem);
+  width: min(44vw, 35rem);
   min-width: 18rem;
   margin-left: clamp(0.5rem, 2vw, 2rem);
   filter: drop-shadow(0 8px 16px rgba(10, 20, 35, 0.7));
@@ -299,6 +348,7 @@
 }
 
 @media (max-width: 1000px) {
+  .welcome__top-bar { width: min(43vw, 20rem); }
   .welcome__content { gap: 1rem; padding-bottom: 1.5rem; }
   .welcome__actions { align-items: stretch; flex-direction: column; }
   .welcome__identity { width: min(75vw, 35rem); margin-left: 0; }
@@ -308,6 +358,8 @@
 }
 
 @media (max-width: 600px) {
+  .welcome__top-bar { top: 0.35rem; right: 0.35rem; width: min(70vw, 17rem); }
+  .welcome__top-bar .lang-selector-label { font-size: 0.68rem; }
   .welcome__scene .pixel-scene__poster,
   .welcome__scene .pixel-scene__base,
   .welcome__scene .pixel-scene__overlay { object-position: 32% center !important; }
@@ -323,5 +375,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .welcome__scene, .welcome__star, .welcome__meteor { animation: none; }
+  .welcome__meteor { display: none; }
   .welcome__play, .welcome__secondary-button { transition: none; }
 }

@@ -1,5 +1,6 @@
 import { useI18n } from './I18nContext';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from './types';
+import { welcomeLanguageCards } from '../assets/welcomeArtwork';
 import './language-selector.css';
 
 export interface LanguageSelectorProps {
@@ -30,7 +31,7 @@ export function LanguageSelector({
         aria-label={t('languageSelector.selectAriaLabel')}
       >
         <span className="lang-selector-label" id="lang-select-welcome-label">
-          🌐 {t('languageSelector.label')}
+          {t('languageSelector.label')}
         </span>
         <div
           className="lang-options-grid"
@@ -47,20 +48,10 @@ export function LanguageSelector({
                 aria-checked={isSelected}
                 tabIndex={0}
                 className={`lang-option-card ${isSelected ? 'selected' : ''}`}
+                aria-label={`${lang.nativeName} (${lang.name})${lang.isDraft ? ` — ${lang.draftNotice}` : ''}`}
                 onClick={() => handleSelect(lang.code)}
               >
-                <span className="lang-flag" aria-hidden="true">
-                  {lang.flag}
-                </span>
-                <span className="lang-names">
-                  <strong className="lang-native">{lang.nativeName}</strong>
-                  <span className="lang-english">{lang.name}</span>
-                </span>
-                {lang.isDraft && (
-                  <span className="lang-draft-badge" title={lang.draftNotice}>
-                    Draft
-                  </span>
-                )}
+                <img src={welcomeLanguageCards[lang.code]} alt="" draggable={false} />
               </button>
             );
           })}

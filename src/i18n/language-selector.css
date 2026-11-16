@@ -4,11 +4,11 @@
 .lang-selector-welcome {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  margin: 1rem 0;
+  align-items: flex-end;
+  gap: 0.15rem;
+  margin: 0;
   width: 100%;
-  max-width: 620px;
+  max-width: 660px;
 }
 
 .lang-selector-label {
@@ -16,101 +16,75 @@
   font-size: 1.0rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #a5b4fc;
+  color: #fff1cf;
+  text-shadow: 0 2px 5px #10233d;
 }
 
 .lang-options-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.6rem;
+  gap: 0.2rem;
   width: 100%;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1000px) {
   .lang-options-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 .lang-option-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0.6rem 0.5rem;
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(99, 102, 241, 0.35);
-  border-radius: 8px;
+  display: block;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0.75rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 180ms ease, filter 180ms ease;
   position: relative;
-  text-align: center;
 }
 
 .lang-option-card:hover {
-  background: rgba(30, 41, 59, 0.9);
-  border-color: #818cf8;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+  transform: translateY(-3px);
+  filter: brightness(1.12);
 }
 
 .lang-option-card:focus-visible {
-  outline: 2px solid #38bdf8;
-  outline-offset: 2px;
+  outline: 3px solid #fff1cf;
+  outline-offset: -8px;
 }
 
 .lang-option-card.selected {
-  background: linear-gradient(135deg, rgba(49, 46, 129, 0.85), rgba(30, 58, 138, 0.85));
-  border-color: #38bdf8;
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
+  filter: drop-shadow(0 5px 8px rgba(18, 35, 67, 0.85)) brightness(1.12);
 }
 
-.lang-flag {
-  font-size: 1.4rem;
-  line-height: 1;
-  margin-bottom: 0.3rem;
-}
-
-.lang-names {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-}
-
-.lang-native {
-  font-size: 1.037rem;
-  color: #f8fafc;
-  font-weight: 600;
-}
-
-.lang-english {
-  font-size: 0.878rem;
-  color: #94a3b8;
-}
-
-.lang-draft-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  font-size: 0.8rem;
-  padding: 0.1rem 0.35rem;
-  background: rgba(245, 158, 11, 0.25);
-  border: 1px solid #f59e0b;
-  color: #fde68a;
-  border-radius: 4px;
-  text-transform: uppercase;
-  font-weight: 700;
+.lang-option-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
 }
 
 .lang-draft-banner {
-  font-size: 0.927rem;
-  color: #fde68a;
-  background: rgba(180, 83, 9, 0.2);
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  padding: 0.35rem 0.8rem;
-  border-radius: 6px;
-  margin-top: 0.4rem;
+  max-width: 21rem;
+  /* Diseño nuevo de develop, con la letra subida para que un niño la lea. */
+  font-size: 0.95rem;
+  line-height: 1.25;
+  color: #fff0c6;
+  background: rgba(12, 30, 59, 0.94);
+  border: 1px solid #f0bd63;
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.6rem;
+  margin-top: 0.1rem;
   text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lang-option-card { transition: none; }
+  .lang-option-card:hover { transform: none; }
 }
 
 /* HUD / Compact Variant */
