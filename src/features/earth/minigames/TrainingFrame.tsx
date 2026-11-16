@@ -4,7 +4,7 @@ import type { QualityTier } from '../../../game';
 import { LanguageSelector, useI18n } from '../../../i18n';
 import { WorkQuality } from '../../../visual-kit/WorkQuality';
 import { playSound, SoundToggle } from '../../audio';
-import { useRadio, useRadioLeave } from '../../radio';
+import { RADIO_PORTRAITS, useRadio, useRadioLeave } from '../../radio';
 import '../screens/earth.css';
 import './training.css';
 import './ui/guide.css';
@@ -54,6 +54,9 @@ export function TrainingFrame({
     radio.clear();
     radio.say({ speaker: 'CHISPA', text: task });
     if (tip) radio.say({ speaker: 'AURORA', text: tip });
+    // De limpiar al salir ya se encarga useRadioLeave(), arriba: sin eso,
+    // Chispa seguía explicando el huerto en la pantalla de obra y hasta en la
+    // guardia de la Luna.
     // Solo al entrar: la tarea no cambia mientras juegas.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -78,6 +81,14 @@ export function TrainingFrame({
     </header>
 
     <main className="training__main">
+      {/* La tarea también se queda escrita. Chispa la dice al entrar, pero el
+          globo se va a los pocos segundos y un niño de 7 años lee despacio:
+          si la pierde, antes se quedaba sin saber qué hacer. */}
+      <p className="training__task">
+        <img src={RADIO_PORTRAITS.CHISPA} alt="" aria-hidden="true" />
+        <span><b>{t('training.yourMission')}</b> {task}</span>
+      </p>
+
       <section className="training__scene" aria-label={title}>{scene}</section>
 
       <section className="training__controls">

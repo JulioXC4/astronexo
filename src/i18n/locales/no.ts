@@ -70,6 +70,8 @@ export const no = {
   },
   training: {
     done: 'Du klarte det!',
+    /** Merkelappen pa baandet som holder oppgaven synlig pa skjermen. */
+    yourMission: 'Oppdraget ditt:',
     keepAdjusting: 'Du kan fortsette å flytte på kontrollene for å gjøre det enda bedre.',
     kitButton: 'Hent utstyrspakken din! (koster {cost} {resource})',
     reset: 'Begynn på nytt',

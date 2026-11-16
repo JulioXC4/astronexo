@@ -1,5 +1,7 @@
 import type { Destination } from '../../game';
 import { useI18n } from '../../i18n';
+import { findingImage } from './explorationAssets';
+import { AssetImage } from './AssetImage';
 
 interface CollectionListProps {
   readonly destination: Destination;
@@ -20,6 +22,7 @@ export function CollectionList({ destination, collection }: CollectionListProps)
       : <ul>{[...grouped.entries()].map(([index, count]) => {
         const key = `exploration.collections.${destination}.${index}`;
         return <li key={index}>
+          <AssetImage src={findingImage(destination, index)} className="collection-list__thumb" />
           <strong>{t(`${key}.name`)}{count > 1 ? ` ×${count}` : ''}</strong>
           <span>{t(`${key}.text`)}</span>
         </li>;

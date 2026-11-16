@@ -111,8 +111,8 @@
   pointer-events: none;
   transform: translateX(-50%);
 }
-.earth-base-tooltip strong { font: 700 .86rem/1.15 'Fredoka', sans-serif; }
-.earth-base-tooltip span { color: #9fd8e5; font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.earth-base-tooltip strong { font: 700 0.9rem/1.15 'Fredoka', sans-serif; }
+.earth-base-tooltip span { color: #9fd8e5; font-size: 0.9rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .earth-base-tooltip span[data-state='completed'] { color: #8ff0c0; }
 .earth-base-tooltip span[data-state='selected'] { color: var(--scene-accent); }
 .earth-base-tooltip span[data-state='locked'] { color: #aeb9c4; }

@@ -15,5 +15,8 @@
 .gauge-dial__readout strong { font-family: 'Fredoka', sans-serif; font-size: 1.7rem; color: #fff; }
 .gauge-dial__readout span { font-size: 1.1rem; font-weight: 800; color: #9bc0e4; }
 .gauge-dial__ends { display: flex; justify-content: space-between; width: 80%; color: #9fb6cf; font-size: 0.95rem; }
+/* Van en <small>, que el navegador encoge otro 83 %: hay que fijar el tamaño
+   aqui o «Mas azul» / «Mas roja» se quedan en 12,7 px. */
+.gauge-dial__ends small { font-size: 0.95rem; }
 .gauge-dial.is-disabled { opacity: .5; }
 @media (prefers-reduced-motion: reduce) { .gauge-dial__needle { transition: none; } }

@@ -71,6 +71,8 @@ export const qu = {
   },
   training: {
     done: '¡Atirankim!',
+    /** Rotulo de la banda que deja la tarea siempre escrita en pantalla. */
+    yourMission: 'Ruwanayki:',
     keepAdjusting: 'Controlkunata kuyuchishallaqmi kanki, aswan allin kananpaq.',
     kitButton: '¡Kitniykita chaskiy! ({cost} {resource} chanin)',
     reset: 'Musuqmanta qallariy',

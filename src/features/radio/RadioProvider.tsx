@@ -211,6 +211,16 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
     return () => window.clearTimeout(timer);
   }, [current]);
 
+  // El globo flota sobre la pantalla. Se avisa mientras está visible para que
+  // lo que haya debajo (la banda de «Tu misión» de los entrenamientos) se
+  // aparte y no quede texto tapado a medias.
+  useEffect(() => {
+    const { body } = document;
+    if (current) body.setAttribute('data-radio', 'on');
+    else body.removeAttribute('data-radio');
+    return () => body.removeAttribute('data-radio');
+  }, [current]);
+
   // Escape cierra el globo (solo si no hay una ventana importante que lo use).
   useEffect(() => {
     if (!current || blocked) return undefined;

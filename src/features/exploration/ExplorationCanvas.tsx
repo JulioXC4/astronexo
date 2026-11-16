@@ -19,7 +19,9 @@ import {
   type ExpeditionEvent,
   type ReturnMargin,
 } from './explorationEngine';
-import { drawExpedition, isBaseVisible } from './explorationRenderer';
+import { createSpriteSet, MARKERS, UI } from './explorationAssets';
+import { drawExpedition, isBaseVisible, type PlayerView } from './explorationRenderer';
+import { AssetImage } from './AssetImage';
 import { TERRAIN } from './terrain';
 
 interface ExplorationCanvasProps {
@@ -196,8 +198,12 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
     };
     resize();
     window.addEventListener('resize', resize);
+    // Respaldo: el astronauta que eligió el niño, por si las poses nuevas no cargan.
     const playerSprite = new Image();
     playerSprite.src = getPlayerSkinForAvatarId(avatarId).path;
+    // Los PNG se piden una sola vez (caché del módulo) y se reutilizan en cada cuadro.
+    const sprites = createSpriteSet(destination);
+    let view: PlayerView = { facing: 'right', dir: 'down', moving: false };
 
     latest.current.radio.say({ text: latest.current.t('exploration.radio.opening'), once: 'explore.opening' });
 
@@ -222,7 +228,19 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
       const dt = last ? Math.min(1, (time - last) / 1000) : 1 / 60;
       last = time;
       const k = keys.current;
-      react(stepExpedition(e, { dx: (k.right ? 1 : 0) - (k.left ? 1 : 0), dy: (k.down ? 1 : 0) - (k.up ? 1 : 0) }, dt));
+      const dx = (k.right ? 1 : 0) - (k.left ? 1 : 0);
+      const dy = (k.down ? 1 : 0) - (k.up ? 1 : 0);
+      react(stepExpedition(e, { dx, dy }, dt));
+      // Solo estética: hacia dónde mira el sprite. No interviene en el movimiento.
+      if (dx !== 0 || dy !== 0) {
+        view = {
+          facing: dx !== 0 ? (dx > 0 ? 'right' : 'left') : view.facing,
+          dir: dx !== 0 ? 'side' : dy < 0 ? 'up' : 'down',
+          moving: true,
+        };
+      } else if (view.moving) {
+        view = { ...view, moving: false };
+      }
 
       const moved = e.distance - prevDistance;
       prevDistance = e.distance;
@@ -244,7 +262,7 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
           const key = type === 's' ? 'exploration.hud.pickUp' : 'exploration.hud.look';
           return latest.current.t(key, { name: placeName(index).name });
         },
-      }, playerSprite);
+      }, playerSprite, sprites, view);
       baseVisible.current = isBaseVisible(camera, canvas.width, canvas.height);
 
       if (time - lastHud > HUD_REFRESH_MS) {
@@ -315,7 +333,10 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
     <div className="explore__panel">
       <p>{t('exploration.hud.time')}: <strong>{formatMinutes(hud.minutes)}</strong> · {t('exploration.hud.distance', { meters: Math.round(hud.distance) })}</p>
       {hud.mode === 'ROVER'
-        ? <p>{t('exploration.hud.battery', { now: hud.battery, total: hud.battery0 })}</p>
+        ? <p className="explore__battery">
+          <AssetImage src={UI.battery[hud.battery0]} className="explore__icon" />
+          {t('exploration.hud.battery', { now: hud.battery, total: hud.battery0 })}
+        </p>
         : hud.onFoot && <p>{t('exploration.hud.onFoot')}</p>}
       <p>{t('exploration.hud.pieces', { count: hud.pieces })} · {t('exploration.hud.places', { found: hud.places, total: PLACES.length })}</p>
       <div className={`explore__margin explore__margin--${margin.tone}`}>
@@ -356,6 +377,7 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
         className="pixel-button"
         onClick={() => { if (expedition.current) react(rescue(expedition.current)); }}
       >
+        <AssetImage src={MARKERS.beacon} className="explore__icon explore__icon--button" />
         {t('exploration.hud.rescue')}
       </button>
     </div>

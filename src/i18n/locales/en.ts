@@ -60,6 +60,8 @@ export const en = {
   },
   training: {
     done: 'You did it!',
+    /** Label of the band that keeps the task written on screen. */
+    yourMission: 'Your mission:',
     keepAdjusting: 'You can keep moving the controls to make it even better.',
     kitButton: 'Get your kit! (costs {cost} {resource})',
     reset: 'Start over',
@@ -557,7 +559,8 @@ export const en = {
       step4Speaker: 'Chispa',
       step4Role: 'Tactical assistant',
       step4Text: 'Each training gives you a tool! But every decision costs something. Choose well!',
-      stepIndicator: 'Step {current} of {total}',
+      /* It must not say «Step N»: the header already says «Step 5». */
+      stepIndicator: 'Message {current} of {total}',
       nextBtn: 'Next',
       prevBtn: 'Previous',
       skipBtn: 'Skip',
