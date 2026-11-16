@@ -5,6 +5,7 @@ import { moduleScenes } from '../../../assets/moduleScenes';
 import { useI18n } from '../../../i18n';
 import { useEffect } from 'react';
 import { useRadio, useScreenRadio } from '../../radio';
+import { playSound } from '../../audio';
 import { BuildFlowSteps, ModuleEffectChips, ModuleStatusBadge } from '../../base-builder/ModuleStatus';
 import { SceneScreen, SCENE_BACKGROUNDS } from './SceneScreen';
 import './earth.css';
@@ -25,6 +26,8 @@ export function SystemsMonitorScreen({ setup, onStart }: SystemsMonitorScreenPro
   const radio = useRadio();
   // Al salir se descarta lo que quede por decir: no debe hablar de módulos en la guardia.
   useEffect(() => () => radio.clear(), [radio]);
+  // La pantalla de datos se enciende al entrar al monitoreo.
+  useEffect(() => { playSound('monitorOn'); }, []);
   const initial = createMission(setup);
   const weather = setup.spaceWeather;
   const resources: readonly (readonly [string, number])[] = [

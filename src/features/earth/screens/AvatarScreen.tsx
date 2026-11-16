@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight } from '@phosphor-icons/react';
 import { AVATAR_OPTIONS, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../../data/avatars';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import { useScreenRadio } from '../../radio';
+import { playSound, SoundToggle } from '../../audio';
 import { computeSceneLayout, MAP_HEIGHT, MAP_WIDTH, type SafeZone } from '../../../visual-kit/earthMapLayout';
 import './earth.css';
 import './earth-map.css';
@@ -105,6 +106,7 @@ export function AvatarScreen({
 
   function handleSubmit(event?: React.FormEvent) {
     event?.preventDefault();
+    playSound('avatarConfirm');
     onConfirmProfile(selectedAvatar, callsign.trim() || t('avatars.defaultCallsign'));
   }
 
@@ -157,7 +159,7 @@ export function AvatarScreen({
                 data-avatar-id={avatar.id}
                 className={`asel-char${selected ? ' asel-char--selected' : ''}`}
                 style={{ left: `${CAST_X[index] / 10}%`, ['--accent' as string]: AVATAR_ACCENTS[avatar.id] ?? '#f6c15b' }}
-                onClick={() => setSelectedAvatarId(avatar.id)}
+                onClick={() => { playSound('cardSelect'); setSelectedAvatarId(avatar.id); }}
               >
                 <span className="asel-char__ring" aria-hidden="true" />
                 <img className="asel-char__sprite" src={AVATAR_SPRITES[avatar.id]} alt="" draggable={false} />
@@ -177,7 +179,7 @@ export function AvatarScreen({
           <span className="emap-hud__route">{t('avatars.stepIndicator', { city: cityName, destination: destName })}</span>
         </div>
         <div className="emap-hud__tools">
-          <LanguageSelector variant="hud" plain />
+          <span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" plain /></span>
         </div>
       </header>
 
@@ -201,7 +203,7 @@ export function AvatarScreen({
                 type="button"
                 className={`asel-chip${callsign === suggestion ? ' asel-chip--active' : ''}`}
                 aria-pressed={callsign === suggestion}
-                onClick={() => setCallsign(suggestion)}
+                onClick={() => { playSound('cardSelect'); setCallsign(suggestion); }}
               >
                 {suggestion}
               </button>

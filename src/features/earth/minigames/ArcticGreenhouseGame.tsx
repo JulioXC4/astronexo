@@ -6,6 +6,7 @@ import { LiveMeter } from '../../../visual-kit/LiveMeter';
 import type { TrainingOutcome } from '../../../game';
 import { calculateTrainingCost, createTrainingOutcome } from '../trainingOutcome';
 import { TrainingFrame } from './TrainingFrame';
+import { playSound } from '../../audio';
 import {
   ARCTIC, arcticCost, arcticDone, arcticTemperature, tierFromCost,
   type ArcticState, type LedMode,
@@ -114,7 +115,7 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
     />
     <div className="train-switch" data-target={target === 'dome' || undefined}>
       <strong>{t('training.arctic.dome')}</strong>
-      <button type="button" aria-pressed={state.insulated} onClick={() => setState((s) => ({ ...s, insulated: !s.insulated }))}>
+      <button type="button" aria-pressed={state.insulated} onClick={() => { playSound(state.insulated ? 'arcticWind' : 'arcticSnow'); setState((s) => ({ ...s, insulated: !s.insulated })); }}>
         {t(state.insulated ? 'training.arctic.domeClosed' : 'training.arctic.domeOpen')}
       </button>
     </div>

@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, CheckCircle, Planet, RocketLaunch } from '@phosp
 import type { Destination } from '../../../game/contracts';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import { useScreenRadio } from '../../radio';
+import { playSound, SoundToggle } from '../../audio';
 import './earth.css';
 import './destination-selection.css';
 
@@ -58,7 +59,7 @@ export function DestinationScreen({ initialDestination, onSelectDestination, onB
           <Planet weight="fill" aria-hidden="true" />
           <span>{t('destinations.stepIndicator')}</span>
         </div>
-        <LanguageSelector variant="hud" />
+        <span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" /></span>
       </header>
 
       <section className="destination-selection__intro" aria-labelledby="destination-selection-title">
@@ -105,7 +106,7 @@ export function DestinationScreen({ initialDestination, onSelectDestination, onB
             tabIndex={selectedDest === 'MOON' ? 0 : -1}
             data-destination="MOON"
             className={selectedDest === 'MOON' ? 'is-active' : ''}
-            onClick={() => setSelectedDest('MOON')}
+            onClick={() => { playSound('cardSelect'); setSelectedDest('MOON'); }}
           >
             <span className="destination-selection__orb destination-selection__orb--moon" aria-hidden="true" />
             <span>{t('destinations.moon.name')}</span>
@@ -117,14 +118,14 @@ export function DestinationScreen({ initialDestination, onSelectDestination, onB
             tabIndex={selectedDest === 'MARS' ? 0 : -1}
             data-destination="MARS"
             className={selectedDest === 'MARS' ? 'is-active' : ''}
-            onClick={() => setSelectedDest('MARS')}
+            onClick={() => { playSound('cardSelect'); setSelectedDest('MARS'); }}
           >
             <span className="destination-selection__orb destination-selection__orb--mars" aria-hidden="true" />
             <span>{t('destinations.mars.name')}</span>
           </button>
         </div>
 
-        <button type="button" className="destination-selection__confirm" onClick={() => onSelectDestination(selectedDest)}>
+        <button type="button" className="destination-selection__confirm" onClick={() => { playSound('destinationConfirm'); onSelectDestination(selectedDest); }}>
           <RocketLaunch weight="fill" aria-hidden="true" />
           <span>{t('destinations.confirmDestination', { dest: t(`destinations.${destinationKey}.name`) })}</span>
           <ArrowRight weight="bold" aria-hidden="true" />

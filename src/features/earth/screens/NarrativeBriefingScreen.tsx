@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperti
 import { ArrowLeft, ArrowRight, CaretLeft, CaretRight, FastForward } from '@phosphor-icons/react';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import { useScreenRadio } from '../../radio';
+import { playSound, SoundToggle } from '../../audio';
 import { computeSceneLayout, MAP_HEIGHT, MAP_WIDTH, type SafeZone } from '../../../visual-kit/earthMapLayout';
 import './earth.css';
 import './earth-map.css';
@@ -134,10 +135,12 @@ export function NarrativeBriefingScreen({
   const last = step === TOTAL_STEPS;
 
   function next() {
+    playSound('dialogueNext');
     if (last) onProceedToMap();
     else setStep((value) => value + 1);
   }
   function previous() {
+    playSound('dialogueNext');
     setStep((value) => Math.max(1, value - 1));
   }
 
@@ -193,7 +196,7 @@ export function NarrativeBriefingScreen({
           <span className="emap-hud__route">{t('briefing.stepIndicator', { city: cityName, destination: destLabel })}</span>
         </div>
         <div className="emap-hud__tools">
-          <LanguageSelector variant="hud" plain />
+          <span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" plain /></span>
         </div>
       </header>
 

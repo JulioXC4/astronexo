@@ -16,9 +16,11 @@ export function SoundToggle({ className = '' }: { readonly className?: string })
     aria-label={t(off ? 'sound.on' : 'sound.off')}
     onClick={() => {
       const next = !off;
+      // El aviso de apagado suena antes de silenciar; el de encendido, después.
+      if (next) playSound('toggleOff');
       setMuted(next);
       setOff(next);
-      if (!next) playSound('click');
+      if (!next) playSound('toggleOn');
     }}
   >
     {off ? <SpeakerSlash weight="fill" aria-hidden="true" /> : <SpeakerHigh weight="fill" aria-hidden="true" />}

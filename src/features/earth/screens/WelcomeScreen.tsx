@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, Broadcast, Play, X } from '@phosphor-icons/react';
 import { welcomeLogos } from '../../../assets/welcomeArtwork';
 import { useI18n, LanguageSelector, type SupportedLanguage } from '../../../i18n';
-import { SoundToggle } from '../../audio';
+import { SoundToggle, playSound } from '../../audio';
 import { useScreenRadio } from '../../radio';
 import { TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
 import { PixelSceneAnimator } from '../components/PixelSceneAnimator';
@@ -90,10 +90,12 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
 
   function openPanel(value: Exclude<WelcomePanel, null>, trigger: HTMLButtonElement) {
     lastTrigger.current = trigger;
+    playSound('panelOpen');
     setPanel(value);
   }
 
   function closePanel() {
+    playSound('panelClose');
     setPanel(null);
     requestAnimationFrame(() => lastTrigger.current?.focus());
   }
@@ -122,6 +124,7 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
   // cerrar; ahora se entra directo y el cartel queda solo en el botón «Ayuda».
   function beginSolo() {
     setPanel(null);
+    playSound('playStart');
     void showCitySelection();
   }
 

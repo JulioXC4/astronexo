@@ -13,7 +13,7 @@ import type { RadioSpeaker } from '../radio';
 import { ConsoleGuide } from './ConsoleGuide';
 import { WorkQuality } from '../../visual-kit/WorkQuality';
 import { useModalFocus } from '../../visual-kit/useModalFocus';
-import { playSound } from '../audio';
+import { AlarmWipe, msSinceLastSound, playSound } from '../audio';
 import { EarthCommunicationGame } from './EarthCommunicationGame';
 import { GreenhouseGame } from './GreenhouseGame';
 import { OxygenPatchGame } from './OxygenPatchGame';
@@ -22,7 +22,7 @@ import { PanelCleaningGame } from './PanelCleaningGame';
 import { PanelRepairGame } from './PanelRepairGame';
 import { ScienceResearchGame } from './ScienceResearchGame';
 import { ShelterProtectionGame } from './ShelterProtectionGame';
-import { getInterventionPanelMode } from './interventionState';
+import { getInterventionPanelMode, isImportantAlert } from './interventionState';
 import { useI18n } from '../../i18n';
 import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../tutorial';
 
@@ -79,10 +79,13 @@ export function InterventionDock({
   const [skipSelected, setSkipSelected] = useState(false);
   const [choiceId, setChoiceId] = useState<ActionChoice | undefined>();
   const [interactionReady, setInteractionReady] = useState(false);
+  // Cortinilla de emergencia: solo al abrir la intervención de una alerta importante.
+  const [emergencyWipe, setEmergencyWipe] = useState(false);
   // Qué tan bien quedó el minijuego; viaja con la acción hasta el motor.
   const [quality, setQuality] = useState<number | undefined>(undefined);
   function reportResult(ready: boolean, value?: number) {
-    if (ready && !interactionReady) playSound('success');
+    // Si el propio minijuego ya sonó (pieza colocada, fuga sellada…), no se apila otro aviso.
+    if (ready && !interactionReady && msSinceLastSound() > 300) playSound('success');
     setInteractionReady(ready);
     setQuality(ready ? value : undefined);
   }
@@ -162,6 +165,11 @@ export function InterventionDock({
   }
 
   function choose(action: InterventionAction) {
+    const chosen = INTERVENTIONS.find((item) => item.action === action);
+    const urgent = Boolean(chosen && state.activeAlerts.some((alert) =>
+      chosen.resolves.includes(alert.kind) && isImportantAlert(alert)));
+    if (urgent) setEmergencyWipe(true);
+    playSound(urgent ? 'alarm' : 'panelOpen');
     setMenuOpen(false);
     setSelected(action);
     // La tarea y el consejo viven dentro de la ventana del minijuego (ConsoleGuide): un solo lugar,
@@ -174,6 +182,7 @@ export function InterventionDock({
 
   function closeOverlay() {
     if (groupDecisionPending) return;
+    playSound('panelClose');
     setInterventionTutorialOpen(false);
     setDiscovery(null);
     setSelected(null);
@@ -197,12 +206,13 @@ export function InterventionDock({
   }
 
   function findStar(id: string) {
-    playSound('reward');
+    playSound('hiddenStar');
     setDiscovery(t('discovery.found', { fact: t(`discovery.facts.${id}`) }));
     onFindStar?.(id);
   }
 
   function chooseSkip() {
+    playSound('panelOpen');
     setMenuOpen(false);
     setSelected(null);
     setSkipSelected(true);
@@ -224,6 +234,7 @@ export function InterventionDock({
   }
 
   return <section className="intervention-dock" aria-labelledby="intervention-title">
+    {emergencyWipe && <AlarmWipe onDone={() => setEmergencyWipe(false)} />}
     <button
       type="button"
       data-tutorial="space-actions"
@@ -231,7 +242,7 @@ export function InterventionDock({
       aria-expanded={menuOpen}
       aria-controls="intervention-menu"
       disabled={state.actionTakenThisTurn || groupDecisionPending}
-      onClick={() => setMenuOpen((open) => !open)}
+      onClick={() => { playSound(menuOpen ? 'panelClose' : 'panelOpen'); setMenuOpen((open) => !open); }}
     >
       <span id="intervention-title">{t('interventions.openMenu')}</span>
       <small>{focusedAlert ? t(`alerts.${focusedAlert.kind}.title`) : t('interventions.selectPrompt')}</small>
@@ -245,7 +256,7 @@ export function InterventionDock({
         type="button"
         className="intervention-menu-scrim"
         aria-label={t('common.close')}
-        onClick={() => setMenuOpen(false)}
+        onClick={() => { playSound('panelClose'); setMenuOpen(false); }}
       />
       <div id="intervention-menu" className="intervention-menu" role="dialog" aria-modal="false" aria-label={t('interventions.title')}>
         <header>
@@ -253,7 +264,7 @@ export function InterventionDock({
             <h2>{t('interventions.title')}</h2>
             <p>{focusedAlert ? t(`alerts.${focusedAlert.kind}.title`) : t('interventions.selectPrompt')}</p>
           </div>
-          <button type="button" className="intervention-close" onClick={() => setMenuOpen(false)} aria-label={t('common.close')}>
+          <button type="button" className="intervention-close" onClick={() => { playSound('panelClose'); setMenuOpen(false); }} aria-label={t('common.close')}>
             <X weight="bold" aria-hidden="true" />
           </button>
         </header>

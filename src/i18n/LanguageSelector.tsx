@@ -1,4 +1,5 @@
 import { useI18n } from './I18nContext';
+import { playSound } from '../features/audio/sound';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from './types';
 import { welcomeLanguageCards } from '../assets/welcomeArtwork';
 import './language-selector.css';
@@ -20,6 +21,7 @@ export function LanguageSelector({
   const { language, setLanguage, languageInfo, t } = useI18n();
 
   const handleSelect = (code: SupportedLanguage) => {
+    if (code !== language) playSound('languageChange');
     setLanguage(code);
   };
 

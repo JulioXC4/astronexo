@@ -23,8 +23,8 @@ export async function launchBrowser() {
 }
 
 /** Contexto con español, tutorial completado y vigilancia de errores JS, recursos fallidos e imágenes rotas. */
-export async function newMonitoredPage(browser, viewport, label) {
-  const context = await browser.newContext({ viewport });
+export async function newMonitoredPage(browser, viewport, label, contextOptions = {}) {
+  const context = await browser.newContext({ viewport, ...contextOptions });
   await context.addInitScript((steps) => {
     localStorage.setItem('astronexo_lang_v3', 'es');
     localStorage.setItem('astronexo_tutorial_v1', JSON.stringify(Object.fromEntries(steps.map((id) => [id, true]))));
@@ -35,7 +35,13 @@ export async function newMonitoredPage(browser, viewport, label) {
   page.on('console', (message) => {
     if (message.type() === 'error') problems.push(`[${label}] console.error: ${message.text()}`);
   });
-  page.on('requestfailed', (request) => problems.push(`[${label}] request failed: ${request.url()}`));
+  page.on('requestfailed', (request) => {
+    // Soltar una pista o un video a mitad de descarga (cambio de pantalla, «Saltar») cancela la petición a propósito.
+    const releasedMedia = request.url().includes('/assets/audio/') || request.url().includes('/assets/videos/')
+      ? /ERR_ABORTED/.test(request.failure()?.errorText ?? '')
+      : false;
+    if (!releasedMedia) problems.push(`[${label}] request failed: ${request.url()}`);
+  });
   page.on('response', (response) => {
     if (response.status() >= 400) problems.push(`[${label}] HTTP ${response.status()}: ${response.url()}`);
   });
@@ -77,11 +83,24 @@ export async function setSliderValue(page, selector, value) {
 
 // ---------------------------------------------------------------- Pasos del flujo JD
 
+/** Cierra con «Saltar» la cinemática que esté sonando (si la hay): el camino real de un jugador impaciente. */
+export async function skipCinematic(page, timeout = 2500) {
+  const skip = page.locator('.cinematic__skip');
+  try {
+    await skip.waitFor({ state: 'visible', timeout });
+    await skip.click();
+    await skip.waitFor({ state: 'detached', timeout: 3000 });
+  } catch {
+    // Sin cinemática (movimiento reducido o ya terminó): se sigue.
+  }
+}
+
 export async function startFromWelcome(page) {
   await page.goto(BASE_URL);
   await page.waitForSelector('.welcome__play');
   await assertScreenHealthy(page, 'welcome');
   await page.click('.welcome__play');
+  await skipCinematic(page); // video de reclutamiento opcional
 }
 
 export async function chooseDestination(page, destination) {
@@ -244,6 +263,7 @@ export async function completeTraining(page, index, id, options, isLast) {
 export async function flyAndMonitor(page, { destination, modules }) {
   await page.waitForSelector('button:has-text("Aproximarse a")');
   await page.click('button:has-text("Aproximarse a")');
+  await skipCinematic(page, 1000); // llegada
   await page.waitForSelector('button:has-text("Tomar el Mando de la Base")');
   await page.click('button:has-text("Tomar el Mando de la Base")');
   // Monitoreo inicial: módulos, recursos, herramientas y clima espacial NASA
@@ -404,6 +424,7 @@ export async function readOutcome(page) {
 
 export async function returnToWelcome(page) {
   await page.click('button:has-text("VOLVER A LA TIERRA"), button:has-text("ENTREGAR INFORME")');
+  await skipCinematic(page); // regreso a la Tierra
   await page.waitForSelector('button:has-text("Ver Análisis y Próxima Aventura")');
   await page.click('button:has-text("Ver Análisis y Próxima Aventura")');
   await page.waitForSelector('button:has-text("Volver a la Bienvenida")');

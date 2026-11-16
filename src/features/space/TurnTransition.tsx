@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useI18n } from '../../i18n';
+import { playSound } from '../audio';
 
 interface TurnTransitionProps {
   readonly label: string;
@@ -7,6 +9,8 @@ interface TurnTransitionProps {
 
 export function TurnTransition({ label, onContinue }: TurnTransitionProps) {
   const { t } = useI18n();
+  // Cambio de día / de pantalla: un solo «whoosh» al entrar.
+  useEffect(() => { playSound('screenWhoosh'); }, []);
   return <main className="turn-transition" role="dialog" aria-modal="true" aria-label={t('spaceGame.transitionAria')}>
     <span>{t('spaceGame.transitionKicker')}</span>
     <strong>{label}</strong>

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Destination, ExplorationMode, ExplorationResources, ExplorationResult } from '../../game';
 import { useI18n } from '../../i18n';
 import { useRadio, useRadioLeave } from '../radio';
-import { playSound } from '../audio';
+import { playSound, startLoop, stopLoop } from '../audio';
 import { getPlayerSkinForAvatarId } from '../../assets/manifest';
 import { ResourceBar } from '../mission-control/ResourceBar';
 import { PLACES, RADIO_RANGE } from './explorationData';
@@ -59,6 +59,12 @@ const KEY_MAP: Readonly<Record<string, keyof Keys>> = {
 /** Entre una pista de ayuda y la siguiente: lo que dura un globo más su pausa. */
 const HINT_GAP_MS = 7000;
 const HUD_REFRESH_MS = 120;
+/** Distancia a pie (px del mundo, ~3 pasos por segundo) entre un paso sonoro y el siguiente. */
+const STEP_SOUND_PX = 42;
+/** Sin avanzar durante este tiempo, el rover se considera parado. */
+const ROVER_IDLE_MS = 180;
+/** El rover debe haber rodado al menos esto para que su parada suene. */
+const ROVER_MIN_RUN_MS = 400;
 
 function snapshotOf(e: Expedition): HudSnapshot {
   return {
@@ -107,22 +113,30 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
     const { t: tr, radio: rd } = latest.current;
     for (const event of events) {
       switch (event.type) {
-        case 'SOFT_TERRAIN': rd.say({ text: tr('exploration.radio.softTerrain'), tone: 'danger' }); break;
-        case 'BATTERY_LOW': rd.say({ text: tr('exploration.radio.lowBattery'), tone: 'danger' }); break;
-        case 'BATTERY_EMPTY': rd.say({ text: tr('exploration.radio.batteryEmpty'), tone: 'danger' }); break;
+        case 'SOFT_TERRAIN':
+          if (expedition.current?.mode === 'ROVER') playSound('roverSoftTerrain');
+          rd.say({ text: tr('exploration.radio.softTerrain'), tone: 'danger' }); break;
+        case 'BATTERY_LOW':
+          playSound('explorationBatteryLow');
+          rd.say({ text: tr('exploration.radio.lowBattery'), tone: 'danger' }); break;
+        case 'BATTERY_EMPTY':
+          playSound('explorationBatteryEmpty');
+          rd.say({ text: tr('exploration.radio.batteryEmpty'), tone: 'danger' }); break;
         case 'NO_MARGIN': rd.say({ speaker: 'NICO', text: tr('exploration.radio.noMargin'), tone: 'danger' }); break;
         case 'NOTHING_NEAR': {
           const now = Date.now();
           if (now - lastNothingAt.current > 4000) {
             lastNothingAt.current = now;
+            playSound('explorationPileEmpty');
             rd.say({ text: tr('exploration.radio.nothingNear'), front: true });
           }
           break;
         }
         case 'COLLECTED': {
-          playSound('reward');
           const { name, text } = placeName(event.place.index);
           const type = event.place.type;
+          // Muestra o huella: recoger; mirador: vista panorámica; curiosidad NASA: destello.
+          playSound(type === 'm' ? 'explorationLookout' : type === 'e' ? 'explorationCuriosity' : 'explorationCollect');
           if (type === 's') {
             const base = tr('exploration.radio.piece', { name, n: event.count, total: event.total });
             rd.say({ text: event.pileEmpty ? `${base} ${tr('exploration.radio.pileEmpty')}` : base, tone: 'good', front: true });
@@ -196,6 +210,20 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
     let frame = 0;
     let last = 0;
     let lastHud = 0;
+    // Sonido de movimiento: se calcula con la distancia real recorrida, no con los cuadros.
+    const stepSound = destination === 'MOON' ? 'stepRegolith' : 'stepMars';
+    let prevDistance = e.distance;
+    let walked = 0;
+    let lastMoveAt = 0;
+    let roverRunning = false;
+    let roverRunningSince = 0;
+    const stopRover = (time: number, announce: boolean) => {
+      if (!roverRunning) return;
+      roverRunning = false;
+      stopLoop('roverRunning');
+      if (announce && time - roverRunningSince > ROVER_MIN_RUN_MS) playSound('roverStop');
+    };
+    if (e.mode === 'ROVER') playSound('roverStart');
     const loop = (time: number) => {
       const dt = last ? Math.min(1, (time - last) / 1000) : 1 / 60;
       last = time;
@@ -214,6 +242,20 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
         view = { ...view, moving: false };
       }
 
+      const moved = e.distance - prevDistance;
+      prevDistance = e.distance;
+      if (moved > 0) {
+        lastMoveAt = time;
+        if (e.mode === 'ROVER') {
+          if (!roverRunning) { roverRunning = true; roverRunningSince = time; startLoop('roverRunning'); }
+        } else {
+          walked += moved;
+          if (walked >= STEP_SOUND_PX) { walked = 0; playSound(stepSound); }
+        }
+      }
+      // Parado, sin batería (pasa a pie) o bloqueado: el motor se calla.
+      if (roverRunning && (e.mode !== 'ROVER' || time - lastMoveAt > ROVER_IDLE_MS)) stopRover(time, e.mode === 'ROVER');
+
       const camera = drawExpedition(g, canvas.width, canvas.height, e, TERRAIN, destination, time, {
         base: latest.current.t('exploration.hud.base'),
         hint: (index, type) => {
@@ -231,6 +273,7 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
       }
       if (e.status === 'RETURNED' || e.status === 'RESCUED') {
         setHud(snapshotOf(e));
+        stopRover(time, false);
         latest.current.onFinish(toResult(e));
         return;
       }
@@ -239,6 +282,7 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
     frame = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(frame);
+      stopLoop('roverRunning');
       window.removeEventListener('resize', resize);
     };
   }, [avatarId, destination, maybeHint, placeName, react]);

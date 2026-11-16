@@ -4,6 +4,7 @@ import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
 import { COMMUNICATION_PROBLEMS, isCommunicationMessageRelevant, type GuidanceChoice } from './puzzleRules';
 import { qualityFromMistakes } from '../../game';
+import { playSound } from '../audio';
 
 interface EarthCommunicationGameProps { readonly state: MissionState; readonly onReadyChange: (ready: boolean, quality?: number) => void; readonly onChoiceChange: (choice: ActionChoice | undefined) => void; }
 
@@ -21,7 +22,8 @@ export function EarthCommunicationGame({ state, onReadyChange, onChoiceChange }:
   function toggleFact(fact: string) { if (sent) return; setFacts((current) => current.includes(fact) ? current.filter((item) => item !== fact) : current.length < 2 ? [...current, fact] : current); }
   function transmit() {
     if (!problem || facts.length !== 2) return;
-    if (!isCommunicationMessageRelevant(problem, facts)) { setHint(t('interventions.puzzles.g8.wrongFacts')); setMistakes((value) => value + 1); return; }
+    if (!isCommunicationMessageRelevant(problem, facts)) { playSound('error'); setHint(t('interventions.puzzles.g8.wrongFacts')); setMistakes((value) => value + 1); return; }
+    playSound('radio');
     setSent(true); setHint(t(state.destination === 'MOON' ? 'interventions.puzzles.g8.moonSuccess' : 'interventions.puzzles.g8.marsSuccess')); onChoiceChange(problem); onReadyChange(true, qualityFromMistakes(mistakes));
   }
   return <div className={`puzzle puzzle--communication ${sent ? 'puzzle--success is-transmitting' : ''}`}>

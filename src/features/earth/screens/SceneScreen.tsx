@@ -4,6 +4,7 @@ import { LanguageSelector, useI18n } from '../../../i18n';
 import './earth.css';
 import './earth-map.css';
 import './scene-screen.css';
+import { SoundToggle } from '../../audio';
 
 /** Fondos de escena compartidos por las pantallas narrativas (mismas ilustraciones que el resto del juego). */
 export const SCENE_BACKGROUNDS = {
@@ -44,7 +45,7 @@ export function SceneScreen({ background, children, onBack, status }: SceneScree
         </button>
         : <span />}
       {status ? <div className="emap-hud__status"><span className="emap-hud__route">{status}</span></div> : <span />}
-      <div className="emap-hud__tools"><LanguageSelector variant="hud" plain /></div>
+      <div className="emap-hud__tools"><span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" plain /></span></div>
     </header>
     {children}
   </div>;

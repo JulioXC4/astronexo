@@ -10,6 +10,7 @@ import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../..
 import { EarthMissionPanel, type MissionPanelState } from './EarthMissionPanel';
 import './earth.css';
 import './earth-map.css';
+import { SoundToggle } from '../../audio';
 
 const MAP_TUTORIAL_STEPS = ['map.pin', 'map.tool', 'map.counter'] as const;
 const TOAST_MS = 5200;
@@ -164,7 +165,7 @@ export function PreparationMapScreen({
 
         <div className="emap-hud__tools">
           <TutorialHelpButton className="emap-hud__help" onClick={() => setTutorialOpen(true)} />
-          <LanguageSelector variant="hud" plain />
+          <span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" plain /></span>
         </div>
       </header>
 

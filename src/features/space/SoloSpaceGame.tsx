@@ -19,6 +19,8 @@ import { TurnTransition } from './TurnTransition';
 import { TurnSummary } from './TurnSummary';
 import { collectTurnSummary, type TurnSummaryData } from './turnSummaryData';
 import { useI18n } from '../../i18n';
+import { playSound } from '../audio';
+import { useGuardAudio } from './useGuardAudio';
 import './space-game.css';
 
 export interface SoloSpaceGameProps {
@@ -46,6 +48,12 @@ export function SoloSpaceGame({ setup, onFinish }: SoloSpaceGameProps) {
   const [summary, setSummary] = useState<TurnSummaryData | null>(null);
   /** Pantalla que toca después del resumen (salto de día o informe final). */
   const [pendingTransition, setPendingTransition] = useState<string | null>(null);
+
+  // Música, ambiente y avisos de la guardia (no altera el estado de la partida).
+  useGuardAudio(mission, setup.destination, !mission ? 'builder'
+    : summary || transition ? 'between'
+      : exploration ? 'exploration'
+        : getMissionResult(mission) ? 'result' : 'play');
 
   if (!setupCanBeCompleted) {
     return <main className="space-entry-error pixel-panel">
@@ -75,6 +83,7 @@ export function SoloSpaceGame({ setup, onFinish }: SoloSpaceGameProps) {
       : next.clockLabel;
     // Primero el resumen del turno; lo que venga después se decide al continuar.
     setSummary(collectTurnSummary(mission, t));
+    if (next.outcome !== 'INTERRUPTED') playSound('guardTurnPassed');
     if (shouldOfferExploration(completedTurn, next)) {
       setExploration({ turn: completedTurn, clock: summaryClock(mission), nextClock: clockLabel });
       return;

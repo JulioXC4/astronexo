@@ -5,6 +5,8 @@ import { GaugeDial } from '../../../visual-kit/GaugeDial';
 import type { TrainingOutcome } from '../../../game';
 import { calculateTrainingCost, createTrainingOutcome } from '../trainingOutcome';
 import { TrainingFrame } from './TrainingFrame';
+import { playSound } from '../../audio';
+import { useThrottledSound } from './ui/useThrottledSound';
 import {
   ALTITUDE, altitudeCost, altitudeDone, altitudeGas, sealsClosed, tierFromCost, type AltitudeState,
 } from './trainingRules';
@@ -30,6 +32,7 @@ const SEALS = [
 export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAcclimatizationGameProps) {
   const { t } = useI18n();
   const [state, setState] = useState<AltitudeState>(START);
+  const pumpSound = useThrottledSound(300);
   const closed = sealsClosed(state);
   const done = altitudeDone(state);
   const cost = altitudeCost(state);
@@ -46,10 +49,15 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
   const pressureOk = state.kpa >= ALTITUDE.safe[0] && state.kpa <= ALTITUDE.safe[1];
   const nextSeal = pressureOk && !done ? state.seals.findIndex((closed) => !closed) : -1;
 
-  const toggle = (index: number) => setState((s) => ({
-    ...s,
-    seals: s.seals.map((value, i) => (i === index ? !value : value)) as unknown as AltitudeState['seals'],
-  }));
+  const toggle = (index: number) => {
+    // Cerrar un sello sella; la escotilla (centro) suena a escotilla al abrirse y al cerrarse.
+    if (state.seals[index]) playSound('altitudeHatchOpen');
+    else playSound(index === 1 ? 'altitudeHatchClose' : 'altitudeSeal');
+    setState((s) => ({
+      ...s,
+      seals: s.seals.map((value, i) => (i === index ? !value : value)) as unknown as AltitudeState['seals'],
+    }));
+  };
 
   const scene = <div className="chamber">
     <svg viewBox="0 0 900 380" role="img" aria-label={t('training.altitude.title')}>
@@ -85,7 +93,7 @@ export function AltitudeAcclimatizationGame({ onComplete, onBack }: AltitudeAccl
     value={state.kpa}
     min={ALTITUDE.kpaMin}
     max={ALTITUDE.kpaMax}
-    onChange={(kpa) => setState((s) => ({ ...s, kpa }))}
+    onChange={(kpa) => { if (kpa > state.kpa) pumpSound('altitudePump'); setState((s) => ({ ...s, kpa })); }}
     target={!pressureOk && !done}
     display={`${state.kpa} kPa`}
     lowLabel={t('training.altitude.low')}

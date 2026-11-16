@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PottedPlant } from '@phosphor-icons/react';
 import { useI18n } from '../../../i18n';
 import { GaugeDial } from '../../../visual-kit/GaugeDial';
@@ -6,6 +6,8 @@ import { LiveMeter } from '../../../visual-kit/LiveMeter';
 import type { TrainingOutcome } from '../../../game';
 import { calculateTrainingCost, createTrainingOutcome } from '../trainingOutcome';
 import { TrainingFrame } from './TrainingFrame';
+import { useThrottledSound } from './ui/useThrottledSound';
+import { playSound } from '../../audio';
 import {
   VEGGIE, WATER_LITERS, tierFromCost, veggieCost, veggieDone, veggieGrowth,
   type VeggieState, type WaterDose,
@@ -27,6 +29,7 @@ const START: VeggieState = { red: 50, water: 'LOW' };
 export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
   const { t } = useI18n();
   const [state, setState] = useState<VeggieState>(START);
+  const lightSound = useThrottledSound(300);
   const growth = veggieGrowth(state);
   const done = veggieDone(state);
   const cost = veggieCost(state);
@@ -44,6 +47,12 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
       : 'light';
 
   const strong = growth >= 80;
+  // Las plantas brotan fuertes una vez, en el momento en que llegan a ese punto.
+  const wasStrong = useRef(false);
+  useEffect(() => {
+    if (strong && !wasStrong.current) playSound('veggieGrow');
+    wasStrong.current = strong;
+  }, [strong]);
   const redLeds = Math.round((state.red / 100) * 12);
   const waterLevel = state.water === 'LOW' ? 8 : state.water === 'MID' ? 20 : 30;
   const leaf = strong ? '#4caf50' : growth >= 50 ? '#8bc34a' : '#cddc39';
@@ -85,7 +94,7 @@ export function VeggieLabGame({ onComplete, onBack }: VeggieLabGameProps) {
       value={state.red}
       min={VEGGIE.redMin}
       max={VEGGIE.redMax}
-      onChange={(red) => setState((s) => ({ ...s, red }))}
+      onChange={(red) => { lightSound('veggieLed'); setState((s) => ({ ...s, red })); }}
       target={target === 'light'}
       display={t('training.veggie.lightValue', { red: state.red })}
       lowLabel={t('training.veggie.lightBlue')}

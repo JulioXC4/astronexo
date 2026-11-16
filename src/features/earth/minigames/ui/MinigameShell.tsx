@@ -6,6 +6,7 @@ import '../../screens/earth.css';
 import '../../screens/earth-map.css';
 import './minigame-ui.css';
 import './guide.css';
+import { SoundToggle } from '../../../audio';
 
 export interface StageConfig {
   /** Fondo pixel art 16:9 del escenario (se encuadra con el mismo sistema que el mapa terrestre). */
@@ -105,7 +106,7 @@ export function MinigameShell({
         </div>
         <div className="emap-hud__tools">
           {hudExtra}
-          <LanguageSelector variant="hud" plain />
+          <span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" plain /></span>
         </div>
       </header>
 

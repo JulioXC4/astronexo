@@ -7,6 +7,8 @@ import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome
 import { allocate, assignedUnits, captureEnergy, DEMAND, EMPTY_ALLOCATION, evaluate, nightEnergy, nightSystemEnergy, remainingNightEnergy, type Allocation, type SystemId } from './solarEnergy';
 import { MinigameShell } from './ui/MinigameShell';
 import { useScreenRadio } from '../../radio';
+import { playSound } from '../../audio';
+import { useThrottledSound } from './ui/useThrottledSound';
 import './solar-detective.css';
 
 interface Props { readonly onComplete: (outcome: TrainingOutcome) => void; readonly onBack: () => void }
@@ -56,6 +58,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
   const [switchMoving, setSwitchMoving] = useState(false);
   const [scienceOpen, setScienceOpen] = useState(false);
   const rewardClaimed = useRef(false);
+  const panelSound = useThrottledSound(250);
   const phone = useMediaQuery('(max-width: 760px)');
 
   const day = AREQUIPA_SOLAR_RECORDS.days[selectedDayIndex] ?? AREQUIPA_SOLAR_RECORDS.days[0];
@@ -84,6 +87,12 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
   useEffect(() => {
     if (phase === 'night' && nightTick === 7) setPhase('result');
   }, [phase, nightTick]);
+  // El resultado suena una vez, al llegar a la pantalla de resultado.
+  useEffect(() => {
+    if (phase === 'result') playSound(result.passed ? 'trainingComplete' : 'trainingFailed');
+    // `result.passed` no cambia mientras se está en el resultado.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
   useEffect(() => {
     if (!switchMoving) return undefined;
     const timer = window.setTimeout(() => setSwitchMoving(false), 180);
@@ -98,7 +107,11 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
     setSelectedSystem('communications');
     rewardClaimed.current = false;
   }
-  function adjustAngle(angle: number) { if (phase === 'capture') setTiltAngle(angle); }
+  function adjustAngle(angle: number) {
+    if (phase !== 'capture') return;
+    if (angle !== tiltAngle) panelSound('solarPanelTurn');
+    setTiltAngle(angle);
+  }
   function changeAllocation(system: SystemId, change: number) {
     if (phase !== 'distribute') return;
     setAllocation((current) => allocate(current, system, change, capture.units));
@@ -106,17 +119,21 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
   function toggleCircuit() {
     if (phase === 'night' || phase === 'result') return;
     setSwitchMoving(true);
+    // Según el catálogo: «abrir» = conectar el circuito, «cerrar» = desconectarlo.
+    playSound(phase === 'capture' ? 'solarSwitchOpen' : 'solarSwitchClose');
     if (phase === 'capture') setPhase('distribute');
     else resetDay();
   }
   function startNight() {
     if (phase !== 'distribute' || assignedUnits(allocation) === 0) return;
     setNightTick(0);
+    playSound('solarBatteryCharging');
     setPhase('night');
   }
   function claimReward() {
     if (phase !== 'result' || !result.passed || rewardClaimed.current) return;
     rewardClaimed.current = true;
+    playSound('toolEarned');
     const cost = calculateTrainingCost('SOLAR_DETECTIVE', result.reservePercent);
     onComplete(createTrainingOutcome('SOLAR_DETECTIVE', tr('outcomeDecision', { reserve: result.reservePercent }), 'energy', cost, tr('outcomeConsequence')));
   }

@@ -3,6 +3,7 @@ import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
 import { PANEL_CIRCUIT_START, isPanelCircuitComplete, type CircuitTileState } from './puzzleRules';
 import { qualityFromMistakes } from '../../game';
+import { playSound } from '../audio';
 
 interface PanelRepairGameProps { readonly onReadyChange: (ready: boolean, quality?: number) => void; }
 
@@ -25,6 +26,7 @@ export function PanelRepairGame({ onReadyChange }: PanelRepairGameProps) {
       setTiles(next);
       setSpares((value) => value - 1);
       setHint(t('interventions.puzzles.g1.repaired'));
+      playSound('guardCellRepaired');
       // Gastar los dos repuestos deja el circuito peor acabado que resolverlo con uno.
       if (isPanelCircuitComplete(next)) onReadyChange(true, qualityFromMistakes(3 - spares));
       return;

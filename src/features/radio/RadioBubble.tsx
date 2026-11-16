@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Radio, X } from '@phosphor-icons/react';
 import { useI18n } from '../../i18n';
-import { playSound } from '../audio';
+import { msSinceLastSound, playSound } from '../audio';
 import { RADIO_PORTRAITS, type RadioMessage } from './radioTiming';
 
 /** Esquinas donde puede ir el globo, en orden de preferencia (ver `radio.css`). */
@@ -58,7 +58,9 @@ export function RadioBubble({ message, onDismiss }: RadioBubbleProps) {
 
   useEffect(() => {
     if (!message) { setTyped(''); return undefined; }
-    playSound(message.tone === 'danger' ? 'alarm' : 'radio');
+    // El aviso de peligro no se apila sobre otro efecto que acaba de sonar (alerta de guardia, batería…).
+    if (message.tone !== 'danger') playSound('radio');
+    else if (msSinceLastSound() > 500) playSound('alarm');
     const reduced = typeof window !== 'undefined'
       && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     if (reduced) { setTyped(message.text); return undefined; }

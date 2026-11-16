@@ -179,4 +179,6 @@
 }
 .sound-toggle:hover { border-color: #65d9ef; color: #fff; }
 .sound-toggle[aria-pressed="true"] { color: #7d94ad; }
+/* Botón de silencio junto al selector de idioma de las barras superiores. */
+.hud-audio-lang { display: inline-flex; align-items: center; gap: .4rem; }
 .sound-toggle--welcome { position: fixed; top: .8rem; left: 7.5rem; z-index: 40; }
