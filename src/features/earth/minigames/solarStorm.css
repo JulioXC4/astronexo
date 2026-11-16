@@ -67,13 +67,13 @@
 .storm-crew.is-bad img { filter: drop-shadow(0 0 calc(var(--u) * 8) #ff4a3a); }
 .storm-crew__tag { position: absolute; left: 50%; top: calc(100% + var(--u) * 6); transform: translateX(-50%); pointer-events: none; }
 .storm-routes { position: absolute; left: 50%; bottom: calc(100% + var(--u) * 6); z-index: 6; display: grid; gap: .3rem; padding: .4rem; border: 2px solid var(--emap-edge); background: var(--emap-panel); box-shadow: 4px 4px 0 rgba(2, 8, 19, .6); transform: translateX(-50%); }
-.storm-route { display: flex; align-items: center; gap: .4rem; padding: .35rem .7rem; border: 2px solid #4f7f9a; border-radius: 0; background: rgba(2, 8, 19, .55); color: #e8f4ff; font: 800 .8rem 'Nunito', sans-serif; white-space: nowrap; cursor: pointer; }
+.storm-route { display: flex; align-items: center; gap: .4rem; padding: .35rem .7rem; border: 2px solid #4f7f9a; border-radius: 0; background: rgba(2, 8, 19, .55); color: #e8f4ff; font: 800 0.9rem 'Nunito', sans-serif; white-space: nowrap; cursor: pointer; }
 .storm-route--free { border-color: #6fe3a0; }
 .storm-route--blocked { border-color: #ffb24a; }
 .storm-route:hover { background: rgba(36, 90, 130, .75); }
 
 /* ---------- Interfaz flotante ---------- */
-.storm-science-btn { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.35rem; padding: .25rem .65rem; border: 2px solid var(--emap-edge); border-radius: 0; background: rgba(8, 24, 42, .82); color: #fff; font: 800 .8rem 'Nunito', sans-serif; box-shadow: 3px 3px 0 rgba(2, 8, 19, .55); cursor: pointer; }
+.storm-science-btn { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.35rem; padding: .25rem .65rem; border: 2px solid var(--emap-edge); border-radius: 0; background: rgba(8, 24, 42, .82); color: #fff; font: 800 0.9rem 'Nunito', sans-serif; box-shadow: 3px 3px 0 rgba(2, 8, 19, .55); cursor: pointer; }
 .storm-meters { top: calc(var(--mg-gap) + 3.4rem); left: var(--mg-gap); display: flex; align-items: center; gap: .6rem; padding: .35rem .8rem; }
 .storm-meters strong { font: 700 .95rem 'Fredoka', sans-serif; }
 .storm-meters__sep { width: 2px; align-self: stretch; background: #4f7f9a; }

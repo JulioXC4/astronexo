@@ -14,6 +14,11 @@
 .gauge-dial__readout { display: grid; justify-items: center; line-height: 1.15; text-align: center; }
 .gauge-dial__readout strong { font-family: 'Fredoka', sans-serif; font-size: 1.45rem; color: #fff; }
 .gauge-dial__readout span { font-size: 0.952rem; font-weight: 800; color: #9bc0e4; }
-.gauge-dial__ends { display: flex; justify-content: space-between; width: 80%; color: #7f9bb8; font-size: 0.805rem; }
+/* «Más azul» / «Más roja» salían a 10,7 px: ilegibles para un niño y además
+   son lo que le dice hacia dónde girar. Suben de tamaño y de contraste. */
+.gauge-dial__ends { display: flex; justify-content: space-between; width: 92%; color: #a9c6e2; font-weight: 700; }
+/* Van en <small>, que el navegador encoge otro 83 %: hay que fijar el tamaño
+   aquí o «Más azul» / «Más roja» vuelven a quedar en 12,7 px. */
+.gauge-dial__ends small { font-size: 0.95rem; }
 .gauge-dial.is-disabled { opacity: .5; }
 @media (prefers-reduced-motion: reduce) { .gauge-dial__needle { transition: none; } }

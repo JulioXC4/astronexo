@@ -17,6 +17,10 @@ export function useScreenRadio(lines: readonly ScreenLine[]) {
   useEffect(() => {
     radio.clear();
     for (const line of lines) radio.say(line);
+    // Y al salir también: si la pantalla siguiente no tiene radio propia, el
+    // niño no debe seguir viendo a Chispa hablando de la pantalla anterior
+    // (p. ej. explicando el huerto cuando ya está en la Luna).
+    return () => radio.clear();
     // Solo al entrar: el texto no cambia mientras dura la pantalla.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

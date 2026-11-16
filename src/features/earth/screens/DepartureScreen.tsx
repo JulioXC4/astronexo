@@ -30,7 +30,7 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
   const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
 
   return (
-    <div className="earth-screen">
+    <div className="earth-screen earth-screen--fit">
       <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', maxWidth: '48rem', marginBottom: '0.6rem' }}>
         <LanguageSelector variant="hud" />
       </div>
@@ -68,22 +68,22 @@ export function DepartureScreen({ destination, astronautName, cityName, backpack
           background: '#132338',
           border: '1px solid #33557d',
           borderRadius: '0.9rem',
-          padding: '1.2rem',
-          margin: '1.5rem 0',
+          padding: 'clamp(.6rem, 1.6vh, 1.2rem)',
+          margin: 'clamp(.6rem, 1.8vh, 1.5rem) 0',
           textAlign: 'left'
         }}>
-          <span style={{ fontSize: '0.85rem', color: '#f6c15b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <span style={{ fontSize: '1rem', color: '#f6c15b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             {t('flight.cargoManifestTitle')}
           </span>
           <p style={{ margin: '0.4rem 0 0 0', color: '#d9e7f5', fontSize: '0.95rem' }}>
             {t('flight.cargoKitsVerified', { tools: packedTools.join(' · ') })}
           </p>
-          <p style={{ margin: '0.4rem 0 0 0', color: '#97b8d8', fontSize: '0.85rem' }}>
+          <p style={{ margin: '0.4rem 0 0 0', color: '#97b8d8', fontSize: '1rem' }}>
             {t(destination === 'MOON' ? 'flight.trajectoryNoteMoon' : 'flight.trajectoryNoteMars')}
           </p>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'clamp(.6rem, 1.8vh, 1.5rem)' }}>
           <button
             type="button"
             className="earth-action-btn"

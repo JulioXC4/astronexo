@@ -106,7 +106,7 @@
   padding: 0.52rem 0.9rem;
   border-radius: 999px;
   color: #e9f5ff;
-  font-size: clamp(0.72rem, 1vw, 0.9rem);
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
   font-weight: 800;
 }
 
@@ -125,7 +125,7 @@
 .destination-selection__badge {
   margin: 0 0 0.35rem;
   color: var(--destination-accent);
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -203,16 +203,16 @@
   gap: 0.5rem;
   color: #fff3ce;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 900;
 }
 
 .destination-selection__science summary::marker { color: var(--destination-accent); }
 .destination-selection__science dl { display: grid; gap: 0.5rem; margin: 0.75rem 0 0; }
 .destination-selection__science dl > div { display: grid; grid-template-columns: minmax(7rem, 0.7fr) 1.3fr; gap: 0.5rem; }
-.destination-selection__science dt { color: #9fc5df; font-size: 0.72rem; font-weight: 800; }
-.destination-selection__science dd { margin: 0; color: #fff; font-size: 0.76rem; font-weight: 700; }
-.destination-selection__science > p { margin: 0.55rem 0 0; color: #a9c8df; font-size: 0.72rem; }
+.destination-selection__science dt { color: #9fc5df; font-size: 0.9rem; font-weight: 800; }
+.destination-selection__science dd { margin: 0; color: #fff; font-size: 0.9rem; font-weight: 700; }
+.destination-selection__science > p { margin: 0.55rem 0 0; color: #a9c8df; font-size: 0.9rem; }
 
 .destination-selection__switcher {
   display: grid;

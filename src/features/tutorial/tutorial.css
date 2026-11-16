@@ -8,7 +8,7 @@
 .tutorial-coach__copy { align-self:center; min-width:0; padding:.35rem .4rem; background:rgb(2 8 19 / 78%); }
 .tutorial-coach__copy strong { color:#ffd45c; font:700 1.05rem "Fredoka",sans-serif; }
 .tutorial-coach__copy p { margin:.25rem 0; font-size:clamp(.9rem,2vw,1.05rem); font-weight:800; line-height:1.35; }
-.tutorial-coach__copy>span { color:#9fd8e5; font-size:0.83rem; font-weight:900; }
+.tutorial-coach__copy>span { color:#9fd8e5; font-size:0.95rem; font-weight:900; }
 .tutorial-coach__actions { grid-column:1/-1; display:flex; justify-content:flex-end; align-items:center; gap:.55rem; }
 .tutorial-coach__actions button,.tutorial-coach__close,.tutorial-help-button { min-height:2.7rem; border:3px solid #6f92a3; color:#fff; background:#173e5c; font:900 0.952rem "Nunito",sans-serif; cursor:pointer; }
 .tutorial-coach__skip { padding:.45rem .7rem; }

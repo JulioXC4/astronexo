@@ -6,7 +6,6 @@ import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome
 import type { TrainingOutcome } from '../../../game';
 import { MinigameShell } from './ui/MinigameShell';
 import './clouds-suns.css';
-import { GaugeDial } from '../../../visual-kit/GaugeDial';
 import { recommendedReserve, reserveMismatch, reserveHint, tierFromCost } from './trainingRules';
 import { useScreenRadio } from '../../radio';
 import { playSound } from '../../audio';
@@ -133,7 +132,7 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
 
         <section className="mg-card clouds-reserve" aria-label={t('minigames.cloudsSuns.reserveLabel', { value: reserve })}>
           <div className="clouds-reserve__head">
-            <label htmlFor="clouds-reserve">{t('minigames.cloudsSuns.reserveLabel', { value: reserve })}</label>
+            <strong>{t('minigames.cloudsSuns.reserveLabel', { value: reserve })}</strong>
             <div className="clouds-stepper">
               <button type="button" className="mg-btn" onClick={() => changeReserve(reserve - 5)} disabled={reserve <= 0} aria-label={t('minigames.cloudsSuns.reserveLess')}><Minus weight="bold" /></button>
               <button type="button" className="mg-btn" onClick={() => changeReserve(reserve + 5)} disabled={reserve >= 100} aria-label={t('minigames.cloudsSuns.reserveMore')}><Plus weight="bold" /></button>
@@ -157,15 +156,13 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
             )}
           </div>
 
-          <GaugeDial label={t('training.clouds.dial')} value={reserve} min={0} max={100}
-            onChange={changeReserve} display={`${reserve}%`} />
-          <p className="clouds-hint" role="status">{t(reserveHint(reserve, values) === 'RIGHT'
+          {/* Un solo control, no cuatro: la batería de celdas se toca y los
+              botones + y − la ajustan. Antes había además una perilla y un
+              deslizador para el mismo número, y entre los cuatro empujaban los
+              botones de abajo fuera de la pantalla. */}
+          <p className="clouds-hint clouds-hint--live" role="status">{t(reserveHint(reserve, values) === 'RIGHT'
             ? 'training.clouds.hintRight' : reserveHint(reserve, values) === 'TOO_LITTLE'
               ? 'training.clouds.hintLittle' : 'training.clouds.hintMuch')}</p>
-          <input
-            id="clouds-reserve" className="clouds-slider" type="range" min={0} max={100} step={1} value={reserve}
-            onChange={(event) => changeReserve(Number(event.target.value))}
-          />
           <p className="clouds-hint">{t('minigames.cloudsSuns.hint')}</p>
 
           <div className="clouds-actions">

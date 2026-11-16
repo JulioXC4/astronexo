@@ -104,6 +104,16 @@ export function RadioProvider({ children }: { readonly children: ReactNode }) {
     return () => window.clearTimeout(timer);
   }, [current]);
 
+  // El globo flota sobre la pantalla. Se avisa mientras está visible para que
+  // lo que haya debajo (p. ej. la banda de «Tu misión») se aparte y no quede
+  // texto tapado a medias.
+  useEffect(() => {
+    const { body } = document;
+    if (current) body.setAttribute('data-radio', 'on');
+    else body.removeAttribute('data-radio');
+    return () => body.removeAttribute('data-radio');
+  }, [current]);
+
   const api = useMemo<RadioApi>(() => ({ say, clear }), [say, clear]);
 
   return <RadioContext.Provider value={api}>
