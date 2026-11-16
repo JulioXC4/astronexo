@@ -9,11 +9,12 @@ import { MinigameShell } from './ui/MinigameShell';
 import { useScreenRadio } from '../../radio';
 import { playSound } from '../../audio';
 import './solarStorm.css';
+import { CHARACTER_SPRITES } from '../../../assets/characterSprites';
 
 interface Props { readonly onComplete: (outcome: TrainingOutcome) => void; readonly onBack: () => void }
 const ASSET = '/assets/minigames/solar-storm/';
 const ROOM = '/assets/pixel-art/airlock-refuge.webp';
-const CREW_SPRITE = { A: '/assets/pixel-art/cadet-alba.webp', B: '/assets/pixel-art/engineer-nico.webp' } as const;
+const CREW_SPRITE = { A: CHARACTER_SPRITES.ALBA, B: CHARACTER_SPRITES.NICO } as const;
 
 
 /** Coordenadas en el lienzo lógico 1000 × 563 del cuarto de refugio. */
@@ -43,9 +44,9 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
   const tr = (key: string) => t(`minigames.solarWatchCopy.${key}`);
   // La tarea y un consejo llegan por radio, como en el resto de entrenamientos.
   useScreenRadio([
-    { speaker: 'CHISPA', text: t('training.solarWatch.task') },
-    { speaker: 'AURORA', text: t('training.solarWatch.tip') },
-  ]);
+    // Una sola voz mientras se juega; el dato de Aurora sale al ganar («¿Sabías que…?»).
+    { speaker: 'CHISPA', text: msg('training.solarWatch.task') },
+  ], 'SOLAR_WATCH');
   const [state, dispatch] = useReducer(stormReducer, undefined, () => initialStormState());
   const [eventIndex, setEventIndex] = useState(0);
   const [routeFor, setRouteFor] = useState<Crew | null>(null);
@@ -315,6 +316,7 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
           <p><strong>{tr('data')}:</strong> {state.packets}/2 {tr('packetCount')}</p>
           <p><strong>{tr('learn')}:</strong> {safe ? tr('successLearn') : tr('failureLesson')} {safe ? tr(`sacrifice${state.packets}`) : ''}</p>
           {safe && <p>{tr('tool')}: {tr('shelterKit')} · {tr('cost')}: {tool.cost}</p>}
+          {safe && <p className="mg-fact"><b>{t('training.didYouKnow')}</b> {t('training.solarWatch.tip')}</p>}
           <div className="storm-result__actions">
             {safe && <button className="pixel-btn pixel-btn--primary storm-finish" type="button" onClick={() => { if (completed.current) return; completed.current = true; playSound('toolEarned'); onComplete(tool); }}>{tr('finish')}</button>}
             <button type="button" className="mg-btn storm-retry" onClick={reset}>{tr('retry')}</button>

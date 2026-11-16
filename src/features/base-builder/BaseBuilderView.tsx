@@ -30,7 +30,8 @@ interface BaseBuilderViewProps {
 
 export function BaseBuilderView({ destination, onStart, confirmLabel, initialModules, onBack }: BaseBuilderViewProps) {
   const { t } = useI18n();
-  useScreenRadio([{ speaker: 'NICO', text: t('radio.builder') }]);
+  // Sin globo de radio: el título de la pantalla ya dice qué hacer (antes el globo lo repetía).
+  useScreenRadio([]);
   const [slots, setSlots] = useState<ModuleSlots>(() => initialModules && initialModules.length === 3
     ? [initialModules[0], initialModules[1], initialModules[2]]
     : EMPTY_MODULE_SLOTS);

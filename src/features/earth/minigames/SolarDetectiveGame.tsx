@@ -46,9 +46,9 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
   const tr = (key: string, params?: Record<string, string | number>) => t(`minigames.solarDetective.${key}`, params);
   // La tarea y un consejo llegan por radio, como en el resto de entrenamientos.
   useScreenRadio([
-    { speaker: 'CHISPA', text: t('training.solarDetective.task') },
-    { speaker: 'AURORA', text: t('training.solarDetective.tip') },
-  ]);
+    // Una sola voz mientras se juega; el dato de Aurora sale al ganar («¿Sabías que…?»).
+    { speaker: 'CHISPA', text: msg('training.solarDetective.task') },
+  ], 'SOLAR_DETECTIVE');
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [tiltAngle, setTiltAngle] = useState(5);
   const [phase, setPhase] = useState<Phase>('capture');
@@ -78,6 +78,15 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
   const needy = SYSTEMS.find((system) => system !== 'laboratory' && allocation[system] < DEMAND[system]);
   const guideSystem = phase === 'distribute' && available > 0 ? needy : undefined;
   const guideNight = phase === 'distribute' && !guideSystem && assignedUnits(allocation) > 0;
+
+  // Los sprites que solo se ven un instante (el interruptor moviéndose, la batería cargando) se
+  // piden al entrar: si no, el primer clic mostraba un hueco y la descarga se cortaba a medias.
+  useEffect(() => {
+    for (const sprite of ['switch-transition.webp', 'switch-closed.webp', 'battery-charging.webp', 'battery-charged.webp']) {
+      const image = new Image();
+      image.src = `${ASSET_ROOT}${sprite}`;
+    }
+  }, []);
 
   useEffect(() => {
     if (phase !== 'night') return undefined;
@@ -307,6 +316,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
         )}
 
         {phase === 'result' && <p className={`sd-explanation${result.passed ? ' is-success' : ''}`}>{explanation}</p>}
+        {phase === 'result' && result.passed && <p className="mg-fact"><b>{t('training.didYouKnow')}</b> {t('training.solarDetective.tip')}</p>}
       </section>
     </MinigameShell>
   );

@@ -27,7 +27,8 @@ type SupportedCityId = 'AREQUIPA' | 'TROMSO';
 
 export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: CitySelectionScreenProps) {
   const { t } = useI18n();
-  useScreenRadio([{ speaker: 'AURORA', text: t('radio.city') }]);
+  // Sin globo de radio: el título de la pantalla ya dice qué hacer (antes el globo lo repetía).
+  useScreenRadio([]);
   const [selectedCityId, setSelectedCityId] = useState<SupportedCityId>(
     initialCityId === 'TROMSO' ? 'TROMSO' : 'AREQUIPA',
   );

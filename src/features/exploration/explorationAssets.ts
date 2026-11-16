@@ -26,11 +26,51 @@ export const ROVERS: ByDestination<string> = {
   MARS: `${ROOT}/bases-rovers/rover-mars.png`,
 };
 
-export const ASTRONAUT = {
-  front: `${ROOT}/characters/astronaut-front.png`,
-  back: `${ROOT}/characters/astronaut-back.png`,
-  walk1: `${ROOT}/characters/astronaut-walk-1.png`,
-  walk2: `${ROOT}/characters/astronaut-walk-2.png`,
+/** Las cuatro poses del explorador a pie. Las de caminar miran a la derecha. */
+export interface ExplorerPoses {
+  readonly front: string;
+  readonly back: string;
+  readonly walk1: string;
+  readonly walk2: string;
+}
+
+/** Ids de `AVATAR_OPTIONS` que tienen poses propias para la salida a explorar. */
+export type ExplorerId = 'ALBA' | 'AURORA' | 'LEO' | 'NICO';
+
+const explorerPoses = (folder: string): ExplorerPoses => ({
+  front: `${ROOT}/characters/${folder}/front.png`,
+  back: `${ROOT}/characters/${folder}/back.png`,
+  walk1: `${ROOT}/characters/${folder}/walk-1.png`,
+  walk2: `${ROOT}/characters/${folder}/walk-2.png`,
+});
+
+/** Poses de cada personaje elegible: el niño explora con el personaje que eligió. */
+export const EXPLORERS: Readonly<Record<ExplorerId, ExplorerPoses>> = {
+  ALBA: explorerPoses('alba'),
+  AURORA: explorerPoses('aurora'),
+  LEO: explorerPoses('leo'),
+  NICO: explorerPoses('nico'),
+};
+
+const DEFAULT_EXPLORER: ExplorerId = 'ALBA';
+
+/** Poses del personaje elegido; un id desconocido (o ausente) usa a Alba, el avatar por defecto. */
+export function posesForAvatar(avatarId: string | null | undefined): ExplorerPoses {
+  const id = (avatarId ?? '').toUpperCase();
+  return id in EXPLORERS ? EXPLORERS[id as ExplorerId] : EXPLORERS[DEFAULT_EXPLORER];
+}
+
+/**
+ * Geometría común de las poses (lienzo cuadrado de 512 px con margen transparente):
+ * todas apoyan los pies en la misma línea base y el cuerpo ocupa casi todo el alto.
+ * El renderer la usa para anclar los pies en la posición lógica y escalar por el
+ * cuerpo, no por el lienzo.
+ */
+export const EXPLORER_FRAME = {
+  /** Fila de los pies, como fracción del alto del PNG (485 / 512). */
+  footY: 485 / 512,
+  /** Alto del personaje (casco a botas), como fracción del alto del PNG (457 / 512). */
+  bodyHeight: 457 / 512,
 } as const;
 
 export const MARKERS = {
@@ -173,7 +213,7 @@ export interface SpriteSet {
   readonly background: HTMLImageElement | null;
   readonly base: HTMLImageElement | null;
   readonly rover: HTMLImageElement | null;
-  readonly astronaut: Readonly<Record<keyof typeof ASTRONAUT, HTMLImageElement | null>>;
+  readonly astronaut: Readonly<Record<keyof ExplorerPoses, HTMLImageElement | null>>;
   readonly markers: Readonly<Record<keyof typeof MARKERS, HTMLImageElement | null>>;
   readonly terrain: Readonly<Record<keyof TerrainSprites, HTMLImageElement | null>>;
 }
@@ -184,14 +224,14 @@ function mapValues<K extends string>(source: Readonly<Record<K, string>>): Recor
   return out;
 }
 
-/** Todo lo que el mapa dibuja en un destino; se pide al abrir la salida. */
-export function createSpriteSet(destination: Destination): SpriteSet {
+/** Todo lo que el mapa dibuja en un destino, con el personaje elegido; se pide al abrir la salida. */
+export function createSpriteSet(destination: Destination, avatarId?: string | null): SpriteSet {
   return {
     destination,
     background: loadSprite(BACKGROUNDS[destination]),
     base: loadSprite(BASES[destination]),
     rover: loadSprite(ROVERS[destination]),
-    astronaut: mapValues(ASTRONAUT),
+    astronaut: mapValues<keyof ExplorerPoses>(posesForAvatar(avatarId)),
     markers: mapValues(MARKERS),
     terrain: mapValues(TERRAIN_SPRITES[destination]),
   };

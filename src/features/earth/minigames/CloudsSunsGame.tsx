@@ -77,9 +77,9 @@ function SkyPixel({ shortfall }: { shortfall: number }) {
 export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGameProps) {
   const { t } = useI18n();
   useScreenRadio([
-    { speaker: 'CHISPA', text: t('training.clouds.task') },
-    { speaker: 'AURORA', text: t('training.clouds.tip') },
-  ]);
+    // Una sola voz mientras se juega; el dato de Aurora sale al ganar («¿Sabías que…?»).
+    { speaker: 'CHISPA', text: msg('training.clouds.task') },
+  ], 'CLOUDS_SUNS');
   const dataset = getSolarDatasetByCity(cityId);
   const values = useMemo(() => dataset.days.map((day) => day.irradianceKwhPerM2), [dataset]);
   const best = Math.max(...values);
@@ -192,6 +192,7 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
             <div>
               <strong><CheckCircle weight="fill" aria-hidden="true" /> {t('minigames.cloudsSuns.passed', { recommended })}</strong>
               <p>{t('minigames.cloudsSuns.benefit')}</p>
+              <p className="mg-fact"><b>{t('training.didYouKnow')}</b> {t('training.clouds.tip')}</p>
             </div>
             <button
               type="button" className="pixel-btn pixel-btn--primary clouds-confirm" data-target data-guide-below

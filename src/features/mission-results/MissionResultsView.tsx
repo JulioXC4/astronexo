@@ -1,13 +1,16 @@
+import { useState } from 'react';
 import { SCIENCE_TARGET } from '../../game';
 import type { MissionResult } from '../../game';
 import { moduleScenes } from '../../assets/moduleScenes';
 import { spaceBackgrounds } from '../../assets/manifest';
 import { CharacterPortrait } from '../../visual-kit/CharacterPortrait';
-import { ResourceBar } from '../mission-control/ResourceBar';
 import { useI18n, LanguageSelector, resolveMessage } from '../../i18n';
 import { NasaSourcesPanel } from '../nasa/NasaSourcesPanel';
 import { CollectionList, formatMinutes } from '../exploration';
 import { SoundToggle } from '../audio';
+import { KidReport, StarRow, starsFor } from './KidReport';
+import { resourceRanOut } from './kidReportRules';
+import './kid-report.css';
 
 interface MissionResultsViewProps {
   readonly result: MissionResult;
@@ -17,10 +20,16 @@ interface MissionResultsViewProps {
 
 export function MissionResultsView({ result, onRetry, onFinish }: MissionResultsViewProps) {
   const { t } = useI18n();
+  const [step, setStep] = useState<'outcome' | 'report'>('outcome');
   // El motor guarda referencias al diccionario; aquí se traducen al idioma activo.
   const r = (text: string) => resolveMessage(text, t);
   const completed = result.outcome === 'COMPLETED';
+  // Si se acabó el aire, la energía o la comida (o la radiación llegó al límite), eso es lo que hay
+  // que contar, aunque haya pasado en el último turno. Antes se mostraba «Misión incompleta: te
+  // faltó ciencia» con el oxígeno en 0, y el niño nunca se enteraba de por qué volvió antes.
+  const ranOut = resourceRanOut(result.finalState);
   const scientificIncomplete = !completed
+    && !ranOut
     && result.turnsReached === result.finalState.maxTurns
     && !result.scientificObjectiveAchieved;
   const { finalState, score } = result;
@@ -35,26 +44,53 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
     ? t('results.completedDesc')
     : scientificIncomplete
       ? t('results.scientificIncompleteDesc', { progress: finalState.scienceProgress, target: SCIENCE_TARGET })
-      : t('results.interruptedDesc');
+      // La causa concreta («Se acabó el oxígeno…») en vez de una frase genérica de protocolo.
+      : result.interruptionCause ? r(result.interruptionCause) : t('results.interruptedDesc');
   const conclusions = [
     ...result.helpfulDecisions.slice(0, 2),
     ...result.harmfulDecisions.slice(0, 1),
   ].slice(0, 3);
   const background = spaceBackgrounds.control[finalState.destination].path;
+  const shellStyle = background ? { backgroundImage: `linear-gradient(rgb(2 8 19 / 45%), rgb(2 8 19 / 82%)), url('${background}')` } : undefined;
+  const stars = starsFor(result);
+  const title = completed ? t('results.victoryTitle') : scientificIncomplete ? t('results.incomplete') : t('results.partialTitle');
+  const language = <div className="results-language"><span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" /></span></div>;
+
+  // Paso 1: solo el mensaje grande de si ganaste o no (con estrellas). El informe va en la
+  // pantalla siguiente: antes todo salía junto y era demasiado texto para un niño.
+  if (step === 'outcome') {
+    return <main className={`results-shell results-shell--outcome results-shell--${completed ? 'success' : 'partial'}`} style={shellStyle}>
+      {language}
+      <section className="results-hero results-hero--big">
+        <div className="results-companion" aria-hidden="true">
+          <CharacterPortrait identity={completed ? 'ALBA' : 'CHISPA'} kind={completed ? 'cadet' : 'robot'} mood={completed ? 'celebrate' : 'alert'} />
+        </div>
+        <div className="results-hero__copy">
+          {finalState.setup.earthProfile && <span>{finalState.setup.earthProfile.fictionalName}</span>}
+          <h1>{title}</h1>
+          <StarRow count={stars} />
+          <p>{resultDescription}</p>
+        </div>
+      </section>
+      <footer className="results-actions results-actions--outcome">
+        <button className="pixel-button" onClick={onRetry}>{t('results.retry')}</button>
+        <button className="pixel-button pixel-button--primary results-see-report" onClick={() => setStep('report')} autoFocus>
+          {t('kidReport.seeReport')} →
+        </button>
+      </footer>
+    </main>;
+  }
 
   return <main
-    className={`results-shell results-shell--${completed ? 'success' : 'partial'}`}
-    style={background ? { backgroundImage: `linear-gradient(rgb(2 8 19 / 45%), rgb(2 8 19 / 82%)), url('${background}')` } : undefined}
+    className={`results-shell results-shell--report results-shell--${completed ? 'success' : 'partial'}`}
+    style={shellStyle}
   >
-    <div className="results-language"><span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" /></span></div>
-    <section className="results-hero">
-      <div className="results-companion" aria-hidden="true">
-        <CharacterPortrait identity={completed ? 'ALBA' : 'CHISPA'} kind={completed ? 'cadet' : 'robot'} mood={completed ? 'celebrate' : 'alert'} />
-      </div>
+    {language}
+    {/* Se conserva el veredicto (y su clase) arriba del informe, más pequeño. */}
+    <section className="results-hero results-hero--mini">
       <div className="results-hero__copy">
         {finalState.setup.earthProfile && <span>{finalState.setup.earthProfile.fictionalName}</span>}
-        <h1>{completed ? t('results.victoryTitle') : scientificIncomplete ? t('results.incomplete') : t('results.partialTitle')}</h1>
-        <p>{resultDescription}</p>
+        <h1>{title}</h1>
       </div>
       <div className="score-total" aria-label={`${t('results.scoreLabel')} ${score.total} / 100`}>
         <span>{t('results.scoreLabel')}</span>
@@ -63,18 +99,7 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
       </div>
     </section>
 
-    <section className="results-primary-resources" aria-label={t('missionControl.resourceRackAria')}>
-      <ResourceBar label={t('missionControl.energy')} value={finalState.energy} tone="energy" />
-      <ResourceBar label={t('missionControl.oxygen')} value={finalState.oxygen} tone="oxygen" />
-      <ResourceBar label={t('missionControl.shield')} value={finalState.shield} tone="shield" />
-    </section>
-
-    <section className="results-conclusions">
-      <h2>{t('results.conclusionsTitle')}</h2>
-      {conclusions.length
-        ? <ol>{conclusions.map((item, index) => <li key={`${item}-${index}`}>{r(item)}</li>)}</ol>
-        : <p>{t('results.noAdditionalRelations')}</p>}
-    </section>
+    <KidReport result={result} />
 
     {finalState.explorations.length > 0 && <section className="results-exploration">
       <ul>{finalState.explorations.map((trip) => <li key={trip.afterTurn}>
@@ -84,7 +109,13 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
     </section>}
 
     <details className="results-details">
-      <summary>{t('results.openFullReport')}</summary>
+      <summary>{t('kidReport.fullReport')}</summary>
+      <section className="results-conclusions">
+        <h2>{t('results.conclusionsTitle')}</h2>
+        {conclusions.length
+          ? <ol>{conclusions.map((item, index) => <li key={`${item}-${index}`}>{r(item)}</li>)}</ol>
+          : <p>{t('results.noAdditionalRelations')}</p>}
+      </section>
       <div className="results-details__content">
         <section
           className="preparation-report"

@@ -36,7 +36,7 @@ try {
   await page.click('.turn-summary__next');
   await page.waitForSelector('.turn-transition button');
   if (await page.locator('.explore-start').count()) throw new Error('La salida no debe aparecer tras el turno 1.');
-  await page.click('.turn-transition button');
+  await page.click('.turn-transition button', { timeout: 2000 }).catch(() => {}); // el cartel también sigue solo
   await page.waitForSelector('.mission-clock');
 
   // --- turno 2: sí aparece
@@ -84,7 +84,7 @@ try {
   await page.click('.explore-report button.pixel-button--primary');
   await page.waitForSelector('.turn-transition button');
   if (!(await text(page.locator('.turn-transition'))).toUpperCase().includes('DÍA LUNAR 10')) throw new Error('La transición debe anunciar el nuevo reloj.');
-  await page.click('.turn-transition button');
+  await page.click('.turn-transition button', { timeout: 2000 }).catch(() => {}); // el cartel también sigue solo
   await page.waitForSelector('.mission-clock');
   if (!(await text(page.locator('.mission-clock'))).includes('3')) throw new Error('Debe seguir el turno 3.');
   await screenshot(page, 'x4_turno3.png');

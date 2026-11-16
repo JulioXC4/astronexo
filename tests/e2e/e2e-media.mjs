@@ -13,7 +13,7 @@
 import {
   launchBrowser, newMonitoredPage, assertScreenHealthy, chooseDestination, buildStation, passStationPrep,
   chooseCity, passAvatarAndBriefing, completeTraining, playFiveTurns, readOutcome, failOnProblems,
-  recommendedCloudsReserve, skipCinematic, BASE_URL, performScienceIntervention, performSurvivalIntervention,
+  recommendedCloudsReserve, skipCinematic, skipMissionIntro, BASE_URL, performScienceIntervention, performSurvivalIntervention, openKidReport,
 } from './helpers.mjs';
 
 const ROUTES = [
@@ -95,10 +95,12 @@ async function checkWelcomeSilence(browser) {
   console.log('  ✓ portada: sin multimedia antes de interactuar; tema principal tras el primer clic');
 
   // Silencio: todo se detiene y el botón sigue respondiendo.
+  // El icono abre el control de volumen; el silencio está dentro.
   await page.click('.sound-toggle');
+  await page.click('.sound-panel__mute');
   await page.waitForTimeout(300);
   if ((await playingTracks(page)).length) throw new Error('El silencio no detuvo la música.');
-  await page.click('.sound-toggle');
+  await page.click('.sound-panel__mute');
   await page.waitForTimeout(600);
   if (!(await playingTracks(page)).some((src) => src.includes('01-tema-principal-bienvenida'))) throw new Error('La música no volvió al quitar el silencio.');
   console.log('  ✓ silencio detiene y reanuda la música');
@@ -125,6 +127,7 @@ async function runRoute(browser, route, { reduced = false } = {}) {
     }
     await skipCinematic(page);
     if (await page.locator('.cinematic').count()) throw new Error('«Saltar» no cerró la cinemática (o no liberó el video).');
+    await skipMissionIntro(page);
     await chooseDestination(page, route.destination);
     const builtNames = await buildStation(page, route.modules);
     await passStationPrep(page);
@@ -136,7 +139,8 @@ async function runRoute(browser, route, { reduced = false } = {}) {
     }
 
     // Despegue: la cuenta atrás no cambia; tras la ignición entra el video de SU ciudad, y luego el del viaje.
-    await page.waitForSelector('button:has-text("Aproximarse a")');
+    await page.waitForSelector('.flight-scene');
+    if (await page.locator('button:has-text("Aproximarse a")').count()) throw new Error('«Aproximarse a…» apareció antes de terminar el viaje.');
     if (!reduced) {
       await page.waitForSelector('.cinematic video', { timeout: 8000 });
       const departure = await page.getAttribute('.cinematic video', 'src');
@@ -147,6 +151,7 @@ async function runRoute(browser, route, { reduced = false } = {}) {
       if (!travel.includes(route.videos[2])) throw new Error(`Video de viaje incorrecto: ${travel}`);
       await skipCinematic(page);
     }
+    await page.waitForSelector('button:has-text("Aproximarse a")', { timeout: 15000 });
     await page.click('button:has-text("Aproximarse a")');
     if (!reduced) {
       await page.waitForSelector('.cinematic video', { timeout: 4000 });
@@ -172,15 +177,16 @@ async function runRoute(browser, route, { reduced = false } = {}) {
     if (route.victory && outcome !== 'COMPLETADA') throw new Error(`La ruta de victoria terminó como ${outcome}.`);
 
     // El informe termina → cinemática de regreso → pantalla de Tierra.
+    await openKidReport(page);
     await page.click('button:has-text("VOLVER A LA TIERRA"), button:has-text("ENTREGAR INFORME")');
     if (!reduced) {
       await page.waitForSelector('.cinematic video', { timeout: 4000 });
       const back = await page.getAttribute('.cinematic video', 'src');
       if (!back.includes(route.videos[4])) throw new Error(`Video de regreso incorrecto: ${back}`);
-      if (await page.locator('button:has-text("Ver Análisis y Próxima Aventura")').count()) throw new Error('La pantalla de regreso apareció antes que el video.');
+      if (await page.locator('button:has-text("Volver a la Bienvenida")').count()) throw new Error('La pantalla siguiente apareció antes que el video.');
       await skipCinematic(page);
     }
-    await page.waitForSelector('button:has-text("Ver Análisis y Próxima Aventura")');
+    await page.waitForSelector('button:has-text("Volver a la Bienvenida")');
     if (await page.locator('video').count()) throw new Error('Quedó un <video> montado tras el regreso.');
 
     // Videos vistos y música/ambiente reproducidos, en orden.

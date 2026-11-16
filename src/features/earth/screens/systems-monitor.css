@@ -1,0 +1,64 @@
+/* Revisión de sistemas: todo en una pantalla (sin scroll) en escritorio y tableta.
+   Cabecera · [módulos | recursos, herramientas, clima] · botón. */
+.scene-screen:has(.monitor-card) {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  padding-top: 3.9rem;
+  padding-bottom: .9rem;
+  justify-content: center;
+}
+.scene-screen .earth-card.monitor-card {
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+  max-width: 68rem;
+  max-height: 100%;
+  padding: 1rem 1.3rem;
+  overflow: hidden;
+}
+
+.monitor-card__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem 1rem; }
+.monitor-card__head .earth-card__title { margin: 0; font-size: clamp(1.4rem, 2.6vw, 1.9rem); }
+.monitor-card__head .build-steps { margin: 0; }
+
+.monitor-card__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(16rem, 1fr);
+  gap: 1rem;
+  min-height: 0;
+}
+.monitor-card__body h2.scene-kicker { margin: 0 0 .35rem; }
+.monitor-card__note { margin: 0 0 .5rem; color: #e3effb; font-size: .98rem; }
+
+/* Módulos: tres tarjetas en fila; la imagen se ajusta a la altura disponible. */
+.monitor-card .monitor-modules { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+.monitor-card .monitor-module { font-size: .9rem; gap: .25rem; }
+.monitor-card .monitor-module__pic img { height: clamp(5.5rem, 21vh, 11rem); object-fit: cover; }
+.monitor-card .monitor-module .effect-chips { gap: .25rem; }
+
+.monitor-card__side { display: flex; flex-direction: column; gap: .7rem; min-width: 0; }
+.monitor-resources { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; }
+.monitor-resource { padding: .4rem .6rem; }
+.monitor-resource > strong { margin-top: 0; font-size: 1.1rem; }
+.monitor-resource__bar { height: .6rem; margin: .25rem 0; overflow: hidden; border: 2px solid #315b73; background: #0c1826; }
+.monitor-resource__bar > div { height: 100%; background: #69f0ae; }
+.monitor-card__tools { margin: 0; color: #e3effb; font-size: .98rem; line-height: 1.35; }
+.monitor-card__weather { margin: 0; padding: .55rem .75rem; }
+.monitor-card__weather p { margin: .2rem 0 0; font-size: .92rem; line-height: 1.35; }
+
+.monitor-card__actions { margin: 0; justify-content: center; }
+
+/* Pantallas bajas: un poco más compacto. */
+@media (max-height: 740px) {
+  .scene-screen .earth-card.monitor-card { gap: .5rem; padding: .8rem 1.1rem; }
+  .monitor-card__note { display: none; }
+  .monitor-card .monitor-module__pic img { height: clamp(4.5rem, 17vh, 8rem); }
+}
+
+/* Celular / tableta vertical estrecha: una columna; aquí sí se permite desplazar. */
+@media (max-width: 760px) {
+  .scene-screen:has(.monitor-card) { height: auto; min-height: 100dvh; overflow: visible; }
+  .scene-screen .earth-card.monitor-card { max-height: none; overflow: visible; }
+  .monitor-card__body { grid-template-columns: 1fr; }
+}

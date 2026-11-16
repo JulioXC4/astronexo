@@ -95,12 +95,27 @@ export async function skipCinematic(page, timeout = 2500) {
   }
 }
 
+/** Introducción ilustrada tras el video: se salta con «Saltar introducción» y se espera al destino. */
+export async function skipMissionIntro(page, timeout = 4000) {
+  const skip = page.locator('.mission-intro__skip');
+  try {
+    await skip.waitFor({ state: 'visible', timeout });
+    await skip.click();
+    await page.locator('.mission-intro').waitFor({ state: 'detached', timeout: 3000 });
+    // Al salir, la introducción ignora clics ~450 ms (evita que un doble clic pulse el destino).
+    await page.waitForTimeout(500);
+  } catch {
+    // Sin introducción: se sigue.
+  }
+}
+
 export async function startFromWelcome(page) {
   await page.goto(BASE_URL);
   await page.waitForSelector('.welcome__play');
   await assertScreenHealthy(page, 'welcome');
   await page.click('.welcome__play');
   await skipCinematic(page); // video de reclutamiento opcional
+  await skipMissionIntro(page);
 }
 
 export async function chooseDestination(page, destination) {
@@ -126,10 +141,15 @@ export async function buildStation(page, indexes = [0, 1, 2]) {
   return names;
 }
 
+/** Preparación de la estación: novela visual de dos frases («Siguiente») y luego el botón final. */
 export async function passStationPrep(page) {
-  await page.waitForSelector('button:has-text("Elegir mi base de entrenamiento")');
+  await page.waitForSelector('.station-vn');
   await assertScreenHealthy(page, 'estación en preparación');
-  await page.click('button:has-text("Elegir mi base de entrenamiento")');
+  const finalButton = page.locator('button:has-text("Elegir mi base de entrenamiento")');
+  for (let i = 0; i < 4 && !(await finalButton.count()); i++) {
+    await page.click('.station-vn button:has-text("Siguiente")');
+  }
+  await finalButton.click();
 }
 
 export async function chooseCity(page, city) {
@@ -249,20 +269,37 @@ export const TRAININGS = {
   },
 };
 
-/** Abre la instalación `index` del mapa, la completa y atraviesa la transición de obra. */
+/**
+ * Abre la instalación `index` del mapa y la completa. Tras el 1.º y el 2.º entrenamiento se vuelve
+ * directo al mapa (con un aviso de obra); la pantalla «Avance de obra» sale solo tras el último.
+ */
 export async function completeTraining(page, index, id, options, isLast) {
   await page.waitForSelector('.earth-base-facility');
   await page.locator('.earth-base-facility').nth(index).click();
   await page.click('.emap-panel__start');
   await TRAININGS[id](page, options);
+  if (!isLast) {
+    await page.waitForSelector('.earth-base-facility');
+    await page.waitForSelector('.emap-toast');
+    await assertScreenHealthy(page, `mapa tras ${id}`);
+    return;
+  }
   await page.waitForSelector('.pixel-kicker:has-text("AVANCE DE OBRA")');
   await assertScreenHealthy(page, `obra tras ${id}`);
-  await page.click(isLast ? 'button:has-text("Ir al despegue")' : 'button:has-text("Seguir entrenando")');
+  await page.click('button:has-text("Ir al despegue")');
+}
+
+/** Despegue: «Aproximarse a…» solo aparece tras la cuenta atrás y los videos de despegue y viaje. */
+export async function passDeparture(page) {
+  await page.waitForSelector('.flight-scene');
+  if (await page.locator('button:has-text("Aproximarse a")').count()) throw new Error('«Aproximarse a…» apareció durante la cuenta atrás (cortaría la animación).');
+  for (let i = 0; i < 2; i++) await skipCinematic(page, 6000); // despegue y viaje
+  await page.waitForSelector('button:has-text("Aproximarse a")', { timeout: 15000 });
+  await page.click('button:has-text("Aproximarse a")');
 }
 
 export async function flyAndMonitor(page, { destination, modules }) {
-  await page.waitForSelector('button:has-text("Aproximarse a")');
-  await page.click('button:has-text("Aproximarse a")');
+  await passDeparture(page);
   await skipCinematic(page, 1000); // llegada
   await page.waitForSelector('button:has-text("Tomar el Mando de la Base")');
   await page.click('button:has-text("Tomar el Mando de la Base")');
@@ -403,7 +440,7 @@ export async function playFiveTurns(page, { coop = false, actOnTurn, explore = '
     } else if ([2, 4].includes(turn) && !(await page.locator('.results-hero, .coop-results-shell').count())) {
       throw new Error(`Faltó la salida a explorar tras el turno ${turn}.`);
     }
-    await page.click('.turn-transition button');
+    await page.click('.turn-transition button', { timeout: 2000 }).catch(() => {}); // el cartel también sigue solo
     // Si la misión termina antes del turno 5 (interrupción), el informe aparece en lugar del siguiente turno.
     const next = await Promise.race([
       page.waitForSelector('.mission-clock').then(() => 'turn', () => 'turn'),
@@ -422,11 +459,20 @@ export async function readOutcome(page) {
   throw new Error(`El informe no indica resultado: ${text.slice(0, 120)}`);
 }
 
+/** Tras el veredicto («¿ganaste?») viene el informe visual; ahí está «Volver a la Tierra». */
+export async function openKidReport(page) {
+  const seeReport = page.locator('.results-see-report');
+  if (await seeReport.count()) {
+    await seeReport.click();
+    await page.waitForSelector('.kid-report');
+    await assertScreenHealthy(page, 'informe para niños');
+  }
+}
+
 export async function returnToWelcome(page) {
+  await openKidReport(page);
   await page.click('button:has-text("VOLVER A LA TIERRA"), button:has-text("ENTREGAR INFORME")');
-  await skipCinematic(page); // regreso a la Tierra
-  await page.waitForSelector('button:has-text("Ver Análisis y Próxima Aventura")');
-  await page.click('button:has-text("Ver Análisis y Próxima Aventura")');
+  await skipCinematic(page); // regreso a la Tierra → directo a «Próxima aventura»
   await page.waitForSelector('button:has-text("Volver a la Bienvenida")');
   await page.click('button:has-text("Volver a la Bienvenida")');
   await page.waitForSelector('.welcome__play');

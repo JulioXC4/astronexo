@@ -19,7 +19,9 @@ interface WelcomeScreenProps {
 
 export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScreenProps) {
   const { t, language } = useI18n();
-  useScreenRadio([{ speaker: 'ALBA', text: t('radio.welcome') }]);
+  // Sin saludo por radio en la portada: la introducción ilustrada ya presenta el juego justo
+  // después de «Jugar ahora» (el globo de Alba era redundante). Solo se vacía la radio anterior.
+  useScreenRadio([]);
   const [panel, setPanel] = useState<WelcomePanel>(null);
   const [logoFailedFor, setLogoFailedFor] = useState<SupportedLanguage | null>(null);
   const [welcomeTutorialOpen, setWelcomeTutorialOpen] = useState(false);
@@ -236,7 +238,9 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
       open={welcomeTutorialOpen}
       steps={welcomeSteps}
       onComplete={finishWelcomeTutorial}
-      onSkip={finishWelcomeTutorial}
+      // Cerrar la ayuda (X, «Saltar» o Escape) solo la cierra. Antes también empezaba la partida:
+      // el niño cerraba el cartel y, sin pulsar «Jugar», arrancaba el video de reclutamiento.
+      onSkip={() => setWelcomeTutorialOpen(false)}
     />
   </main>;
 }

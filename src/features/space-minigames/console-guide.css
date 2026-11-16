@@ -16,3 +16,20 @@
 .console-guide--good strong { color: #69f0ae; }
 .console-guide--tip { border-color: #4f7f9a; }
 .console-guide--tip p { font-size: 1rem; font-weight: 600; color: #cfe6f7; }
+
+/* Jerarquía dentro de la ventana del minijuego: la tarea (azul, grande) → el juego (lo más
+   importante) → todo lo demás pequeño. Antes la tarea, el consejo y costo/beneficio eran tres
+   cajas grandes iguales y el juego quedaba abajo del todo. */
+.console-guide { border-width: 2px; border-color: #7fd3ea; margin: .45rem 0; }
+.console-guide strong { color: #9fe7f5; }
+.console-guide--tip {
+  grid-template-columns: 1.8rem minmax(0, 1fr);
+  gap: .5rem; padding: .3rem .6rem; margin: .3rem 0 .45rem;
+  border: 0; border-left: 3px solid #4f7f9a; background: transparent; opacity: .85;
+}
+.console-guide--tip .console-guide__portrait { width: 1.8rem; height: 1.8rem; }
+.console-guide--tip p { font-size: .95rem; }
+.intervention-console .cost-preview { gap: .4rem; margin: .2rem 0 .5rem; }
+.intervention-console .cost-preview > div { display: flex; align-items: baseline; gap: .45rem; padding: .3rem .55rem; border-width: 1px; }
+.intervention-console .cost-preview span { flex: none; font-size: .82rem; }
+.intervention-console .cost-preview strong { font-size: .95rem; }

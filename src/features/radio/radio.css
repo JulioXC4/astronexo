@@ -78,6 +78,14 @@
   from { opacity: 0; transform: translateX(1.2rem) scale(.94); }
   to { opacity: 1; transform: translateX(0) scale(1); }
 }
+/* El globo entra desde su propio borde: el de la izquierda, por la izquierda. */
+@keyframes radio-in-left {
+  from { opacity: 0; transform: translateX(-1.2rem) scale(.94); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+.radio-bubble[data-corner="tl"],
+.radio-bubble[data-corner="bl"],
+[data-radio-anchor="guard"] .radio-bubble { animation-name: radio-in-left; transform-origin: left center; }
 
 @keyframes radio-breathe {
   0%, 100% { transform: translateY(0); }
@@ -136,6 +144,9 @@
   cursor: pointer;
 }
 .radio-replay svg { width: 1.3rem; height: 1.3rem; color: #f6c15b; }
+:root[data-radio-corner="tl"] .radio-replay { right: auto; left: .8rem; }
+:root[data-radio-corner="br"] .radio-replay { top: auto; bottom: 6.8rem; }
+:root[data-radio-corner="bl"] .radio-replay { top: auto; right: auto; left: .8rem; bottom: 6.8rem; }
 .radio-replay:hover { background: #12304d; }
 .radio-replay:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 
@@ -182,3 +193,24 @@
 /* Botón de silencio junto al selector de idioma de las barras superiores. */
 .hud-audio-lang { display: inline-flex; align-items: center; gap: .4rem; }
 .sound-toggle--welcome { position: fixed; top: .8rem; left: 7.5rem; z-index: 40; }
+
+/* Celular: el globo va arriba, también en la guardia (abajo tapaba los controles de los
+   entrenamientos y el aviso «¡Listo!» de la barra de turno). */
+@media (max-width: 560px) {
+  .radio-bubble[data-corner],
+  [data-radio-anchor="guard"] .radio-bubble[data-corner] { top: .4rem; right: .4rem; bottom: auto; left: .4rem; width: auto; }
+  :root[data-radio-corner] .radio-replay,
+  [data-radio-anchor="guard"] .radio-replay { top: .4rem; right: .4rem; bottom: auto; left: auto; }
+}
+
+/* Un globo que ya estaba a la vista y cambia de esquina no repite su entrada. */
+.radio-bubble.is-settled { animation: none; }
+
+/* Jerarquía de color: el AMARILLO es solo para «esto se toca» (Pulsa aquí, botón principal).
+   La radio normal habla en azul claro; verde = buena noticia, rojo = peligro. Antes la radio
+   también era amarilla y competía con el botón que el niño debía pulsar. */
+.radio-bubble--normal { --radio-accent: #7fd3ea; }
+.radio-bubble { border-width: 2px; background: rgb(6 17 33 / 95%); box-shadow: 0 .45rem 1.2rem rgb(0 0 0 / 38%); }
+.radio-bubble__copy p { font-size: 1.12rem; }
+.radio-replay { border-width: 2px; border-color: #7fd3ea; color: #dff6ff; }
+.radio-replay svg { color: #7fd3ea; }

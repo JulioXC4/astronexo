@@ -20,7 +20,8 @@ const destinationImages = {
 
 export function DestinationScreen({ initialDestination, onSelectDestination, onBack }: DestinationScreenProps) {
   const { t } = useI18n();
-  useScreenRadio([{ speaker: 'ALBA', text: t('radio.destination') }]);
+  // Sin globo de radio: el título de la pantalla ya dice qué hacer (antes el globo lo repetía).
+  useScreenRadio([]);
   const [selectedDest, setSelectedDest] = useState<Destination>(initialDestination === 'MARS' ? 'MARS' : 'MOON');
   const destinationKey = selectedDest === 'MARS' ? 'mars' : 'moon';
 

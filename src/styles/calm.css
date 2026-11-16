@@ -1,0 +1,99 @@
+/* =========================================================================
+   CALMA — capa final de estilo (se carga la última).
+   Para un niño de 7–12 años: menos cosas moviéndose, menos neón y bordes más
+   suaves. Reglas:
+   1. Solo se mueve lo que hay que tocar ahora (y despacio). Nada parpadea.
+   2. Los fondos ilustrados bajan un poco de saturación y brillo: la interfaz
+      se lee sin competir con un escenario a todo color.
+   3. Bordes finos y de color apagado; el color fuerte queda para lo importante
+      (amarillo = tócame, verde = bien, rojo = peligro).
+   ========================================================================= */
+
+/* ---------- 1. Movimiento ---------- */
+/* Decoración que se repetía sin parar: marcadores que rebotan, luces que parpadean,
+   flechas que empujan, la onda del globo de radio… Quieto. */
+.earth-base-facility .earth-base-pin,
+.earth-base-scene__light,
+.earth-base-launch,
+.asel-char--selected::after,
+.radio-bubble__signal,
+.radio-bubble__portrait,
+.camera-status__led,
+.monitor-module__pic,
+.monitor-module__pic *,
+.module-state--working svg,
+.turn-done__arrow,
+.training .gauge-dial[data-target]::after,
+.training .gauge-dial[data-target]::before,
+[data-target]::after,
+[data-target]::before {
+  animation: none !important;
+}
+.earth-base-facility .earth-base-pin { transform: translate(0, -80px); }
+
+/* La guía «Pulsa aquí» respira despacio en vez de parpadear (antes: 1,1 s a saltos). */
+@media (prefers-reduced-motion: no-preference) {
+  [data-target] { animation: calm-guide 2.6s ease-in-out infinite !important; }
+  .turn-controls__end--ready:not(:disabled),
+  .intervention-menu-trigger.is-pending:not(:disabled) { animation: calm-glow 3s ease-in-out infinite !important; }
+}
+@keyframes calm-guide {
+  0%, 100% { outline-color: rgb(255 225 111 / 95%); outline-offset: 4px; }
+  50% { outline-color: rgb(255 225 111 / 45%); outline-offset: 6px; }
+}
+@keyframes calm-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(255 212 92 / 0%), 0 6px 12px rgb(0 0 0 / 25%); }
+  50% { box-shadow: 0 0 0 4px rgb(255 212 92 / 30%), 0 6px 12px rgb(0 0 0 / 25%); }
+}
+
+/* ---------- 2. Fondos ilustrados menos estridentes ---------- */
+.earth-base-scene__background,
+.earth-base-facility__sprite,
+.asel__background,
+.mg-stage__background,
+.station-vn__bg,
+.scene-bg,
+.city-selection .pixel-scene,
+.welcome .pixel-scene {
+  filter: saturate(.8) brightness(.92);
+}
+/* Las reglas de foco (atenuar instalaciones no elegidas) siguen mandando sobre esta. */
+.emap[data-panel-open] .earth-base-facility:not(.earth-base-facility--chosen) .earth-base-facility__sprite { filter: brightness(.5) saturate(.5); }
+.earth-base-facility:hover .earth-base-facility__sprite,
+.earth-base-facility--chosen .earth-base-facility__sprite { filter: saturate(.9) drop-shadow(0 0 3px rgb(255 244 205 / 85%)) drop-shadow(0 0 8px rgb(255 211 107 / 50%)); }
+.welcome__star, .welcome__meteor { opacity: .6; }
+
+/* ---------- 3. Bordes y paneles más suaves ---------- */
+.emap, .scene-screen {
+  --emap-edge: #3f6b80;
+  --emap-cool: #6fb4c8;
+  --emap-panel: rgba(9, 22, 38, .92);
+}
+.emap--andes, .emap--arctic, .sd, .storm { --emap-edge: #4a7488; }
+/* Las esquinitas de color de cada panel (adorno repetido en todas partes) se apagan. */
+.scene-screen .earth-card::before,
+.scene-screen .earth-card::after,
+.brief-dialog::before,
+.brief-dialog::after,
+.mg-card::before,
+.mg-card::after { opacity: .35; }
+/* Barra superior: pastillas finas y discretas; no compiten con el escenario. */
+.emap-hud__back, .emap-hud__status, .emap-hud .tutorial-help-button, .hud-audio-lang .sound-toggle {
+  box-shadow: none !important;
+}
+.emap-hud__status { border-width: 1px !important; }
+/* Selectores de idioma: presentes pero en segundo plano. */
+.lang-selector-hud, .emap-hud .language-selector { filter: brightness(.8) saturate(.7); transition: filter .2s ease; }
+.lang-selector-hud:hover, .lang-selector-hud:focus-within, .emap-hud .language-selector:hover { filter: none; }
+
+/* Guardia: menos rótulos en MAYÚSCULAS gritando y bordes rojos más suaves. */
+.alert-card { border-width: 1px; }
+.camera-selector__button { border-width: 1px; }
+.mission-hud, .alerts-monitor, .mission-bottom-bar, .module-camera-view { border-width: 2px; box-shadow: none; }
+
+/* Radio: sin sombra pesada; se lee igual. */
+.radio-bubble { box-shadow: 0 .3rem .8rem rgb(0 0 0 / 30%); }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-target], .turn-controls__end--ready, .intervention-menu-trigger.is-pending { animation: none !important; }
+}

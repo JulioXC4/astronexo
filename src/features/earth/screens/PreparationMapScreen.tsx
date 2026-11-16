@@ -5,7 +5,7 @@ import type { ToolId } from '../../../game/contracts';
 import type { TrainingOutcome } from '../../../game';
 import { EarthBaseScene } from '../../../visual-kit/EarthBaseScene';
 import { useRadio, useRadioLeave } from '../../radio';
-import { useI18n, LanguageSelector } from '../../../i18n';
+import { useI18n, LanguageSelector, msg } from '../../../i18n';
 import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
 import { EarthMissionPanel, type MissionPanelState } from './EarthMissionPanel';
 import './earth.css';
@@ -24,6 +24,8 @@ interface PreparationMapScreenProps {
   readonly trainingOutcomes: readonly TrainingOutcome[];
   /** Entrenamiento que se acaba de completar al volver de un minijuego (confirmación visual breve). */
   readonly justCompletedId?: MissionType | null;
+  /** Módulo de la estación que el equipo empezó a construir con ese entrenamiento (para el aviso). */
+  readonly buildingModule?: string;
   readonly onOpenMission: (mission: EarthMissionDefinition) => void;
   readonly onProceedToLaunch: (derivedTools: readonly ToolId[]) => void;
   readonly onBack: () => void;
@@ -38,6 +40,7 @@ export function PreparationMapScreen({
   completedMissions,
   trainingOutcomes,
   justCompletedId = null,
+  buildingModule,
   onOpenMission,
   onProceedToLaunch,
   onBack,
@@ -49,8 +52,8 @@ export function PreparationMapScreen({
 
   // Chispa explica el mapa por radio, sin detener el juego ni tapar el escenario.
   useEffect(() => {
-    radio.say({ speaker: 'CHISPA', text: t('radio.mapWelcome'), once: 'map.welcome' });
-  }, [radio, t]);
+    radio.say({ speaker: 'CHISPA', text: msg('radio.mapWelcome'), onceEver: `map.welcome.${cityId}` });
+  }, [radio, cityId]);
   const [selectedId, setSelectedId] = useState<MissionType | null>(null);
   const [celebratingId, setCelebratingId] = useState<MissionType | null>(justCompletedId);
   const [tutorialOpen, setTutorialOpen] = useState(() => !isTutorialComplete(MAP_TUTORIAL_STEPS));
@@ -175,7 +178,7 @@ export function PreparationMapScreen({
           <span>{t('map.trainingCompletedToast', {
             facility: t(`map.facilities.${celebratedMission.id}.facilityName`),
             tool: t(`tools.${celebratedMission.targetTool}.label`),
-          })}</span>
+          })}{buildingModule && countCompleted < 3 && <small className="emap-toast__build">{t('map.buildingToast', { module: t(`baseBuilder.modules.${buildingModule}.name`) })}</small>}</span>
         </div>
       )}
 

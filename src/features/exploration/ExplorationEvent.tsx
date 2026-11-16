@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ExplorationMode, ExplorationResult, MissionState } from '../../game';
-import { useI18n } from '../../i18n';
+import { msg } from '../../i18n';
 import { useRadio, useRadioLeave } from '../radio';
 import { ExplorationCanvas } from './ExplorationCanvas';
 import { ExplorationReport } from './ExplorationReport';
@@ -29,7 +29,6 @@ type Stage =
  * la guardia (`applyExploration`).
  */
 export function ExplorationEvent({ state, completedTurn, clock, onDone }: ExplorationEventProps) {
-  const { t } = useI18n();
   const radio = useRadio();
   useRadioLeave();
   const [stage, setStage] = useState<Stage>({ kind: 'START' });
@@ -38,8 +37,8 @@ export function ExplorationEvent({ state, completedTurn, clock, onDone }: Explor
   // Alba y Nico presentan la salida por radio, sin tapar las tarjetas.
   useEffect(() => {
     radio.clear();
-    radio.say({ speaker: 'ALBA', text: t('exploration.introAlba') });
-    radio.say({ speaker: 'NICO', text: t('exploration.introNico') });
+    radio.say({ speaker: 'ALBA', text: msg('exploration.introAlba') });
+    radio.say({ speaker: 'NICO', text: msg('exploration.introNico') });
     // Solo al abrir: los textos no cambian mientras dura la pantalla.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -47,7 +46,7 @@ export function ExplorationEvent({ state, completedTurn, clock, onDone }: Explor
   function choose(choice: ExplorationChoice) {
     if (choice.kind === 'STAY') {
       radio.clear();
-      radio.say({ speaker: 'NICO', text: t('exploration.stayRadio') });
+      radio.say({ speaker: 'NICO', text: msg('exploration.stayRadio') });
       onDone(null);
       return;
     }

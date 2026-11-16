@@ -93,8 +93,13 @@ try {
   await screenshot(home, 'radio_help_priority.png');
   await home.keyboard.press('Escape');
   await home.waitForSelector('.tutorial-coach__dialog', { state: 'detached' });
-  await home.waitForSelector('.radio-bubble', { timeout: 8000 });
-  console.log('  ✓ la ayuda manda sobre la radio y se cierra con Escape');
+  // La portada ya no saluda por radio (la introducción presenta el juego), y cerrar la ayuda
+  // no debe empezar la partida: se sigue en la portada, sin video ni globo.
+  await home.waitForTimeout(4000);
+  assert((await home.locator('.radio-bubble').count()) === 0, 'La portada no debería mostrar un globo de radio.');
+  assert((await home.locator('.cinematic').count()) === 0, 'Cerrar la ayuda empezó la partida.');
+  assert(await home.locator('.welcome__play').isVisible(), 'Cerrar la ayuda sacó al niño de la portada.');
+  console.log('  ✓ la ayuda manda sobre la radio, se cierra con Escape y no empieza el juego');
   assert(errors.length === 0, `Errores de página: ${errors.join(' | ')}`);
   await ctx.close();
   console.log('🎉 E2E avisos y modales OK');

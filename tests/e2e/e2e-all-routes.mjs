@@ -9,7 +9,7 @@ import {
   launchBrowser, newMonitoredPage, screenshot, assertScreenHealthy, startFromWelcome, chooseDestination,
   buildStation, passStationPrep, chooseCity, passAvatarAndBriefing, completeTraining, flyAndMonitor,
   playFiveTurns, readOutcome, returnToWelcome, failOnProblems, recommendedCloudsReserve,
-  performScienceIntervention, performSurvivalIntervention,
+  performScienceIntervention, performSurvivalIntervention, openKidReport,
 } from './helpers.mjs';
 
 const ROUTES = [
@@ -73,7 +73,8 @@ async function runRoute(browser, route) {
     await assertScreenHealthy(page, 'informe');
     const first = await readOutcome(page);
     console.log(`  guardia: ${reached} turno(s), resultado ${first}`);
-    // Fuente NASA visible en el informe (detalles del informe)
+    // Informe para niños (pantalla siguiente al veredicto) y, dentro, el informe completo con las fuentes NASA.
+    await openKidReport(page);
     await page.click('.results-details summary');
     const report = await page.locator('.results-details').innerText();
     if (!report.includes('NASA DONKI') || !report.includes('NASA POWER')) throw new Error('El informe no cita las fuentes NASA.');

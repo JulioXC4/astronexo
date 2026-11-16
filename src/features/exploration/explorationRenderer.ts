@@ -2,7 +2,10 @@ import type { Destination } from '../../game';
 import { PIECE_OFFSETS, PLACES, WORLD } from './explorationData';
 import { placeInReach, type Expedition } from './explorationEngine';
 import type { Terrain } from './terrain';
-import { BACKGROUND_CROPS, isReady, type SpriteSet } from './explorationAssets';
+import { BACKGROUND_CROPS, EXPLORER_FRAME, isReady, type SpriteSet } from './explorationAssets';
+
+/** Alto en pantalla del explorador a pie (casco a botas), en píxeles del mundo. */
+const EXPLORER_HEIGHT = 66;
 
 /**
  * Dibujo de la salida. Está separado de las reglas a propósito (pedido de JD):
@@ -456,9 +459,13 @@ export function drawExpedition(
     drawRover(g, e.px, e.py, false, sprites, view.facing === 'right');
   } else if (isReady(pose)) {
     // Los pies quedan en (px, py): la posición lógica no depende del tamaño del sprite.
+    // Las poses traen margen transparente: se escala por el cuerpo y se ancla en la línea de los pies.
     const bob = view.moving ? Math.abs(Math.sin(time / 110)) * 3 : 0;
     shadow(g, e.px, e.py + 6, 16, 5, 0.32);
-    sprite(g, pose, e.px, e.py + 8 - bob, 66, { anchorY: 1, flip: view.dir === 'side' && view.facing === 'left' });
+    sprite(g, pose, e.px, e.py + 8 - bob, EXPLORER_HEIGHT / EXPLORER_FRAME.bodyHeight, {
+      anchorY: EXPLORER_FRAME.footY,
+      flip: view.dir === 'side' && view.facing === 'left',
+    });
   } else if (player && player.complete && player.naturalWidth > 0) {
     // El sprite es cuadrado con el personaje al centro: se dibuja de modo que los pies queden en (px, py).
     const size = 78;

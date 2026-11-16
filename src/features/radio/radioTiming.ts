@@ -1,3 +1,4 @@
+import { CHARACTER_SPRITES } from '../../assets/characterSprites';
 /**
  * Reglas de tiempo del globo de radio, tomadas literalmente de la maqueta de
  * Juan Diego (especificación §8). No se tocan sin hablar con él.
@@ -35,8 +36,19 @@ export type RadioTone = 'normal' | 'good' | 'danger';
 export interface RadioMessage {
   readonly id: string;
   readonly speaker: RadioSpeaker;
+  /**
+   * Texto o referencia al diccionario (`msg('clave')`). Se traduce al dibujarse, así un
+   * cambio de idioma a mitad de pantalla (o «Repetir ayuda») sale en el idioma activo.
+   */
   readonly text: string;
   readonly tone: RadioTone;
+  /**
+   * Juego o pantalla al que pertenece la ayuda. Si el niño cierra el globo, las demás
+   * ayudas de ese ámbito ya no salen solas (ni al volver a entrar en ese minijuego).
+   */
+  readonly scope?: string;
+  /** Clave «una vez en toda la partida»: se marca como dicha cuando el globo sale de verdad. */
+  readonly onceEver?: string;
   /** Las pistas solo salen una vez por pantalla. */
   readonly once?: string;
   /**
@@ -57,9 +69,5 @@ export function canInterrupt(incoming: RadioTone, shownForMs: number, front = fa
   return shownForMs >= RADIO_TIMING.protectedMs;
 }
 
-export const RADIO_PORTRAITS: Readonly<Record<RadioSpeaker, string>> = {
-  ALBA: '/assets/pixel-art/cadet-alba.webp',
-  CHISPA: '/assets/characters/chispa.webp',
-  AURORA: '/assets/pixel-art/officer-aurora.webp',
-  NICO: '/assets/pixel-art/engineer-nico.webp',
-};
+/** Los retratos de la radio son los personajes de la selección de astronauta. */
+export const RADIO_PORTRAITS: Readonly<Record<RadioSpeaker, string>> = CHARACTER_SPRITES;

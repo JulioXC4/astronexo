@@ -137,11 +137,17 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
   </>;
 
   return <TrainingFrame
+    scope="ARCTIC_GREENHOUSE"
     title={t('training.arctic.title')}
     icon={<Plant weight="fill" color="#a5d6a7" />}
     onBack={onBack}
-    task={t('training.arctic.task')}
-    tip={t('training.arctic.tip')}
+    taskKey="training.arctic.task"
+    tipKey="training.arctic.tip"
+    goals={[
+      { label: t('training.goals.domeClosed'), ok: state.insulated },
+      { label: t('training.goals.tempGreen'), ok: comfy },
+      { label: t('training.goals.noWaste'), ok: state.flow <= ARCTIC.maxFlow },
+    ]}
     scene={scene}
     controls={controls}
     hint={hint || t('training.arctic.hintStart')}

@@ -148,6 +148,8 @@ export interface MissionAlert {
 export interface UnresolvedEvent {
   readonly id: string;
   readonly sourceAlertId: string;
+  /** Qué alerta quedó sin atender (el informe para niños la convierte en un consejo). */
+  readonly alertKind?: AlertKind;
   readonly turn: number;
   readonly summary: string;
   readonly resourceDelta: ResourceDelta;

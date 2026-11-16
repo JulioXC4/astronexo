@@ -9,7 +9,7 @@
 import {
   launchBrowser, newMonitoredPage, screenshot, assertScreenHealthy, startFromWelcome, chooseDestination,
   buildStation, passStationPrep, chooseCity, passAvatarAndBriefing, completeTraining, flyAndMonitor,
-  playFiveTurns, readOutcome, returnToWelcome, failOnProblems, BASE_URL,
+  playFiveTurns, readOutcome, returnToWelcome, failOnProblems, BASE_URL, skipCinematic, skipMissionIntro,
 } from './helpers.mjs';
 
 async function openStationModal(page) {
@@ -49,6 +49,8 @@ async function fullRoute(browser) {
     await openStationModal(page);
     await configureGroup(page, 'Equipo Cóndor');
     await page.click('button:has-text("Recorrido completo del grupo")');
+    await skipCinematic(page);
+    await skipMissionIntro(page);
 
     await chooseDestination(page, 'MARS');
     const modules = await buildStation(page, [0, 2, 3]);
@@ -92,7 +94,7 @@ async function quickDemo(browser) {
     for (const index of [0, 1, 2]) await page.locator('.module-picker__button').nth(index).click();
     await page.click('button.builder-start');
     await page.waitForSelector('.turn-transition button');
-    await page.click('.turn-transition button');
+    await page.click('.turn-transition button', { timeout: 2000 }).catch(() => {}); // el cartel también sigue solo
 
     await coopGuardAndResults(page, 'demo');
     await returnToWelcome(page);
