@@ -10,7 +10,7 @@ import {
   shouldOfferExploration,
 } from '../../game';
 import type { GameAction, GameSetup, MissionResult, MissionState, ModuleId } from '../../game';
-import { useI18n } from '../../i18n';
+import { msg, resolveMessage, useI18n } from '../../i18n';
 import { playSound } from '../audio';
 import { useGuardAudio } from '../space/useGuardAudio';
 import { BaseBuilderView } from '../base-builder';
@@ -70,8 +70,8 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
         : getMissionResult(mission) ? 'result' : 'play');
 
   const setupErrors = [
-    ...(setup.mode === 'LOCAL_COOP' ? [] : ['GameSetup debe usar mode: LOCAL_COOP.']),
-    ...(setupCanBeCompleted ? [] : ['La configuración canónica de misión es inválida.']),
+    ...(setup.mode === 'LOCAL_COOP' ? [] : [msg('coopErrors.modeNotCoop')]),
+    ...(setupCanBeCompleted ? [] : [msg('coopErrors.invalidSetup')]),
   ];
   if (groupErrors.length > 0 || setupErrors.length > 0) {
     return (
@@ -80,7 +80,7 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
         <h1>{t('spaceGame.invalidTitle')}</h1>
         <ul>
           {[...groupErrors, ...setupErrors].map((error) => (
-            <li key={error}>{error}</li>
+            <li key={error}>{resolveMessage(error, t)}</li>
           ))}
         </ul>
       </main>

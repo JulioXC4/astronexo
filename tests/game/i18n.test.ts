@@ -50,7 +50,7 @@ function translationCalls(): TranslationCall[] {
     function visit(node: ts.Node) {
       if (ts.isCallExpression(node)
         && ts.isIdentifier(node.expression)
-        && node.expression.text === 't'
+        && (node.expression.text === 't' || node.expression.text === 'msg')
         && ts.isStringLiteralLike(node.arguments[0])) {
         const params = new Set<string>();
         const paramsArgument = node.arguments[1];

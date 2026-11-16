@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { EarthFlowProps, ToolId, Destination, Backpack } from '../../game/contracts';
 import { DEFAULT_CITY, type CityData } from '../../data/nasa/cities';
-import { DEFAULT_AVATAR, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../data/avatars';
+import { DEFAULT_AVATAR, type AvatarOption } from '../../data/avatars';
 import { buildVerifiedNasaDataset } from '../nasa/adapters';
 import { getMissionsForCity, type MissionType, type EarthMissionDefinition } from '../../data/missions';
 import { buildEarthV3Setup } from './earthToSpace';
@@ -119,7 +119,7 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
   const [selectedModules, setSelectedModules] = useState<readonly ModuleId[]>([]);
   const [city, setCity] = useState<CityData>(DEFAULT_CITY); // AREQUIPA o TROMSO
   const [avatar, setAvatar] = useState<AvatarOption>(DEFAULT_AVATAR);
-  const [fictionalName, setFictionalName] = useState<string>(SUGGESTED_CALLSIGNS[0]);
+  const [fictionalName, setFictionalName] = useState<string>('');
   const [completedMissions, setCompletedMissions] = useState<MissionType[]>([]);
   const [trainingOutcomes, setTrainingOutcomes] = useState<TrainingOutcome[]>([]);
   const [backpack, setBackpack] = useState<Backpack | null>(null);

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Atom, Minus, MoonStars, Plus, Sun, X } from '@phosphor-icons/react';
 import type { TrainingOutcome } from '../../../game';
 import { AREQUIPA_SOLAR_RECORDS } from '../../../data/nasa/powerData';
-import { useI18n } from '../../../i18n';
+import { msg, useI18n } from '../../../i18n';
 import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
 import { allocate, assignedUnits, captureEnergy, DEMAND, EMPTY_ALLOCATION, evaluate, nightEnergy, nightSystemEnergy, remainingNightEnergy, type Allocation, type SystemId } from './solarEnergy';
 import { MinigameShell } from './ui/MinigameShell';
@@ -135,7 +135,7 @@ export function SolarDetectiveGame({ onComplete, onBack }: Props) {
     rewardClaimed.current = true;
     playSound('toolEarned');
     const cost = calculateTrainingCost('SOLAR_DETECTIVE', result.reservePercent);
-    onComplete(createTrainingOutcome('SOLAR_DETECTIVE', tr('outcomeDecision', { reserve: result.reservePercent }), 'energy', cost, tr('outcomeConsequence')));
+    onComplete(createTrainingOutcome('SOLAR_DETECTIVE', msg('minigames.solarDetective.outcomeDecision', { reserve: result.reservePercent }), 'energy', cost, msg('minigames.solarDetective.outcomeConsequence')));
   }
 
   const batterySprite = batteryUnits === 0 ? 'battery-empty.webp' : phase === 'night' ? 'battery-charging.webp' : 'battery-charged.webp';

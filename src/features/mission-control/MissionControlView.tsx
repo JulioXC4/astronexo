@@ -9,7 +9,7 @@ import { ModuleCameras } from './ModuleCameras';
 import { formatChange, readableChanges } from './resourceLabels';
 import { useRadio, useRadioLeave, useRadioAnchor } from '../radio';
 import { SoundToggle } from '../audio';
-import { useI18n, LanguageSelector } from '../../i18n';
+import { useI18n, LanguageSelector, resolveMessage } from '../../i18n';
 import { isTutorialComplete, TutorialCoachMark, TutorialHelpButton } from '../tutorial';
 
 const GUARD_TUTORIAL_STEPS = ['guard.resources', 'guard.alerts', 'guard.actions'] as const;
@@ -210,7 +210,7 @@ export function MissionControlView({
 
     {state.lastFeedback && <aside className={`mission-feedback ${state.lastFeedback.ok ? 'mission-feedback--success' : 'mission-feedback--error'}`} role="status">
       <strong>{t('missionControl.feedbackTitle')}</strong>
-      <span>{state.lastFeedback.message}</span>
+      <span>{resolveMessage(state.lastFeedback.message, t)}</span>
     </aside>}
 
     {/* Último cambio: qué subió y qué bajó en el turno que acaba de pasar. */}

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { ArrowLeft, ArrowRight } from '@phosphor-icons/react';
-import { AVATAR_OPTIONS, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../../data/avatars';
+import { AVATAR_OPTIONS, type AvatarOption } from '../../../data/avatars';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import { useScreenRadio } from '../../radio';
 import { playSound, SoundToggle } from '../../audio';
@@ -56,6 +56,8 @@ function useMediaQuery(query: string): boolean {
 }
 
 /** Selección de astronauta: el elenco posa en la sala de la academia y la ficha se proyecta en la pantalla holográfica. */
+const CALLSIGN_KEYS = ['explorer', 'captain', 'guardian'] as const;
+
 export function AvatarScreen({
   cityName,
   destination,
@@ -67,7 +69,10 @@ export function AvatarScreen({
   const { t } = useI18n();
   useScreenRadio([{ speaker: 'CHISPA', text: t('radio.avatar') }]);
   const [selectedAvatarId, setSelectedAvatarId] = useState(initialAvatarId || AVATAR_OPTIONS[0].id);
-  const [callsign, setCallsign] = useState(initialFictionalName || SUGGESTED_CALLSIGNS[0]);
+  const suggestions = CALLSIGN_KEYS.map((key) => t(`callsigns.${key}`));
+  // Mientras el niño no escriba ni elija nada, el apodo por defecto sigue al idioma activo.
+  const [typedCallsign, setCallsign] = useState<string | null>(initialFictionalName || null);
+  const callsign = typedCallsign ?? suggestions[0];
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -197,7 +202,7 @@ export function AvatarScreen({
             autoComplete="off"
           />
           <div className="asel-callsign__chips" role="group" aria-label={t('avatars.callsignSuggestions')}>
-            {SUGGESTED_CALLSIGNS.map((suggestion) => (
+            {suggestions.map((suggestion) => (
               <button
                 key={suggestion}
                 type="button"

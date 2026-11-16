@@ -17,6 +17,7 @@ import {
   isValidGameSetup,
   scenarioSeedFromId,
 } from '../config';
+import { msg } from '../../i18n/message';
 import { applyResourceDelta, canAfford, clampResource, scaleEffectByQuality } from '../rules';
 import type {
   ActionChoice,
@@ -38,9 +39,9 @@ import type {
 
 const MAX_TURNS = 5 as const;
 const GUIDANCE_RESPONSES: Readonly<Record<Extract<ActionChoice, `${string}_GUIDANCE`>, string>> = {
-  ENERGY_GUIDANCE: 'Respuesta simulada: prioriza recuperar eficiencia solar antes de consumir reservas.',
-  RADIATION_GUIDANCE: 'Respuesta simulada: refuerza el refugio; la exposición acumulada no se reinicia.',
-  LIFE_SUPPORT_GUIDANCE: 'Respuesta simulada: atiende fugas antes de activar ciclos de recuperación.',
+  ENERGY_GUIDANCE: msg('engine.guidance.ENERGY_GUIDANCE'),
+  RADIATION_GUIDANCE: msg('engine.guidance.RADIATION_GUIDANCE'),
+  LIFE_SUPPORT_GUIDANCE: msg('engine.guidance.LIFE_SUPPORT_GUIDANCE'),
 };
 
 function cloneTools(tools: SelectedTools): SelectedTools {
@@ -110,17 +111,16 @@ function earlyWarningForecast(setup: GameSetup, seed: number) {
   const turn = 1 + H2_TOOL_RULES.EARLY_WARNING.turnsAhead;
   const kind = rotatedCandidates(H2_EVENT_SCHEDULE[setup.destination][turn - 1] ?? [], turn, seed)
     .find((candidate) => EVENT_CONFIG[candidate].destinations.includes(setup.destination));
-  return kind ? { turn, kind, title: EVENT_CONFIG[kind].title } : null;
+  return kind ? { turn, kind, title: msg(`alerts.${kind}.title`) } : null;
 }
 
 function createAlert(kind: AlertKind, turn: number, seed: number): MissionAlert {
-  const event = EVENT_CONFIG[kind];
   return {
     id: `${kind}-T${turn}-S${seed % 10000}`,
     kind,
-    title: event.title,
-    description: event.description,
-    consequencePreview: event.consequencePreview,
+    title: msg(`alerts.${kind}.title`),
+    description: msg(`alerts.${kind}.description`),
+    consequencePreview: msg(`alertSkip.${kind}`),
     severity: 1,
     age: 0,
   };
@@ -301,21 +301,22 @@ function actionAllowed(state: MissionState, action: GameAction) {
 
 function actionSummary(action: GameAction, alert: MissionAlert | undefined, response?: string) {
   if (action.type === 'REINFORCE_SHELTER') {
-    const material = action.choiceId === 'SUPPLY_SHIELDING'
-      ? 'contenedores de suministros; parte de las reservas quedó inmovilizada como protección'
-      : 'regolito local';
-    return `Refugio reforzado con ${material}${alert ? `: ${alert.title} atendida.` : '.'}`;
+    const material = msg(action.choiceId === 'SUPPLY_SHIELDING' ? 'engine.material.SUPPLY_SHIELDING' : 'engine.material.REGOLITH');
+    return alert
+      ? msg('engine.shelterReinforcedAlert', { material, alert: alert.title })
+      : msg('engine.shelterReinforced', { material });
   }
   if (action.type === 'MANAGE_GREENHOUSE') {
     return action.choiceId === 'SUSPEND_CROPS'
-      ? 'Invernadero suspendido: no produce alimento ni consume energía en los siguientes turnos.'
-      : 'Invernadero mantenido: se invirtió energía para recuperar alimento.';
+      ? msg('engine.greenhouseSuspended')
+      : msg('engine.greenhouseMaintained');
   }
   if (action.type === 'CONSULT_EARTH') {
-    return response ?? 'Consulta enviada a la Tierra; respuesta pendiente para el siguiente turno.';
+    return response ?? msg('engine.consultPending');
   }
   const intervention = action.type === 'SKIP_INTERVENTION' ? undefined : getIntervention(action.type);
-  return `${intervention?.label ?? action.type}${alert ? `: ${alert.title} atendida.` : ' completada.'}`;
+  const label = intervention ? msg(`interventions.items.${intervention.id}.label`) : action.type;
+  return alert ? msg('engine.actionHandled', { action: label, alert: alert.title }) : msg('engine.actionDone', { action: label });
 }
 
 export function applyAction(state: MissionState, action: GameAction): MissionState {
@@ -327,12 +328,12 @@ export function applyAction(state: MissionState, action: GameAction): MissionSta
       decisions: [...state.decisions, {
         turn: state.turn,
         action: action.type,
-        summary: 'La tripulación cerró el turno sin una intervención principal.',
+        summary: msg('engine.skipDecision'),
         resourceDelta: {},
       }],
       lastFeedback: {
         ok: true,
-        message: 'Turno preparado sin intervención. Las alertas activas tendrán consecuencias.',
+        message: msg('engine.skipFeedback'),
         resourceDelta: {},
       },
     };
@@ -361,13 +362,13 @@ export function applyAction(state: MissionState, action: GameAction): MissionSta
     turn: state.turn,
     moduleId: 'SCIENCE_LAB',
     phase: 'ACTION',
-    summary: 'Laboratorio: mejoró el procesamiento de la muestra en 10 puntos de Ciencia.',
+    summary: msg('engine.labModule'),
     cost: {},
     benefit: { scienceProgress: getModuleDefinition('SCIENCE_LAB')?.researchBonus ?? 0 },
   } : undefined;
   const recordedSummary = `${summary}${sparePartsUsed
-    ? ' El Kit de repuestos cubrió toda la Energía de esta reparación.'
-    : ''}${labUsed ? ' El Laboratorio mejoró el resultado científico.' : ''}`;
+    ? ` ${msg('engine.sparePartsNote')}`
+    : ''}${labUsed ? ` ${msg('engine.labNote')}` : ''}`;
 
   return {
     ...changed,
@@ -429,10 +430,10 @@ function diffResources(before: MissionState, after: MissionState): ResourceDelta
  * la tripulación vuelve a la Tierra, nadie «muere» (decisión del equipo, JD §14).
  */
 function interruptionCause(state: MissionState): string | undefined {
-  if (state.oxygen <= 0) return 'Se acabó el oxígeno. La tripulación volvió a la Tierra antes de tiempo, sana y salva.';
-  if (state.energy <= 0) return 'Se acabó la energía. La tripulación volvió a la Tierra antes de tiempo, sana y salva.';
-  if (state.foodSupply <= 0) return 'Se acabó la comida. La tripulación volvió a la Tierra antes de tiempo, sana y salva.';
-  if (state.radiationExposure >= 100) return 'La radiación llegó al límite seguro. La tripulación volvió a la Tierra antes de tiempo, sana y salva.';
+  if (state.oxygen <= 0) return msg('engine.cause.oxygen');
+  if (state.energy <= 0) return msg('engine.cause.energy');
+  if (state.foodSupply <= 0) return msg('engine.cause.food');
+  if (state.radiationExposure >= 100) return msg('engine.cause.radiation');
   return undefined;
 }
 
@@ -475,7 +476,7 @@ export function advanceTurn(state: MissionState): MissionState {
       id: `UNRESOLVED-${alert.id}-T${state.turn}`,
       sourceAlertId: alert.id,
       turn: state.turn,
-      summary: `${alert.title} aplicó consecuencias de nivel ${alert.severity}.`,
+      summary: msg('engine.alertConsequence', { alert: alert.title, level: alert.severity }),
       resourceDelta,
     };
   });
@@ -520,7 +521,7 @@ export function advanceTurn(state: MissionState): MissionState {
     return {
       ...withHistory,
       outcome: 'INTERRUPTED',
-      interruptionCause: `Completaste los cinco turnos. Te faltó ciencia para la meta: llegaste a ${withHistory.scienceProgress} de ${SCIENCE_TARGET}.`,
+      interruptionCause: msg('engine.scienceShort', { reached: withHistory.scienceProgress, target: SCIENCE_TARGET }),
     };
   }
 
@@ -594,35 +595,50 @@ function buildModuleReport(state: MissionState): readonly ModuleReportEntry[] {
 
 function buildConfigurationConsequences(state: MissionState) {
   const trainings = state.setup.earthProfile?.trainings.map((training) =>
-    `${training.name}: ${training.effectOnSpaceMission} Costo terrestre: ${training.costDescription}`) ?? [];
+    msg('engine.trainingConsequence', {
+      name: training.name,
+      effect: training.effectOnSpaceMission,
+      cost: training.costDescription,
+    })) ?? [];
   const outcomes = state.setup.earthProfile?.outcomes?.map((outcome) =>
-    `${outcome.missionId}: ${outcome.explanation} Herramienta: ${outcome.tool}. Beneficio: ${outcome.benefit}`) ?? [];
+    msg('engine.outcomeConsequence', {
+      mission: msg(`map.facilities.${outcome.missionId}.name`),
+      explanation: outcome.explanation,
+      tool: msg(`tools.${outcome.tool}.label`),
+      benefit: outcome.benefit,
+    })) ?? [];
   return [...trainings, ...outcomes, ...state.unresolvedEvents.flatMap((event) => {
     const related = MODULE_CATALOG.filter((module) =>
       module.affectedBy.some((kind) => event.sourceAlertId.startsWith(kind)));
-    return related.map((module) => `${event.summary} Configuración relacionada: ${module.name} ${
-      state.selectedModules.includes(module.id) ? 'construido' : 'no construido'
-    }.`);
+    return related.map((module) => msg(
+      state.selectedModules.includes(module.id) ? 'engine.relatedBuilt' : 'engine.relatedNotBuilt',
+      { event: event.summary, module: msg(`baseBuilder.modules.${module.id}.name`) },
+    ));
   })];
 }
 
 function buildBarConsequences(state: MissionState): readonly string[] {
   const initial = createMissionState(state.setup, isLegacyDemoSetup(state.setup));
   return ([
-    ['energy', 'Energía'],
-    ['oxygen', 'Oxígeno'],
-    ['shield', 'Escudo'],
-  ] as const).map(([key, label]) => {
+    ['energy', 'hud.energy'],
+    ['oxygen', 'hud.oxygen'],
+    ['shield', 'hud.shield'],
+  ] as const).map(([key, labelKey]) => {
     const actionDelta = state.decisions.reduce((total, decision) => total + (decision.resourceDelta[key] ?? 0), 0);
     const alertDelta = state.unresolvedEvents.reduce((total, event) => total + (event.resourceDelta[key] ?? 0), 0);
     const moduleDelta = state.moduleOperations.reduce((total, operation) =>
       total + (operation.phase === 'SETUP' ? 0 : (operation.cost[key] ?? 0) + (operation.benefit[key] ?? 0)), 0);
     const detail = [
-      actionDelta && `decisiones ${actionDelta > 0 ? '+' : ''}${actionDelta}`,
-      alertDelta && `alertas ignoradas ${alertDelta > 0 ? '+' : ''}${alertDelta}`,
-      moduleDelta && `módulos ${moduleDelta > 0 ? '+' : ''}${moduleDelta}`,
+      actionDelta && msg('engine.balanceDecisions', { value: `${actionDelta > 0 ? '+' : ''}${actionDelta}` }),
+      alertDelta && msg('engine.balanceAlerts', { value: `${alertDelta > 0 ? '+' : ''}${alertDelta}` }),
+      moduleDelta && msg('engine.balanceModules', { value: `${moduleDelta > 0 ? '+' : ''}${moduleDelta}` }),
     ].filter(Boolean).join('; ');
-    return `${label}: ${initial[key]} → ${state[key]}. ${detail || 'Sin cambio directo registrado.'} El balance incluye producción y consumo por turno y límites de la barra.`;
+    return msg('engine.balance', {
+      label: msg(labelKey),
+      from: initial[key],
+      to: state[key],
+      detail: detail || msg('engine.balanceNone'),
+    });
   });
 }
 

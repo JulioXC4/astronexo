@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plant } from '@phosphor-icons/react';
-import { useI18n } from '../../../i18n';
+import { msg, useI18n } from '../../../i18n';
 import { GaugeDial } from '../../../visual-kit/GaugeDial';
 import { LiveMeter } from '../../../visual-kit/LiveMeter';
 import type { TrainingOutcome } from '../../../game';
@@ -149,10 +149,10 @@ export function ArcticGreenhouseGame({ onComplete, onBack }: ArcticGreenhouseGam
     onReset={() => setState(START)}
     onConfirm={() => onComplete(createTrainingOutcome(
       'ARCTIC_GREENHOUSE',
-      `Flujo geotérmico ${state.flow}%`,
+      msg('trainingOutcomes.ARCTIC_GREENHOUSE.decision', { flow: state.flow }),
       'energy',
       calculateTrainingCost('ARCTIC_GREENHOUSE', state.flow),
-      'Calefacción e iluminación consumen reserva.',
+      msg('trainingOutcomes.ARCTIC_GREENHOUSE.limitation'),
     ))}
   />;
 }

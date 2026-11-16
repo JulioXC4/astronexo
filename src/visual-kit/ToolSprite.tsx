@@ -1,7 +1,9 @@
 import type { ToolId } from '../game/contracts';
+import { useI18n } from '../i18n';
 
 export function ToolSprite({ id }: { readonly id: ToolId }) {
-  return <svg className="tool-sprite" viewBox="0 0 64 64" role="img" aria-label={id === 'FOLDING_PANELS' ? 'Paneles solares plegables' : id === 'LIFE_SUPPORT' ? 'Tanques de soporte vital' : id === 'SHELTER_KIT' ? 'Kit de blindaje' : 'Kit de cultivos'}>
+  const { t } = useI18n();
+  return <svg className="tool-sprite" viewBox="0 0 64 64" role="img" aria-label={t(`tools.${id}.label`)}>
     <path d="M5 48 32 59l27-11V17L32 6 5 17Z" fill="#193c55" stroke="#bddbd4" strokeWidth="3"/>
     {id === 'FOLDING_PANELS' && <><path d="M9 25 28 18v23L9 48Zm27-7 19 7v23l-19-7Z" fill="#336d86" stroke="#b7ddeb" strokeWidth="2"/><path d="M17 22v23m10-27v23m9-23v23m10-19v23M9 35l19-7m8 0 19 7" stroke="#9fcbdb" strokeWidth="2"/><circle cx="32" cy="10" r="5" fill="#f6c15b"/></>}
     {id === 'LIFE_SUPPORT' && <><rect x="13" y="17" width="15" height="34" rx="7" fill="#8ec9d0" stroke="#d8efe7" strokeWidth="2"/><rect x="36" y="17" width="15" height="34" rx="7" fill="#8ec9d0" stroke="#d8efe7" strokeWidth="2"/><path d="M20 17v-5m23 5v-5M17 32h7m16 0h7" stroke="#e5f3e9" strokeWidth="3"/></>}

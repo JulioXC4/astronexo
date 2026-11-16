@@ -120,6 +120,9 @@ export function I18nProvider({ children, initialLanguage }: I18nProviderProps) {
   useEffect(() => {
     try {
       document.documentElement.lang = language;
+      // El título de la pestaña y la descripción siguen al idioma elegido (la página trae el español por defecto).
+      document.title = translate(language, 'appMeta.title');
+      document.querySelector('meta[name="description"]')?.setAttribute('content', translate(language, 'appMeta.description'));
     } catch {
       // ignore
     }

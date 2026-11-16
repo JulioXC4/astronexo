@@ -1,3 +1,4 @@
+import { msg } from '../../i18n/message';
 import { applyAction } from '../../game';
 import type { GameAction, MissionState } from '../../game';
 
@@ -57,15 +58,15 @@ export function createLocalCoopConfig(
 export function validateLocalCoopConfig(group: LocalCoopConfig): readonly string[] {
   const errors: string[] = [];
   if (group.players.length < 3 || group.players.length > 5) {
-    errors.push('El grupo debe tener entre 3 y 5 participantes.');
+    errors.push(msg('coopErrors.groupSize'));
   }
   const ids = group.players.map((player) => player.id.trim());
   if (ids.some((id) => id.length === 0) || new Set(ids).size !== ids.length) {
-    errors.push('Los identificadores ficticios deben ser únicos y no vacíos.');
+    errors.push(msg('coopErrors.playerIds'));
   }
-  if (!group.teamAlias.trim()) errors.push('El equipo necesita un nombre ficticio.');
+  if (!group.teamAlias.trim()) errors.push(msg('coopErrors.teamName'));
   if (group.activePlayerIndex < 0 || group.activePlayerIndex >= group.players.length) {
-    errors.push('El índice del participante activo no es válido.');
+    errors.push(msg('coopErrors.activePlayer'));
   }
   const expectedRoles = rolesForPlayerCount(group.players.length);
   const assignedRoles = group.players.flatMap((player) => player.roles);
@@ -76,7 +77,7 @@ export function validateLocalCoopConfig(group: LocalCoopConfig): readonly string
     || group.players.some((player, index) =>
       player.roles.length !== 1 || player.roles[0] !== expectedRoles[index])
   )) {
-    errors.push('Los roles no corresponden al tamaño del grupo.');
+    errors.push(msg('coopErrors.roles'));
   }
   return errors;
 }

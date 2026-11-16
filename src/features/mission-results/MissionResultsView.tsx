@@ -4,7 +4,7 @@ import { moduleScenes } from '../../assets/moduleScenes';
 import { spaceBackgrounds } from '../../assets/manifest';
 import { CharacterPortrait } from '../../visual-kit/CharacterPortrait';
 import { ResourceBar } from '../mission-control/ResourceBar';
-import { useI18n, LanguageSelector } from '../../i18n';
+import { useI18n, LanguageSelector, resolveMessage } from '../../i18n';
 import { NasaSourcesPanel } from '../nasa/NasaSourcesPanel';
 import { CollectionList, formatMinutes } from '../exploration';
 import { SoundToggle } from '../audio';
@@ -17,6 +17,8 @@ interface MissionResultsViewProps {
 
 export function MissionResultsView({ result, onRetry, onFinish }: MissionResultsViewProps) {
   const { t } = useI18n();
+  // El motor guarda referencias al diccionario; aquí se traducen al idioma activo.
+  const r = (text: string) => resolveMessage(text, t);
   const completed = result.outcome === 'COMPLETED';
   const scientificIncomplete = !completed
     && result.turnsReached === result.finalState.maxTurns
@@ -70,7 +72,7 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
     <section className="results-conclusions">
       <h2>{t('results.conclusionsTitle')}</h2>
       {conclusions.length
-        ? <ol>{conclusions.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ol>
+        ? <ol>{conclusions.map((item, index) => <li key={`${item}-${index}`}>{r(item)}</li>)}</ol>
         : <p>{t('results.noAdditionalRelations')}</p>}
     </section>
 
@@ -96,7 +98,7 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
           </dl>
           <h3>{t('results.trainingsLabel')}</h3>
           <ul>
-            {trainings.map((training) => <li key={training.id} data-training-id={training.id}>{training.name}</li>)}
+            {trainings.map((training) => <li key={training.id} data-training-id={training.id}>{r(training.name)}</li>)}
           </ul>
           <h3>{t('results.toolsLabel')}</h3>
           <ul>
@@ -129,9 +131,9 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
         </section>
         <section>
           <h2>{t('results.interventionsTitle')}</h2>
-          {result.helpfulDecisions.length ? <ul>{result.helpfulDecisions.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul> : <p>{t('results.noInterventions')}</p>}
+          {result.helpfulDecisions.length ? <ul>{result.helpfulDecisions.map((item, index) => <li key={`${item}-${index}`}>{r(item)}</li>)}</ul> : <p>{t('results.noInterventions')}</p>}
           <h2>{t('results.consequencesTitle')}</h2>
-          {result.harmfulDecisions.length ? <ul>{result.harmfulDecisions.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul> : <p>{t('results.noConsequences')}</p>}
+          {result.harmfulDecisions.length ? <ul>{result.harmfulDecisions.map((item, index) => <li key={`${item}-${index}`}>{r(item)}</li>)}</ul> : <p>{t('results.noConsequences')}</p>}
         </section>
         <section className="module-report">
           <h2>{t('results.modulesBuiltTitle')}</h2>
@@ -148,18 +150,18 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
                 <p><strong>{t('results.actualConsumption')}:</strong> {costs.length ? costs.join(' · ') : t('results.noOperationalConsumption')}</p>
                 <strong>{t('results.evidenceBenefits')}</strong>
                 {entry.benefitsProvided.length
-                  ? <ul>{entry.benefitsProvided.map((benefit) => <li key={benefit}>{benefit}</li>)}</ul>
+                  ? <ul>{entry.benefitsProvided.map((benefit) => <li key={benefit}>{r(benefit)}</li>)}</ul>
                   : <p>{t('results.noMeasuredBenefit')}</p>}
-                {entry.relatedConsequences.length > 0 && <><strong>{t('results.relatedConsequences')}</strong><ul>{entry.relatedConsequences.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul></>}
+                {entry.relatedConsequences.length > 0 && <><strong>{t('results.relatedConsequences')}</strong><ul>{entry.relatedConsequences.map((item, index) => <li key={`${item}-${index}`}>{r(item)}</li>)}</ul></>}
               </article>;
             })}
           </div>
         </section>
         <section>
           <h2>{t('results.causeAndEffectTitle')}</h2>
-          {result.causeAndEffect.length ? <ul>{result.causeAndEffect.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul> : <p>{t('results.noAdditionalRelations')}</p>}
+          {result.causeAndEffect.length ? <ul>{result.causeAndEffect.map((item, index) => <li key={`${item}-${index}`}>{r(item)}</li>)}</ul> : <p>{t('results.noAdditionalRelations')}</p>}
           <p>{t('results.scientificObjStatus', { status: t(result.scientificObjectiveAchieved ? 'results.achieved' : 'results.pending') })}</p>
-          <p>{finalState.communicationResponse ?? t('results.noConsultationReceived')}</p>
+          <p>{finalState.communicationResponse ? r(finalState.communicationResponse) : t('results.noConsultationReceived')}</p>
           <p>{t('results.educationalNoteDesc')}</p>
         </section>
         {finalState.setup.spaceWeather && (

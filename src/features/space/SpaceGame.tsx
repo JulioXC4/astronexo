@@ -18,7 +18,7 @@ import { BaseBuilderView } from '../base-builder';
 import { MissionControlView } from '../mission-control';
 import { MissionResultsView } from '../mission-results';
 import { TurnTransition } from './TurnTransition';
-import { useI18n } from '../../i18n';
+import { resolveMessage, useI18n } from '../../i18n';
 import './space-game.css';
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;
@@ -58,11 +58,11 @@ function adaptLegacyResult(
       radiationExposure: state.radiationExposure,
       scienceProgress: state.scienceProgress,
       communications: state.communicationAvailable ? 1 : 0,
-      faults: state.unresolvedEvents.map((event) => event.summary),
+      faults: state.unresolvedEvents.map((event) => resolveMessage(event.summary, t)),
       alerts: state.activeAlerts.map((alert) => ({
         id: alert.id,
         kind: alert.kind,
-        summary: alert.title,
+        summary: resolveMessage(alert.title, t),
         severity: alert.severity,
       })),
       tools: setup.backpack,
@@ -70,13 +70,13 @@ function adaptLegacyResult(
         turn: decision.turn,
         alertId: decision.alertId ?? 'NO_ALERT',
         actionId: decision.action,
-        explanation: decision.summary,
+        explanation: resolveMessage(decision.summary, t),
       })),
       status: result.outcome === 'COMPLETED' ? 'SUCCESS' : 'FAILED',
     },
     explanation: result.outcome === 'COMPLETED'
       ? t('results.legacyCompleted', { score: result.score.total })
-      : t('results.legacyInterrupted', { cause: result.interruptionCause ?? t('results.unknownCause') }),
+      : t('results.legacyInterrupted', { cause: result.interruptionCause ? resolveMessage(result.interruptionCause, t) : t('results.unknownCause') }),
     evidence,
   };
 }

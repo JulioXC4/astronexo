@@ -1,6 +1,6 @@
 import { ArrowRight, ArrowCounterClockwise, BookOpen, UsersThree, RocketLaunch, Sparkle } from '@phosphor-icons/react';
 import type { MissionResult } from '../../../game';
-import { useI18n } from '../../../i18n';
+import { resolveMessage, useI18n } from '../../../i18n';
 import { SceneScreen, SCENE_BACKGROUNDS } from './SceneScreen';
 import './earth.css';
 
@@ -35,7 +35,7 @@ export function NextAdventureScreen({
           <p>
             {result.outcome === 'COMPLETED'
               ? t('nextAdventure.balanceSuccess')
-              : result.interruptionCause ?? t('return.interruptedLog')}
+              : result.interruptionCause ? resolveMessage(result.interruptionCause, t) : t('return.interruptedLog')}
           </p>
           <p className="scene-note">
             {t('nextAdventure.trainingsApplied', { count: result.finalState.setup.earthProfile?.trainings.length ?? 0 })}

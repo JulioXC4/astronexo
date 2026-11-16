@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BatteryCharging, Snowflake } from '@phosphor-icons/react';
-import { useI18n } from '../../../i18n';
+import { msg, useI18n } from '../../../i18n';
 import type { TrainingOutcome } from '../../../game';
 import { calculateTrainingCost, createTrainingOutcome } from '../trainingOutcome';
 import { TrainingFrame } from './TrainingFrame';
@@ -103,10 +103,10 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
     onReset={() => { setState(POLAR_START); setPicked(null); }}
     onConfirm={() => onComplete(createTrainingOutcome(
       'DARK_MONTHS_RESERVE',
-      `Calefacción ${state.heat * 10}%`,
+      msg('trainingOutcomes.DARK_MONTHS_RESERVE.decision', { heat: state.heat * 10 }),
       'energy',
       calculateTrainingCost('DARK_MONTHS_RESERVE', state.heat * 10),
-      'La calefacción consume parte de la reserva.',
+      msg('trainingOutcomes.DARK_MONTHS_RESERVE.limitation'),
     ))}
   />;
 }

@@ -8,7 +8,7 @@ export function CoopRoleBar({ group }: CoopRoleBarProps) {
   const { t } = useI18n();
 
   return (
-    <header className="coop-role-bar pixel-panel" aria-label="Integrantes y roles del equipo">
+    <header className="coop-role-bar pixel-panel" aria-label={t('a11y.coopRoles')}>
       <div className="coop-role-bar__title">
         <span className="pixel-kicker">{t('coop.kicker')}</span>
         <strong>{group.teamAlias}</strong>

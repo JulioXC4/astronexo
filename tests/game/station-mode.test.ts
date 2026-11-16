@@ -19,6 +19,9 @@ import {
 } from '../../src/features/coop-gameplay';
 import { MISSION_TOOL, CITY_M5_TOOL } from '../../src/game/config/tools';
 
+import { resolveMessage, translate } from '../../src/i18n';
+const es = (text: string) => resolveMessage(text, (key, params) => translate('es', key, params));
+
 describe('P1 · Modo Estación Cooperativo Local', () => {
   it('configura grupos de 3, 4 y 5 participantes con roles educativos canónicos', () => {
     const group3 = createLocalCoopConfig('Trío Cósmico', ['Nova', 'Rayo', 'Luna']);
@@ -42,13 +45,13 @@ describe('P1 · Modo Estación Cooperativo Local', () => {
 
   it('rechaza configuraciones inválidas (tamaño fuera de 3-5, alias vacíos o duplicados)', () => {
     const tooFew = createLocalCoopConfig('Pocos', ['Nova', 'Rayo']);
-    expect(validateLocalCoopConfig(tooFew)).toContain('El grupo debe tener entre 3 y 5 participantes.');
+    expect(validateLocalCoopConfig(tooFew).map(es)).toContain('El grupo debe tener entre 3 y 5 participantes.');
 
     const tooMany = createLocalCoopConfig('Muchos', ['1', '2', '3', '4', '5', '6']);
-    expect(validateLocalCoopConfig(tooMany)).toContain('El grupo debe tener entre 3 y 5 participantes.');
+    expect(validateLocalCoopConfig(tooMany).map(es)).toContain('El grupo debe tener entre 3 y 5 participantes.');
 
     const emptyTeam = createLocalCoopConfig('   ', ['Nova', 'Rayo', 'Luna']);
-    expect(validateLocalCoopConfig(emptyTeam)).toContain('El equipo necesita un nombre ficticio.');
+    expect(validateLocalCoopConfig(emptyTeam).map(es)).toContain('El equipo necesita un nombre ficticio.');
 
     const duplicated = {
       ...createLocalCoopConfig('Equipo', ['Nova', 'Rayo', 'Luna']),
@@ -58,7 +61,7 @@ describe('P1 · Modo Estación Cooperativo Local', () => {
         { id: 'LOCAL-3', alias: 'Luna', roles: ['PROTECTION' as const] },
       ],
     };
-    expect(validateLocalCoopConfig(duplicated)).toContain('Los identificadores ficticios deben ser únicos y no vacíos.');
+    expect(validateLocalCoopConfig(duplicated).map(es)).toContain('Los identificadores ficticios deben ser únicos y no vacíos.');
   });
 
   it('establece GameSetup cooperativo con paquete terrestre canónico (M1, M4, M5)', () => {

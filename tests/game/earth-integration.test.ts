@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { resolveMessage, translate } from '../../src/i18n';
 import { buildEarthV3Setup } from '../../src/features/earth/earthToSpace';
 import { getMissionsForCity } from '../../src/data/missions';
 import { createMission, getMissionResult, isValidGameSetup, isValidPreBuildGameSetup, advanceTurn, applyAction } from '../../src/game';
@@ -65,7 +66,7 @@ describe('Integración Tierra → SoloSpaceGame', () => {
     expect(report?.outcome).toBe('INTERRUPTED');
     expect(report?.finalState.setup.scenarioId).toBe(initial.scenarioId);
     expect(report?.finalState.setup.earthProfile?.fictionalName).toBe('Cóndor');
-    expect(report?.configurationConsequences.some((line) => line.includes('Costo terrestre:'))).toBe(true);
+    expect(report?.configurationConsequences.some((line) => resolveMessage(line, (key, params) => translate('es', key, params)).includes('Costo terrestre:'))).toBe(true);
   });
 
   it('puede completar los cinco turnos con una preparación terrestre v3', () => {

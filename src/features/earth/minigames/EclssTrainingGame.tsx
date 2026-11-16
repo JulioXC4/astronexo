@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Drop } from '@phosphor-icons/react';
-import { useI18n } from '../../../i18n';
+import { msg, useI18n } from '../../../i18n';
 import { GaugeDial } from '../../../visual-kit/GaugeDial';
 import { LiveMeter } from '../../../visual-kit/LiveMeter';
 import type { TrainingOutcome } from '../../../game';
@@ -136,10 +136,10 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
     onReset={() => setState(START)}
     onConfirm={() => onComplete(createTrainingOutcome(
       'ECLSS_TRAINING',
-      `Electrólisis ${total} W`,
+      msg('trainingOutcomes.ECLSS_TRAINING.decision', { watts: total }),
       'energy',
       calculateTrainingCost('ECLSS_TRAINING', total),
-      'La prueba de electrólisis consume batería.',
+      msg('trainingOutcomes.ECLSS_TRAINING.limitation'),
     ))}
   />;
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '../i18n';
 import { EarthFlow } from '../features/earth';
 import { SoloSpaceGame } from '../features/space';
 import { CoopSpaceGame } from '../features/coop-gameplay/CoopSpaceGame';
@@ -29,6 +30,7 @@ interface GameRouterProps {
 type ResultViewStep = 'RETURN_VIDEO' | 'RETURN' | 'NEXT_ADVENTURE' | 'LEARN';
 
 export function GameRouter({ phase, onReady, onStartCoop, onFinish, onRestart }: GameRouterProps) {
+  const { t } = useI18n();
   const [resultStep, setResultStep] = useState<ResultViewStep>('RETURN_VIDEO');
 
   const [isStationModalOpen, setIsStationModalOpen] = useState(false);
@@ -55,7 +57,7 @@ export function GameRouter({ phase, onReady, onStartCoop, onFinish, onRestart }:
     case 'RESULT': {
       const astronautName = phase.coopGroup
         ? `${phase.coopGroup.teamAlias} (${phase.coopGroup.players.map((p) => p.alias).join(', ')})`
-        : phase.payload?.setup.earthProfile?.fictionalName ?? 'Comandante Junior';
+        : phase.payload?.setup.earthProfile?.fictionalName ?? t('callsigns.juniorCommander');
 
       if (resultStep === 'LEARN') {
         return (

@@ -3,7 +3,7 @@ import { ArrowCounterClockwise, Atom, BatteryCharging, Broadcast, CheckCircle, D
 import { createTrainingOutcome, calculateTrainingCost } from '../trainingOutcome';
 import type { TrainingOutcome } from '../../../game';
 import { DONKI_HISTORICAL_EVENTS } from '../../../data/nasa/donkiData';
-import { useI18n } from '../../../i18n';
+import { msg, useI18n } from '../../../i18n';
 import { initialStormState, stormFailure, stormReducer, type StormAction } from './solarStormLogic';
 import { MinigameShell } from './ui/MinigameShell';
 import { useScreenRadio } from '../../radio';
@@ -92,7 +92,7 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
   }, [routeFor]);
 
   const tool = useMemo(
-    () => createTrainingOutcome('SOLAR_WATCH', `Protocolo CME ${eventIndex + 1}`, 'energy', calculateTrainingCost('SOLAR_WATCH', eventIndex), 'El refugio suspende operaciones durante la prueba.'),
+    () => createTrainingOutcome('SOLAR_WATCH', msg('trainingOutcomes.SOLAR_WATCH.decision', { number: eventIndex + 1 }), 'energy', calculateTrainingCost('SOLAR_WATCH', eventIndex), msg('trainingOutcomes.SOLAR_WATCH.limitation')),
     [eventIndex],
   );
   const inside = { A: state.crewA, B: state.crewB };
