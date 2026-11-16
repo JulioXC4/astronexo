@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react';
 import { ArrowRight, Planet, ShieldWarning, Sparkle } from '@phosphor-icons/react';
 import type { Backpack, Destination, NasaDataset } from '../../../game/contracts';
 import { useI18n } from '../../../i18n';
+import { CinematicTransition, arrivalVideoFor, playSound } from '../../audio';
 import { SceneScreen, SCENE_BACKGROUNDS } from './SceneScreen';
 import './earth.css';
 
@@ -15,11 +17,20 @@ interface ArrivalScreenProps {
 
 export function ArrivalScreen({ destination, astronautName, cityName, backpack, nasaData, onEnterBase }: ArrivalScreenProps) {
   const { t } = useI18n();
+  // El video de llegada se ve una vez al entrar; «Saltar» lo cierra en cualquier momento.
+  const [landing, setLanding] = useState<boolean>(true);
+  useEffect(() => {
+    if (!landing) return undefined;
+    // El aterrizaje del módulo ocurre hacia la mitad del video.
+    const timer = window.setTimeout(() => playSound('landing'), 1200);
+    return () => window.clearTimeout(timer);
+  }, [landing]);
   const tools = backpack.map((id) => t(`tools.${id}.label`));
   const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
 
   return (
     <SceneScreen background={destination === 'MOON' ? SCENE_BACKGROUNDS.moon : SCENE_BACKGROUNDS.mars}>
+      {landing && <CinematicTransition video={arrivalVideoFor(destination)} onDone={() => setLanding(false)} />}
       <main className="earth-card" style={{ maxWidth: '52rem' }}>
         <h1 className="earth-card__title">
           <Planet color="#f6c15b" weight="fill" />

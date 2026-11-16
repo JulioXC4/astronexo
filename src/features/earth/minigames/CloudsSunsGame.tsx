@@ -93,7 +93,7 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
   const cost = calculateTrainingCost('CLOUDS_SUNS', mismatch);
   const wasPassed = useRef(false);
   useEffect(() => {
-    if (passed && !wasPassed.current) playSound('success');
+    if (passed && !wasPassed.current) playSound('trainingComplete');
     wasPassed.current = passed;
   }, [passed]);
   const first = dataset.days[0].observation;
@@ -176,7 +176,7 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
 
           <div className="clouds-actions">
             <button type="button" className="mg-btn" onClick={() => changeReserve(50)}>{t('training.reset')}</button>
-            <button type="button" className="pixel-btn pixel-btn--primary clouds-test" data-target={(touched && !tested) || undefined} data-guide-below={(touched && !tested) || undefined} onClick={() => setTested(true)}>
+            <button type="button" className="pixel-btn pixel-btn--primary clouds-test" data-target={(touched && !tested) || undefined} data-guide-below={(touched && !tested) || undefined} onClick={() => { setTested(true); if (mismatch > 25) playSound('error'); }}>
               <Sparkle weight="fill" aria-hidden="true" />
               <span>{t('minigames.cloudsSuns.testBtn')}</span>
             </button>
@@ -195,10 +195,10 @@ export function CloudsSunsGame({ cityId, onComplete, onBack }: CloudsSunsGamePro
             </div>
             <button
               type="button" className="pixel-btn pixel-btn--primary clouds-confirm" data-target data-guide-below
-              onClick={() => onComplete(createTrainingOutcome(
+              onClick={() => { playSound('toolEarned'); onComplete(createTrainingOutcome(
                 'CLOUDS_SUNS', `Reserva ${reserve}% (sugerida ${recommended}%)`, 'energy', cost,
                 'Guardar reserva para días sin sol deja menos energía libre al despegar.',
-              ))}
+              )); }}
             >
               <CloudSun weight="fill" aria-hidden="true" />
               <span>{t('minigames.cloudsSuns.confirmBtn', { cost })}</span>

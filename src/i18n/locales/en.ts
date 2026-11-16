@@ -3,6 +3,7 @@ export const en = {
     back: 'Back',
     continue: 'Continue',
     close: 'Close',
+    skip: 'Skip',
     cancel: 'Cancel',
     confirm: 'Confirm',
     reset: 'Reset',

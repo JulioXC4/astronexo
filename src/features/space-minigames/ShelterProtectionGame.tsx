@@ -4,6 +4,7 @@ import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
 import { isShelterProtected, type ShelterMaterial } from './puzzleRules';
 import { qualityFromMistakes } from '../../game';
+import { playSound } from '../audio';
 
 interface ShelterProtectionGameProps {
   readonly onReadyChange: (ready: boolean, quality?: number) => void;
@@ -29,6 +30,8 @@ export function ShelterProtectionGame({ onReadyChange, onChoiceChange }: Shelter
     const nextMoves = moves + 1;
     setMoves(nextMoves);
     const complete = isShelterProtected(next);
+    // Solo suena al COLOCAR una pieza (no al quitarla); la última cierra la pared.
+    if (next.length > zones.length) playSound(complete ? 'guardShelterWall' : 'guardPlaceSupply');
     setHint(next.length === 3 && !complete ? t('interventions.puzzles.g5.priorityHint') : '');
     onReadyChange(complete, complete ? qualityFromMistakes(Math.max(0, nextMoves - 3)) : undefined);
   }

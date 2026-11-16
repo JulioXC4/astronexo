@@ -11,6 +11,7 @@ export const no = {
     back: 'Tilbake',
     continue: 'Fortsett',
     close: 'Lukk',
+    skip: 'Hopp over',
     cancel: 'Avbryt',
     confirm: 'Bekreft',
     reset: 'Tilbakestill',

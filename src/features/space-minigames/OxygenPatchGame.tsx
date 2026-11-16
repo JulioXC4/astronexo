@@ -3,6 +3,7 @@ import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
 import { isOxygenLeakResolved, leakingCompartmentForSeed } from './puzzleRules';
 import { qualityFromMistakes } from '../../game';
+import { playSound } from '../audio';
 
 interface OxygenPatchGameProps {
   readonly onReadyChange: (ready: boolean, quality?: number) => void;
@@ -23,13 +24,18 @@ export function OxygenPatchGame({ onReadyChange, seed }: OxygenPatchGameProps) {
   function isolate(index: number) {
     setIsolated(index); setPatches([false, false]); onReadyChange(false);
     if (index !== LEAKING_COMPARTMENT) setMistakes((value) => value + 1);
+    // Cerrar la escotilla correcta deja oír la fuga; la equivocada es un fallo amable.
+    playSound(index === LEAKING_COMPARTMENT ? 'guardOxygenLeak' : 'error');
     setHint(t(index === LEAKING_COMPARTMENT ? 'interventions.puzzles.g3.correctHatch' : 'interventions.puzzles.g3.wrongHatch'));
   }
   function patch(index: number) {
     if (isolated !== LEAKING_COMPARTMENT || patches[index]) return;
     const next = patches.map((value, position) => position === index ? true : value);
     setPatches(next);
-    if (isOxygenLeakResolved(isolated, LEAKING_COMPARTMENT, next)) onReadyChange(true, qualityFromMistakes(mistakes));
+    if (isOxygenLeakResolved(isolated, LEAKING_COMPARTMENT, next)) {
+      playSound('guardHatchSealed');
+      onReadyChange(true, qualityFromMistakes(mistakes));
+    }
   }
 
   return <div className={`puzzle puzzle--oxygen ${ready ? 'puzzle--success' : ''}`} aria-label={t('interventions.puzzles.g3.aria')}>

@@ -7,6 +7,7 @@ import { ResourceBar } from '../mission-control/ResourceBar';
 import { useI18n, LanguageSelector } from '../../i18n';
 import { NasaSourcesPanel } from '../nasa/NasaSourcesPanel';
 import { CollectionList, formatMinutes } from '../exploration';
+import { SoundToggle } from '../audio';
 
 interface MissionResultsViewProps {
   readonly result: MissionResult;
@@ -43,7 +44,7 @@ export function MissionResultsView({ result, onRetry, onFinish }: MissionResults
     className={`results-shell results-shell--${completed ? 'success' : 'partial'}`}
     style={background ? { backgroundImage: `linear-gradient(rgb(2 8 19 / 45%), rgb(2 8 19 / 82%)), url('${background}')` } : undefined}
   >
-    <div className="results-language"><LanguageSelector variant="hud" /></div>
+    <div className="results-language"><span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" /></span></div>
     <section className="results-hero">
       <div className="results-companion" aria-hidden="true">
         <CharacterPortrait identity={completed ? 'ALBA' : 'CHISPA'} kind={completed ? 'cadet' : 'robot'} mood={completed ? 'celebrate' : 'alert'} />

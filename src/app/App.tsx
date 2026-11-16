@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GameRouter } from './GameRouter';
 import type { SessionPhase } from './GameRouter';
 import type { EarthReadyPayload } from '../game/contracts';
 import type { LocalCoopConfig } from '../features/coop-gameplay/coop.types';
 import { I18nProvider } from '../i18n';
 import { RadioProvider } from '../features/radio';
+import { initAudio } from '../features/audio';
 
 export function App() {
   const [phase, setPhase] = useState<SessionPhase>({ kind: 'EARTH' });
   const [lastPayload, setLastPayload] = useState<EarthReadyPayload | undefined>(undefined);
   const [lastCoopGroup, setLastCoopGroup] = useState<LocalCoopConfig | undefined>(undefined);
+
+  // Un único sistema de audio para todo el juego (música, ambientes y efectos).
+  useEffect(() => { initAudio(); }, []);
 
   return (
     <I18nProvider>

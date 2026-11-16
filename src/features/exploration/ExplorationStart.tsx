@@ -29,7 +29,8 @@ export function ExplorationStart({ destination, clock, resources, onChoose }: Ex
   const roverAny = REQUIREMENTS.batteryOptions.some((battery) => canRover(resources, battery));
 
   const pick = (choice: ExplorationChoice) => {
-    playSound('click');
+    // Elegir cómo salir es elegir una tarjeta; quedarse es un botón normal.
+    if (choice.kind !== 'STAY') playSound('cardSelect');
     onChoose(choice);
   };
 

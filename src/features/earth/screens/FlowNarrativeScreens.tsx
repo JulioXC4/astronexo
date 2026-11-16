@@ -5,6 +5,7 @@ import { moduleScenes } from '../../../assets/moduleScenes';
 import { CharacterPortrait } from '../../../visual-kit/CharacterPortrait';
 import { useI18n } from '../../../i18n';
 import { useRadio, useScreenRadio } from '../../radio';
+import { playSound } from '../../audio';
 import { BuildFlowSteps, ModuleEffectChips, ModuleStatusBadge } from '../../base-builder/ModuleStatus';
 import { MODULE_CATALOG } from '../../../game';
 import { SceneScreen, SCENE_BACKGROUNDS } from './SceneScreen';
@@ -115,6 +116,7 @@ export function ConstructionProgressScreen({ destination, selectedModules, done,
   }, []);
   useEffect(() => {
     if (phase !== 'finished' || !moduleId) return;
+    playSound('reward'); // el módulo quedó terminado
     radio.say({
       speaker: 'ALBA',
       tone: 'good',

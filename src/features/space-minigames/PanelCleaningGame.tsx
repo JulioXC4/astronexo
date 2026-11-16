@@ -3,6 +3,7 @@ import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
 import { applyCleaner, panelDustForSeed, solarCapturePercent } from './puzzleRules';
 import { qualityFromRange } from '../../game';
+import { playSound } from '../audio';
 
 interface PanelCleaningGameProps {
   readonly onReadyChange: (ready: boolean, quality?: number) => void;
@@ -20,6 +21,7 @@ export function PanelCleaningGame({ onReadyChange, seed }: PanelCleaningGameProp
   const asset = (role: string) => interventionAssets.G2.find((item) => item.role === role)!.path;
   function clean(index: number) {
     if (ready || applications === 0) return;
+    playSound('guardBrushDust');
     const next = applyCleaner(dust, index); setDust(next); setApplications((value) => value - 1);
     const capturedNow = solarCapturePercent(next);
     if (capturedNow >= 85) onReadyChange(true, qualityFromRange(capturedNow, 85, 100));

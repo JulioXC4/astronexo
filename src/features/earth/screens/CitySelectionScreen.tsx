@@ -8,6 +8,7 @@ import {
   Snowflake,
   Sun,
 } from '@phosphor-icons/react';
+import { playSound, SoundToggle } from '../../audio';
 import { SUPPORTED_CITIES, type CityData } from '../../../data/nasa/cities';
 import { useI18n, LanguageSelector } from '../../../i18n';
 import { useScreenRadio } from '../../radio';
@@ -76,7 +77,7 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
           <GlobeHemisphereWest weight="fill" aria-hidden="true" />
           <span>{t('cities.stepIndicator')}</span>
         </div>
-        <LanguageSelector variant="hud" />
+        <span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" /></span>
       </header>
 
       <section className="city-selection__intro" aria-labelledby="city-selection-title">
@@ -133,7 +134,7 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
             tabIndex={selectedCityId === 'AREQUIPA' ? 0 : -1}
             data-city="AREQUIPA"
             className={selectedCityId === 'AREQUIPA' ? 'is-active' : ''}
-            onClick={() => setSelectedCityId('AREQUIPA')}
+            onClick={() => { playSound('cardSelect'); setSelectedCityId('AREQUIPA'); }}
           >
             <Sun weight="fill" aria-hidden="true" />
             <span>{t('cities.arequipa.name')}</span>
@@ -145,7 +146,7 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
             tabIndex={selectedCityId === 'TROMSO' ? 0 : -1}
             data-city="TROMSO"
             className={selectedCityId === 'TROMSO' ? 'is-active' : ''}
-            onClick={() => setSelectedCityId('TROMSO')}
+            onClick={() => { playSound('cardSelect'); setSelectedCityId('TROMSO'); }}
           >
             <Snowflake weight="fill" aria-hidden="true" />
             <span>{t('cities.tromso.name')}</span>
@@ -155,7 +156,7 @@ export function CitySelectionScreen({ initialCityId, onSelectCity, onBack }: Cit
         <button
           type="button"
           className="city-selection__confirm"
-          onClick={() => onSelectCity(selectedCity)}
+          onClick={() => { playSound('cityConfirm'); onSelectCity(selectedCity); }}
         >
           <span>{t('cities.confirmBase', { city: t(`cities.${cityKey}.name`) })}</span>
           <ArrowRight weight="bold" aria-hidden="true" />

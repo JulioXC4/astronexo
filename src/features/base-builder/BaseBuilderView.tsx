@@ -13,6 +13,7 @@ import {
 import type { ModuleSlots } from './selection';
 import { useI18n, LanguageSelector } from '../../i18n';
 import { useScreenRadio } from '../radio';
+import { playSound, SoundToggle } from '../audio';
 import { BuildFlowSteps, ModuleEffectChips, ModuleStatusBadge } from './ModuleStatus';
 import './base-builder.css';
 
@@ -39,6 +40,7 @@ export function BaseBuilderView({ destination, onStart, confirmLabel, initialMod
   const complete = isCompleteBase(slots);
 
   function chooseModule(moduleId: ModuleId) {
+    playSound('cardSelect');
     setFocusedModule(moduleId);
     const emptyIndex = slots.findIndex((slot) => slot === null);
     if (selected.includes(moduleId)) {
@@ -55,6 +57,7 @@ export function BaseBuilderView({ destination, onStart, confirmLabel, initialMod
 
   function place(slotIndex: number, moduleId: ModuleId | null = armedModule) {
     if (!moduleId) return;
+    playSound('cardSelect');
     setSlots((current) => placeModuleInSlot(current, slotIndex, moduleId));
     setFocusedModule(moduleId);
     setArmedModule(null);
@@ -75,7 +78,7 @@ export function BaseBuilderView({ destination, onStart, confirmLabel, initialMod
         <strong>{selected.length}/3</strong>
         <span>{t('baseBuilder.counterLabel').replace('/3 ', '')}</span>
       </div>
-      <LanguageSelector variant="hud" />
+      <span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" /></span>
     </header>
 
     <section

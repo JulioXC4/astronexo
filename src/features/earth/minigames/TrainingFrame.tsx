@@ -3,7 +3,7 @@ import { ArrowCounterClockwise, ArrowLeft, ArrowRight, Sparkle } from '@phosphor
 import type { QualityTier } from '../../../game';
 import { LanguageSelector, useI18n } from '../../../i18n';
 import { WorkQuality } from '../../../visual-kit/WorkQuality';
-import { playSound } from '../../audio';
+import { playSound, SoundToggle } from '../../audio';
 import { useRadio, useRadioLeave } from '../../radio';
 import '../screens/earth.css';
 import './training.css';
@@ -60,7 +60,7 @@ export function TrainingFrame({
 
   // El acierto suena una vez, en el momento en que se logra.
   useEffect(() => {
-    if (result && !wasDone.current) playSound('success');
+    if (result && !wasDone.current) playSound('trainingComplete');
     wasDone.current = Boolean(result);
   }, [result]);
 
@@ -74,7 +74,7 @@ export function TrainingFrame({
         {icon}
         <span>{title}</span>
       </div>
-      <LanguageSelector variant="hud" />
+      <span className="hud-audio-lang"><SoundToggle /><LanguageSelector variant="hud" /></span>
     </header>
 
     <main className="training__main">
@@ -96,7 +96,7 @@ export function TrainingFrame({
           <WorkQuality tier={result.tier} />
           <small>{t('training.keepAdjusting')}</small>
         </div>
-        <button type="button" className="training__kit" data-target data-guide-below onClick={() => { playSound('reward'); onConfirm(); }}>
+        <button type="button" className="training__kit" data-target data-guide-below onClick={() => { playSound('toolEarned'); onConfirm(); }}>
           <Sparkle weight="fill" aria-hidden="true" />
           <span>{t('training.kitButton', { cost: result.cost, resource: t(RESOURCE_LABEL[result.resource]).toLowerCase() })}</span>
           <ArrowRight weight="bold" aria-hidden="true" />

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { EarthFlowProps, ToolId, Destination, Backpack } from '../../game/contracts';
 import { DEFAULT_CITY, type CityData } from '../../data/nasa/cities';
 import { DEFAULT_AVATAR, SUGGESTED_CALLSIGNS, type AvatarOption } from '../../data/avatars';
@@ -8,6 +8,7 @@ import { buildEarthV3Setup } from './earthToSpace';
 import type { GameSetup, ModuleId, TrainingOutcome } from '../../game';
 import type { LocalCoopConfig } from '../coop-gameplay/coop.types';
 import { useI18n } from '../../i18n';
+import { CinematicTransition, departureVideoFor, useAudioScene, warmVideo, type AudioScene } from '../audio';
 
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CitySelectionScreen } from './screens/CitySelectionScreen';
@@ -70,6 +71,37 @@ const TRAINING_SCREENS: Readonly<Record<MissionType, EarthScreenState>> = {
   CLOUDS_SUNS: 'TRAINING_CLOUDS',
 };
 
+/** Música y ambiente de cada pantalla. Los entrenamientos no usan la música de tensión: no hay presión real de tiempo. */
+function audioSceneFor(screen: EarthScreenState, destination: Destination, cityId: CityData['id']): AudioScene {
+  switch (screen) {
+    case 'WELCOME': return { music: 'welcome' };
+    case 'DESTINATION':
+    case 'CITY':
+    case 'AVATAR': return { music: 'selection' };
+    case 'BUILDER':
+    case 'STATION_PREP': return { music: 'builder' };
+    case 'BRIEFING':
+    case 'LEARN': return { music: 'briefing' };
+    // El avance de obra entre entrenamientos es un paso breve del mapa: conserva su música.
+    case 'CONSTRUCTION':
+    case 'MAP':
+      return cityId === 'TROMSO'
+        ? { music: 'mapTromso', ambient: 'polarNight' }
+        : { music: 'mapArequipa' };
+    case 'TRAINING_DARK_MONTHS':
+    case 'TRAINING_ARCTIC': return { music: 'training', ambient: 'polarNight' };
+    case 'TRAINING_SOLAR':
+    case 'TRAINING_DONKI':
+    case 'TRAINING_ALTITUDE':
+    case 'TRAINING_ECLSS':
+    case 'TRAINING_VEGGIE':
+    case 'TRAINING_CLOUDS': return { music: 'training' };
+    case 'LIFTOFF': return { music: 'travel', ambient: 'cabin' };
+    case 'ARRIVAL': return { music: 'travel' };
+    case 'MONITOR': return { music: destination === 'MARS' ? 'baseMars' : 'baseMoon', ambient: 'cabin' };
+  }
+}
+
 interface EarthFlowFullProps extends EarthFlowProps {
   /** Grupo cooperativo local que ya aceptó el recorrido completo (opcional). */
   readonly coopGroup?: LocalCoopConfig;
@@ -93,6 +125,16 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
   const [backpack, setBackpack] = useState<Backpack | null>(null);
   // Solo para la confirmación visual del mapa al volver de un entrenamiento recién completado.
   const [justCompletedMission, setJustCompletedMission] = useState<MissionType | null>(null);
+
+  // Video de reclutamiento opcional tras «Jugar»: se monta solo mientras suena.
+  const [recruitPlaying, setRecruitPlaying] = useState<boolean>(false);
+
+  useAudioScene(audioSceneFor(screen, destination, city.id));
+
+  // El usuario se acerca al despegue (2 de 3 entrenamientos): se avisa al navegador del video de salida.
+  useEffect(() => {
+    if (completedMissions.length >= 2) warmVideo(departureVideoFor(city.id));
+  }, [completedMissions.length, city.id]);
 
   function navigateTo(nextScreen: EarthScreenState) {
     // Mantiene la celebración al pasar por el avance de obra y la limpia
@@ -172,10 +214,14 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
       return (
         <>
           <WelcomeScreen
-            onPlay={() => navigateTo('DESTINATION')}
+            onPlay={() => setRecruitPlaying(true)}
             onOpenStation={() => setIsStationModalOpen(true)}
             onOpenLearn={() => navigateTo('LEARN')}
           />
+          {recruitPlaying && <CinematicTransition
+            video="recruit"
+            onDone={() => { setRecruitPlaying(false); navigateTo('DESTINATION'); }}
+          />}
           <StationModeModal
             isOpen={isStationModalOpen}
             onClose={() => setIsStationModalOpen(false)}
@@ -330,6 +376,7 @@ export function EarthFlow({ onReady, onStartCoop, coopGroup: initialCoopGroup }:
           destination={destination}
           astronautName={fictionalName}
           cityName={city.name}
+          cityId={city.id}
           backpack={backpack}
           onProceedToArrival={() => navigateTo('ARRIVAL')}
         />

@@ -12,6 +12,7 @@ export const qu = {
     back: 'Kutiy',
     continue: 'Ñawpariy',
     close: 'Wichqay',
+    skip: 'Pasay',
     cancel: 'Tatikuy',
     confirm: 'Taqyaychay',
     reset: 'Musuqmanta qallariy',

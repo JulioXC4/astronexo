@@ -3,6 +3,7 @@ import type { Destination } from '../../game';
 import { useI18n } from '../../i18n';
 import { interventionAssets } from '../../assets/interventionAssets';
 import { qualityFromMistakes } from '../../game';
+import { playSound } from '../audio';
 import { isScienceClassificationValid, isScienceObservationValid, scienceSamples, type ScienceClassId, type ScienceInstrumentId, type ScienceSampleId } from './puzzleRules';
 
 interface ScienceResearchGameProps { readonly destination: Destination; readonly onReadyChange: (ready: boolean, quality?: number) => void; }
@@ -37,6 +38,7 @@ export function ScienceResearchGame({ destination, onReadyChange }: ScienceResea
   function classify(classification: ScienceClassId) {
     if (!round || !observed) return;
     if (!isScienceClassificationValid(round, classification)) { setHint(t('interventions.puzzles.g6.classificationHint')); setMistakes((value) => value + 1); return; }
+    playSound('guardSampleAnalyzed');
     const next = [...completedSamples, round.sample]; setCompletedSamples(next);
     if (next.length === 2) { setHint(t('interventions.puzzles.g6.success')); onReadyChange(true, qualityFromMistakes(mistakes)); }
     else { setSelectedSample(null); setObserved(false); setInstrument(null); setHint(t('interventions.puzzles.g6.nextRound')); }

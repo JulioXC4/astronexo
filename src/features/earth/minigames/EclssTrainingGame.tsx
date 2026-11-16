@@ -6,6 +6,8 @@ import { LiveMeter } from '../../../visual-kit/LiveMeter';
 import type { TrainingOutcome } from '../../../game';
 import { calculateTrainingCost, createTrainingOutcome } from '../trainingOutcome';
 import { TrainingFrame } from './TrainingFrame';
+import { playSound } from '../../audio';
+import { useThrottledSound } from './ui/useThrottledSound';
 import {
   ECLSS, eclssCo2, eclssCost, eclssDone, eclssOxygen, eclssTotalPower, tierFromCost, type EclssState,
 } from './trainingRules';
@@ -30,6 +32,7 @@ const o2Ratio = (o2: number) => (o2 - O2_MIN) / (O2_MAX - O2_MIN);
 export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps) {
   const { t } = useI18n();
   const [state, setState] = useState<EclssState>(START);
+  const dialSound = useThrottledSound(700);
   const o2 = eclssOxygen(state);
   const co2 = eclssCo2(state);
   const total = eclssTotalPower(state);
@@ -75,7 +78,7 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
       min={ECLSS.wattsMin}
       max={ECLSS.wattsMax}
       step={10}
-      onChange={(watts) => setState((s) => ({ ...s, watts }))}
+      onChange={(watts) => { dialSound('eclssElectrolysis'); setState((s) => ({ ...s, watts })); }}
       target={target === 'power'}
       display={`${state.watts} W`}
     />
@@ -85,13 +88,13 @@ export function EclssTrainingGame({ onComplete, onBack }: EclssTrainingGameProps
       min={ECLSS.recycleMin}
       max={ECLSS.recycleMax}
       step={2}
-      onChange={(recycle) => setState((s) => ({ ...s, recycle }))}
+      onChange={(recycle) => { dialSound('eclssWaterRecycler'); setState((s) => ({ ...s, recycle })); }}
       target={target === 'recycle'}
       display={`${state.recycle}%`}
     />
     <div className="train-switch" data-target={target === 'scrubber' || undefined}>
       <strong>{t('training.eclss.scrubber')}</strong>
-      <button type="button" aria-pressed={state.scrubber} onClick={() => setState((s) => ({ ...s, scrubber: !s.scrubber }))}>
+      <button type="button" aria-pressed={state.scrubber} onClick={() => { if (!state.scrubber) playSound('eclssCo2Filter'); setState((s) => ({ ...s, scrubber: !s.scrubber })); }}>
         {t(state.scrubber ? 'training.eclss.scrubberOn' : 'training.eclss.scrubberOff')}
       </button>
     </div>

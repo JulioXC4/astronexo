@@ -4,6 +4,7 @@ import { useI18n } from '../../../i18n';
 import type { TrainingOutcome } from '../../../game';
 import { calculateTrainingCost, createTrainingOutcome } from '../trainingOutcome';
 import { TrainingFrame } from './TrainingFrame';
+import { playSound } from '../../audio';
 import {
   POLAR, POLAR_START, moveToken, polarCost, polarDone, tierFromCost, type PolarState,
 } from './trainingRules';
@@ -53,6 +54,8 @@ export function DarkMonthsGame({ onComplete, onBack }: DarkMonthsGameProps) {
       if (state[place] > 0) setPicked(place);
       return;
     }
+    // Llevar energía a la calefacción la enciende a la vista.
+    if (place === 'heat' && picked !== place) playSound('darkHeater');
     setState((current) => moveToken(current, picked, place));
     setPicked(null);
   }

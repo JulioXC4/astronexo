@@ -3,6 +3,7 @@ export const es = {
     back: 'Volver',
     continue: 'Continuar',
     close: 'Cerrar',
+    skip: 'Saltar',
     cancel: 'Cancelar',
     confirm: 'Confirmar',
     reset: 'Reiniciar',

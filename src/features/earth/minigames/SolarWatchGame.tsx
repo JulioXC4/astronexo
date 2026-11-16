@@ -7,6 +7,7 @@ import { useI18n } from '../../../i18n';
 import { initialStormState, stormFailure, stormReducer, type StormAction } from './solarStormLogic';
 import { MinigameShell } from './ui/MinigameShell';
 import { useScreenRadio } from '../../radio';
+import { playSound } from '../../audio';
 import './solarStorm.css';
 
 interface Props { readonly onComplete: (outcome: TrainingOutcome) => void; readonly onBack: () => void }
@@ -60,6 +61,21 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
   const act = (action: StormAction) => dispatch(action);
   const reset = () => { dispatch('reset'); completed.current = false; setRouteFor(null); setFreeFirst({ A: Math.random() < 0.5, B: Math.random() < 0.5 }); };
 
+  // La alerta de tormenta se muestra al abrir el entrenamiento: suena una vez.
+  useEffect(() => { playSound('donkiStormAlert'); }, []);
+  // Cada preparación que de verdad cambia el refugio suena al ocurrir (deshacer y reiniciar, no).
+  const previous = useRef(state);
+  useEffect(() => {
+    const before = previous.current;
+    previous.current = state;
+    if (!before.alarm && state.alarm) playSound('alarm');
+    else if ((!before.crewA && state.crewA) || (!before.crewB && state.crewB)) playSound('step');
+    else if (state.feedback === 'blockedRoute' && state.actions < before.actions) playSound('error');
+    else if (!before.backup && state.backup) playSound('solarBatteryFull');
+    else if (!before.hatch && state.hatch) playSound('altitudeHatchClose');
+    else if (!before.telemetry && state.telemetry) playSound('altitudeSeal');
+    if (before.phase !== 'result' && state.phase === 'result') playSound(stormFailure(state) ? 'trainingFailed' : 'trainingComplete');
+  }, [state]);
   useEffect(() => {
     if (state.phase !== 'impact') return undefined;
     const timer = window.setTimeout(() => dispatch('resolve'), 1600);
@@ -300,7 +316,7 @@ export function SolarWatchGame({ onComplete, onBack }: Props) {
           <p><strong>{tr('learn')}:</strong> {safe ? tr('successLearn') : tr('failureLesson')} {safe ? tr(`sacrifice${state.packets}`) : ''}</p>
           {safe && <p>{tr('tool')}: {tr('shelterKit')} · {tr('cost')}: {tool.cost}</p>}
           <div className="storm-result__actions">
-            {safe && <button className="pixel-btn pixel-btn--primary storm-finish" type="button" onClick={() => { if (completed.current) return; completed.current = true; onComplete(tool); }}>{tr('finish')}</button>}
+            {safe && <button className="pixel-btn pixel-btn--primary storm-finish" type="button" onClick={() => { if (completed.current) return; completed.current = true; playSound('toolEarned'); onComplete(tool); }}>{tr('finish')}</button>}
             <button type="button" className="mg-btn storm-retry" onClick={reset}>{tr('retry')}</button>
           </div>
         </section>

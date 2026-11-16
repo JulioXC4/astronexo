@@ -11,6 +11,8 @@ import {
 } from '../../game';
 import type { GameAction, GameSetup, MissionResult, MissionState, ModuleId } from '../../game';
 import { useI18n } from '../../i18n';
+import { playSound } from '../audio';
+import { useGuardAudio } from '../space/useGuardAudio';
 import { BaseBuilderView } from '../base-builder';
 import { ExplorationEvent } from '../exploration';
 import { CoopMissionResults } from './CoopMissionResults';
@@ -61,6 +63,12 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
   const [summary, setSummary] = useState<TurnSummaryData | null>(null);
   const [pendingTransition, setPendingTransition] = useState<string | null>(null);
 
+  // Música, ambiente y avisos de la guardia (no altera el estado de la partida).
+  useGuardAudio(mission, setup.destination, !mission ? 'builder'
+    : summary || transition ? 'between'
+      : exploration ? 'exploration'
+        : getMissionResult(mission) ? 'result' : 'play');
+
   const setupErrors = [
     ...(setup.mode === 'LOCAL_COOP' ? [] : ['GameSetup debe usar mode: LOCAL_COOP.']),
     ...(setupCanBeCompleted ? [] : ['La configuración canónica de misión es inválida.']),
@@ -110,6 +118,7 @@ export function CoopSpaceGame({ setup, group, onFinish }: CoopSpaceGameProps) {
       : next.clockLabel;
     const data = collectTurnSummary(mission, t);
     setSummary(data);
+    if (next.outcome !== 'INTERRUPTED') playSound('guardTurnPassed');
     if (shouldOfferExploration(completedTurn, next)) {
       setExploration({ turn: completedTurn, clock: data.clock, nextClock: clockLabel });
       return;
