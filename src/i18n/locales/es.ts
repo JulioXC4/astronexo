@@ -31,6 +31,18 @@ export const es = {
   },
 
   sound: { on: 'Activar sonido', off: 'Silenciar' },
+  turnSummary: {
+    kicker: 'FIN DEL TURNO {turn}',
+    title: 'Qué pasó · {clock}',
+    whatYouDid: 'Lo que hiciste:',
+    nothing: 'Nada: dejaste que el turno pasara.',
+    whatYouLeft: 'Lo que dejaste sin atender:',
+    barsTitle: 'Cómo quedaron tus barras',
+    noChange: 'Nada cambió en este turno.',
+    nowAt: 'queda en {value}',
+    next: 'Siguiente turno',
+    report: 'Ver el informe',
+  },
   discovery: {
     starLabel: 'Estrella dorada escondida',
     found: '¡Estrella dorada! +3 de Ciencia. {fact}',

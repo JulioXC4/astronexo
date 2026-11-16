@@ -31,6 +31,18 @@ export const en = {
   },
 
   sound: { on: 'Turn sound on', off: 'Mute' },
+  turnSummary: {
+    kicker: 'END OF TURN {turn}',
+    title: 'What happened · {clock}',
+    whatYouDid: 'What you did:',
+    nothing: 'Nothing: you let the turn go by.',
+    whatYouLeft: 'What you left unattended:',
+    barsTitle: 'How your bars ended up',
+    noChange: 'Nothing changed this turn.',
+    nowAt: 'now at {value}',
+    next: 'Next turn',
+    report: 'See the report',
+  },
   discovery: {
     starLabel: 'Hidden golden star',
     found: 'Golden star! +3 Science. {fact}',

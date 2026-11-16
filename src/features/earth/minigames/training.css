@@ -1,11 +1,13 @@
 /* Entrenamientos de la Tierra: escena grande + controles que se tocan + premio. */
-.training { padding: .7rem 1rem 1.4rem; }
-.training__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .7rem; }
-.training__main { display: grid; gap: .8rem; max-width: 66rem; margin: 0 auto; }
+/* Todo cabe en la pantalla: un niño no debería tener que hacer scroll para ver
+   si ganó. La escena se encoge y el premio aparece abajo, siempre visible. */
+.training { display: flex; flex-direction: column; gap: .5rem; height: 100dvh; overflow: hidden; padding: .6rem 1rem .8rem; }
+.training__header { display: flex; flex: 0 0 auto; justify-content: space-between; align-items: center; }
+.training__main { display: grid; flex: 1 1 auto; grid-template-rows: minmax(0, 1fr) auto auto; gap: .6rem; width: 100%; max-width: 66rem; min-height: 0; margin: 0 auto; }
 
 .training__scene {
   position: relative;
-  min-height: 19rem;
+  min-height: 0;
   overflow: hidden;
   border: 3px solid #365e8c;
   background: radial-gradient(ellipse at 50% 25%, #1a3148 0%, #091520 100%);
@@ -25,19 +27,16 @@
   background: #132338;
 }
 .training__panel { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 1.2rem 2rem; grid-column: 1 / -1; }
-.training__hint { grid-column: 1; margin: 0; color: #cfe4ff; font-size: .95rem; font-weight: 700; line-height: 1.35; }
+.training__hint { grid-column: 1; margin: 0; color: #cfe4ff; font-size: 1.05rem; font-weight: 700; line-height: 1.35; }
 .training__hint--done { color: #69f0ae; }
 .training__reset {
   display: inline-flex; align-items: center; gap: .35rem;
   padding: .4rem .7rem; border: 2px solid #4a6a8c; color: #cfe4ff; background: transparent;
-  font: inherit; font-size: .8rem; font-weight: 800; cursor: pointer;
+  font: inherit; font-size: 0.976rem; font-weight: 800; cursor: pointer;
 }
 .training__reset:hover { border-color: #65d9ef; color: #fff; }
 
 .training__result {
-  position: sticky;
-  bottom: .5rem;
-  z-index: 6;
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1rem;
   padding: .9rem 1rem; border: 3px solid #5bbd78; background: #122e23;
   animation: training-pop 360ms cubic-bezier(.2, 1.5, .4, 1) both;
@@ -49,7 +48,7 @@
   display: inline-flex; align-items: center; gap: .5rem;
   padding: .8rem 1.4rem; border: 3px solid #a65e21; border-radius: 0;
   color: #101d2d; background: #ffc14f; box-shadow: 0 .35rem 0 #a65e21;
-  font: inherit; font-size: 1rem; font-weight: 900; cursor: pointer;
+  font: inherit; font-size: 1.05rem; font-weight: 900; cursor: pointer;
 }
 .training__kit:hover { transform: translateY(-2px); }
 .training__kit:active { transform: translateY(2px); box-shadow: 0 .1rem 0 #a65e21; }
@@ -57,17 +56,17 @@
 
 /* Selector de varias opciones (agua, luces...) */
 .train-choice { display: grid; gap: .3rem; justify-items: center; }
-.train-choice > strong { font-size: .8rem; color: #9bc0e4; }
+.train-choice > strong { font-size: 0.976rem; color: #9bc0e4; }
 .train-choice__row { display: flex; flex-wrap: wrap; justify-content: center; gap: .35rem; }
 .train-choice__row button {
   padding: .5rem .8rem; border: 2px solid #4a6a8c; color: #cfe4ff; background: #0f2135;
-  font: inherit; font-size: .85rem; font-weight: 800; cursor: pointer;
+  font: inherit; font-size: 1.037rem; font-weight: 800; cursor: pointer;
 }
 .train-choice__row button[aria-pressed="true"] { border-color: #ffe16f; color: #101d2d; background: #ffc14f; }
 
 /* Interruptor de dos posiciones */
 .train-switch { display: grid; gap: .3rem; justify-items: center; }
-.train-switch > strong { font-size: .8rem; color: #9bc0e4; }
+.train-switch > strong { font-size: 0.976rem; color: #9bc0e4; }
 .train-switch button {
   min-width: 8rem; padding: .6rem .9rem; border: 3px solid #4a6a8c; color: #cfe4ff; background: #0f2135;
   font: inherit; font-weight: 900; cursor: pointer;
@@ -88,7 +87,7 @@
   border: 3px solid #4a6a8c; color: #fff; background: rgb(10 21 34 / 92%); font: inherit; cursor: pointer;
 }
 .polar__place strong { font-family: 'Fredoka', sans-serif; font-size: 1.1rem; }
-.polar__place em { font-style: normal; font-size: .8rem; font-weight: 800; }
+.polar__place em { font-style: normal; font-size: 0.976rem; font-weight: 800; }
 .polar__lamp { width: 1.4rem; height: 1.4rem; border-radius: 50%; border: 3px solid #fff; background: #d04a3a; }
 .polar__place.is-on .polar__lamp { background: #3fae6a; box-shadow: 0 0 14px #3fae6a; }
 .polar__place.is-on em { color: #69f0ae; }
@@ -104,7 +103,7 @@
 .clouds__days { display: flex; align-items: flex-end; gap: 1.4rem; }
 .clouds__day { display: grid; justify-items: center; gap: .25rem; width: 7rem; text-align: center; color: #d1e4f6; }
 .clouds__day strong { font-family: 'Fredoka', sans-serif; font-size: 1.1rem; color: #ffd57a; }
-.clouds__day small { font-size: .74rem; line-height: 1.2; }
+.clouds__day small { font-size: 0.903rem; line-height: 1.2; }
 .clouds__bar { display: flex; align-items: flex-end; width: 4.4rem; height: 11rem; border: 3px solid #dfeef0; background: #0a1522; }
 .clouds__bar span { display: block; width: 100%; background: linear-gradient(#ffd57a, #e8b04a); }
 .clouds__battery { display: grid; justify-items: center; gap: .25rem; }
@@ -121,8 +120,8 @@
   display: grid; justify-items: center; gap: .1rem; min-width: 7.5rem; padding: .5rem .7rem;
   border: 3px solid #d04a3a; color: #fff; background: rgb(51 26 26 / 92%); font: inherit; cursor: pointer;
 }
-.chamber__seal strong { font-size: .82rem; }
-.chamber__seal span { font-size: .72rem; font-weight: 800; color: #ff8a80; }
+.chamber__seal strong { font-size: 1.0rem; }
+.chamber__seal span { font-size: 0.878rem; font-weight: 800; color: #ff8a80; }
 .chamber__seal.is-closed { border-color: #3fae6a; background: rgb(18 46 35 / 92%); }
 .chamber__seal.is-closed span { color: #69f0ae; }
 .chamber__seal:hover { border-color: #ffe16f; }
@@ -133,3 +132,8 @@
 @keyframes eclss-dash { to { stroke-dashoffset: -24; } }
 @media (prefers-reduced-motion: reduce) { .eclss-flow { animation: none; } }
 @media (max-width: 640px) { .clouds { flex-direction: column; align-items: center; gap: 1rem; } .clouds__days { gap: .6rem; } .clouds__day { width: 5.2rem; } }
+
+/* El premio es la salida de la pantalla: botón grande con flecha. */
+.training__kit svg:last-child { width: 1.5rem; height: 1.5rem; }
+.training__controls { flex: 0 0 auto; }
+.training__panel { max-height: 100%; overflow: visible; }

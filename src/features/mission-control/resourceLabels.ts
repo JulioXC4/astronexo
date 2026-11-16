@@ -18,6 +18,12 @@ export interface ReadableChange {
 }
 
 /**
+ * La eficiencia solar no es una de las barras que el niño ve: mostrarla junto a
+ * «ENERGÍA −5» solo añade ruido. Su efecto llega igual, como menos energía.
+ */
+const HIDDEN_FROM_KIDS = new Set(['solarEfficiency']);
+
+/**
  * Convierte un ResourceDelta en una lista legible y ordenada: primero lo que
  * más duele. Sirve para que el costo de no actuar se vea con número, no con
  * una frase cualitativa.
@@ -25,7 +31,7 @@ export interface ReadableChange {
 export function readableChanges(delta: ResourceDelta | undefined): readonly ReadableChange[] {
   if (!delta) return [];
   return Object.entries(delta)
-    .filter(([, value]) => typeof value === 'number' && value !== 0)
+    .filter(([key, value]) => typeof value === 'number' && value !== 0 && !HIDDEN_FROM_KIDS.has(key))
     .map(([key, value]) => ({ key, labelKey: RESOURCE_LABELS[key] ?? key, value: value as number }))
     .sort((a, b) => a.value - b.value);
 }

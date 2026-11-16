@@ -21,7 +21,7 @@ export function DestinationScreen({ initialDestination, onSelectDestination, onB
   const marsSelected = selectedDest === 'MARS';
 
   return (
-    <div className="earth-screen" style={{ padding: '0.8rem 1.2rem' }}>
+    <div className="earth-screen earth-screen--fit" style={{ padding: '0.8rem 1.2rem' }}>
       <header className="earth-screen__header">
         <button type="button" className="earth-screen__back-btn" onClick={onBack}>
           <ArrowLeft weight="bold" />
@@ -34,8 +34,8 @@ export function DestinationScreen({ initialDestination, onSelectDestination, onB
         <LanguageSelector variant="hud" />
       </header>
 
-      <main className="earth-card" style={{ maxWidth: '68rem', padding: '1.4rem' }}>
-        <div style={{ marginBottom: '1.2rem' }}>
+      <main className="earth-card" style={{ maxWidth: '68rem', padding: 'clamp(0.7rem, 2vh, 1.4rem)' }}>
+        <div style={{ marginBottom: 'clamp(0.5rem, 1.5vh, 1.2rem)' }}>
           <h1 className="earth-card__title" style={{ fontSize: '1.75rem', margin: 0 }}>
             <RocketLaunch color="#f6c15b" weight="fill" />
             <span>{t('destinations.title')}</span>
@@ -219,7 +219,7 @@ export function DestinationScreen({ initialDestination, onSelectDestination, onB
         {/* ------------------------------------------------------------- */}
         {/* BOTÓN DE ACCIÓN                                               */}
         {/* ------------------------------------------------------------- */}
-        <div style={{ marginTop: '1.4rem', display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ marginTop: 'clamp(0.5rem, 1.5vh, 1.4rem)', display: 'flex', justifyContent: 'flex-end' }}>
           <button
             type="button"
             className="pixel-btn pixel-btn--primary"

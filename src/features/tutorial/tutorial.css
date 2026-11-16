@@ -6,11 +6,11 @@
 .tutorial-coach__dialog--alert { border-color:#ff8b79; background-image:url('/assets/space/ui/alert-frame.png'); }
 .tutorial-coach__portrait { align-self:end; width:6.2rem; height:7.2rem; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 4px 0 rgb(0 0 0 / 35%)); }
 .tutorial-coach__copy { align-self:center; min-width:0; padding:.35rem .4rem; background:rgb(2 8 19 / 78%); }
-.tutorial-coach__copy strong { color:#ffd45c; font:700 1rem "Fredoka",sans-serif; }
+.tutorial-coach__copy strong { color:#ffd45c; font:700 1.05rem "Fredoka",sans-serif; }
 .tutorial-coach__copy p { margin:.25rem 0; font-size:clamp(.9rem,2vw,1.05rem); font-weight:800; line-height:1.35; }
-.tutorial-coach__copy>span { color:#9fd8e5; font-size:.68rem; font-weight:900; }
+.tutorial-coach__copy>span { color:#9fd8e5; font-size:0.83rem; font-weight:900; }
 .tutorial-coach__actions { grid-column:1/-1; display:flex; justify-content:flex-end; align-items:center; gap:.55rem; }
-.tutorial-coach__actions button,.tutorial-coach__close,.tutorial-help-button { min-height:2.7rem; border:3px solid #6f92a3; color:#fff; background:#173e5c; font:900 .78rem "Nunito",sans-serif; cursor:pointer; }
+.tutorial-coach__actions button,.tutorial-coach__close,.tutorial-help-button { min-height:2.7rem; border:3px solid #6f92a3; color:#fff; background:#173e5c; font:900 0.952rem "Nunito",sans-serif; cursor:pointer; }
 .tutorial-coach__skip { padding:.45rem .7rem; }
 .tutorial-coach__next { display:inline-flex; align-items:center; gap:.4rem; padding:.45rem .75rem; border-color:#fff0a1!important; color:#071426!important; background:#ffd45c!important; }
 .tutorial-coach__next img { width:1.45rem; height:1.45rem; object-fit:contain; image-rendering:pixelated; }
@@ -25,7 +25,7 @@
 @media (max-width:600px) {
   .tutorial-coach__dialog { grid-template-columns:4.5rem minmax(0,1fr); padding:.7rem; }
   .tutorial-coach__portrait { width:4.5rem; height:5.8rem; }
-  .tutorial-coach__copy p { font-size:.88rem; }
+  .tutorial-coach__copy p { font-size:1.05rem; }
 }
 
 @media (prefers-reduced-motion:reduce) {
