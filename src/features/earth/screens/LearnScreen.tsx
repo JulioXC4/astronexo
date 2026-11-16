@@ -1,6 +1,7 @@
-import { ArrowLeft, BookOpen, Sun, ShieldWarning, Wind, Plant, Globe } from '@phosphor-icons/react';
-import { useI18n, LanguageSelector } from '../../../i18n';
+import { BookOpen, Sun, ShieldWarning, Wind, Plant, Globe } from '@phosphor-icons/react';
+import { useI18n } from '../../../i18n';
 import { NasaSourcesPanel } from '../../nasa/NasaSourcesPanel';
+import { SceneScreen, SCENE_BACKGROUNDS } from './SceneScreen';
 import './earth.css';
 
 interface LearnScreenProps {
@@ -33,85 +34,31 @@ const LEARN_TOPICS_CONFIG = [
 export function LearnScreen({ onBack }: LearnScreenProps) {
   const { t } = useI18n();
   return (
-    <div className="earth-screen">
-      <header className="earth-screen__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button type="button" className="earth-screen__back-btn" onClick={onBack}>
-          <ArrowLeft weight="bold" />
-          <span>{t('common.back')}</span>
-        </button>
-        <div className="earth-screen__progress-pill">
-          <BookOpen weight="fill" color="#f6c15b" />
-          <span>{t('learn.title')}</span>
-        </div>
-        <LanguageSelector variant="hud" />
-      </header>
-
+    <SceneScreen background={SCENE_BACKGROUNDS.briefingRoom} onBack={onBack} status={<><BookOpen weight="fill" aria-hidden="true" /> {t('learn.title')}</>}>
       <main className="earth-card" style={{ maxWidth: '56rem' }}>
         <h1 className="earth-card__title">
           <BookOpen color="#f6c15b" weight="fill" />
           <span>{t('learn.title')}</span>
         </h1>
-        <p className="earth-card__subtitle">
-          {t('learn.subtitle')}
-        </p>
+        <p className="earth-card__subtitle">{t('learn.subtitle')}</p>
 
-        <div style={{ display: 'grid', gap: '1.2rem', margin: '1.5rem 0' }}>
-          {LEARN_TOPICS_CONFIG.map((topic, i) => {
+        <div style={{ display: 'grid', gap: '1rem', margin: '1.2rem 0' }}>
+          {LEARN_TOPICS_CONFIG.map((topic) => {
             const title = t(`learn.topics.${topic.key}.title`);
             const source = t(`learn.topics.${topic.key}.source`);
             const summary = t(`learn.topics.${topic.key}.summary`);
             return (
-              <article
-                key={i}
-                style={{
-                  background: '#15263a',
-                  border: '1px solid #33547d',
-                  borderRadius: '1rem',
-                  padding: '1.4rem',
-                  display: 'flex',
-                  gap: '1.2rem',
-                  alignItems: 'flex-start'
-                }}
-              >
-                <div style={{
-                  background: '#1f3854',
-                  padding: '0.8rem',
-                  borderRadius: '0.8rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  {topic.icon}
-                </div>
+              <article key={topic.key} className="scene-topic">
+                <div className="scene-topic__icon" aria-hidden="true">{topic.icon}</div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    <h2 style={{ margin: 0, fontFamily: 'Fredoka', fontSize: '1.25rem', color: '#ffffff' }}>
-                      {title}
-                    </h2>
-                    <a
-                      href={topic.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{
-                        fontSize: '0.85rem',
-                        color: '#f6c15b',
-                        textDecoration: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.3rem',
-                        fontWeight: 700
-                      }}
-                    >
-                      <Globe size={16} /> {t('learn.viewOnNasaGov')}
+                  <div className="scene-topic__head">
+                    <h2>{title}</h2>
+                    <a className="scene-topic__link" href={topic.url} target="_blank" rel="noreferrer">
+                      <Globe size={16} aria-hidden="true" /> {t('learn.viewOnNasaGov')}
                     </a>
                   </div>
-                  <span style={{ fontSize: '0.82rem', color: '#7cb5c8', fontWeight: 700, display: 'block', margin: '0.2rem 0 0.6rem 0' }}>
-                    {t('learn.officialSource', { source })}
-                  </span>
-                  <p style={{ margin: 0, color: '#c5d8ea', fontSize: '0.92rem', lineHeight: '1.5' }}>
-                    {summary}
-                  </p>
+                  <span className="scene-topic__source">{t('learn.officialSource', { source })}</span>
+                  <p>{summary}</p>
                 </div>
               </article>
             );
@@ -120,12 +67,12 @@ export function LearnScreen({ onBack }: LearnScreenProps) {
 
         <NasaSourcesPanel />
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
+        <div className="scene-actions">
           <button type="button" className="earth-action-btn" onClick={onBack}>
             <span>{t('learn.closeBtn')}</span>
           </button>
         </div>
       </main>
-    </div>
+    </SceneScreen>
   );
 }

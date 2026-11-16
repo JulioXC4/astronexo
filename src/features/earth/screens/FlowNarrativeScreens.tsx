@@ -3,10 +3,11 @@ import { ArrowRight, Hammer, FastForward } from '@phosphor-icons/react';
 import type { Destination, ModuleId } from '../../../game';
 import { moduleScenes } from '../../../assets/moduleScenes';
 import { CharacterPortrait } from '../../../visual-kit/CharacterPortrait';
-import { useI18n, LanguageSelector } from '../../../i18n';
+import { useI18n } from '../../../i18n';
 import { useRadio, useScreenRadio } from '../../radio';
 import { BuildFlowSteps, ModuleEffectChips, ModuleStatusBadge } from '../../base-builder/ModuleStatus';
 import { MODULE_CATALOG } from '../../../game';
+import { SceneScreen, SCENE_BACKGROUNDS } from './SceneScreen';
 import './earth.css';
 
 const AUTO_ADVANCE_MS = 6000;
@@ -25,17 +26,16 @@ interface BubbleProps {
   readonly lines: readonly string[];
 }
 
+/** Una línea de diálogo de personaje: la misma pieza visual que el briefing y las consolas. */
 function Bubble({ identity, name, lines }: BubbleProps) {
   return (
-    <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'flex-start', textAlign: 'left' }}>
-      <div className="briefing-portrait" aria-hidden="true">
+    <div className={`scene-dialog__line scene-dialog__line--${identity.toLowerCase()}`}>
+      <span className="scene-dialog__thumb" aria-hidden="true">
         <CharacterPortrait identity={identity} kind={identity === 'CHISPA' ? 'robot' : 'cadet'} label={name} />
-      </div>
-      <div style={{ background: '#1c3452', border: '2px solid #3c6594', borderRadius: '0.4rem 1.2rem 1.2rem 1.2rem', padding: '0.8rem 1.1rem', flex: 1 }}>
-        <strong style={{ color: '#f6c15b', fontFamily: 'Fredoka', display: 'block', marginBottom: '0.2rem' }}>{name}</strong>
-        {lines.map((line) => (
-          <p key={line} style={{ margin: '0.15rem 0', color: '#e3effb', fontSize: '1rem', lineHeight: 1.4 }}>«{line}»</p>
-        ))}
+      </span>
+      <div>
+        <strong>{name}</strong>
+        {lines.map((line) => <p key={line}>«{line}»</p>)}
       </div>
     </div>
   );
@@ -54,25 +54,25 @@ export function StationPrepScreen({ destination, onContinue }: StationPrepScreen
   useAutoAdvance(onContinue);
   const destName = destination === 'MOON' ? t('destinations.moon.name') : t('destinations.mars.name');
   return (
-    <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', maxWidth: '48rem' }}><LanguageSelector variant="hud" /></div>
-      <main className="earth-card" style={{ maxWidth: '48rem', textAlign: 'center', padding: '1.4rem' }} aria-live="polite">
+    <SceneScreen background={destination === 'MOON' ? SCENE_BACKGROUNDS.moonBuilder : SCENE_BACKGROUNDS.marsBuilder}>
+      <main className="earth-card" style={{ maxWidth: '48rem', textAlign: 'center' }} aria-live="polite">
         <span className="pixel-kicker">{t('stationPrep.kicker')}</span>
-        <h1 className="earth-card__title" style={{ justifyContent: 'center', fontSize: '1.6rem' }}>
+        <h1 className="earth-card__title" style={{ justifyContent: 'center' }}>
           <Hammer color="#f6c15b" weight="fill" />
           <span>{t('stationPrep.title', { destination: destName })}</span>
         </h1>
-        <Bubble identity="ALBA" name={t('avatars.alba.name')} lines={[t('stationPrep.line1')]} />
-        <div style={{ height: '0.8rem' }} />
-        <Bubble identity="CHISPA" name={t('avatars.chispa.name')} lines={[t('stationPrep.line2')]} />
-        <div style={{ marginTop: '1.2rem', display: 'flex', justifyContent: 'center', gap: '0.8rem' }}>
+        <div className="scene-dialog">
+          <Bubble identity="ALBA" name={t('avatars.alba.name')} lines={[t('stationPrep.line1')]} />
+          <Bubble identity="CHISPA" name={t('avatars.chispa.name')} lines={[t('stationPrep.line2')]} />
+        </div>
+        <div className="scene-actions">
           <button type="button" className="earth-action-btn" onClick={onContinue}>
             <span>{t('stationPrep.continue')}</span>
             <ArrowRight weight="bold" />
           </button>
         </div>
       </main>
-    </div>
+    </SceneScreen>
   );
 }
 
@@ -127,9 +127,8 @@ export function ConstructionProgressScreen({ destination, selectedModules, done,
   }, [phase]);
 
   return (
-    <div className="earth-screen" style={{ padding: '0.8rem 1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', maxWidth: '44rem' }}><LanguageSelector variant="hud" /></div>
-      <main className="earth-card build-card" style={{ maxWidth: '44rem', textAlign: 'center', padding: '1.4rem' }} aria-live="polite">
+    <SceneScreen background={destination === 'MOON' ? SCENE_BACKGROUNDS.moonBuilder : SCENE_BACKGROUNDS.marsBuilder}>
+      <main className="earth-card build-card" style={{ maxWidth: '44rem', textAlign: 'center' }} aria-live="polite">
         <span className="pixel-kicker">{t('construction.kicker')}</span>
         <h1 className="earth-card__title" style={{ justifyContent: 'center', fontSize: '1.5rem' }}>
           <Hammer color="#f6c15b" weight="fill" />
@@ -175,6 +174,6 @@ export function ConstructionProgressScreen({ destination, selectedModules, done,
           <FastForward weight="fill" />
         </button>
       </main>
-    </div>
+    </SceneScreen>
   );
 }

@@ -1,6 +1,7 @@
 import type { Destination, ExplorationResult } from '../../game';
 import { explorationScience } from '../../game';
 import { useI18n } from '../../i18n';
+import { SceneScreen, SCENE_BACKGROUNDS } from '../earth/screens/SceneScreen';
 import { formatMinutes } from './explorationEngine';
 import { findingImage, MARKERS, UI } from './explorationAssets';
 import { AssetImage } from './AssetImage';
@@ -30,7 +31,8 @@ export function ExplorationReport({ result, destination, clock, onContinue }: Ex
     { key: 'missionControl.shield', before: result.before.shield, after: result.after.shield },
   ];
 
-  return <main className="explore-report">
+  return <SceneScreen background={destination === 'MOON' ? SCENE_BACKGROUNDS.moon : SCENE_BACKGROUNDS.mars}>
+    <main className="explore-report earth-card">
     <div className="explore-report__box">
       <h1>{t('exploration.report.title', { clock })}</h1>
       <p>
@@ -106,5 +108,6 @@ export function ExplorationReport({ result, destination, clock, onContinue }: Ex
         {t('exploration.report.continue')}
       </button>
     </div>
-  </main>;
+    </main>
+  </SceneScreen>;
 }

@@ -3,7 +3,7 @@
    si ganó. La escena se encoge y el premio aparece abajo, siempre visible. */
 .training { display: flex; flex-direction: column; gap: .5rem; height: 100dvh; overflow: hidden; padding: .6rem 1rem .8rem; }
 .training__header { display: flex; flex: 0 0 auto; justify-content: space-between; align-items: center; }
-.training__main { display: grid; flex: 1 1 auto; grid-template-rows: minmax(0, 1fr) auto auto; gap: .6rem; width: 100%; max-width: 66rem; min-height: 0; margin: 0 auto; }
+.training__main { display: grid; flex: 1 1 auto; grid-template-rows: auto minmax(0, 1fr) auto auto; gap: .6rem; width: 100%; max-width: 66rem; min-height: 0; margin: 0 auto; }
 
 .training__scene {
   position: relative;
@@ -138,6 +138,22 @@
 .training__controls { flex: 0 0 auto; }
 .training__panel { max-height: 100%; overflow: visible; }
 
+/* La misión, siempre a la vista. El globo de Chispa se va; esto no. */
+.training__task {
+  display: flex; align-items: center; gap: .7rem;
+  margin: 0; padding: .5rem .9rem;
+  border: 3px solid #f6c15b; border-radius: .7rem;
+  background: rgba(12, 30, 59, .94);
+  color: #fff6e0; font-size: 1.15rem; line-height: 1.3;
+}
+.training__task img { flex: none; width: 2.4rem; height: 2.4rem; object-fit: contain; image-rendering: pixelated; }
+.training__task b { color: #f6c15b; text-transform: uppercase; letter-spacing: .04em; margin-right: .35rem; }
+@media (max-width: 640px) { .training__task { font-size: 1rem; } .training__task img { width: 1.9rem; height: 1.9rem; } }
+
+/* Mientras Chispa habla, la banda se encoge para no quedar debajo del globo. */
+@media (min-width: 820px) {
+  body[data-radio="on"] .training__task { padding-right: 23.5rem; transition: padding-right .2s ease; }
+}
 /* ---------- Guía y legibilidad (presentación) ---------- */
 .training__scene > svg, .training__scene > .chamber > svg { filter: saturate(.85) brightness(.88); }
 .chamber__seal { min-width: 9rem; padding: .6rem .8rem; }

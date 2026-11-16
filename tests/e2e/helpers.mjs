@@ -218,8 +218,13 @@ export const TRAININGS = {
     await page.click('.storm-finish');
   },
   // Común: usa los valores POWER de la ciudad (power.json) para decidir la reserva
+  // La reserva se pone tocando la batería de celdas: cada celda son 5 %.
+  // (Antes había además una perilla y un deslizador para el mismo número; se
+  // quitaron porque entre los cuatro controles no cabía el botón de confirmar.)
   CLOUDS_SUNS: async (page, { city, reserve } = {}) => {
-    await setDial(page, 'Energía que guardas', reserve ?? recommendedCloudsReserve(city));
+    const target = reserve ?? recommendedCloudsReserve(city);
+    const cell = Math.min(20, Math.max(1, Math.round(target / 5)));
+    await page.locator('.clouds-gauge__cell').nth(cell - 1).click();
     await page.click('.clouds-test');
     await page.click('.clouds-confirm');
   },

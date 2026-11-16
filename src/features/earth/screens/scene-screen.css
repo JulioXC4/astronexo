@@ -1,0 +1,115 @@
+/* Pantallas narrativas (preparación, obra, despegue, llegada, revisión, regreso, siguiente paso, aprende):
+   ilustración de fondo + paneles pixel art, como el constructor, el avatar y el briefing. */
+.scene-screen {
+  --emap-accent: #f6a23a;
+  --emap-cool: #4cc3d9;
+  --emap-ink: #f5f0da;
+  --emap-panel: rgba(8, 24, 42, .94);
+  --emap-edge: #4cc3d9;
+  --emap-gap: clamp(.5rem, 1.4vw, 1rem);
+  isolation: isolate;
+  padding: 4.6rem clamp(.8rem, 2vw, 1.5rem) 1.6rem;
+  background: #0b1a2c;
+}
+.scene-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: center / cover no-repeat;
+  filter: saturate(.9) brightness(.62);
+}
+.scene-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(2, 8, 19, .3), rgba(2, 8, 19, .72)); }
+
+/* ---------- Panel principal ---------- */
+.scene-screen .earth-card {
+  position: relative;
+  border: 2px solid var(--emap-edge);
+  border-radius: 0;
+  background: var(--emap-panel);
+  box-shadow: 4px 4px 0 rgba(2, 8, 19, .6);
+}
+.scene-screen .earth-card::before,
+.scene-screen .earth-card::after { content: ''; position: absolute; width: 10px; height: 10px; background: var(--emap-accent); pointer-events: none; }
+.scene-screen .earth-card::before { top: -2px; left: -2px; }
+.scene-screen .earth-card::after { right: -2px; bottom: -2px; }
+.scene-screen .earth-card__title { font-size: clamp(1.6rem, 3.2vw, 2.2rem); line-height: 1.1; }
+.scene-screen .earth-card__subtitle { color: #cfe6f7; font-size: 1.12rem; }
+.scene-screen a { color: #8fd8ff; text-underline-offset: .15rem; }
+.scene-screen a:hover { color: #fff; }
+
+/* ---------- Botones ---------- */
+.scene-screen .earth-action-btn {
+  border: 3px solid #ffe18c;
+  border-radius: .3rem;
+  box-shadow: 0 5px 0 #a65e21;
+  font-size: 1.2rem;
+}
+.scene-screen .earth-action-btn:hover:not(:disabled) { box-shadow: 0 6px 0 #a65e21; transform: translateY(-2px); }
+.scene-screen .earth-screen__back-btn {
+  border: 2px solid var(--emap-edge);
+  border-radius: 0;
+  background: rgba(8, 24, 42, .85);
+  box-shadow: 3px 3px 0 rgba(2, 8, 19, .55);
+}
+
+/* ---------- Cajas internas ---------- */
+.scene-box {
+  margin: 1rem 0;
+  padding: .9rem 1.1rem;
+  border: 2px solid #315b73;
+  border-radius: 0;
+  background: rgba(2, 8, 19, .55);
+  text-align: left;
+}
+.scene-box--hero { padding: 1.4rem 1.2rem; text-align: center; background: rgba(10, 29, 49, .72); }
+.scene-kicker { display: block; color: var(--emap-accent); font: 800 .9rem 'Nunito', sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+.scene-box h2, .scene-box h3 { margin: .2rem 0; font-family: 'Fredoka', sans-serif; color: #fff; }
+.scene-box p { margin: .35rem 0 0; color: #dcebf8; font-size: 1.02rem; line-height: 1.45; }
+.scene-box p.scene-note { color: #9fd8e5; font-size: .95rem; }
+.scene-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .7rem; margin-top: 1rem; text-align: left; }
+.scene-stat { padding: .6rem .8rem; border: 2px solid #315b73; background: rgba(2, 8, 19, .6); }
+.scene-stat > span { display: block; color: #9fd8e5; font: 800 .85rem 'Nunito', sans-serif; letter-spacing: .04em; text-transform: uppercase; }
+.scene-stat > strong { display: block; margin-top: .15rem; font: 700 1.2rem 'Fredoka', sans-serif; }
+.scene-stat--warm > strong { color: #ffb74d; }
+.scene-stat--cool > strong { color: #64b5f6; }
+.scene-stat--good > strong { color: #81c784; }
+.scene-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .8rem; margin-top: 1.4rem; }
+.scene-actions--end { justify-content: flex-end; }
+.scene-actions--between { justify-content: space-between; }
+.scene-list { margin: .6rem 0 0; padding-left: 1.25rem; color: #dcebf8; font-size: .95rem; line-height: 1.5; }
+
+/* ---------- Diálogo de personaje (misma pieza que el briefing y las consolas) ---------- */
+.scene-dialog { display: grid; gap: .7rem; margin: 1rem 0; text-align: left; }
+.scene-dialog__line { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); align-items: center; gap: .75rem; padding: .6rem .8rem; border: 2px solid var(--line-accent, #f6c15b); background: rgba(5, 15, 30, .96); }
+.scene-dialog__line--chispa { --line-accent: #f6c15b; }
+.scene-dialog__line--alba { --line-accent: #4ec3d9; }
+.scene-dialog__thumb { width: 3.4rem; height: 3.4rem; overflow: hidden; border: 2px solid var(--line-accent, #f6c15b); background: rgba(2, 8, 19, .7); }
+.scene-dialog__thumb > * { display: block; width: 100%; height: 100%; }
+.scene-dialog__thumb img { object-fit: cover; object-position: top; image-rendering: pixelated; }
+.scene-dialog__thumb .character-portrait img { object-fit: cover; object-position: top; }
+.scene-dialog__line strong { display: block; color: var(--line-accent, #f6c15b); font: 700 1.1rem 'Fredoka', sans-serif; }
+.scene-dialog__line p { margin: .1rem 0 0; color: #f0f6ff; font-size: 1.1rem; font-weight: 600; line-height: 1.4; }
+
+/* ---------- Despegue ---------- */
+.scene-screen .flight-scene { border: 2px solid #315b73; border-radius: 0; }
+
+/* ---------- Tarjetas de «siguiente paso» y temas de Aprende ---------- */
+.scene-card { display: block; width: 100%; padding: 1rem; border: 2px solid #315b73; border-radius: 0; background: rgba(10, 29, 49, .8); color: inherit; text-align: left; font: inherit; cursor: pointer; transition: border-color .12s steps(2), transform .12s steps(2); }
+.scene-card:hover { border-color: var(--emap-accent); transform: translate(-1px, -1px); }
+.scene-card:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.scene-card h3 { margin: 0 0 .3rem; font: 700 1.25rem 'Fredoka', sans-serif; color: #fff; }
+.scene-card p { margin: 0; color: #dcebf8; font-size: 1rem; line-height: 1.4; }
+.scene-card__cta { display: flex; align-items: center; gap: .35rem; margin-top: .7rem; color: var(--emap-accent); font: 800 .95rem 'Nunito', sans-serif; text-transform: uppercase; }
+.scene-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem; }
+.scene-topic { display: flex; align-items: flex-start; gap: 1.1rem; padding: 1.1rem; border: 2px solid #315b73; background: rgba(10, 29, 49, .8); }
+.scene-topic__icon { display: grid; flex: none; place-items: center; padding: .7rem; border: 2px solid #315b73; background: rgba(2, 8, 19, .55); }
+.scene-topic h2 { margin: 0; font: 700 1.3rem 'Fredoka', sans-serif; color: #fff; }
+.scene-topic__source { display: block; margin: .2rem 0 .5rem; color: #9fd8e5; font: 800 .9rem 'Nunito', sans-serif; }
+.scene-topic p { margin: 0; color: #dcebf8; font-size: 1rem; line-height: 1.5; }
+.scene-topic__link { display: inline-flex; align-items: center; gap: .3rem; color: var(--emap-accent); font-weight: 800; font-size: .95rem; text-decoration: none; }
+.scene-topic__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+
+@media (max-width: 640px) {
+  .scene-screen { padding-top: 5.2rem; }
+  .scene-topic { flex-direction: column; }
+}

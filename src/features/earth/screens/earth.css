@@ -785,7 +785,9 @@
   background: radial-gradient(circle at 50% 50%, #152438 0%, #080d15 100%);
   border: 2px solid #2e4d73;
   border-radius: 1.2rem;
-  min-height: 24rem;
+  /* En una pantalla de portátil 24rem fijos empujaban el botón de despegue
+     fuera de la vista. La escena se encoge; el botón nunca. */
+  min-height: clamp(8rem, 24vh, 24rem);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -793,7 +795,7 @@
   text-align: center;
   position: relative;
   overflow: hidden;
-  padding: 2rem;
+  padding: clamp(.8rem, 2.2vh, 2rem);
 }
 
 .flight-scene__stars {
