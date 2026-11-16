@@ -202,7 +202,7 @@ export function ExplorationCanvas({ destination, afterTurn, mode, battery, resou
     const playerSprite = new Image();
     playerSprite.src = getPlayerSkinForAvatarId(avatarId).path;
     // Los PNG se piden una sola vez (caché del módulo) y se reutilizan en cada cuadro.
-    const sprites = createSpriteSet(destination);
+    const sprites = createSpriteSet(destination, avatarId);
     let view: PlayerView = { facing: 'right', dir: 'down', moving: false };
 
     latest.current.radio.say({ text: latest.current.t('exploration.radio.opening'), once: 'explore.opening' });
