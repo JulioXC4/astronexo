@@ -519,6 +519,14 @@ export const qu = {
     },
   },
   welcome: {
+    // QU/NO use the English fallback until native linguistic validation.
+    trailer: {
+      message: 'EVERY CHILD HAS A SKY.',
+      subtitle: 'Your journey to the stars begins wherever you are.',
+      watch: 'Watch trailer',
+      play: 'Play trailer',
+      external: 'Watch on YouTube',
+    },
     title: 'Sullk\'a Wiraqucha (Astronauta Junior)',
     subtitle: 'Hanaq pachaykimanta wakin teqsimuyukunaman',
     playNow: 'Pukllay kunan',

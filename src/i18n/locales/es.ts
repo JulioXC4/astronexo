@@ -441,6 +441,14 @@ export const es = {
   },
 
   welcome: {
+    // QU/NO use the English fallback until native linguistic validation.
+    trailer: {
+      message: 'CADA NIÑO TIENE SU PROPIO CIELO.',
+      subtitle: 'Tu aventura hacia las estrellas comienza donde estés.',
+      watch: 'Ver tráiler',
+      play: 'Reproducir tráiler',
+      external: 'Ver en YouTube',
+    },
     title: 'Astronauta Junior',
     subtitle: 'De tu cielo a otros mundos',
     playNow: 'Jugar ahora',
