@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import { Play, X } from '@phosphor-icons/react';
+import { useEffect, useRef } from 'react';
+import { X } from '@phosphor-icons/react';
 import { useI18n } from '../../../i18n';
 import { welcomeTrailer } from './welcomeTrailer';
 
 export function TrailerDialog({ onClose }: { onClose: () => void }) {
   const { t } = useI18n();
   const dialog = useRef<HTMLDialogElement>(null);
-  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -26,13 +25,9 @@ export function TrailerDialog({ onClose }: { onClose: () => void }) {
         <button autoFocus type="button" onClick={onClose} aria-label={t('common.close')}><X aria-hidden="true" /></button>
       </header>
       <div className="welcome-trailer__screen">
-        {playing ? <iframe src={welcomeTrailer.embedUrl} title={t('welcome.trailer.watch')}
+        <iframe src={welcomeTrailer.embedUrl} title={t('welcome.trailer.watch')}
           allow="encrypted-media; fullscreen; picture-in-picture" allowFullScreen
           referrerPolicy="strict-origin-when-cross-origin" />
-          : <button type="button" className="welcome-trailer__preview" onClick={() => setPlaying(true)}>
-            <img src={welcomeTrailer.poster} alt="" />
-            <span><Play weight="fill" aria-hidden="true" />{t('welcome.trailer.play')}</span>
-          </button>}
       </div>
       <a href={welcomeTrailer.watchUrl} target="_blank" rel="noreferrer">{t('welcome.trailer.external')}</a>
     </div>
