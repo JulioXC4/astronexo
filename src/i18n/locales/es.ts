@@ -10,10 +10,15 @@ export const es = {
     example: 'Ejemplo',
     toWin: '¡Puedes ganarlas!',
     scenes: {
-      destination: { title: '¡Elige tu destino!', line: '¡Podrás viajar a la Luna o a Marte! ¡Tú eliges!' },
-      base: { title: '¡Diseña tu base!', line: '¡Diseña tu base con tres módulos! La construiremos mientras entrenas.' },
-      training: { title: '¡Entrena en la Tierra!', line: 'Entrena en Arequipa o Tromsø. ¡Completa tres misiones y gana herramientas!' },
-      space: { title: '¡Tu misión espacial!', line: '¡Cuida la energía, el oxígeno y el escudo! ¡Y descubre cosas nuevas!' },
+      opening: {
+        title: 'CADA NIÑO TIENE UN CIELO',
+        subtitle: 'De los Andes al Ártico',
+        line: 'No importa de dónde vengas. ¡Tú también puedes soñar con llegar al espacio!',
+      },
+      training: { title: 'La aventura comienza en tu hogar', line: 'Desde el lugar donde vives, descubrirás cómo el Sol influye en tu mundo y te prepararás para explorar el espacio con datos reales de la NASA.' },
+      destination: { title: '¡De tu cielo a otros mundos!', line: 'Lo que aprendas en la Tierra te ayudará a explorar la Luna o Marte.' },
+      base: { title: 'Cada elección cuenta', line: 'Si usas energía para comunicarte, tendrás menos para producir oxígeno. ¡Tú decides!' },
+      space: { title: 'Explorar es volver a intentarlo', line: 'Si algo sale mal, aprende y vuelve a intentarlo. ¡Así llegamos más lejos!' },
     },
     labels: {
       moon: 'Luna',
@@ -444,6 +449,7 @@ export const es = {
     title: 'Astronauta Junior',
     subtitle: 'De tu cielo a otros mundos',
     playNow: 'Jugar ahora',
+    trailer: { watch: 'Ver tráiler', openYouTube: 'Abrir en YouTube (nueva pestaña)' },
     stationMode: 'Modo Estación',
     scientificSources: 'Fuentes científicas',
     stationDialog: {

@@ -10,10 +10,15 @@ export const en = {
     example: 'Example',
     toWin: 'You can win them!',
     scenes: {
-      destination: { title: 'Choose your destination!', line: 'You can travel to the Moon or to Mars! You choose!' },
-      base: { title: 'Design your base!', line: 'Design your base with three modules! We will build it while you train.' },
-      training: { title: 'Train on Earth!', line: 'Train in Arequipa or Tromsø. Complete three missions and win tools!' },
-      space: { title: 'Your space mission!', line: 'Look after energy, oxygen and the shield! And discover new things!' },
+      opening: {
+        title: 'EVERY CHILD HAS A SKY',
+        subtitle: 'From the Andes to the Arctic',
+        line: 'Wherever you come from, you can dream of reaching space too!',
+      },
+      training: { title: 'The adventure starts at home', line: 'Discover how the Sun affects the place you live, and use real NASA data to get ready to explore space.' },
+      destination: { title: 'From your sky to other worlds!', line: 'What you learn on Earth will help you explore the Moon or Mars.' },
+      base: { title: 'Every choice counts', line: 'If you use energy to communicate, you’ll have less left to make oxygen. You decide!' },
+      space: { title: 'Explorers try again', line: 'If something goes wrong, learn from it and try again. That’s how we go farther!' },
     },
     labels: {
       moon: 'Moon',
@@ -444,6 +449,7 @@ export const en = {
     title: 'Junior Astronaut',
     subtitle: 'From your sky to other worlds',
     playNow: 'Play now',
+    trailer: { watch: 'Watch trailer', openYouTube: 'Open on YouTube (new tab)' },
     stationMode: 'Station Mode',
     scientificSources: 'Scientific sources',
     stationDialog: {

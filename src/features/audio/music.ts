@@ -23,9 +23,10 @@ import {
 
 const FADE_MS = 400;
 const FADE_STEP_MS = 40;
+let backgroundAudioPauses = 0;
 
 function canPlayNow(): boolean {
-  return isAudioUnlocked() && !isMuted() && !document.hidden;
+  return backgroundAudioPauses === 0 && isAudioUnlocked() && !isMuted() && !document.hidden;
 }
 
 /** Cambia el volumen de un elemento en pasos; un fundido nuevo cancela el anterior. */
@@ -86,7 +87,7 @@ class Channel {
   /** Reconcilia lo deseado con lo que realmente suena. */
   reconcile() {
     if (!canPlayNow()) {
-      for (const element of this.slots) element?.pause();
+      this.pause();
       return;
     }
     if (this.desiredUrl === this.loadedUrl) {
@@ -262,6 +263,19 @@ function reconcileAll() {
     if (canPlayNow()) { if (stinger.src && stinger.paused && !stinger.ended) void stinger.play().catch(() => undefined); }
     else stinger.pause();
   }
+}
+
+/** Pausa el fondo sin descargar las pistas ni cambiar la preferencia de sonido. */
+export function usePauseBackgroundAudio(paused: boolean) {
+  useEffect(() => {
+    if (!paused) return;
+    backgroundAudioPauses += 1;
+    reconcileAll();
+    return () => {
+      backgroundAudioPauses -= 1;
+      reconcileAll();
+    };
+  }, [paused]);
 }
 
 const CORE_SOUNDS: readonly SoundId[] = [
