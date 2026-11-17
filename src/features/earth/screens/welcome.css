@@ -218,25 +218,24 @@
 }
 
 .welcome__secondary {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(min-content, max-content));
   gap: 1rem;
-  flex-wrap: wrap;
+  width: max-content;
+  max-width: min(46rem, 56%);
+  margin-inline-start: auto;
 }
 
 .welcome__secondary-button {
-  min-width: 19rem;
   min-height: 4.8rem;
-  padding: .85rem 1.3rem;
+  padding: .85rem clamp(.55rem, 1vw, 1.3rem);
   border: 3px solid #62c1cc;
   border-radius: 1.1rem;
   background: #0b304b;
   color: #fff2d3;
   box-shadow: 0 .45rem 0 #071d35, 0 .6rem 1rem rgba(6, 26, 48, 0.5);
-  font-size: clamp(1.15rem, 1.7vw, 1.6rem);
-}
-
-.welcome__secondary-button:last-child {
-  min-width: 20rem;
+  font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+  white-space: normal;
 }
 
 .welcome__secondary-button svg {
@@ -266,6 +265,25 @@
   background: #173b55;
   color: #f6f1db;
   box-shadow: 0 1rem 3rem #061724;
+}
+
+.welcome__dialog--trailer { width: min(100%, 52rem); }
+
+.welcome__trailer-player {
+  display: block;
+  width: 100%;
+  min-height: 200px;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: .5rem;
+  background: #071c2b;
+}
+
+.welcome__trailer-link {
+  display: inline-block;
+  margin-top: .75rem;
+  color: #b9f4ff;
+  font-weight: 800;
 }
 
 .welcome__dialog-kicker {
@@ -342,9 +360,8 @@
   font-size: 1.05rem;
 }
 
-@media (min-width: 1001px) and (max-width: 1399px) {
-  .welcome__secondary { flex: 1; min-width: 0; }
-  .welcome__secondary-button, .welcome__secondary-button:last-child { min-width: 0; flex: 1; font-size: clamp(1.1rem, 1.5vw, 1.4rem); }
+@media (max-width: 1150px) {
+  .welcome__secondary-button { flex-direction: column; gap: .35rem; }
 }
 
 @media (max-width: 1000px) {
@@ -353,8 +370,7 @@
   .welcome__actions { align-items: stretch; flex-direction: column; }
   .welcome__identity { width: min(75vw, 35rem); margin-left: 0; }
   .welcome__play { width: min(100%, 36rem); }
-  .welcome__secondary { width: 100%; }
-  .welcome__secondary-button, .welcome__secondary-button:last-child { flex: 1; min-width: 0; }
+  .welcome__secondary { max-width: min(42rem, 100%); }
 }
 
 @media (max-width: 600px) {
@@ -369,9 +385,14 @@
   .welcome__play-icon { width: 2.7rem; height: 2.7rem; }
   .welcome__play-icon svg { width: 1.3rem; height: 1.3rem; }
   .welcome__secondary { gap: .55rem; }
-  .welcome__secondary-button { min-height: 4.2rem; padding: .55rem; border-width: 2px; border-radius: .9rem; font-size: clamp(.88rem, 3.1vw, 1.1rem); white-space: normal; }
+  .welcome__secondary-button { min-height: 4.2rem; padding: .55rem .3rem; border-width: 2px; border-radius: .9rem; font-size: clamp(.82rem, 3.1vw, 1.1rem); }
   .welcome__secondary-button svg { width: 1.5rem; height: 1.5rem; }
   .welcome__dialog { padding: 1.5rem; }
+}
+
+@media (max-width: 360px) {
+  .welcome__secondary { gap: .35rem; }
+  .welcome__secondary-button { font-size: .77rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

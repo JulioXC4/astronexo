@@ -19,10 +19,15 @@ export const no = {
     example: 'Eksempel',
     toWin: 'Du kan vinne dem!',
     scenes: {
-      destination: { title: 'Velg reisemål!', line: 'Du kan reise til Månen eller til Mars! Du bestemmer!' },
-      base: { title: 'Design basen din!', line: 'Design basen din med tre moduler! Vi bygger den mens du trener.' },
-      training: { title: 'Tren på jorda!', line: 'Tren i Arequipa eller Tromsø. Fullfør tre oppdrag og vinn verktøy!' },
-      space: { title: 'Romoppdraget ditt!', line: 'Pass på energi, oksygen og skjold! Og oppdag nye ting!' },
+      opening: {
+        title: 'HVERT BARN HAR EN HIMMEL',
+        subtitle: 'Fra Andesfjellene til Arktis',
+        line: 'Uansett hvor du kommer fra, kan du også drømme om å reise ut i verdensrommet!',
+      },
+      destination: { title: 'Fra himmelen din til andre verdener!', line: 'Det du lærer på jorda, vil hjelpe deg med å utforske Månen eller Mars.' },
+      training: { title: 'Eventyret begynner hjemme', line: 'Oppdag hvordan sola påvirker stedet der du bor, og bruk ekte NASA-data til å forberede deg på å utforske verdensrommet.' },
+      base: { title: 'Hvert valg teller', line: 'Hvis du bruker energi på å kommunisere, har du mindre energi igjen til å lage oksygen. Du bestemmer!' },
+      space: { title: 'Å utforske er å prøve igjen', line: 'Hvis noe går galt, kan du lære av det og prøve igjen. Slik kommer vi lenger!' },
     },
     labels: {
       moon: 'Månen',
@@ -529,6 +534,7 @@ export const no = {
     title: 'Juniorastronaut',
     subtitle: 'Fra din himmel til andre verdener',
     playNow: 'Spill nå',
+    trailer: { watch: 'Se traileren', openYouTube: 'Åpne på YouTube (ny fane)' },
     stationMode: 'Klasseromsmodus',
     scientificSources: 'Vitenskapelige kilder',
     stationDialog: {

@@ -8,8 +8,7 @@ import './mission-intro.css';
 import { CHARACTER_SPRITES } from '../../assets/characterSprites';
 
 /**
- * Minicinemática ilustrada que cuenta, en cuatro escenas y en el orden real del juego,
- * qué hará el cadete: elegir destino → diseñar la base → entrenar en la Tierra → misión espacial.
+ * Minicinemática ilustrada con una apertura breve y cuatro escenas de avance manual.
  *
  * Es solo narrativa: no recibe ni modifica el estado de la misión. El niño avanza a su ritmo
  * («Siguiente»), puede saltarla en cualquier momento y al terminar se llama `onFinish` una sola vez.
@@ -17,31 +16,36 @@ import { CHARACTER_SPRITES } from '../../assets/characterSprites';
 
 const INTRO = '/assets/intro';
 
-type SceneId = 'destination' | 'base' | 'training' | 'space';
+type SceneId = 'opening' | 'destination' | 'base' | 'training' | 'space';
 
 interface SceneDef {
   readonly id: SceneId;
-  readonly speaker: PortraitIdentity;
-  readonly name: string;
+  readonly speaker?: { readonly identity: PortraitIdentity; readonly name: string };
   /** Imágenes de la escena, para precargar la siguiente mientras se lee la actual. */
   readonly images: readonly string[];
 }
 
+const OPENING_SPRITES = [`${INTRO}/andino_observando.webp`, `${INTRO}/artico_observando.webp`];
+
 const SCENES: readonly SceneDef[] = [
   {
-    id: 'destination', speaker: 'CHISPA', name: 'Chispa',
+    id: 'opening',
+    images: [`${INTRO}/every-child-has-a-sky.webp`, ...OPENING_SPRITES],
+  },
+  {
+    id: 'training', speaker: { identity: 'AURORA', name: 'Aurora' },
+    images: [`${INTRO}/earth-training-split.webp`, `${INTRO}/badge-arequipa.webp`, `${INTRO}/radio-outpost-tromso.webp`, `${INTRO}/tool-scanner-pickaxe.webp`, `${INTRO}/tool-energy-cell.webp`, `${INTRO}/rocket.webp`],
+  },
+  {
+    id: 'destination', speaker: { identity: 'CHISPA', name: 'Chispa' },
     images: ['/assets/scenes/destinations/moon.webp', `${INTRO}/planet-moon.webp`, `${INTRO}/planet-mars.webp`, `${INTRO}/rocket.webp`, `${INTRO}/starry-route.webp`],
   },
   {
-    id: 'base', speaker: 'NICO', name: 'Nico',
+    id: 'base', speaker: { identity: 'NICO', name: 'Nico' },
     images: ['/assets/space/backgrounds/moon-base-builder.webp', `${INTRO}/builder-hologram.webp`, `${INTRO}/base-preview-moon.webp`, `${INTRO}/base-preview-mars.webp`],
   },
   {
-    id: 'training', speaker: 'AURORA', name: 'Aurora',
-    images: [`${INTRO}/earth-training-split.webp`, `${INTRO}/badge-arequipa.webp`, `${INTRO}/radio-outpost-tromso.webp`, `${INTRO}/tool-scanner-pickaxe.webp`, `${INTRO}/tool-energy-cell.webp`],
-  },
-  {
-    id: 'space', speaker: 'ALBA', name: 'Alba',
+    id: 'space', speaker: { identity: 'ALBA', name: 'Alba' },
     images: ['/assets/space/backgrounds/moon-control.webp', '/assets/space/backgrounds/mars-control.webp', '/assets/space/ui/alert-frame.webp', `${INTRO}/mission-badge.webp`],
   },
 ];
@@ -55,7 +59,8 @@ export function preloadIntroScene(index = 0) {
   if (typeof window === 'undefined') return;
   const scene = SCENES[index];
   if (!scene) return;
-  for (const src of [...scene.images, SPRITES[scene.speaker]]) {
+  const images = scene.speaker ? [...scene.images, SPRITES[scene.speaker.identity]] : scene.images;
+  for (const src of images) {
     if (preloaded.has(src)) continue;
     preloaded.add(src);
     const image = new Image();
@@ -90,6 +95,8 @@ export function MissionIntro({ onFinish }: MissionIntroProps) {
   const finishedRef = useRef(false);
   const primaryRef = useRef<HTMLButtonElement>(null);
   const scene = SCENES[index];
+  const { speaker } = scene;
+  const isOpening = scene.id === 'opening';
   const isLast = index === SCENES.length - 1;
 
   useEffect(() => {
@@ -111,10 +118,11 @@ export function MissionIntro({ onFinish }: MissionIntroProps) {
     if (finishedRef.current) return;
     if (isLast) { finish('dialogueNext'); return; }
     playSound('dialogueNext');
-    setIndex((value) => Math.min(value + 1, SCENES.length - 1));
+    setIndex(index + 1);
   }
 
   const title = t(`intro.scenes.${scene.id}.title`);
+  const line = t(`intro.scenes.${scene.id}.line`);
 
   return <section
     className={`mission-intro mission-intro--${scene.id}`}
@@ -144,13 +152,14 @@ export function MissionIntro({ onFinish }: MissionIntroProps) {
     </div>
 
     <div className="mission-intro__dialog" key={`dialog-${scene.id}`}>
-      <div className="mission-intro__speaker">
-        <CharacterPortrait identity={scene.speaker} source={SPRITES[scene.speaker]} label={scene.name} kind={scene.speaker === 'CHISPA' ? 'robot' : 'cadet'} />
-      </div>
+      {speaker && <div className="mission-intro__speaker">
+        <CharacterPortrait identity={speaker.identity} source={SPRITES[speaker.identity]} label={speaker.name} kind={speaker.identity === 'CHISPA' ? 'robot' : 'cadet'} />
+      </div>}
       <div className="mission-intro__bubble">
-        <p className="mission-intro__name">{scene.name}</p>
+        {speaker && <p className="mission-intro__name">{speaker.name}</p>}
         <h2 className="mission-intro__title">{title}</h2>
-        <p className="mission-intro__line">«{t(`intro.scenes.${scene.id}.line`)}»</p>
+        {isOpening && <p className="mission-intro__subtitle">{t('intro.scenes.opening.subtitle')}</p>}
+        <p className="mission-intro__line">{speaker ? `«${line}»` : line}</p>
       </div>
       <button
         ref={primaryRef}
@@ -170,6 +179,13 @@ export function MissionIntro({ onFinish }: MissionIntroProps) {
 function SceneArt({ id }: { readonly id: SceneId }) {
   const { t } = useI18n();
   switch (id) {
+    case 'opening':
+      return <div className="mi-opening">
+        {OPENING_SPRITES.map((src) => <div className="mi-opening__child" key={src}>
+          <img src={src} alt="" decoding="async" />
+        </div>)}
+      </div>;
+
     case 'destination':
       return <div className="mi-route">
         <img className="mi-route__path" src={`${INTRO}/starry-route.webp`} alt="" decoding="async" />
