@@ -7,6 +7,7 @@ import { useScreenRadio } from '../../radio';
 import { TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
 import { PixelSceneAnimator } from '../components/PixelSceneAnimator';
 import { landingScene } from '../scenes/pixelScenes';
+import { TrailerDialog } from './TrailerDialog';
 import './welcome.css';
 
 type WelcomePanel = 'STATION' | 'SOURCES' | null;
@@ -22,6 +23,8 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
   // Sin saludo por radio en la portada: la introducción ilustrada ya presenta el juego justo
   // después de «Jugar ahora» (el globo de Alba era redundante). Solo se vacía la radio anterior.
   useScreenRadio([]);
+  const [trailerOpen, setTrailerOpen] = useState(false);
+  const trailerTrigger = useRef<HTMLButtonElement>(null);
   const [panel, setPanel] = useState<WelcomePanel>(null);
   const [logoFailedFor, setLogoFailedFor] = useState<SupportedLanguage | null>(null);
   const [welcomeTutorialOpen, setWelcomeTutorialOpen] = useState(false);
@@ -136,10 +139,17 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
         <p className={!logoFailed ? 'welcome__sr-only' : undefined}>{t('welcome.subtitle')}</p>
       </div>
 
+      <div className="welcome__message">
+        <h2>{t('welcome.trailer.message')}</h2>
+        <p>{t('welcome.trailer.subtitle')}</p>
+      </div>
       <div className="welcome__actions">
         <button className="welcome__play" type="button" onClick={beginSolo}>
           <span className="welcome__play-icon" aria-hidden="true"><Play weight="fill" /></span>
           <span>{t('welcome.playNow')}</span>
+        </button>
+        <button ref={trailerTrigger} className="welcome__trailer-button" type="button" aria-haspopup="dialog" onClick={() => setTrailerOpen(true)}>
+          <Play aria-hidden="true" weight="fill" />{t('welcome.trailer.watch')}
         </button>
         <div className="welcome__secondary">
           <button className="welcome__secondary-button" type="button" aria-haspopup="dialog" onClick={(event) => openPanel('STATION', event.currentTarget)}>
@@ -154,6 +164,10 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
       </div>
     </div>
 
+    {trailerOpen && <TrailerDialog onClose={() => {
+      setTrailerOpen(false);
+      requestAnimationFrame(() => trailerTrigger.current?.focus());
+    }} />}
     <TutorialHelpButton className="tutorial-help-button--welcome" onClick={() => setWelcomeTutorialOpen(true)} />
 
     {panel && <div className="welcome__veil" onMouseDown={(event) => { if (event.target === event.currentTarget) closePanel(); }}>
