@@ -446,14 +446,6 @@ export const en = {
   },
 
   welcome: {
-    // QU/NO use the English fallback until native linguistic validation.
-    trailer: {
-      message: 'EVERY CHILD HAS A SKY.',
-      subtitle: 'Your journey to the stars begins wherever you are.',
-      watch: 'Watch trailer',
-      play: 'Play trailer',
-      external: 'Watch on YouTube',
-    },
     title: 'Junior Astronaut',
     subtitle: 'From your sky to other worlds',
     playNow: 'Play now',

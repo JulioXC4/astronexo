@@ -76,7 +76,7 @@ async function welcomeTrailer(browser) {
       const track = window.welcomeMusic();
       return track && !track.paused && track.currentTime > 0.2 && track;
     }, null, { timeout: 8000 });
-    if (await page.locator('.welcome__trailer-player').count()) throw new Error('El video se monta antes de pulsar «Ver tráiler».');
+    if (await page.locator('.welcome-trailer iframe').count()) throw new Error('El video se monta antes de pulsar «Ver tráiler».');
     await trigger.click();
     await dialog.locator('iframe').contentFrame().getByText('Video unavailable').waitFor();
     await page.waitForFunction((track) => track.paused, music, { timeout: 3000 });

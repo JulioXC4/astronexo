@@ -12,8 +12,6 @@ import './welcome.css';
 
 type WelcomePanel = 'STATION' | 'SOURCES' | 'TRAILER' | null;
 
-const TRAILER_ID = '9l9FvGKSMEo';
-
 interface WelcomeScreenProps {
   readonly onPlay: () => void;
   readonly onOpenStation?: () => void;
@@ -25,8 +23,6 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
   // Sin saludo por radio en la portada: la introducción ilustrada ya presenta el juego justo
   // después de «Jugar ahora» (el globo de Alba era redundante). Solo se vacía la radio anterior.
   useScreenRadio([]);
-  const [trailerOpen, setTrailerOpen] = useState(false);
-  const trailerTrigger = useRef<HTMLButtonElement>(null);
   const [panel, setPanel] = useState<WelcomePanel>(null);
   const trailerOpen = panel === 'TRAILER';
   usePauseBackgroundAudio(trailerOpen);
@@ -43,12 +39,12 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
   ] as const;
 
   useEffect(() => {
-    if (!panel) return;
+    if (!panel || panel === 'TRAILER') return;
     closeButton.current?.focus();
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') closePanel();
       if (event.key === 'Tab') {
-        const controls = dialogRef.current?.querySelectorAll<HTMLElement>('button, a[href], iframe');
+        const controls = dialogRef.current?.querySelectorAll<HTMLElement>('button, a[href]');
         if (!controls?.length) return;
         const first = controls[0];
         const last = controls[controls.length - 1];
@@ -143,17 +139,10 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
         <p className={!logoFailed ? 'welcome__sr-only' : undefined}>{t('welcome.subtitle')}</p>
       </div>
 
-      <div className="welcome__message">
-        <h2>{t('welcome.trailer.message')}</h2>
-        <p>{t('welcome.trailer.subtitle')}</p>
-      </div>
       <div className="welcome__actions">
         <button className="welcome__play" type="button" onClick={beginSolo}>
           <span className="welcome__play-icon" aria-hidden="true"><Play weight="fill" /></span>
           <span>{t('welcome.playNow')}</span>
-        </button>
-        <button ref={trailerTrigger} className="welcome__trailer-button" type="button" aria-haspopup="dialog" onClick={() => setTrailerOpen(true)}>
-          <Play aria-hidden="true" weight="fill" />{t('welcome.trailer.watch')}
         </button>
         <div className="welcome__secondary">
           <button className="welcome__secondary-button" type="button" aria-haspopup="dialog" onClick={(event) => openPanel('STATION', event.currentTarget)}>
@@ -172,28 +161,13 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
       </div>
     </div>
 
-    {trailerOpen && <TrailerDialog onClose={() => {
-      setTrailerOpen(false);
-      requestAnimationFrame(() => trailerTrigger.current?.focus());
-    }} />}
+    {trailerOpen && <TrailerDialog onClose={closePanel} />}
     <TutorialHelpButton className="tutorial-help-button--welcome" onClick={() => setWelcomeTutorialOpen(true)} />
 
-    {panel && <div className="welcome__veil" data-silent={trailerOpen ? true : undefined} onMouseDown={(event) => { if (event.target === event.currentTarget) closePanel(); }}>
-      <section className={`welcome__dialog${trailerOpen ? ' welcome__dialog--trailer' : ''}`} role="dialog" aria-modal="true" aria-labelledby="welcome-dialog-title" ref={dialogRef}>
+    {panel && !trailerOpen && <div className="welcome__veil" onMouseDown={(event) => { if (event.target === event.currentTarget) closePanel(); }}>
+      <section className="welcome__dialog" role="dialog" aria-modal="true" aria-labelledby="welcome-dialog-title" ref={dialogRef}>
         <button className="welcome__close" type="button" aria-label={t('common.close')} onClick={closePanel} ref={closeButton}><X aria-hidden="true" /></button>
-        {trailerOpen ? <>
-          <h2 id="welcome-dialog-title">{t('welcome.trailer.watch')}</h2>
-          <iframe
-            className="welcome__trailer-player"
-            src={`https://www.youtube-nocookie.com/embed/${TRAILER_ID}?autoplay=0&playsinline=1`}
-            title={t('welcome.trailer.watch')}
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          />
-          <a className="welcome__trailer-link" href={`https://youtu.be/${TRAILER_ID}`} target="_blank" rel="noopener noreferrer">
-            {t('welcome.trailer.openYouTube')}
-          </a>
-        </> : panel === 'STATION' ? <>
+        {panel === 'STATION' ? <>
           <p className="welcome__dialog-kicker">{t('welcome.stationDialog.kicker')}</p>
           <h2 id="welcome-dialog-title">{t('welcome.stationDialog.title')}</h2>
           <p>{t('welcome.stationDialog.desc')}</p>
