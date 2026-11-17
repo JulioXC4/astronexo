@@ -16,7 +16,7 @@ export function TrailerDialog({ onClose }: { onClose: () => void }) {
     };
   }, []);
 
-  return <dialog ref={dialog} className="welcome-trailer" aria-labelledby="trailer-title"
+  return <dialog ref={dialog} className="welcome-trailer" data-silent aria-labelledby="trailer-title"
     onCancel={(event) => { event.preventDefault(); onClose(); }}
     onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <div className="welcome-trailer__surface">
@@ -29,7 +29,7 @@ export function TrailerDialog({ onClose }: { onClose: () => void }) {
           allow="encrypted-media; fullscreen; picture-in-picture" allowFullScreen
           referrerPolicy="strict-origin-when-cross-origin" />
       </div>
-      <a href={welcomeTrailer.watchUrl} target="_blank" rel="noreferrer">{t('welcome.trailer.external')}</a>
+      <a href={welcomeTrailer.watchUrl} target="_blank" rel="noreferrer">{t('welcome.trailer.openYouTube')}</a>
     </div>
   </dialog>;
 }

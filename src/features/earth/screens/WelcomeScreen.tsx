@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BookOpen, Broadcast, Play, X } from '@phosphor-icons/react';
+import { BookOpen, Broadcast, Play, VideoCamera, X } from '@phosphor-icons/react';
 import { welcomeLogos } from '../../../assets/welcomeArtwork';
 import { useI18n, LanguageSelector, type SupportedLanguage } from '../../../i18n';
-import { SoundToggle, playSound } from '../../audio';
+import { SoundToggle, playSound, usePauseBackgroundAudio } from '../../audio';
 import { useScreenRadio } from '../../radio';
 import { TutorialCoachMark, TutorialHelpButton } from '../../tutorial';
 import { PixelSceneAnimator } from '../components/PixelSceneAnimator';
@@ -10,7 +10,7 @@ import { landingScene } from '../scenes/pixelScenes';
 import { TrailerDialog } from './TrailerDialog';
 import './welcome.css';
 
-type WelcomePanel = 'STATION' | 'SOURCES' | null;
+type WelcomePanel = 'STATION' | 'SOURCES' | 'TRAILER' | null;
 
 interface WelcomeScreenProps {
   readonly onPlay: () => void;
@@ -23,9 +23,9 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
   // Sin saludo por radio en la portada: la introducción ilustrada ya presenta el juego justo
   // después de «Jugar ahora» (el globo de Alba era redundante). Solo se vacía la radio anterior.
   useScreenRadio([]);
-  const [trailerOpen, setTrailerOpen] = useState(false);
-  const trailerTrigger = useRef<HTMLButtonElement>(null);
   const [panel, setPanel] = useState<WelcomePanel>(null);
+  const trailerOpen = panel === 'TRAILER';
+  usePauseBackgroundAudio(trailerOpen);
   const [logoFailedFor, setLogoFailedFor] = useState<SupportedLanguage | null>(null);
   const [welcomeTutorialOpen, setWelcomeTutorialOpen] = useState(false);
   const closeButton = useRef<HTMLButtonElement>(null);
@@ -39,7 +39,7 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
   ] as const;
 
   useEffect(() => {
-    if (!panel) return;
+    if (!panel || panel === 'TRAILER') return;
     closeButton.current?.focus();
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') closePanel();
@@ -66,12 +66,12 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
 
   function openPanel(value: Exclude<WelcomePanel, null>, trigger: HTMLButtonElement) {
     lastTrigger.current = trigger;
-    playSound('panelOpen');
+    if (value !== 'TRAILER') playSound('panelOpen');
     setPanel(value);
   }
 
   function closePanel() {
-    playSound('panelClose');
+    if (!trailerOpen) playSound('panelClose');
     setPanel(null);
     requestAnimationFrame(() => lastTrigger.current?.focus());
   }
@@ -139,22 +139,19 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
         <p className={!logoFailed ? 'welcome__sr-only' : undefined}>{t('welcome.subtitle')}</p>
       </div>
 
-      <div className="welcome__message">
-        <h2>{t('welcome.trailer.message')}</h2>
-        <p>{t('welcome.trailer.subtitle')}</p>
-      </div>
       <div className="welcome__actions">
         <button className="welcome__play" type="button" onClick={beginSolo}>
           <span className="welcome__play-icon" aria-hidden="true"><Play weight="fill" /></span>
           <span>{t('welcome.playNow')}</span>
         </button>
-        <button ref={trailerTrigger} className="welcome__trailer-button" type="button" aria-haspopup="dialog" onClick={() => setTrailerOpen(true)}>
-          <Play aria-hidden="true" weight="fill" />{t('welcome.trailer.watch')}
-        </button>
         <div className="welcome__secondary">
           <button className="welcome__secondary-button" type="button" aria-haspopup="dialog" onClick={(event) => openPanel('STATION', event.currentTarget)}>
             <Broadcast aria-hidden="true" weight="duotone" />
             <span>{t('welcome.stationMode')}</span>
+          </button>
+          <button className="welcome__secondary-button" type="button" aria-haspopup="dialog" data-silent onClick={(event) => openPanel('TRAILER', event.currentTarget)}>
+            <VideoCamera aria-hidden="true" weight="duotone" />
+            <span>{t('welcome.trailer.watch')}</span>
           </button>
           <button className="welcome__secondary-button" type="button" aria-haspopup="dialog" onClick={(event) => openPanel('SOURCES', event.currentTarget)}>
             <BookOpen aria-hidden="true" weight="duotone" />
@@ -164,13 +161,10 @@ export function WelcomeScreen({ onPlay, onOpenStation, onOpenLearn }: WelcomeScr
       </div>
     </div>
 
-    {trailerOpen && <TrailerDialog onClose={() => {
-      setTrailerOpen(false);
-      requestAnimationFrame(() => trailerTrigger.current?.focus());
-    }} />}
+    {trailerOpen && <TrailerDialog onClose={closePanel} />}
     <TutorialHelpButton className="tutorial-help-button--welcome" onClick={() => setWelcomeTutorialOpen(true)} />
 
-    {panel && <div className="welcome__veil" onMouseDown={(event) => { if (event.target === event.currentTarget) closePanel(); }}>
+    {panel && !trailerOpen && <div className="welcome__veil" onMouseDown={(event) => { if (event.target === event.currentTarget) closePanel(); }}>
       <section className="welcome__dialog" role="dialog" aria-modal="true" aria-labelledby="welcome-dialog-title" ref={dialogRef}>
         <button className="welcome__close" type="button" aria-label={t('common.close')} onClick={closePanel} ref={closeButton}><X aria-hidden="true" /></button>
         {panel === 'STATION' ? <>

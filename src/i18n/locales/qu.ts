@@ -20,10 +20,27 @@ export const qu = {
     example: 'Rikch\'ay',
     toWin: '¡Atipayta atinki!',
     scenes: {
-      destination: { title: '¡Mayman rinaykita akllay!', line: '¡Killaman utaq Atipaqman riyta atinki! ¡Qammi akllanki!' },
-      base: { title: '¡Wasiykita ruray!', line: '¡Kimsa t\'aqawan wasiykita ruray! Yachachikuqtiyki hatarichisaqku.' },
-      training: { title: '¡Pachamamapi yachachikuy!', line: 'Arequipapi utaq Tromsøpi yachachikuy. ¡Kimsa misionta tukuy, llamk\'anakunatataq atipay!' },
-      space: { title: '¡Hanaq pacha misionniyki!', line: '¡Kallpata, samanata, amachanatapas qhawariy! ¡Musuq kaqkunatapas tariy!' },
+      opening: {
+        title: 'SAPANKA WAWAPA HANAQ PACHAN KAN',
+        subtitle: 'Andes urqukunamanta Arktikukama',
+        line: 'Maymantapas hamuspayki, qampas hanaq pachaman chayanaykita musquyta atinki.',
+      },
+      training: {
+        title: 'Puririyniyki wasiykipim qallarin',
+        line: "Tiyasqaykipi Inti imaynatas kawsayniykita tikran chayta yachanki. NASApa chiqap willayninkunawan hanaq pachata riqsinaykipaq wakichikunki.",
+      },
+      destination: {
+        title: '¡Hanaq pachaykimanta huk pachakunaman!',
+        line: 'Kay Pachapi yachasqaykiqa Killata utaq Atipaqta riqsinaykipaq yanapasunki.',
+      },
+      base: {
+        title: 'Sapa akllayqa chaninniyuqmi',
+        line: "Willanakunaykipaq kallpata llamk'achispaqa, samanapaq wayrata ruwanaykipaq pisi kallpallam qipanqa. ¡Qammi akllanki!",
+      },
+      space: {
+        title: 'Riqsiyqa yapamanta yantaymi',
+        line: 'Mana allin lluqsinchu chayqa, chaymanta yachay, yapamantataq yantay. ¡Chaynapi aswan karuman chayanchik!',
+      },
     },
     labels: {
       moon: 'Killa',
@@ -519,17 +536,10 @@ export const qu = {
     },
   },
   welcome: {
-    // QU/NO use the English fallback until native linguistic validation.
-    trailer: {
-      message: 'EVERY CHILD HAS A SKY.',
-      subtitle: 'Your journey to the stars begins wherever you are.',
-      watch: 'Watch trailer',
-      play: 'Play trailer',
-      external: 'Watch on YouTube',
-    },
     title: 'Sullk\'a Wiraqucha (Astronauta Junior)',
     subtitle: 'Hanaq pachaykimanta wakin teqsimuyukunaman',
     playNow: 'Pukllay kunan',
+    trailer: { watch: 'Tráilerta qhaway', openYouTube: 'YouTubepi kichay (musuq pestañapi)' },
     stationMode: 'Yachay Wasi Pukllay (Modo Estación)',
     scientificSources: 'Hamut\'ay pukyunkuna (Fuentes científicas)',
     stationDialog: {

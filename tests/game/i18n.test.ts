@@ -209,6 +209,22 @@ describe('Sistema de Internacionalización (i18n) v3.0', () => {
     expect(failures).toEqual([]);
   });
 
+  it('localiza los textos de la introducción y del tráiler en los cuatro idiomas', () => {
+    const keys = [
+      'welcome.trailer.watch',
+      'welcome.trailer.openYouTube',
+      'intro.scenes.opening.subtitle',
+      ...Object.keys(en.intro.scenes).flatMap((scene) => [
+        `intro.scenes.${scene}.title`,
+        `intro.scenes.${scene}.line`,
+      ]),
+    ];
+    for (const key of keys) {
+      const values = SUPPORTED_LANGUAGES.map(({ code }) => translate(code, key));
+      expect(new Set(values).size, key).toBe(SUPPORTED_LANGUAGES.length);
+    }
+  });
+
   it('nunca devuelve claves crudas ni placeholders sin resolver', () => {
     const warning = vi.spyOn(console, 'warn').mockImplementation(() => {});
     expect(translate('en', 'test.missing.translation')).toBe('Text unavailable');

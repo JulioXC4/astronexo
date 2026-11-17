@@ -1,6 +1,6 @@
 # Additional welcome trailer
 
-The configured trailer is https://youtu.be/FnErC0S9F2k (`welcomeTrailer.ts`). It does not replace recruitment cinematics. The YouTube player is mounted only when Watch trailer opens the modal. Its native thumbnail is the only preview; playback still requires the viewer to press Play. Closing unmounts the iframe. Native dialog provides modal background isolation and keyboard navigation.
+The configured trailer is https://youtu.be/9l9FvGKSMEo (`welcomeTrailer.ts`). It does not replace recruitment cinematics. The YouTube player is mounted only when Watch trailer opens the modal. Its native thumbnail is the only preview; playback still requires the viewer to press Play. Closing unmounts the iframe. Native dialog provides modal background isolation and keyboard navigation.
 
 English and Spanish messages use the supplied copy. Quechua and Norwegian explicitly use English pending native linguistic validation.
 
